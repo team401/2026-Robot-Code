@@ -1,3 +1,10 @@
+// Copyright (c) 2021-2026 Littleton Robotics
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by a BSD
+// license that can be found in the LICENSE file
+// at the root directory of this project.
+
 package frc.robot.generated;
 
 import static edu.wpi.first.units.Units.*;
@@ -18,7 +25,8 @@ import edu.wpi.first.units.measure.*;
 public class TunerConstants {
   // Both sets of gains need to be tuned to your individual robot.
 
-  // The steer motor uses any SwerveModule.SteerRequestType control request with the
+  // The steer motor uses any SwerveModule.SteerRequestType control request with
+  // the
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   private static final Slot0Configs steerGains =
       new Slot0Configs()
@@ -49,21 +57,25 @@ public class TunerConstants {
       SteerMotorArrangement.TalonFX_Integrated;
 
   // The remote sensor feedback type to use for the steer motors;
-  // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to RemoteCANcoder
+  // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to
+  // RemoteCANcoder
   private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.FusedCANcoder;
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
   private static final Current kSlipCurrent = Amps.of(120.0);
 
-  // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
-  // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
+  // Initial configs for the drive and steer motors and the azimuth encoder; these
+  // cannot be null.
+  // Some configs will be overwritten; check the `with*InitialConfigs()` API
+  // documentation.
   private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
   private static final TalonFXConfiguration steerInitialConfigs =
       new TalonFXConfiguration()
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  // Swerve azimuth does not require much torque output, so we can set a relatively
+                  // Swerve azimuth does not require much torque output, so we can set a
+                  // relatively
                   // low
                   // stator current limit to help avoid brownouts without impacting performance.
                   .withStatorCurrentLimit(Amps.of(60))
@@ -233,10 +245,10 @@ public class TunerConstants {
    * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot
    * program,.
    */
-  //   public static CommandSwerveDrivetrain createDrivetrain() {
-  //     return new CommandSwerveDrivetrain(
-  //         DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight);
-  //   }
+  // public static CommandSwerveDrivetrain createDrivetrain() {
+  // return new CommandSwerveDrivetrain(
+  // DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight);
+  // }
 
   /** Swerve Drive class utilizing CTR Electronics' Phoenix 6 API with the selected device types. */
   public static class TunerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
