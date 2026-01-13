@@ -1,0 +1,8 @@
+{
+  "selectedEnvironmentName": "comp",
+  "defaultEnvironmentName": "comp",
+  "environments": {
+    "comp": {},
+    "normal": {}
+  }
+}
