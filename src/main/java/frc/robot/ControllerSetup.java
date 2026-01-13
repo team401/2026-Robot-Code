@@ -56,6 +56,9 @@ public class ControllerSetup {
     Supplier<Double> xAxis = () -> -getAxis("driveX").get();
     Supplier<Double> yAxis = () -> -getAxis("driveY").get();
     var rotationAxis = getAxis("driveRotation");
+    /* By making DriveWithJoysticks the default command for the drive subsystem,
+     * we ensure that it is run iff no other Command that uses the drive subsystem
+     * is activated. */
     drive.setDefaultCommand(
         new DriveWithJoysticks(
             drive,
