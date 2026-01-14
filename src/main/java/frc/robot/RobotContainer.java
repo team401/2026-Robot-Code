@@ -11,11 +11,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -43,6 +43,12 @@ public class RobotContainer {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
       drive = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runTurret) {
+      turret = InitSubsystems.initTurretSubsystem();
+    } else {
+      turret = null;
     }
 
     drive.ifPresentOrElse(

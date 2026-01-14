@@ -1,3 +1,4 @@
 {
-  "runDrive": true
+  "runDrive": true,
+  "runTurret": true
 }
