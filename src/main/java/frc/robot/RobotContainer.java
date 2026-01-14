@@ -17,6 +17,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -104,5 +105,32 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  /**
+   * Refreshes subsystem dependencies
+   *
+   * <p>This method will not run automatically and must be called by Robot periodic.
+   */
+  public void periodic() {
+    if (JsonConstants.featureFlags.runTurret) {
+      updateTurretDependencies(turret.getDependenciesObject());
+    }
+  }
+
+  // Subsystem dependency updates
+  /**
+   * Given a TurretDependenncies object, update its fields to reflect the current state of the
+   * robot.
+   *
+   * @param dependencies The TurretDependencies object to update with the latest data
+   */
+  private void updateTurretDependencies(TurretDependencies dependencies) {
+    // TODO: Add actual check for whether homing switch is present once it is designed
+    if (false) {
+      // TODO: Use hardware homing switch
+    } else {
+      dependencies.isHomingSwitchPressed = false;
+    }
   }
 }

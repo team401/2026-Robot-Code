@@ -14,4 +14,8 @@ public abstract class BaseTurretState extends State<TurretSubsystem> {
   protected void setTurretPositionToHomedPosition(TurretSubsystem turret) {
     turret.setPositionToHomedPosition();
   }
+
+  protected void coastTurret(TurretSubsystem turret) {
+    turret.coast();
+  }
 }
