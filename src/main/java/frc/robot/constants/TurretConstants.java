@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -48,7 +49,6 @@ public class TurretConstants {
   public final Double turretKG = 0.0;
   public final Double turretKA = 0.0;
 
-  public final AngularVelocity turretMaxAngularVelocity = DegreesPerSecond.of(360);
   public final Double turretExpoKV = 12.0;
   public final Double turretExpoKA = 12.0;
 
@@ -85,6 +85,10 @@ public class TurretConstants {
                 .withSupplyCurrentLimitEnable(true)
                 .withStatorCurrentLimit(turretStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true))
-        .withMotorOutput(new MotorOutputConfigs().withInverted(turretMotorDirection));
+        .withMotorOutput(new MotorOutputConfigs().withInverted(turretMotorDirection))
+        .withMotionMagic(
+            new MotionMagicConfigs()
+                .withMotionMagicExpo_kA(turretExpoKA)
+                .withMotionMagicExpo_kV(turretExpoKV));
   }
 }
