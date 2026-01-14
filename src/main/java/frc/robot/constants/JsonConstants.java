@@ -18,12 +18,13 @@ public class JsonConstants {
 
     var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
 
+    featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
-    jsonHandler.saveObject(new OperatorConstants(), "OperatorConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
   }
 
+  public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
 }

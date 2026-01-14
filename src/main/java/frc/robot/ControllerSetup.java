@@ -3,6 +3,7 @@ package frc.robot;
 import coppercore.wpilib_interface.Controllers;
 import coppercore.wpilib_interface.Controllers.Controller;
 import coppercore.wpilib_interface.DriveWithJoysticks;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import java.util.List;
@@ -45,6 +46,17 @@ public class ControllerSetup {
 
     System.out.println("Could not find Axis with command: " + command);
     return () -> 0.0;
+  }
+
+  public static Trigger getButton(String command) {
+    for (Controllers.Controller controller : controllers) {
+      if (controller.hasButton(command)) {
+        return controller.getButton(command);
+      }
+    }
+
+    System.out.println("Could not find button with command: " + command);
+    return new Trigger(() -> false);
   }
 
   /**
