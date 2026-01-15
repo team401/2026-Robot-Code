@@ -9,53 +9,59 @@ import frc.robot.subsystems.drive.Drive;
 import java.util.List;
 import java.util.function.Supplier;
 
-/** Controllers handles all controller/binding initialization, similar to InitBindings from 2025. */
+/**
+ * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings from 2025.
+ * 
+ * <p>Before calling any individual subsystem button initialization, setupControllers must be called to load the bindings file from JSON.
+ * */
 public class ControllerSetup {
   private ControllerSetup() {}
 
   private static List<Controller> controllers;
 
-  /** Initialize controllers by loading them from the JSON synced file */
-  private static void initControllers() {
+  /** Initialize operator interfae/controllers by loading their configurations from JSON. */
+  public static void setupControllers() {
     Controllers.synced.setFile(
         JsonConstants.environmentHandler
             .getEnvironmentPathProvider()
-            .resolvePath(JsonConstants.operatorConstants.mappingFile));
+            .resolvePath(JsonConstants.operatorConstants.controllerBindingsFile));
     Controllers.loadControllers();
 
     controllers = Controllers.getControllers();
   }
 
-  public static void setupControllers() {
-    initControllers();
-  }
-
   /**
    * Given the name of an axis, return a double supplier for that axis's value
    *
-   * @param command The name of the axis, e.g. driveX
+   * @param axisName The name of the axis, e.g. driveX
    * @return A double supplier for that axis, or a supplier that supplies 0.0 in the case of an
    *     unknown axis.
    */
-  public static Supplier<Double> getAxis(String command) {
+  private static Supplier<Double> getAxis(String axisName) {
     for (Controllers.Controller controller : controllers) {
-      if (controller.hasAxis(command)) {
-        return () -> controller.getAxis(command).getAsDouble();
+      if (controller.hasAxis(axisName)) {
+        return () -> controller.getAxis(axisName).getAsDouble();
       }
     }
 
-    System.out.println("Could not find Axis with command: " + command);
+    System.out.println("Could not find Axis with command: " + axisName);
     return () -> 0.0;
   }
 
-  public static Trigger getButton(String command) {
+  /**
+   * Gets a Trigger object for a button based on that button's name in the JSON controller config.
+   *
+   * @param buttonName The name of the button, as seen in the JSON file.
+   * @return A Trigger that wraps the state of that button.
+   */
+  private static Trigger getTriggerForButton(String buttonName) {
     for (Controllers.Controller controller : controllers) {
-      if (controller.hasButton(command)) {
-        return controller.getButton(command);
+      if (controller.hasButton(buttonName)) {
+        return controller.getButton(buttonName);
       }
     }
 
-    System.out.println("Could not find button with command: " + command);
+    System.out.println("Could not find button with name/command: " + buttonName);
     return new Trigger(() -> false);
   }
 

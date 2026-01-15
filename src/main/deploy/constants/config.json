@@ -2,7 +2,11 @@
   "selectedEnvironmentName": "comp",
   "defaultEnvironmentName": "comp",
   "environments": {
-    "comp": {},
-    "normal": {}
+    "comp": {
+      "description": "Competition robot, in whatever its current state is"
+    },
+    "test_drivebase": {
+      "description": "Test/b-bot drivebase"
+    }
   }
 }

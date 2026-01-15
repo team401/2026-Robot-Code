@@ -47,6 +47,7 @@ import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements DriveTemplate {
@@ -148,6 +149,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+    // Since Drive is placed within an Optional, it can't be found in a recursive down from Robot
+    AutoLogOutputManager.addObject(this);
   }
 
   @Override

@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -26,47 +27,51 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+  private final Optional<Drive> drive;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+  private LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     JsonConstants.loadConstants();
 
     if (JsonConstants.featureFlags.runDrive) {
-      drive = InitSubsystems.initDriveSubsystem();
+      drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
-      drive = null;
+      drive = Optional.empty();
     }
 
-    if (JsonConstants.featureFlags.runDrive) {
-      // TODO: Stop using pathplanner AutoBuilder
-      // Set up auto routines
-      autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    drive.ifPresentOrElse(
+        drive -> {
+          // TODO: Stop using pathplanner AutoBuilder
+          // Set up auto routines
+          autoChooser =
+              new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-      // Set up SysId routines
-      autoChooser.addOption(
-          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-      autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    } else {
-      autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    }
+          // Set up SysId routines
+          autoChooser.addOption(
+              "Drive Wheel Radius Characterization",
+              DriveCommands.wheelRadiusCharacterization(drive));
+          autoChooser.addOption(
+              "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+          autoChooser.addOption(
+              "Drive SysId (Quasistatic Forward)",
+              drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+          autoChooser.addOption(
+              "Drive SysId (Quasistatic Reverse)",
+              drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+          autoChooser.addOption(
+              "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+          autoChooser.addOption(
+              "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        },
+        () -> {
+          autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+        });
 
     // Configure the button bindings
     configureButtonBindings();
@@ -83,9 +88,7 @@ public class RobotContainer {
     ControllerSetup.setupControllers();
 
     // Default command, normal field-relative drive
-    if (JsonConstants.featureFlags.runDrive) {
-      ControllerSetup.initDriveBindings(drive);
-    }
+    drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));
   }
 
   /**
