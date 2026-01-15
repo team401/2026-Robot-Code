@@ -25,6 +25,7 @@ import frc.robot.subsystems.turret.states.HomingWaitForStoppingState;
 import frc.robot.subsystems.turret.states.IdleState;
 import frc.robot.subsystems.turret.states.TestModeState;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 
 // TODO: Add/Improve Javadocs
 /**
@@ -138,6 +139,10 @@ public class TurretSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber("TurretTunables/turretTuningSetpointDegrees", 0.0);
     turretTuningAmps = new LoggedTunableNumber("TurretTunables/turretTuningAmps", 0.0);
     turretTuningVolts = new LoggedTunableNumber("TurretTunables/turretTuningVolts", 0.0);
+
+    // Add turret to the AutoLogOutputManager, as, being stored in an optional, it won't be visible
+    // to the recursive search of Robot's fields
+    AutoLogOutputManager.addObject(this);
   }
 
   @Override

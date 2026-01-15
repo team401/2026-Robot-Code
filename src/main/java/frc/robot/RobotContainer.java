@@ -16,8 +16,8 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import java.util.Optional;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
+import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -29,9 +29,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
-
-  // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final Optional<TurretSubsystem> turret;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
@@ -47,9 +45,9 @@ public class RobotContainer {
     }
 
     if (JsonConstants.featureFlags.runTurret) {
-      turret = InitSubsystems.initTurretSubsystem();
+      turret = Optional.of(InitSubsystems.initTurretSubsystem());
     } else {
-      turret = null;
+      turret = Optional.empty();
     }
 
     drive.ifPresentOrElse(
@@ -113,9 +111,7 @@ public class RobotContainer {
    * <p>This method will not run automatically and must be called by Robot periodic.
    */
   public void periodic() {
-    if (JsonConstants.featureFlags.runTurret) {
-      updateTurretDependencies(turret.getDependenciesObject());
-    }
+    turret.ifPresent(turret -> updateTurretDependencies(turret.getDependenciesObject()));
   }
 
   // Subsystem dependency updates

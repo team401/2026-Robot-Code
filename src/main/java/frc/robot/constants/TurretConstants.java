@@ -91,4 +91,10 @@ public class TurretConstants {
                 .withMotionMagicExpo_kA(turretExpoKA)
                 .withMotionMagicExpo_kV(turretExpoKV));
   }
+
+  //   public PositionSimAdapter buildTurretSim() {
+  //     return new PositionSimAdapter() {
+
+  //     };
+  //   }
 }

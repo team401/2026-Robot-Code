@@ -1,0 +1,42 @@
+{
+  "homingVoltage": {
+    "value": -1.0,
+    "unit": "Volt"
+  },
+  "turretReduction": 37.5,
+  "homingMovementThreshold": {
+    "value": 5.0,
+    "unit": "Degree per Second"
+  },
+  "homingMaxUnmovingTime": {
+    "value": 0.5,
+    "unit": "Second"
+  },
+  "homingMaxOverallTime": {
+    "value": 10.0,
+    "unit": "Second"
+  },
+  "homingAngle": {
+    "value": 0.0,
+    "unit": "Degree"
+  },
+  "turretKrakenId": 9,
+  "turretKP": 0.0,
+  "turretKI": 0.0,
+  "turretKD": 0.0,
+  "turretKS": 0.0,
+  "turretKV": 0.0,
+  "turretKG": 0.0,
+  "turretKA": 0.0,
+  "turretExpoKV": 12.0,
+  "turretExpoKA": 12.0,
+  "turretSupplyCurrentLimit": {
+    "value": 60.0,
+    "unit": "Amp"
+  },
+  "turretStatorCurrentLimit": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
+  "turretMotorDirection": "CounterClockwise_Positive"
+}
