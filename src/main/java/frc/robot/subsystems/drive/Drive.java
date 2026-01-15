@@ -16,6 +16,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import coppercore.wpilib_interface.DriveTemplate;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -46,9 +47,10 @@ import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
-public class Drive extends SubsystemBase {
+public class Drive extends SubsystemBase implements DriveTemplate {
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
@@ -147,6 +149,9 @@ public class Drive extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+    // Since Drive is placed within an Optional, it can't be found in a recursive down from Robot
+    AutoLogOutputManager.addObject(this);
   }
 
   @Override
@@ -230,6 +235,27 @@ public class Drive extends SubsystemBase {
 
     // Log optimized setpoints (runSetpoint mutates each state)
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+  }
+
+  @Override
+  public void setGoalSpeeds(ChassisSpeeds goalSpeeds, boolean isFieldCentric) {
+    if (isFieldCentric) {
+      // Adjust for field-centric control
+      boolean isFlipped =
+          DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get() == Alliance.Red;
+
+      Rotation2d robotRotation =
+          isFlipped
+              ? getRotation().plus(new Rotation2d(Math.PI)) // Flip orientation for Red Alliance
+              : getRotation();
+
+      runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(goalSpeeds, robotRotation));
+    } else {
+      Logger.recordOutput("Drive/DesiredRobotCentricSpeeds", goalSpeeds);
+
+      runVelocity(goalSpeeds);
+    }
   }
 
   /** Runs the drive in a straight line with the specified drive output. */

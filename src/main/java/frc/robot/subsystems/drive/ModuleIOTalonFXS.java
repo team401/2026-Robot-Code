@@ -113,9 +113,8 @@ public class ModuleIOTalonFXS implements ModuleIO {
           case TalonFXS_NEO_JST -> MotorArrangementValue.NEO_JST;
           case TalonFXS_VORTEX_JST -> MotorArrangementValue.VORTEX_JST;
           case TalonFXS_NEO550_JST -> MotorArrangementValue.NEO550_JST;
-          case TalonFXS_Brushed_AB,
-              TalonFXS_Brushed_AC,
-              TalonFXS_Brushed_BC -> MotorArrangementValue.Brushed_DC;
+          case TalonFXS_Brushed_AB, TalonFXS_Brushed_AC, TalonFXS_Brushed_BC ->
+              MotorArrangementValue.Brushed_DC;
           default -> MotorArrangementValue.Disabled;
         };
     turnConfig.Commutation.BrushedMotorWiring =
@@ -132,8 +131,9 @@ public class ModuleIOTalonFXS implements ModuleIO {
           case RemoteCANdiPWM1 -> ExternalFeedbackSensorSourceValue.RemoteCANdiPWM1;
           case FusedCANdiPWM1 -> ExternalFeedbackSensorSourceValue.FusedCANdiPWM1;
           case SyncCANdiPWM1 -> ExternalFeedbackSensorSourceValue.SyncCANdiPWM1;
-          default -> throw new RuntimeException(
-              "You have selected a turn feedback source that is not supported by the default implementation of ModuleIOTalonFXS (CANdi PWM 1). Please check the AdvantageKit documentation for more information on alternative configurations: https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations");
+          default ->
+              throw new RuntimeException(
+                  "You have selected a turn feedback source that is not supported by the default implementation of ModuleIOTalonFXS (CANdi PWM 1). Please check the AdvantageKit documentation for more information on alternative configurations: https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations");
         };
     turnConfig.ExternalFeedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
