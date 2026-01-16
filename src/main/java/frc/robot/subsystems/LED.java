@@ -25,8 +25,4 @@ public class LED {
     
   }
 
-    public LED(com.google.common.base.Optional<Drive> drive) {
-        //TODO Auto-generated constructor stub
-    }
-
 }
