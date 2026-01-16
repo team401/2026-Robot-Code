@@ -1,12 +1,15 @@
 package frc.robot;
 
+
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import java.util.Optional;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -16,6 +19,7 @@ public class InitSubsystems {
   private InitSubsystems() {}
 
   public static Drive initDriveSubsystem() {
+
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -65,4 +69,22 @@ public class InitSubsystems {
             new ModuleIO() {});
     }
   }
+  public static LED initLEDs(Optional<Drive> drive) {
+
+    switch (Constants.currentMode) {
+      case REAL:
+        return new LED(drive);
+      case SIM:
+        return new LED(drive);
+      case REPLAY:
+        throw new UnsupportedOperationException("LED replay is not going to happen.");
+      default:
+        throw new UnsupportedOperationException(
+            "Non-exhaustive list of mode types supported in InitSubsystems (got "
+                + Constants.currentMode
+                + ")");
+    }
+  }
+
 }
+

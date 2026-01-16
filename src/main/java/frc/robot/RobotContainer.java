@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.drive.Drive;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -28,6 +29,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<LED> led;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -43,6 +45,11 @@ public class RobotContainer {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
       drive = Optional.empty();
+    }
+    if (JsonConstants.featureFlags.runLEDs) {
+      led = Optional.of(InitSubsystems.initLEDs(drive));
+    } else {
+      led = Optional.empty();
     }
 
     drive.ifPresentOrElse(
