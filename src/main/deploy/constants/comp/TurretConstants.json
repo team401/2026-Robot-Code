@@ -38,5 +38,17 @@
     "value": 40.0,
     "unit": "Amp"
   },
-  "turretMotorDirection": "CounterClockwise_Positive"
+  "turretMotorDirection": "CounterClockwise_Positive",
+  "simTurretMOI": {
+    "value": 0.01170557658,
+    "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+  },
+  "minTurretAngle": {
+    "value": -5.0,
+    "unit": "Degree"
+  },
+  "maxTurretAngle": {
+    "value": 350.0,
+    "unit": "Degree"
+  }
 }

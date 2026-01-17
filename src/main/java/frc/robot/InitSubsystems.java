@@ -1,5 +1,6 @@
 package frc.robot;
 
+import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import frc.robot.constants.JsonConstants;
@@ -10,6 +11,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.turret.MotorIOX44Sim;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
 /**
@@ -80,8 +82,12 @@ public class InitSubsystems {
                 JsonConstants.turretConstants.buildTalonFXConfigs()));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        // TODO: Write turret SimAdapter
-        throw new UnsupportedOperationException("Turret sim is not yet implemented");
+        MechanismConfig config = JsonConstants.turretConstants.buildMechanismConfig();
+        return new TurretSubsystem(
+            new MotorIOX44Sim(
+                config,
+                JsonConstants.turretConstants.buildTalonFXConfigs(),
+                JsonConstants.turretConstants.buildTurretSim()));
       default:
         // Replayed robot, disable IO implementations
         return new TurretSubsystem(new MotorIOReplay());

@@ -10,5 +10,7 @@ import frc.robot.subsystems.turret.TurretSubsystem;
  */
 public class TestModeState extends BaseTurretState {
   @Override
-  public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {}
+  public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
+    runTestPeriodic(turret);
+  }
 }

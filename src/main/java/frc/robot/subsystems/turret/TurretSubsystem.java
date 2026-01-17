@@ -18,14 +18,17 @@ import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.turret.states.HomingWaitForButtonState;
 import frc.robot.subsystems.turret.states.HomingWaitForMovementState;
 import frc.robot.subsystems.turret.states.HomingWaitForStoppingState;
 import frc.robot.subsystems.turret.states.IdleState;
 import frc.robot.subsystems.turret.states.TestModeState;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
+import org.littletonrobotics.junction.Logger;
 
 // TODO: Add/Improve Javadocs
 /**
@@ -53,17 +56,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
   // State machine and states
   private final StateMachine<TurretSubsystem> stateMachine;
 
+  private final State<TurretSubsystem> homingWaitForButtonState;
   private final State<TurretSubsystem> homingWaitForMovementState;
   private final State<TurretSubsystem> homingWaitForStoppingState;
   private final State<TurretSubsystem> idleState;
   private final State<TurretSubsystem> testModeState;
-
-  // Subsystem state ("normal" member variables)
-  /**
-   * Has the turret been homed yet? Applying any closed-loop request before the turret has been
-   * homed is very dangerous and should not be allowed.
-   */
-  private boolean hasBeenHomed = false;
 
   // Tunable numbers
   LoggedTunableNumber turretKP;
@@ -88,10 +85,16 @@ public class TurretSubsystem extends MonitoredSubsystem {
     // Define state machine transitions, register states
     stateMachine = new StateMachine<>(this);
 
+    homingWaitForButtonState = stateMachine.registerState(new HomingWaitForButtonState());
     homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
     homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
     idleState = stateMachine.registerState(new IdleState());
     testModeState = stateMachine.registerState(new TestModeState());
+
+    homingWaitForButtonState.whenFinished().transitionTo(idleState);
+    homingWaitForButtonState
+        .when(turret -> DriverStation.isEnabled(), "Robot is enabled")
+        .transitionTo(homingWaitForMovementState);
 
     homingWaitForMovementState.whenFinished().transitionTo(homingWaitForStoppingState);
 
@@ -99,7 +102,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     // immediately detect that it has stopped moving and home the system.
     homingWaitForMovementState
         .whenTimeout(JsonConstants.turretConstants.homingMaxUnmovingTime)
-        .transitionTo(homingWaitForMovementState);
+        .transitionTo(homingWaitForStoppingState);
 
     homingWaitForStoppingState.whenFinished().transitionTo(idleState);
 
@@ -111,7 +114,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .when((turret) -> !turret.isTurretTestMode(), "Not in turret test mode")
         .transitionTo(idleState);
 
-    stateMachine.setState(homingWaitForMovementState);
+    stateMachine.setState(homingWaitForButtonState);
 
     // Initialize tunable numbers for test modes
     turretKP =
@@ -148,16 +151,22 @@ public class TurretSubsystem extends MonitoredSubsystem {
   @Override
   public void monitoredPeriodic() {
     motor.updateInputs(inputs);
+    Logger.processInputs("Turret/inputs", inputs);
+    Logger.recordOutput("Turret/closedLoopReferenceRadians", inputs.closedLoopReference);
+    Logger.recordOutput(
+        "Turret/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
 
+    Logger.recordOutput("Turret/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
+    Logger.recordOutput("Turret/StateAfter", stateMachine.getCurrentState().getName());
   }
 
   /**
    * Polls for test-mode specific actions (for example, updating PIDs).
    *
-   * <p>This method MUST be called in periodic
+   * <p>This method MUST be called in periodic by the TestModeState
    */
-  public void testPeriodic() {
+  protected void testPeriodic() {
     switch (TestModeManager.getTestMode()) {
       case TurretClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(
@@ -187,8 +196,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
             turretExpoKA,
             turretExpoKV);
 
-        motor.controlToPositionExpoProfiled(
-            turretToMotorAngle(Degrees.of(turretTuningSetpointDegrees.getAsDouble())));
+        motor.controlToPositionExpoProfiled(Degrees.of(turretTuningSetpointDegrees.getAsDouble()));
       }
       case TurretCurrentTuning -> {
         motor.controlOpenLoopCurrent(Amps.of(turretTuningAmps.getAsDouble()));
@@ -208,34 +216,17 @@ public class TurretSubsystem extends MonitoredSubsystem {
     motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage);
   }
 
-  private double motorToTurret(double motorValue) {
-    return motorValue / JsonConstants.turretConstants.turretReduction;
-  }
-
-  private Angle motorToTurretAngle(Angle motorAngle) {
-    return motorAngle.div(JsonConstants.turretConstants.turretReduction);
-  }
-
-  private double turretToMotor(double turretValue) {
-    return turretValue * JsonConstants.turretConstants.turretReduction;
-  }
-
-  private Angle turretToMotorAngle(Angle turretAngle) {
-    return turretAngle.times(JsonConstants.turretConstants.turretReduction);
-  }
-
   @AutoLogOutput(key = "Turret/robotRelativePosition")
   public Angle getTurretAngleRobotRelative() {
-    return Radians.of(motorToTurret(inputs.positionRadians));
+    return Radians.of(inputs.positionRadians);
   }
 
   public AngularVelocity getTurretVelocity() {
-    return RadiansPerSecond.of(motorToTurret(inputs.velocityRadiansPerSecond));
+    return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
   }
 
   protected void setPositionToHomedPosition() {
-    hasBeenHomed = true;
-    motor.setCurrentPosition(turretToMotorAngle(JsonConstants.turretConstants.homingAngle));
+    motor.setCurrentPosition(JsonConstants.turretConstants.homingAngle);
   }
 
   protected void coast() {
@@ -256,5 +247,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
       case TurretClosedLoopTuning, TurretCurrentTuning, TurretVoltageTuning -> true;
       default -> false;
     };
+  }
+
+  public void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
+    motor.controlToPositionExpoProfiled(goalAngleTurretCentric);
   }
 }

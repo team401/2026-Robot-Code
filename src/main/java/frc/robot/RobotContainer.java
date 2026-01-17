@@ -38,6 +38,8 @@ public class RobotContainer {
   public RobotContainer() {
     JsonConstants.loadConstants();
 
+    TestModeManager.init();
+
     if (JsonConstants.featureFlags.runDrive) {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
