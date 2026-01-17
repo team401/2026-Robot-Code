@@ -33,13 +33,13 @@ import frc.robot.subsystems.turret.HardstoppedDCMotorSimAdapter;
 
 public class TurretConstants {
 
-  public final Voltage homingVoltage = Volts.of(-1.0);
+  public final Voltage homingVoltage = Volts.of(-3.0);
 
   public final Double turretReduction = 37.5;
 
-  public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(5.0);
+  public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
-  public final Time homingMaxUnmovingTime = Seconds.of(0.5);
+  public final Time homingMaxUnmovingTime = Seconds.of(5.0);
   public final Time homingMaxOverallTime = Seconds.of(10.0);
 
   /**
@@ -119,10 +119,10 @@ public class TurretConstants {
         buildMechanismConfig(),
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX44Foc(1),
+                DCMotor.getKrakenX44(1),
                 simTurretMOI.in(KilogramSquareMeters),
-                1 / JsonConstants.turretConstants.turretReduction),
-            DCMotor.getKrakenX44Foc(1),
+                1.0), // Putting the reduction here seems to make the sim impossibly heavy
+            DCMotor.getKrakenX44(1),
             0.0,
             0.0),
         minTurretAngle,

@@ -1,15 +1,15 @@
 {
   "homingVoltage": {
-    "value": -1.0,
+    "value": -3.0,
     "unit": "Volt"
   },
   "turretReduction": 37.5,
   "homingMovementThreshold": {
-    "value": 5.0,
+    "value": 2.0,
     "unit": "Degree per Second"
   },
   "homingMaxUnmovingTime": {
-    "value": 0.5,
+    "value": 5.0,
     "unit": "Second"
   },
   "homingMaxOverallTime": {

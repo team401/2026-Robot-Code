@@ -1,5 +1,6 @@
 package frc.robot.subsystems.turret.states;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import coppercore.controls.state_machine.StateMachine;
@@ -14,6 +15,7 @@ public class HomingWaitForStoppingState extends BaseTurretState {
     homeTurret(turret);
 
     final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
+    System.out.println(turret.getTurretVelocity().abs(DegreesPerSecond));
     if (turret.getTurretVelocity().abs(velocityComparisonUnit)
         < JsonConstants.turretConstants.homingMovementThreshold.in(velocityComparisonUnit)) {
       setTurretPositionToHomedPosition(turret);
