@@ -1,6 +1,5 @@
 package frc.robot;
 
-
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.drive.Drive;
@@ -69,6 +68,7 @@ public class InitSubsystems {
             new ModuleIO() {});
     }
   }
+
   public static LED initLEDs(Optional<Drive> drive) {
 
     switch (Constants.currentMode) {
@@ -85,6 +85,4 @@ public class InitSubsystems {
                 + ")");
     }
   }
-
 }
-
