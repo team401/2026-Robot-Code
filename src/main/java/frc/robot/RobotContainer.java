@@ -108,6 +108,6 @@ public class RobotContainer {
   }
 
   public void periodic() {
-    led.periodic();
+    led.ifPresent(led -> led.periodic());
   }
 }
