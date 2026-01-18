@@ -22,9 +22,11 @@ public class JsonConstants {
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
+    hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
   }
 
   public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
+  public static HopperConstants hopperConstants; 
 }

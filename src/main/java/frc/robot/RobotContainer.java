@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.hopper.HopperSubsystem;
+
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -25,9 +27,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
+// i helped copilot autocomplete write this
 public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<HopperSubsystem> hopper;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -43,6 +47,12 @@ public class RobotContainer {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
       drive = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runHopper) {
+      hopper = Optional.of(InitSubsystems.initHopperSubsystem());
+    } else {
+      hopper = Optional.empty();
     }
 
     drive.ifPresentOrElse(
