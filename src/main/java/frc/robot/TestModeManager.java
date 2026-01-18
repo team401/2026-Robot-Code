@@ -8,7 +8,8 @@ public final class TestModeManager {
     None, // No test mode selected
     TurretVoltageTuning("Turret Voltage Open Loop Tuning"),
     TurretCurrentTuning("Turret Current Open Loop Tuning"),
-    TurretClosedLoopTuning("Turret Closed Loop Tuning");
+    TurretClosedLoopTuning("Turret Closed Loop Tuning"),
+    TurretPhoenixTuning("Turret Phoenix Tuning (no-op)");
 
     private final String description;
 

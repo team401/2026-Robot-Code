@@ -244,7 +244,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
    */
   private boolean isTurretTestMode() {
     return switch (TestModeManager.getTestMode()) {
-      case TurretClosedLoopTuning, TurretCurrentTuning, TurretVoltageTuning -> true;
+      case TurretClosedLoopTuning, TurretCurrentTuning, TurretVoltageTuning, TurretPhoenixTuning ->
+          true;
       default -> false;
     };
   }
