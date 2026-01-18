@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -28,6 +29,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<IndexerSubsystem> indexer;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -43,6 +45,12 @@ public class RobotContainer {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
       drive = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runIndexer) {
+      indexer = Optional.of(InitSubsystems.initIndexerSubsystem());
+    } else {
+      indexer = Optional.empty();
     }
 
     drive.ifPresentOrElse(

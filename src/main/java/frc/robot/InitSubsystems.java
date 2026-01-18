@@ -1,5 +1,9 @@
 package frc.robot;
 
+import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
+import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import frc.robot.constants.JsonConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -7,6 +11,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -63,6 +68,24 @@ public class InitSubsystems {
             new ModuleIO() {},
             new ModuleIO() {},
             new ModuleIO() {});
+    }
+  }
+
+  public static IndexerSubsystem initIndexerSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new IndexerSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.indexerConstants.buildMechanismConfig(),
+                JsonConstants.indexerConstants.buildTalonFXConfigs()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig config = JsonConstants.indexerConstants.buildMechanismConfig();
+        return null; // TODO: figure out what kind of sim to use. see github issue #10
+      default:
+        // Replayed robot, disable IO implementations
+        return new IndexerSubsystem(new MotorIOReplay());
     }
   }
 }
