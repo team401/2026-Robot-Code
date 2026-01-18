@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings from 2025.
- * 
- * <p>Before calling any individual subsystem button initialization, setupControllers must be called to load the bindings file from JSON.
- * */
+ * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
+ * from 2025.
+ *
+ * <p>Before calling any individual subsystem button initialization, setupControllers must be called
+ * to load the bindings file from JSON.
+ */
 public class ControllerSetup {
   private ControllerSetup() {}
 

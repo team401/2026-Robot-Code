@@ -11,11 +11,12 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -28,9 +29,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
-
-  // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final Optional<TurretSubsystem> turret;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
@@ -39,10 +38,18 @@ public class RobotContainer {
   public RobotContainer() {
     JsonConstants.loadConstants();
 
+    TestModeManager.init();
+
     if (JsonConstants.featureFlags.runDrive) {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
       drive = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runTurret) {
+      turret = Optional.of(InitSubsystems.initTurretSubsystem());
+    } else {
+      turret = Optional.empty();
     }
 
     drive.ifPresentOrElse(
@@ -98,5 +105,30 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  /**
+   * Refreshes subsystem dependencies
+   *
+   * <p>This method will not run automatically and must be called by Robot periodic.
+   */
+  public void periodic() {
+    turret.ifPresent(turret -> updateTurretDependencies(turret.getDependenciesObject()));
+  }
+
+  // Subsystem dependency updates
+  /**
+   * Given a TurretDependenncies object, update its fields to reflect the current state of the
+   * robot.
+   *
+   * @param dependencies The TurretDependencies object to update with the latest data
+   */
+  private void updateTurretDependencies(TurretDependencies dependencies) {
+    // TODO: Add actual check for whether homing switch is present once it is designed
+    if (false) {
+      // TODO: Use hardware homing switch
+    } else {
+      dependencies.isHomingSwitchPressed = false;
+    }
   }
 }

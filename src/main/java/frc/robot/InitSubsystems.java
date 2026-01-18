@@ -1,5 +1,9 @@
 package frc.robot;
 
+import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
+import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import frc.robot.constants.JsonConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -7,6 +11,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.turret.MotorIOX44Sim;
+import frc.robot.subsystems.turret.TurretSubsystem;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -63,6 +69,28 @@ public class InitSubsystems {
             new ModuleIO() {},
             new ModuleIO() {},
             new ModuleIO() {});
+    }
+  }
+
+  public static TurretSubsystem initTurretSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new TurretSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.turretConstants.buildMechanismConfig(),
+                JsonConstants.turretConstants.buildTalonFXConfigs()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig config = JsonConstants.turretConstants.buildMechanismConfig();
+        return new TurretSubsystem(
+            new MotorIOX44Sim(
+                config,
+                JsonConstants.turretConstants.buildTalonFXConfigs(),
+                JsonConstants.turretConstants.buildTurretSim()));
+      default:
+        // Replayed robot, disable IO implementations
+        return new TurretSubsystem(new MotorIOReplay());
     }
   }
 }
