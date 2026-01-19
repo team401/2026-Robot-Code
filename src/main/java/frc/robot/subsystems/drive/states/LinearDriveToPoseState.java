@@ -1,0 +1,87 @@
+package frc.robot.subsystems.drive.states;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
+import com.ctre.phoenix6.swerve.utility.LinearPath;
+import coppercore.controls.state_machine.State;
+import coppercore.controls.state_machine.StateMachine;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.drive.Drive;
+
+// Copilot used to help write this class
+
+public class LinearDriveToPoseState extends State<Drive> {
+
+  private Pose2d targetPose;
+
+  private TrapezoidProfile.Constraints linearConstraints;
+  private TrapezoidProfile.Constraints angularConstraints;
+
+  private LinearPath linearPath;
+
+  private double timeElapsed = 0.0;
+
+  public void setTargetPose(Pose2d targetPose) {
+    this.targetPose = targetPose;
+  }
+
+  protected void setLinearConstraints(TrapezoidProfile.Constraints constraints) {
+    this.linearConstraints = constraints;
+    reconstructLinearPath();
+  }
+
+  protected void setAngularConstraints(TrapezoidProfile.Constraints constraints) {
+    this.angularConstraints = constraints;
+    reconstructLinearPath();
+  }
+
+  protected void setConstraints(
+      TrapezoidProfile.Constraints linearConstraints,
+      TrapezoidProfile.Constraints angularConstraints) {
+    this.linearConstraints = linearConstraints;
+    this.angularConstraints = angularConstraints;
+    reconstructLinearPath();
+  }
+
+  protected void reconstructLinearPath() {
+    linearPath = new LinearPath(linearConstraints, angularConstraints);
+    // Reset time elapsed when reconstructing the path
+    timeElapsed = 0.0;
+  }
+
+  public LinearDriveToPoseState() {
+    super("LinearDrive");
+
+    setConstraints(
+        new TrapezoidProfile.Constraints(
+            JsonConstants.drivetrainConstants.maxLinearSpeed.in(MetersPerSecond),
+            JsonConstants.drivetrainConstants.maxLinearAcceleration.in(MetersPerSecondPerSecond)),
+        new TrapezoidProfile.Constraints(
+            JsonConstants.drivetrainConstants.maxAngularSpeed.in(RadiansPerSecond),
+            JsonConstants.drivetrainConstants.maxAngularAcceleration.in(
+                RadiansPerSecondPerSecond)));
+  }
+
+  @Override
+  protected void periodic(StateMachine<Drive> stateMachine, Drive world) {
+
+    LinearPath.State pathState =
+        linearPath.calculate(
+            timeElapsed,
+            new LinearPath.State(world.getPose(), world.getChassisSpeeds()),
+            targetPose);
+
+    world.setGoalSpeeds(pathState.speeds, true);
+
+    timeElapsed += 0.02; // Assuming periodic is called every 20ms
+
+    if (linearPath.isFinished(timeElapsed)) {
+      finish();
+    }
+  }
+}

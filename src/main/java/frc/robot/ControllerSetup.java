@@ -6,6 +6,7 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -72,14 +73,14 @@ public class ControllerSetup {
    *
    * @param drive A Drive object, the drive subsystem to set the command for
    */
-  public static void initDriveBindings(Drive drive) {
+  public static void initDriveBindings(DriveCoordinator driveCoordinator, Drive drive) {
     Supplier<Double> xAxis = () -> -getAxis("driveX").get();
     Supplier<Double> yAxis = () -> -getAxis("driveY").get();
     var rotationAxis = getAxis("driveRotation");
     /* By making DriveWithJoysticks the default command for the drive subsystem,
      * we ensure that it is run iff no other Command that uses the drive subsystem
      * is activated. */
-    drive.setDefaultCommand(
+    driveCoordinator.setDriveWithJoysticksCommand(
         new DriveWithJoysticks(
             drive,
             xAxis,

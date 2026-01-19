@@ -239,6 +239,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   @Override
   public void setGoalSpeeds(ChassisSpeeds goalSpeeds, boolean isFieldCentric) {
+    Logger.recordOutput("drive/goalSpeeds", goalSpeeds);
     if (isFieldCentric) {
       // Adjust for field-centric control
       boolean isFlipped =
@@ -316,7 +317,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 

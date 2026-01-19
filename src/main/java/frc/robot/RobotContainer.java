@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
 import java.util.Optional;
@@ -30,6 +31,7 @@ public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
   private final Optional<TurretSubsystem> turret;
+  private final Optional<DriveCoordinator> driveCoordinator;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
@@ -42,8 +44,10 @@ public class RobotContainer {
 
     if (JsonConstants.featureFlags.runDrive) {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
+      driveCoordinator = Optional.of(new DriveCoordinator(drive.get()));
     } else {
       drive = Optional.empty();
+      driveCoordinator = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runTurret) {
@@ -95,7 +99,13 @@ public class RobotContainer {
     ControllerSetup.setupControllers();
 
     // Default command, normal field-relative drive
-    drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));
+    driveCoordinator.ifPresent(
+        driveCoordinator -> {
+          drive.ifPresent(
+              (drive) -> {
+                ControllerSetup.initDriveBindings(driveCoordinator, drive);
+              });
+        });
   }
 
   /**

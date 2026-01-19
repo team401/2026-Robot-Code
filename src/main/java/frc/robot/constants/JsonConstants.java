@@ -1,7 +1,9 @@
 package frc.robot.constants;
 
 import coppercore.parameter_tools.json.JSONHandler;
+import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 
 /**
@@ -11,20 +13,24 @@ import edu.wpi.first.wpilibj.Filesystem;
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
 
+  static {
+    JSONMeasure.registerUnit(Units.MetersPerSecondPerSecond, "Meter per Second Squared");
+    JSONMeasure.registerUnit(Units.RadiansPerSecondPerSecond, "Radian per Second Squared");
+  }
+
   public static void loadConstants() {
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
     var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
-
-    jsonHandler.saveObject(new RobotInfo(), "RobotInfo.json");
+    // jsonHandler.saveObject(new RobotInfo(), "RobotInfo.json");
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
-    jsonHandler.saveObject(new TurretConstants(), "TurretConstants.json");
+    // jsonHandler.saveObject(new TurretConstants(), "TurretConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
   }
 
