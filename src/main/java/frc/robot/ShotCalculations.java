@@ -1,0 +1,142 @@
+package frc.robot;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.LinearVelocity;
+import java.util.Optional;
+
+class ShooterCalculations {
+  private ShooterCalculations() {} // Utility class
+
+  public enum ShotType {
+    LOW,
+    HIGH
+  }
+
+  public static record ShotInfo(double pitchRadians, double yawRadians, double timeSeconds) {}
+
+  public static final double G = 9.81;
+
+  public static final double MIN_ALLOWED_DISTANCE = 1e-3;
+
+  public static final double MIN_ALLOWED_COS = 1e-5;
+
+  public static double calculateYawRadians(
+      Translation3d shooterPosition, Translation3d goalPosition) {
+    return Math.atan2(
+        goalPosition.getY() - shooterPosition.getY(), goalPosition.getX() - shooterPosition.getX());
+  }
+
+  public static Optional<ShotInfo> calculateStationaryShot(
+      Translation3d shooterPosition,
+      Translation3d goalPosition,
+      LinearVelocity shooterVelocity,
+      ShotType shotType) {
+    // Calculate horizontal distance
+    double dx = goalPosition.getX() - shooterPosition.getX();
+    double dy = goalPosition.getY() - shooterPosition.getY();
+    double distanceMeters = Math.sqrt(dx * dx + dy * dy);
+
+    double velocityMps = shooterVelocity.in(MetersPerSecond);
+
+    if (distanceMeters < MIN_ALLOWED_DISTANCE || velocityMps <= 0.0) {
+      return Optional.empty();
+    }
+
+    double h = goalPosition.getZ() - shooterPosition.getZ();
+    double v2 = velocityMps * velocityMps;
+
+    // Value inside the square root
+    double discriminant = v2 * v2 - G * (G * distanceMeters * distanceMeters + 2 * h * v2);
+
+    if (discriminant < 0.0) {
+      return Optional.empty();
+    }
+
+    double sqrtDiscriminant = Math.sqrt(discriminant);
+
+    double numerator = v2 + (shotType == ShotType.HIGH ? sqrtDiscriminant : -sqrtDiscriminant);
+
+    double denominator = G * distanceMeters;
+
+    double tanTheta = numerator / denominator;
+
+    if (!Double.isFinite(tanTheta)) {
+      return Optional.empty();
+    }
+
+    double theta = Math.atan(tanTheta);
+
+    if (Math.cos(theta) < MIN_ALLOWED_COS) {
+      return Optional.empty();
+    }
+    double t = distanceMeters / (Math.cos(theta) * velocityMps);
+
+    double yaw = calculateYawRadians(shooterPosition, goalPosition);
+
+    return Optional.of(new ShotInfo(theta, yaw, t));
+  }
+
+  public static final int MAX_ITERATIONS = 6;
+  public static final double ACCEPTABLE_TIME_VARIATION = 0.01;
+
+  public static Optional<ShotInfo> calculateMovingShot(
+      Translation3d shooterPosition,
+      Translation3d goalPosition,
+      ChassisSpeeds robotVelocity,
+      LinearVelocity shooterVelocity,
+      ShotType shotType,
+      Optional<ShotInfo> lastShot) {
+    // Prepare a stationary shot to calculate if lastShot wasn't provided
+    Optional<ShotInfo> baseShot =
+        lastShot.or(
+            () ->
+                calculateStationaryShot(shooterPosition, goalPosition, shooterVelocity, shotType));
+
+    if (baseShot.isEmpty()) {
+      return Optional.empty();
+    }
+
+    double yawRadians =
+        lastShot
+            .map(s -> s.yawRadians())
+            .orElseGet(() -> calculateYawRadians(shooterPosition, goalPosition));
+
+    // Consider adding an adjustment here based on how long it will take your turret/hood to
+    // configure themselves for the shot.
+    double t = baseShot.get().timeSeconds();
+    double pitchRadians = baseShot.get().pitchRadians();
+
+    ShotInfo solution = new ShotInfo(pitchRadians, yawRadians, t);
+
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+      t = solution.timeSeconds;
+
+      double dx = robotVelocity.vxMetersPerSecond * t;
+      double dy = robotVelocity.vyMetersPerSecond * t;
+
+      Translation3d effectiveGoal =
+          new Translation3d(
+              goalPosition.getX() - dx, goalPosition.getY() - dy, goalPosition.getZ());
+
+      Optional<ShotInfo> effectiveShot =
+          calculateStationaryShot(shooterPosition, effectiveGoal, shooterVelocity, shotType);
+
+      if (effectiveShot.isEmpty()) {
+        return Optional.empty();
+      }
+
+      ShotInfo newSolution = effectiveShot.get();
+
+      if (Math.abs(newSolution.timeSeconds - solution.timeSeconds) < ACCEPTABLE_TIME_VARIATION) {
+        break;
+      }
+
+      solution = newSolution;
+    }
+
+    return Optional.of(solution);
+  }
+}
