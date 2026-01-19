@@ -50,16 +50,19 @@ public class TurretConstants {
 
   public final Integer turretKrakenId = 9; // TODO: Verify this ID
 
-  public final Double turretKP = 0.0;
+  // TODO: Root cause why turret sim requires such ridiculous gains to function properly
+  // These gains are CRAZY. MAKE SURE that you change these gains before deploying to a robot, or it
+  // will definitely break.
+  public final Double turretKP = 40.0;
   public final Double turretKI = 0.0;
-  public final Double turretKD = 0.0;
+  public final Double turretKD = 600.0;
   public final Double turretKS = 0.0;
   public final Double turretKV = 0.0;
   public final Double turretKG = 0.0;
-  public final Double turretKA = 0.0;
+  public final Double turretKA = 55.0;
 
-  public final Double turretExpoKV = 12.0;
-  public final Double turretExpoKA = 12.0;
+  public final Double turretExpoKV = 16.0;
+  public final Double turretExpoKA = 16.0;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -73,13 +76,14 @@ public class TurretConstants {
   }
 
   public final Current turretSupplyCurrentLimit = Amps.of(60.0);
-  public final Current turretStatorCurrentLimit = Amps.of(40.0);
+  public final Current turretStatorCurrentLimit = Amps.of(80.0);
 
   public final InvertedValue turretMotorDirection = InvertedValue.CounterClockwise_Positive;
 
   public final MomentOfInertia simTurretMOI =
-      KilogramSquareMeters.of(
-          0.01170557658); // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 * 0.0508^2
+      KilogramSquareMeters.of(0.01170557658)
+          .div(4); // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
+  // 0.0508^2. These calculations seemed to create a VERY heavy object, so I've sliced them by 4
 
   public final Angle minTurretAngle = Degrees.of(-5.0);
   public final Angle maxTurretAngle = Degrees.of(350);
