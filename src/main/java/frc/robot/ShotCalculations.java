@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 
 class ShooterCalculations {
   private ShooterCalculations() {} // Utility class
@@ -80,7 +81,7 @@ class ShooterCalculations {
   }
 
   public static final int MAX_ITERATIONS = 6;
-  public static final double ACCEPTABLE_TIME_VARIATION = 0.01;
+  public static final double ACCEPTABLE_TIME_VARIATION = 0.005;
 
   public static Optional<ShotInfo> calculateMovingShot(
       Translation3d shooterPosition,
@@ -89,6 +90,8 @@ class ShooterCalculations {
       LinearVelocity shooterVelocity,
       ShotType shotType,
       Optional<ShotInfo> lastShot) {
+    Logger.recordOutput("ShotCalculations/succeeded", false);
+    Logger.recordOutput("ShotCalculations/goal", goalPosition);
     // Prepare a stationary shot to calculate if lastShot wasn't provided
     Optional<ShotInfo> baseShot =
         lastShot.or(
@@ -99,19 +102,14 @@ class ShooterCalculations {
       return Optional.empty();
     }
 
-    double yawRadians =
-        lastShot
-            .map(s -> s.yawRadians())
-            .orElseGet(() -> calculateYawRadians(shooterPosition, goalPosition));
-
     // Consider adding an adjustment here based on how long it will take your turret/hood to
     // configure themselves for the shot.
-    double t = baseShot.get().timeSeconds();
-    double pitchRadians = baseShot.get().pitchRadians();
+    ShotInfo solution = baseShot.get();
+    double t = solution.timeSeconds();
 
-    ShotInfo solution = new ShotInfo(pitchRadians, yawRadians, t);
-
-    for (int i = 0; i < MAX_ITERATIONS; i++) {
+    int i;
+    for (i = 0; i < MAX_ITERATIONS; i++) {
+      Logger.recordOutput("ShotCalculations/Iterations", i + 1);
       t = solution.timeSeconds;
 
       double dx = robotVelocity.vxMetersPerSecond * t;
@@ -120,6 +118,8 @@ class ShooterCalculations {
       Translation3d effectiveGoal =
           new Translation3d(
               goalPosition.getX() - dx, goalPosition.getY() - dy, goalPosition.getZ());
+
+      Logger.recordOutput("ShotCalculations/effectiveGoal", effectiveGoal);
 
       Optional<ShotInfo> effectiveShot =
           calculateStationaryShot(shooterPosition, effectiveGoal, shooterVelocity, shotType);
@@ -130,13 +130,14 @@ class ShooterCalculations {
 
       ShotInfo newSolution = effectiveShot.get();
 
-      if (Math.abs(newSolution.timeSeconds - solution.timeSeconds) < ACCEPTABLE_TIME_VARIATION) {
-        break;
-      }
-
       solution = newSolution;
+
+      if (Math.abs(newSolution.timeSeconds - solution.timeSeconds) < ACCEPTABLE_TIME_VARIATION) {
+        Logger.recordOutput("ShotCalculations/succeeded", true);
+        return Optional.of(solution);
+      }
     }
 
-    return Optional.of(solution);
+    return Optional.empty();
   }
 }

@@ -175,14 +175,21 @@ public class RobotContainer {
                 for (double t = 0.0; t < shot.timeSeconds(); t += dt) {
                   effectiveTrajectory.add(
                       position.plus(
-                          new Translation3d(vx * t, vy * t, vz * t - 1.0 / 2.0 * 9.81 * t * t)));
+                          new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
 
                   adjustedTrajectory.add(
                       position.plus(
-                          new Translation3d(
-                              vx_a * t, vy_a * t, vz * t - 1.0 / 2.0 * 9.81 * t * t)));
+                          new Translation3d(vx_a * t, vy_a * t, vz * t - 0.5 * 9.81 * t * t)));
                 }
 
+                double t = shot.timeSeconds();
+                effectiveTrajectory.add(
+                    position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
+                adjustedTrajectory.add(
+                    position.plus(
+                        new Translation3d(vx_a * t, vy_a * t, vz * t - 0.5 * 9.81 * t * t)));
+
+                Logger.recordOutput("Superstructure/Shot", shot);
                 Logger.recordOutput(
                     "Superstructure/EffectiveTrajectory",
                     effectiveTrajectory.toArray(new Translation3d[] {}));
@@ -208,8 +215,12 @@ public class RobotContainer {
                 for (double t = 0.0; t < shot.timeSeconds(); t += dt) {
                   trajectory.add(
                       position.plus(
-                          new Translation3d(vx * t, vy * t, vz * t - 1.0 / 2.0 * 9.81 * t * t)));
+                          new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
                 }
+
+                double t = shot.timeSeconds();
+                trajectory.add(
+                    position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
 
                 Logger.recordOutput(
                     "Superstructure/StaticTrajectory", trajectory.toArray(new Translation3d[] {}));
