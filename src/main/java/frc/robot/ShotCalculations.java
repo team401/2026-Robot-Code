@@ -36,9 +36,8 @@ class ShooterCalculations {
       LinearVelocity shooterVelocity,
       ShotType shotType) {
     // Calculate horizontal distance
-    double dx = goalPosition.getX() - shooterPosition.getX();
-    double dy = goalPosition.getY() - shooterPosition.getY();
-    double distanceMeters = Math.sqrt(dx * dx + dy * dy);
+    var dvec = goalPosition.minus(shooterPosition);
+    double distanceMeters = dvec.toTranslation2d().getNorm();
 
     double velocityMps = shooterVelocity.in(MetersPerSecond);
 
@@ -46,7 +45,7 @@ class ShooterCalculations {
       return Optional.empty();
     }
 
-    double h = goalPosition.getZ() - shooterPosition.getZ();
+    double h = dvec.getZ();
     double v2 = velocityMps * velocityMps;
 
     // Value inside the square root
@@ -112,12 +111,10 @@ class ShooterCalculations {
       Logger.recordOutput("ShotCalculations/Iterations", i + 1);
       t = solution.timeSeconds;
 
-      double dx = robotVelocity.vxMetersPerSecond * t;
-      double dy = robotVelocity.vyMetersPerSecond * t;
+      var vRobot =
+          new Translation3d(robotVelocity.vxMetersPerSecond, robotVelocity.vyMetersPerSecond, 0);
 
-      Translation3d effectiveGoal =
-          new Translation3d(
-              goalPosition.getX() - dx, goalPosition.getY() - dy, goalPosition.getZ());
+      Translation3d effectiveGoal = goalPosition.minus(vRobot.times(t));
 
       Logger.recordOutput("ShotCalculations/effectiveGoal", effectiveGoal);
 
