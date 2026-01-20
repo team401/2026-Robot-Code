@@ -26,8 +26,6 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -155,75 +153,32 @@ public class RobotContainer {
                   MetersPerSecond.of(10.64),
                   ShotType.HIGH);
 
+          final int trajectoryPointsPerMeter = 4;
           maybeShot.ifPresent(
               shot -> {
-                List<Translation3d> effectiveTrajectory = new ArrayList<>();
-                List<Translation3d> adjustedTrajectory = new ArrayList<>();
-                Translation3d position = new Pose3d(driveInstance.getPose()).getTranslation();
-                double vx = 10.64 * Math.cos(shot.pitchRadians()) * Math.cos(shot.yawRadians());
-                double vx_a =
-                    10.64 * Math.cos(shot.pitchRadians()) * Math.cos(shot.yawRadians())
-                        + fieldCentricSpeeds.vxMetersPerSecond;
-                double vy = 10.64 * Math.cos(shot.pitchRadians()) * Math.sin(shot.yawRadians());
-                double vy_a =
-                    10.64 * Math.cos(shot.pitchRadians()) * Math.sin(shot.yawRadians())
-                        + fieldCentricSpeeds.vyMetersPerSecond;
-                double vz = 10.64 * Math.sin(shot.pitchRadians());
-
-                final double dt = 0.1;
-
-                for (double t = 0.0; t < shot.timeSeconds(); t += dt) {
-                  effectiveTrajectory.add(
-                      position.plus(
-                          new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
-
-                  adjustedTrajectory.add(
-                      position.plus(
-                          new Translation3d(vx_a * t, vy_a * t, vz * t - 0.5 * 9.81 * t * t)));
-                }
-
-                double t = shot.timeSeconds();
-                effectiveTrajectory.add(
-                    position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
-                adjustedTrajectory.add(
-                    position.plus(
-                        new Translation3d(vx_a * t, vy_a * t, vz * t - 0.5 * 9.81 * t * t)));
-
                 Logger.recordOutput("Superstructure/Shot", shot);
                 Logger.recordOutput(
                     "Superstructure/EffectiveTrajectory",
-                    effectiveTrajectory.toArray(new Translation3d[] {}));
+                    shot.projectMotion(
+                        10.64,
+                        driveInstance.getPose(),
+                        new ChassisSpeeds(),
+                        trajectoryPointsPerMeter));
                 Logger.recordOutput(
                     "Superstructure/ShotTrajectory",
-                    adjustedTrajectory.toArray(new Translation3d[] {}));
+                    shot.projectMotion(
+                        10.64,
+                        driveInstance.getPose(),
+                        fieldCentricSpeeds,
+                        trajectoryPointsPerMeter));
               });
 
           maybeStaticShot.ifPresent(
               shot -> {
-                List<Translation3d> trajectory = new ArrayList<>();
-                Translation3d position = new Pose3d(driveInstance.getPose()).getTranslation();
-                double vx =
-                    10.64 * Math.cos(shot.pitchRadians()) * Math.cos(shot.yawRadians())
-                        + fieldCentricSpeeds.vxMetersPerSecond;
-                double vy =
-                    10.64 * Math.cos(shot.pitchRadians()) * Math.sin(shot.yawRadians())
-                        + fieldCentricSpeeds.vyMetersPerSecond;
-                double vz = 10.64 * Math.sin(shot.pitchRadians());
-
-                final double dt = 0.1;
-
-                for (double t = 0.0; t < shot.timeSeconds(); t += dt) {
-                  trajectory.add(
-                      position.plus(
-                          new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
-                }
-
-                double t = shot.timeSeconds();
-                trajectory.add(
-                    position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * 9.81 * t * t)));
-
                 Logger.recordOutput(
-                    "Superstructure/StaticTrajectory", trajectory.toArray(new Translation3d[] {}));
+                    "Superstructure/StaticTrajectory",
+                    shot.projectMotion(
+                        10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
               });
         });
   }

@@ -2,10 +2,15 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.littletonrobotics.junction.Logger;
 
 class ShooterCalculations {
@@ -16,7 +21,35 @@ class ShooterCalculations {
     HIGH
   }
 
-  public static record ShotInfo(double pitchRadians, double yawRadians, double timeSeconds) {}
+  public static record ShotInfo(double pitchRadians, double yawRadians, double timeSeconds) {
+    public Translation3d[] projectMotion(
+        double shooterVelocityMps,
+        Pose2d robotPose,
+        ChassisSpeeds fieldRelativeRobotVel,
+        double pointsPerMeter) {
+      List<Translation3d> trajectory = new ArrayList<>();
+
+      double vxy = shooterVelocityMps * Math.cos(pitchRadians());
+
+      double vx = vxy * Math.cos(yawRadians()) + fieldRelativeRobotVel.vxMetersPerSecond;
+      double vy = vxy * Math.sin(yawRadians()) + fieldRelativeRobotVel.vyMetersPerSecond;
+      double vz = shooterVelocityMps * Math.sin(pitchRadians());
+
+      Translation3d position = new Translation3d(robotPose.getTranslation());
+
+      Function<Double, Translation3d> pointFromTime =
+          t -> position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * G * t * t));
+      Function<Double, Double> velocityFromTime = t -> new Vector3D(vx, vy, vz - G * t).getNorm();
+
+      for (double t = 0; t < timeSeconds(); t += 1 / (velocityFromTime.apply(t) * pointsPerMeter)) {
+        trajectory.add(pointFromTime.apply(t));
+      }
+
+      trajectory.add(pointFromTime.apply(timeSeconds()));
+
+      return trajectory.toArray(new Translation3d[] {});
+    }
+  }
 
   public static final double G = 9.81;
 
