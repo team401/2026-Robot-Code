@@ -195,8 +195,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
                       Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
                       Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
             },
-            turretExpoKA,
-            turretExpoKV);
+            turretExpoKV,
+            turretExpoKA);
 
         motor.controlToPositionExpoProfiled(Degrees.of(turretTuningSetpointDegrees.getAsDouble()));
       }

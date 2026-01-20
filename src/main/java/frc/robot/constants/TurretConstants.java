@@ -53,16 +53,19 @@ public class TurretConstants {
   // TODO: Root cause why turret sim requires such ridiculous gains to function properly
   // These gains are CRAZY. MAKE SURE that you change these gains before deploying to a robot, or it
   // will definitely break.
-  public final Double turretKP = 40.0;
+  // The current gains are by no means perfect, but they do make the turret track a goal position
+  // decently in sim. Once we get a physical turret mechanism, the sim can be modified to closely
+  // follow the behavior of the real life mechanism and then all will be more accurate.
+  public final Double turretKP = 5000.0; // 40
   public final Double turretKI = 0.0;
-  public final Double turretKD = 600.0;
+  public final Double turretKD = 800.0; // 600
   public final Double turretKS = 0.0;
   public final Double turretKV = 0.0;
   public final Double turretKG = 0.0;
-  public final Double turretKA = 55.0;
+  public final Double turretKA = 80.0; // 55
 
-  public final Double turretExpoKV = 16.0;
-  public final Double turretExpoKA = 16.0;
+  public final Double turretExpoKV = 2.0;
+  public final Double turretExpoKA = 37.5;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -83,7 +86,7 @@ public class TurretConstants {
   // According to Shorya, 422 alum/mentor:
   // "we usually just figure out what we expect out of the subsystems
   // and just tune the moi as a magic constant"
-  public final MomentOfInertia simTurretMOI = KilogramSquareMeters.of(0.0005);
+  public final MomentOfInertia simTurretMOI = KilogramSquareMeters.of(0.00025);
   // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
   // 0.0508^2. These calculations seemed to create a VERY heavy object
 
