@@ -133,7 +133,7 @@ public class RobotContainer {
               new Translation3d(
                   Units.inchesToMeters(182.11),
                   Units.inchesToMeters(158.84),
-                  Units.inchesToMeters(72));
+                  Units.inchesToMeters(72 - 8));
           Pose2d robotPose = driveInstance.getPose();
           ChassisSpeeds fieldCentricSpeeds =
               ChassisSpeeds.fromRobotRelativeSpeeds(

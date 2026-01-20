@@ -80,10 +80,12 @@ public class TurretConstants {
 
   public final InvertedValue turretMotorDirection = InvertedValue.CounterClockwise_Positive;
 
-  public final MomentOfInertia simTurretMOI =
-      KilogramSquareMeters.of(0.01170557658)
-          .div(4); // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
-  // 0.0508^2. These calculations seemed to create a VERY heavy object, so I've sliced them by 4
+  // According to Shorya, 422 alum/mentor:
+  // "we usually just figure out what we expect out of the subsystems
+  // and just tune the moi as a magic constant"
+  public final MomentOfInertia simTurretMOI = KilogramSquareMeters.of(0.0005);
+  // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
+  // 0.0508^2. These calculations seemed to create a VERY heavy object
 
   public final Angle minTurretAngle = Degrees.of(-5.0);
   public final Angle maxTurretAngle = Degrees.of(350);
@@ -123,10 +125,10 @@ public class TurretConstants {
         buildMechanismConfig(),
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX44(1),
+                DCMotor.getKrakenX44Foc(1),
                 simTurretMOI.in(KilogramSquareMeters),
-                1.0), // Putting the reduction here seems to make the sim impossibly heavy
-            DCMotor.getKrakenX44(1),
+                1 / turretReduction),
+            DCMotor.getKrakenX44Foc(1),
             0.0,
             0.0),
         minTurretAngle,
