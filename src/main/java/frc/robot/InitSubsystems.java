@@ -1,8 +1,10 @@
 package frc.robot;
 
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import frc.robot.constants.JsonConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -11,7 +13,6 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.turret.MotorIOX44Sim;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
 /**
@@ -84,10 +85,11 @@ public class InitSubsystems {
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.turretConstants.buildMechanismConfig();
         return new TurretSubsystem(
-            new MotorIOX44Sim(
-                config,
-                JsonConstants.turretConstants.buildTalonFXConfigs(),
-                JsonConstants.turretConstants.buildTurretSim()));
+            MotorIOTalonFXSim.newLeader(
+                    config,
+                    JsonConstants.turretConstants.buildTalonFXConfigs(),
+                    JsonConstants.turretConstants.buildTurretSim())
+                .withMotorType(MotorType.KrakenX44));
       default:
         // Replayed robot, disable IO implementations
         return new TurretSubsystem(new MotorIOReplay());

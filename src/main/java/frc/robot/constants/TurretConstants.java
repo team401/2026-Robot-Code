@@ -19,7 +19,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
-import coppercore.wpilib_interface.subsystems.sim.PositionSimAdapter;
+import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
+import coppercore.wpilib_interface.subsystems.sim.HardstoppedDCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -29,7 +30,6 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.subsystems.turret.HardstoppedDCMotorSimAdapter;
 
 public class TurretConstants {
 
@@ -120,7 +120,7 @@ public class TurretConstants {
                 .withSensorToMechanismRatio(turretReduction));
   }
 
-  public PositionSimAdapter buildTurretSim() {
+  public CoppercoreSimAdapter buildTurretSim() {
     return new HardstoppedDCMotorSimAdapter(
         buildMechanismConfig(),
         new DCMotorSim(
