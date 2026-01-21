@@ -18,13 +18,17 @@ public class JsonConstants {
 
     var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
 
+    robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
+    turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
   }
 
+  public static RobotInfo robotInfo;
   public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
+  public static TurretConstants turretConstants;
 }
