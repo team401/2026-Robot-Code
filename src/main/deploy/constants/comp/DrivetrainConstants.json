@@ -17,11 +17,11 @@
   },
   "maxLinearAcceleration": {
     "value": 1.0,
-    "unit": "Meter per Second Squared"
+    "unit": "Meter per Second per Second"
   },
   "maxAngularAcceleration": {
     "value": 6.2,
-    "unit": "Radian per Second Squared"
+    "unit": "Radian per Second per Second"
   },
   "joystickDeadband": 0.06,
   "joystickMagnitudeExponent": 2.0

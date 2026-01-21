@@ -13,11 +13,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
 
-  static {
-    JSONMeasure.registerUnit(Units.MetersPerSecondPerSecond, "Meter per Second Squared");
-    JSONMeasure.registerUnit(Units.RadiansPerSecondPerSecond, "Radian per Second Squared");
-  }
-
   public static void loadConstants() {
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
