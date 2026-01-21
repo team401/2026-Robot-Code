@@ -28,13 +28,12 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.util.DiskSim;
 import frc.robot.util.DiskSimAdapter;
 
 public class HopperConstants {
 
-  public final Voltage spinningVoltage = Volts.of(0.0); //placeholder
+  public final Voltage spinningVoltage = Volts.of(0.0); // placeholder
 
   public final Double hopperReduction = 37.5;
 
@@ -82,7 +81,6 @@ public class HopperConstants {
       KilogramSquareMeters.of(
           0.01170557658); // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 * 0.0508^2
 
-
   // = this number
 
   public TalonFXConfiguration buildTalonFXConfigs() {
@@ -114,13 +112,14 @@ public class HopperConstants {
   }
 
   public PositionSimAdapter buildHopperSim() {
-    return new DiskSimAdapter(buildMechanismConfig(),new DiskSim(
-      LinearSystemId.createSingleJointedArmSystem(
-          DCMotor.getKrakenX60(1),
-          simHopperMOI.in(KilogramSquareMeters),
-          hopperReduction),
-      DCMotor.getKrakenX60(1),
-      hopperReduction,
-      0.0,
-      0.0));}
+    return new DiskSimAdapter(
+        buildMechanismConfig(),
+        new DiskSim(
+            LinearSystemId.createSingleJointedArmSystem(
+                DCMotor.getKrakenX60(1), simHopperMOI.in(KilogramSquareMeters), hopperReduction),
+            DCMotor.getKrakenX60(1),
+            hopperReduction,
+            0.0,
+            0.0));
+  }
 }
