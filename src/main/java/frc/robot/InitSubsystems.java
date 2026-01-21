@@ -1,8 +1,10 @@
 package frc.robot;
 
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import frc.robot.constants.JsonConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -82,7 +84,12 @@ public class InitSubsystems {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.indexerConstants.buildMechanismConfig();
-        return null; // TODO: figure out what kind of sim to use. see github issue #10
+        return new IndexerSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                    config,
+                    JsonConstants.indexerConstants.buildTalonFXConfigs(),
+                    JsonConstants.indexerConstants.buildIndexerSim())
+                .withMotorType(MotorType.KrakenX44));
       default:
         // Replayed robot, disable IO implementations
         return new IndexerSubsystem(new MotorIOReplay());

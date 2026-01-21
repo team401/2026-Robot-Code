@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -11,7 +12,13 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
+import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
+import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class IndexerConstants {
 
@@ -42,13 +49,15 @@ public class IndexerConstants {
         // .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(
-                new CANBus("canivore"),
-                indexerKrakenId)) // TODO: replace with robotInfo.canivoreBusName
+                new CANBus("canivore"), // TODO: replace with robotInfo.canivoreBusName
+                indexerKrakenId))
         .build();
   }
 
-  public final Current indexerSupplyCurrentLimit = Amps.of(60.0); // TODO: Find actual values
+  // TODO: Find actual values
+  public final Current indexerSupplyCurrentLimit = Amps.of(60.0);
   public final Current indexerStatorCurrentLimit = Amps.of(40.0);
+  public final MomentOfInertia simIndexerMOI = KilogramSquareMeters.of(0.00025);
 
   public final InvertedValue indexerMotorDirection =
       InvertedValue.CounterClockwise_Positive; // TODO: find value
@@ -75,5 +84,18 @@ public class IndexerConstants {
             new MotionMagicConfigs()
                 .withMotionMagicExpo_kA(indexerExpoKA)
                 .withMotionMagicExpo_kV(indexerExpoKV));
+  }
+
+  public CoppercoreSimAdapter buildIndexerSim() {
+    return new DCMotorSimAdapter(
+        buildMechanismConfig(),
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(
+                DCMotor.getKrakenX44Foc(1),
+                simIndexerMOI.in(KilogramSquareMeters),
+                1 / indexerReduction),
+            DCMotor.getKrakenX44Foc(1),
+            0.0,
+            0.0));
   }
 }
