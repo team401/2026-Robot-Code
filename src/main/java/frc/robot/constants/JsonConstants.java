@@ -24,13 +24,12 @@ public class JsonConstants {
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
     var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
-    // jsonHandler.saveObject(new RobotInfo(), "RobotInfo.json");
+
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
-    // jsonHandler.saveObject(new TurretConstants(), "TurretConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
   }
 

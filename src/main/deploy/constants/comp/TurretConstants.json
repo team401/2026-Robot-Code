@@ -21,26 +21,26 @@
     "unit": "Degree"
   },
   "turretKrakenId": 9,
-  "turretKP": 0.0,
+  "turretKP": 2500.0,
   "turretKI": 0.0,
-  "turretKD": 0.0,
+  "turretKD": 900.0,
   "turretKS": 0.0,
   "turretKV": 0.0,
   "turretKG": 0.0,
-  "turretKA": 0.0,
-  "turretExpoKV": 12.0,
-  "turretExpoKA": 12.0,
+  "turretKA": 80.0,
+  "turretExpoKV": 8.0,
+  "turretExpoKA": 64.0,
   "turretSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
   },
   "turretStatorCurrentLimit": {
-    "value": 40.0,
+    "value": 80.0,
     "unit": "Amp"
   },
   "turretMotorDirection": "CounterClockwise_Positive",
   "simTurretMOI": {
-    "value": 0.01170557658,
+    "value": 2.5E-4,
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
   },
   "minTurretAngle": {

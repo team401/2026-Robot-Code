@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
@@ -21,11 +20,11 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
-import frc.robot.subsystems.turret.states.HomingWaitForButtonState;
-import frc.robot.subsystems.turret.states.HomingWaitForMovementState;
-import frc.robot.subsystems.turret.states.HomingWaitForStoppingState;
-import frc.robot.subsystems.turret.states.IdleState;
-import frc.robot.subsystems.turret.states.TestModeState;
+import frc.robot.subsystems.turret.TurretState.HomingWaitForButtonState;
+import frc.robot.subsystems.turret.TurretState.HomingWaitForMovementState;
+import frc.robot.subsystems.turret.TurretState.HomingWaitForStoppingState;
+import frc.robot.subsystems.turret.TurretState.IdleState;
+import frc.robot.subsystems.turret.TurretState.TestModeState;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -56,11 +55,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
   // State machine and states
   private final StateMachine<TurretSubsystem> stateMachine;
 
-  private final State<TurretSubsystem> homingWaitForButtonState;
-  private final State<TurretSubsystem> homingWaitForMovementState;
-  private final State<TurretSubsystem> homingWaitForStoppingState;
-  private final State<TurretSubsystem> idleState;
-  private final State<TurretSubsystem> testModeState;
+  private final TurretState homingWaitForButtonState;
+  private final TurretState homingWaitForMovementState;
+  private final TurretState homingWaitForStoppingState;
+  private final TurretState idleState;
+  private final TurretState testModeState;
 
   // Tunable numbers
   LoggedTunableNumber turretKP;
@@ -85,11 +84,14 @@ public class TurretSubsystem extends MonitoredSubsystem {
     // Define state machine transitions, register states
     stateMachine = new StateMachine<>(this);
 
-    homingWaitForButtonState = stateMachine.registerState(new HomingWaitForButtonState());
-    homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
-    homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
-    idleState = stateMachine.registerState(new IdleState());
-    testModeState = stateMachine.registerState(new TestModeState());
+    homingWaitForButtonState =
+        (TurretState) stateMachine.registerState(new HomingWaitForButtonState());
+    homingWaitForMovementState =
+        (TurretState) stateMachine.registerState(new HomingWaitForMovementState());
+    homingWaitForStoppingState =
+        (TurretState) stateMachine.registerState(new HomingWaitForStoppingState());
+    idleState = (TurretState) stateMachine.registerState(new IdleState());
+    testModeState = (TurretState) stateMachine.registerState(new TestModeState());
 
     homingWaitForButtonState.whenFinished().transitionTo(idleState);
     homingWaitForButtonState
@@ -107,11 +109,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
     homingWaitForStoppingState.whenFinished().transitionTo(idleState);
 
     idleState
-        .when(TurretSubsystem::isTurretTestMode, "In turret test mode")
+        .when(turret -> turret.isTurretTestMode(), "In turret test mode")
         .transitionTo(testModeState);
 
     testModeState
-        .when((turret) -> !turret.isTurretTestMode(), "Not in turret test mode")
+        .when(turret -> !turret.isTurretTestMode(), "Not in turret test mode")
         .transitionTo(idleState);
 
     stateMachine.setState(homingWaitForButtonState);
@@ -193,8 +195,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
                       Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
                       Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
             },
-            turretExpoKA,
-            turretExpoKV);
+            turretExpoKV,
+            turretExpoKA);
 
         motor.controlToPositionExpoProfiled(Degrees.of(turretTuningSetpointDegrees.getAsDouble()));
       }

@@ -1,0 +1,24 @@
+package frc.robot;
+
+public enum TestMode {
+  // Turret-related test modes
+  TurretVoltageTuning("Turret Voltage Open Loop Tuning"),
+  TurretCurrentTuning("Turret Current Open Loop Tuning"),
+  TurretClosedLoopTuning("Turret Closed Loop Tuning"),
+  TurretPhoenixTuning("Turret Phoenix Tuning (no-op)"),
+  None; // No test mode selected
+
+  private final String description;
+
+  TestMode(String description) {
+    this.description = description;
+  }
+
+  TestMode() {
+    this.description = name();
+  }
+
+  String getDescription() {
+    return this.description;
+  }
+}

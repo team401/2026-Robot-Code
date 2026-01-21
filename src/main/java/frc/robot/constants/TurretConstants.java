@@ -19,7 +19,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
-import coppercore.wpilib_interface.subsystems.sim.PositionSimAdapter;
+import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
+import coppercore.wpilib_interface.subsystems.sim.HardstoppedDCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -29,7 +30,6 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.subsystems.turret.HardstoppedDCMotorSimAdapter;
 
 public class TurretConstants {
 
@@ -50,16 +50,22 @@ public class TurretConstants {
 
   public final Integer turretKrakenId = 9; // TODO: Verify this ID
 
-  public final Double turretKP = 0.0;
+  // TODO: Root cause why turret sim requires such ridiculous gains to function properly
+  // These gains are CRAZY. MAKE SURE that you change these gains before deploying to a robot, or it
+  // will definitely break.
+  // The current gains are by no means perfect, but they do make the turret track a goal position
+  // decently in sim. Once we get a physical turret mechanism, the sim can be modified to closely
+  // follow the behavior of the real life mechanism and then all will be more accurate.
+  public final Double turretKP = 5000.0; // 40
   public final Double turretKI = 0.0;
-  public final Double turretKD = 0.0;
+  public final Double turretKD = 800.0; // 600
   public final Double turretKS = 0.0;
   public final Double turretKV = 0.0;
   public final Double turretKG = 0.0;
-  public final Double turretKA = 0.0;
+  public final Double turretKA = 80.0; // 55
 
-  public final Double turretExpoKV = 12.0;
-  public final Double turretExpoKA = 12.0;
+  public final Double turretExpoKV = 2.0;
+  public final Double turretExpoKA = 37.5;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -73,13 +79,16 @@ public class TurretConstants {
   }
 
   public final Current turretSupplyCurrentLimit = Amps.of(60.0);
-  public final Current turretStatorCurrentLimit = Amps.of(40.0);
+  public final Current turretStatorCurrentLimit = Amps.of(80.0);
 
   public final InvertedValue turretMotorDirection = InvertedValue.CounterClockwise_Positive;
 
-  public final MomentOfInertia simTurretMOI =
-      KilogramSquareMeters.of(
-          0.01170557658); // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 * 0.0508^2
+  // According to Shorya, 422 alum/mentor:
+  // "we usually just figure out what we expect out of the subsystems
+  // and just tune the moi as a magic constant"
+  public final MomentOfInertia simTurretMOI = KilogramSquareMeters.of(0.00025);
+  // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
+  // 0.0508^2. These calculations seemed to create a VERY heavy object
 
   public final Angle minTurretAngle = Degrees.of(-5.0);
   public final Angle maxTurretAngle = Degrees.of(350);
@@ -114,15 +123,15 @@ public class TurretConstants {
                 .withSensorToMechanismRatio(turretReduction));
   }
 
-  public PositionSimAdapter buildTurretSim() {
+  public CoppercoreSimAdapter buildTurretSim() {
     return new HardstoppedDCMotorSimAdapter(
         buildMechanismConfig(),
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX44(1),
+                DCMotor.getKrakenX44Foc(1),
                 simTurretMOI.in(KilogramSquareMeters),
-                1.0), // Putting the reduction here seems to make the sim impossibly heavy
-            DCMotor.getKrakenX44(1),
+                1 / turretReduction),
+            DCMotor.getKrakenX44Foc(1),
             0.0,
             0.0),
         minTurretAngle,

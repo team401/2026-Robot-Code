@@ -4,24 +4,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public final class TestModeManager {
-  public enum TestMode {
-    None, // No test mode selected
-    TurretVoltageTuning("Turret Voltage Open Loop Tuning"),
-    TurretCurrentTuning("Turret Current Open Loop Tuning"),
-    TurretClosedLoopTuning("Turret Closed Loop Tuning"),
-    TurretPhoenixTuning("Turret Phoenix Tuning (no-op)");
-
-    private final String description;
-
-    TestMode(String description) {
-      this.description = description;
-    }
-
-    TestMode() {
-      this.description = name();
-    }
-  }
-
   // This class should not be instantiated
   private TestModeManager() {}
 
@@ -43,9 +25,9 @@ public final class TestModeManager {
 
     for (TestMode mode : TestMode.values()) {
       if (mode == TestMode.None) {
-        testModeChooser.addDefaultOption(mode.description, mode);
+        testModeChooser.addDefaultOption(mode.getDescription(), mode);
       } else {
-        testModeChooser.addOption(mode.description, mode);
+        testModeChooser.addOption(mode.getDescription(), mode);
       }
     }
   }
