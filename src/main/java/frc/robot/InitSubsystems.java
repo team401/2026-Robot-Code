@@ -14,6 +14,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -93,6 +94,29 @@ public class InitSubsystems {
       default:
         // Replayed robot, disable IO implementations
         return new IndexerSubsystem(new MotorIOReplay());
+    }
+  }
+
+  public static TurretSubsystem initTurretSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new TurretSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.turretConstants.buildMechanismConfig(),
+                JsonConstants.turretConstants.buildTalonFXConfigs()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig config = JsonConstants.turretConstants.buildMechanismConfig();
+        return new TurretSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                    config,
+                    JsonConstants.turretConstants.buildTalonFXConfigs(),
+                    JsonConstants.turretConstants.buildTurretSim())
+                .withMotorType(MotorType.KrakenX44));
+      default:
+        // Replayed robot, disable IO implementations
+        return new TurretSubsystem(new MotorIOReplay());
     }
   }
 }

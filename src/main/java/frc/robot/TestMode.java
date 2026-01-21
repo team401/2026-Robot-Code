@@ -6,7 +6,13 @@ public enum TestMode {
   IndexerCurrentTuning("Indexer Current Open Loop Tuning"),
   IndexerClosedLoopTuning("Indexer Closed Loop Tuning"),
   IndexerPhoenixTuning("Indexer Phoenix Tuning (no-op)"),
-  None;
+  // Turret-related test modes
+  TurretVoltageTuning("Turret Voltage Open Loop Tuning"),
+  TurretCurrentTuning("Turret Current Open Loop Tuning"),
+  TurretClosedLoopTuning("Turret Closed Loop Tuning"),
+  TurretPhoenixTuning("Turret Phoenix Tuning (no-op)"),
+  // Miscellaneous
+  None; // No test mode selected
 
   private final String description;
 
@@ -18,7 +24,7 @@ public enum TestMode {
     this.description = name();
   }
 
-  public String getDescription() {
+  String getDescription() {
     return this.description;
   }
 }
