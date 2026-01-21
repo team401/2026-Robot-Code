@@ -1,4 +1,5 @@
 {
   "runDrive": true,
+  "runTurret": true,
   "runLEDs": true
 }
