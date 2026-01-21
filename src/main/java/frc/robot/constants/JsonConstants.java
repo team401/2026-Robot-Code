@@ -1,9 +1,7 @@
 package frc.robot.constants;
 
 import coppercore.parameter_tools.json.JSONHandler;
-import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 
 /**

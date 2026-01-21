@@ -6,6 +6,8 @@ public enum TestMode {
   TurretCurrentTuning("Turret Current Open Loop Tuning"),
   TurretClosedLoopTuning("Turret Closed Loop Tuning"),
   TurretPhoenixTuning("Turret Phoenix Tuning (no-op)"),
+  // Drivetrain-related test modes
+  DriveGainsTuning("Drive Steering and Drive Gains Tuning"),
   None; // No test mode selected
 
   private final String description;

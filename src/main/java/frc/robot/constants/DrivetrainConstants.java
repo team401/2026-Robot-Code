@@ -23,4 +23,14 @@ public class DrivetrainConstants {
   public final Double joystickDeadband =
       0.06; // Very low deadband for hall effect sticks; needs to be tuned
   public final Double joystickMagnitudeExponent = 2.0;
+
+  public final PIDGains steerGains = new PIDGains(100, 0.0, 0.5, 0.1, 2.49, 0.0);
+
+  public final PIDGains driveGains = new PIDGains(0.1, 0.0, 0.0, 0.0, 0.124, 0.0);
+
+  public record PIDGains(double kP, double kI, double kD, double kS, double kV, double kA) {
+    public double[] asArray() {
+      return new double[] {kP, kI, kD, kS, kV, kA};
+    }
+  }
 }

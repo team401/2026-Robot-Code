@@ -5,11 +5,14 @@ import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import frc.robot.subsystems.drive.Drive;
 
-// Copilot used to help write this class
-
 public class DriveWithJoysticksState extends State<Drive> {
 
   private DriveWithJoysticks driveCommand;
+
+  // This is to allow subclasses (DriveTestModeState) to set the name
+  protected DriveWithJoysticksState(String name) {
+    super(name);
+  }
 
   public DriveWithJoysticksState() {
     super("DriveWithJoysticks");
@@ -24,7 +27,21 @@ public class DriveWithJoysticksState extends State<Drive> {
   }
 
   @Override
+  protected void onEntry(StateMachine<Drive> stateMachine, Drive world) {
+    if (driveCommand != null) {
+      driveCommand.initialize();
+    }
+  }
+
+  @Override
   protected void periodic(StateMachine<Drive> stateMachine, Drive world) {
     driveCommand.execute();
+  }
+
+  @Override
+  protected void onExit(StateMachine<Drive> stateMachine, Drive world) {
+    if (driveCommand != null) {
+      driveCommand.end(false);
+    }
   }
 }
