@@ -154,8 +154,15 @@ public class RobotContainer {
                   ShotType.HIGH);
 
           final int trajectoryPointsPerMeter = 4;
+
           maybeShot.ifPresent(
               shot -> {
+                Translation3d[] shotTrajectory =
+                    shot.projectMotion(
+                        10.64,
+                        driveInstance.getPose(),
+                        fieldCentricSpeeds,
+                        trajectoryPointsPerMeter);
                 Logger.recordOutput("Superstructure/Shot", shot);
                 Logger.recordOutput(
                     "Superstructure/EffectiveTrajectory",
@@ -164,13 +171,10 @@ public class RobotContainer {
                         driveInstance.getPose(),
                         new ChassisSpeeds(),
                         trajectoryPointsPerMeter));
+                Logger.recordOutput("Superstructure/ShotTrajectory", shotTrajectory);
                 Logger.recordOutput(
-                    "Superstructure/ShotTrajectory",
-                    shot.projectMotion(
-                        10.64,
-                        driveInstance.getPose(),
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter));
+                    "Superstructure/ShotErrorMeters",
+                    shotTrajectory[shotTrajectory.length - 1].getDistance(hubTranslation));
               });
 
           maybeStaticShot.ifPresent(

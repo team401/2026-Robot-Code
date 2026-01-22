@@ -106,6 +106,9 @@ class ShooterCalculations {
       return Optional.empty();
     }
     double t = distanceMeters / (Math.cos(theta) * velocityMps);
+    // Here's an alternative calculation using height. It isn't quite right either.
+    // double viy = velocityMps * Math.sin(theta);
+    // double t = (viy + Math.sqrt(viy * viy - 2 * h * G)) / (G);
 
     double yaw = calculateYawRadians(shooterPosition, goalPosition);
 
@@ -113,7 +116,7 @@ class ShooterCalculations {
   }
 
   public static final int MAX_ITERATIONS = 6;
-  public static final double ACCEPTABLE_TIME_VARIATION = 0.005;
+  public static final double ACCEPTABLE_TIME_VARIATION = 0.001;
 
   public static Optional<ShotInfo> calculateMovingShot(
       Translation3d shooterPosition,
