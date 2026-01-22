@@ -18,6 +18,9 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.DependencyOrderedExecutor;
+import frc.robot.DependencyOrderedExecutor.ActionKey;
+import frc.robot.RobotContainer;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForButtonState;
@@ -47,8 +50,14 @@ public class TurretSubsystem extends MonitoredSubsystem {
      * Whether or not the homing switch is currently pressed. This value should default to false
      * when a homing limit switch is not present.
      */
-    public boolean isHomingSwitchPressed = false;
+    private boolean isHomingSwitchPressed = false;
+
+    public boolean isHomingSwitchPressed() {
+      return isHomingSwitchPressed;
+    }
   }
+
+  public static final ActionKey UPDATE_INPUTS = new ActionKey("TurretSubsystem::updateInputs");
 
   private final TurretDependencies dependencies = new TurretDependencies();
 
@@ -148,16 +157,25 @@ public class TurretSubsystem extends MonitoredSubsystem {
     // Add turret to the AutoLogOutputManager, as, being stored in an optional, it won't be visible
     // to the recursive search of Robot's fields
     AutoLogOutputManager.addObject(this);
+
+    DependencyOrderedExecutor.getDefaultInstance()
+        .registerAction(UPDATE_INPUTS, this::updateInputs);
+
+    DependencyOrderedExecutor.getDefaultInstance()
+        .addDependencies(UPDATE_INPUTS, RobotContainer.UPDATE_TURRET_DEPENDENCIES);
+  }
+
+  public void updateInputs() {
+    motor.updateInputs(inputs);
+    Logger.processInputs("Turret/inputs", inputs);
+
+    Logger.recordOutput("Turret/closedLoopReferenceRadians", inputs.closedLoopReference);
+    Logger.recordOutput(
+        "Turret/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
   }
 
   @Override
   public void monitoredPeriodic() {
-    motor.updateInputs(inputs);
-    Logger.processInputs("Turret/inputs", inputs);
-    Logger.recordOutput("Turret/closedLoopReferenceRadians", inputs.closedLoopReference);
-    Logger.recordOutput(
-        "Turret/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
-
     Logger.recordOutput("Turret/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
     Logger.recordOutput("Turret/StateAfter", stateMachine.getCurrentState().getName());
@@ -210,7 +228,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     }
   }
 
-  public TurretDependencies getDependenciesObject() {
+  public TurretDependencies getDependencies() {
     return this.dependencies;
   }
 
@@ -254,5 +272,16 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   public void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
     motor.controlToPositionExpoProfiled(goalAngleTurretCentric);
+  }
+
+  /**
+   * Updates the turret subsystem on whether the homing switch is pressed. This should only be
+   * called by a coordinator/supervisor-layer action scheduled with the DependencyOrderedExecutor.
+   *
+   * @param isHomingSwitchPressed True if the homing switch is pressed (turret should assume it has
+   *     homed), false if the switch isn't pressed.
+   */
+  public void setIsHomingSwitchPressed(boolean isHomingSwitchPressed) {
+    dependencies.isHomingSwitchPressed = isHomingSwitchPressed;
   }
 }

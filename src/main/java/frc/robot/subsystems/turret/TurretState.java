@@ -40,7 +40,7 @@ public abstract class TurretState extends State<TurretSubsystem> {
   public static class HomingWaitForButtonState extends TurretState {
     @Override
     public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
-      if (turret.getDependenciesObject().isHomingSwitchPressed) {
+      if (turret.getDependencies().isHomingSwitchPressed()) {
         zeroTurretAndFinish(turret);
       }
     }

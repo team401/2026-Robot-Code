@@ -18,14 +18,15 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShooterCalculations.ShotInfo;
 import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -40,13 +41,30 @@ public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
   private final Optional<TurretSubsystem> turret;
+  private final Optional<Void> homingSwitch = Optional.empty();
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
 
+  public static final ActionKey RUN_COMMAND_SCHEDULER = new ActionKey("CommandScheduler::run");
+  // TODO: Decide if these belong in RobotContainer or if our coordination layer should have its own
+  // class
+  public static final ActionKey UPDATE_TURRET_DEPENDENCIES =
+      new ActionKey("RobotContainer::updateTurretDependencies");
+  public static final ActionKey RUN_SHOT_CALCULATOR =
+      new ActionKey("RobotContainer::runShotCalculator");
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     JsonConstants.loadConstants();
+
+    var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
+    dependencyOrderedExecutor.registerAction(
+        RUN_COMMAND_SCHEDULER, CommandScheduler.getInstance()::run);
+    dependencyOrderedExecutor.registerAction(
+        UPDATE_TURRET_DEPENDENCIES, this::updateTurretDependencies);
+    dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
+    dependencyOrderedExecutor.addDependencies(RUN_COMMAND_SCHEDULER, RUN_SHOT_CALCULATOR);
 
     TestModeManager.init();
 
@@ -58,6 +76,7 @@ public class RobotContainer {
 
     if (JsonConstants.featureFlags.runTurret) {
       turret = Optional.of(InitSubsystems.initTurretSubsystem());
+      dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
     } else {
       turret = Optional.empty();
     }
@@ -92,6 +111,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    dependencyOrderedExecutor.finalizeSchedule();
   }
 
   /**
@@ -117,14 +138,24 @@ public class RobotContainer {
     return autoChooser.get();
   }
 
-  /**
-   * Refreshes subsystem dependencies
-   *
-   * <p>This method will not run automatically and must be called by Robot periodic.
-   */
-  public void periodic() {
-    turret.ifPresent(turret -> updateTurretDependencies(turret.getDependenciesObject()));
+  // Subsystem dependency updates
+  /** Update the turret subsystem on the state of the homing switch. */
+  private void updateTurretDependencies() {
+    // TODO: Add other subsystems that require homing, like the hood and the intake.
+    // TODO: Add actual check for whether homing switch is present once it is designed
+    // This check is written to mimic how the actual check would look when dealing with a homing
+    // switch that was an actual "mini-subsystem"
+    turret.ifPresent(
+        turret -> turret.setIsHomingSwitchPressed(homingSwitch.map(s -> false).orElse(false)));
+  }
 
+  /**
+   * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
+   * method should also command the subsystems to take their actinos.
+   *
+   * <p>This should likely go into some kind of coordination layer class.
+   */
+  public void runShotCalculator() {
     drive.ifPresent(
         driveInstance -> {
           Translation3d hubTranslation =
@@ -132,6 +163,12 @@ public class RobotContainer {
                   Units.inchesToMeters(182.11),
                   Units.inchesToMeters(158.84),
                   Units.inchesToMeters(72 - 8));
+          // Placeholder passing "example" translation
+          Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
+
+          // Pick either passing target or hub here.
+          Translation3d goalTranslation = passingTargetTranslation;
+
           Pose2d robotPose = driveInstance.getPose();
           ChassisSpeeds fieldCentricSpeeds =
               ChassisSpeeds.fromRobotRelativeSpeeds(
@@ -140,7 +177,7 @@ public class RobotContainer {
           Optional<ShotInfo> maybeShot =
               ShooterCalculations.calculateMovingShot(
                   new Pose3d(robotPose).getTranslation(),
-                  hubTranslation,
+                  goalTranslation,
                   fieldCentricSpeeds,
                   MetersPerSecond.of(10.64),
                   ShotType.HIGH,
@@ -149,7 +186,7 @@ public class RobotContainer {
           Optional<ShotInfo> maybeStaticShot =
               ShooterCalculations.calculateStationaryShot(
                   new Pose3d(robotPose).getTranslation(),
-                  hubTranslation,
+                  goalTranslation,
                   MetersPerSecond.of(10.64),
                   ShotType.HIGH);
 
@@ -174,7 +211,7 @@ public class RobotContainer {
                 Logger.recordOutput("Superstructure/ShotTrajectory", shotTrajectory);
                 Logger.recordOutput(
                     "Superstructure/ShotErrorMeters",
-                    shotTrajectory[shotTrajectory.length - 1].getDistance(hubTranslation));
+                    shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
               });
 
           maybeStaticShot.ifPresent(
@@ -185,21 +222,5 @@ public class RobotContainer {
                         10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
               });
         });
-  }
-
-  // Subsystem dependency updates
-  /**
-   * Given a TurretDependenncies object, update its fields to reflect the current state of the
-   * robot.
-   *
-   * @param dependencies The TurretDependencies object to update with the latest data
-   */
-  private void updateTurretDependencies(TurretDependencies dependencies) {
-    // TODO: Add actual check for whether homing switch is present once it is designed
-    if (false) {
-      // TODO: Use hardware homing switch
-    } else {
-      dependencies.isHomingSwitchPressed = false;
-    }
   }
 }
