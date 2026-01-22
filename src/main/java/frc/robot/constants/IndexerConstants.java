@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
+import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -46,11 +47,10 @@ public class IndexerConstants {
         .withName("Indexer")
         .withEncoderToMechanismRatio(indexerReduction)
         .withMotorToEncoderRatio(1.0)
-        // .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
+        .withGravityFeedforwardType(
+            GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
-            new CANDeviceID(
-                new CANBus("canivore"), // TODO: replace with robotInfo.canivoreBusName
-                indexerKrakenId))
+            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), indexerKrakenId))
         .build();
   }
 
