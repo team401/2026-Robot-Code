@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -167,12 +168,17 @@ public class RobotContainer {
           Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
 
           // Pick either passing target or hub here.
-          Translation3d goalTranslation = passingTargetTranslation;
+          Translation3d goalTranslation = hubTranslation;
 
           Pose2d robotPose = driveInstance.getPose();
           ChassisSpeeds fieldCentricSpeeds =
               ChassisSpeeds.fromRobotRelativeSpeeds(
                   driveInstance.getChassisSpeeds(), robotPose.getRotation());
+
+          Translation2d goalXYPlane =
+              new Translation2d(goalTranslation.getX(), goalTranslation.getY());
+          Logger.recordOutput(
+              "Superstructure/ShotXYDistanceMeters", robotPose.getTranslation().getDistance(goalXYPlane));
 
           Optional<ShotInfo> maybeShot =
               ShooterCalculations.calculateMovingShot(

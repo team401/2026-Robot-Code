@@ -116,7 +116,7 @@ class ShooterCalculations {
   }
 
   public static final int MAX_ITERATIONS = 6;
-  public static final double ACCEPTABLE_TIME_VARIATION = 0.001;
+  public static final double ACCEPTABLE_TIME_VARIATION = 0.025;
 
   public static Optional<ShotInfo> calculateMovingShot(
       Translation3d shooterPosition,
@@ -163,12 +163,12 @@ class ShooterCalculations {
 
       ShotInfo newSolution = effectiveShot.get();
 
-      solution = newSolution;
-
       if (Math.abs(newSolution.timeSeconds - solution.timeSeconds) < ACCEPTABLE_TIME_VARIATION) {
         Logger.recordOutput("ShotCalculations/succeeded", true);
-        return Optional.of(solution);
+        return Optional.of(newSolution);
       }
+
+      solution = newSolution;
     }
 
     return Optional.empty();
