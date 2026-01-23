@@ -82,6 +82,7 @@ public class DependencyOrderedExecutor {
     System.out.println("[DOE] Finalizing schedule: ");
     System.out.println("[DOE] Dependency graph:");
     dependencyGraph.printMermaid(System.out);
+    dependencyGraph.printDOT(System.out);
 
     actionSchedule =
         Optional.of(

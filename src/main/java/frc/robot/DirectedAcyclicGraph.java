@@ -12,8 +12,8 @@ import java.util.Map;
 // suggestions
 
 public class DirectedAcyclicGraph<T> {
-  /** A map from each node to the list of its incoming nodes (direct predecessors) */
-  private final Map<T, List<T>> incomingMap = new HashMap<>();
+  /** A map from each node to the list of its outgoing nodes (direct successors) */
+  private final Map<T, List<T>> successorMap = new HashMap<>();
 
   /**
    * Add a new node into the graph
@@ -21,7 +21,7 @@ public class DirectedAcyclicGraph<T> {
    * @param node The node to add.
    */
   public void addNode(T node) {
-    incomingMap.computeIfAbsent(node, k -> new ArrayList<>());
+    successorMap.computeIfAbsent(node, k -> new ArrayList<>());
   }
 
   /**
@@ -31,8 +31,8 @@ public class DirectedAcyclicGraph<T> {
    * @param head The "second" node, where the edge ends and the direct successor of tail
    */
   public void addEdge(T tail, T head) {
-    incomingMap.computeIfAbsent(head, k -> new ArrayList<>()).add(tail);
-    addNode(tail); // Ensure that the tail exists in the graph even if it isn't explicitly added
+    successorMap.computeIfAbsent(tail, k -> new ArrayList<>()).add(head);
+    addNode(head); // Ensure that the tail exists in the graph even if it isn't explicitly added
   }
 
   /**
@@ -44,18 +44,22 @@ public class DirectedAcyclicGraph<T> {
    * @return An array of nodes, ordered topologically
    */
   public List<T> topologicalSort() {
-    // Make a new map to avoid mutating the old one
-    Map<T, List<T>> incoming = new HashMap<>();
-    for (var entry : incomingMap.entrySet()) {
-      incoming.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+    // Make a map to count the incoming edges of each node
+    Map<T, Integer> incomingCountMap = new HashMap<>();
+
+    for (var successorEntry : successorMap.entrySet()) {
+      incomingCountMap.putIfAbsent(successorEntry.getKey(), 0);
+      for (var outgoingNode : successorEntry.getValue()) {
+        incomingCountMap.merge(outgoingNode, 1, Integer::sum);
+      }
     }
 
     // First, find "start nodes" with no incoming edges
     Deque<T> startNodes = new ArrayDeque<>();
 
-    for (T node : incoming.keySet()) {
-      if (incoming.get(node).isEmpty()) {
-        startNodes.add(node);
+    for (var entry : incomingCountMap.entrySet()) {
+      if (entry.getValue().intValue() == 0) {
+        startNodes.add(entry.getKey());
       }
     }
 
@@ -67,14 +71,15 @@ public class DirectedAcyclicGraph<T> {
     while (!startNodes.isEmpty()) {
       T node = startNodes.removeFirst();
       sortedList.add(node);
-      for (T otherNode : incoming.keySet()) {
-        if (incoming.get(otherNode).remove(node) && incoming.get(otherNode).isEmpty()) {
+      for (T otherNode : successorMap.get(node)) {
+        int incomingCount = incomingCountMap.merge(otherNode, -1, Integer::sum);
+        if (incomingCount == 0) {
           startNodes.addLast(otherNode);
         }
       }
     }
 
-    if (sortedList.size() != incomingMap.size()) {
+    if (sortedList.size() != successorMap.size()) {
       throw new IllegalStateException("Cyclic dependency detected in graph.");
     }
 
@@ -89,20 +94,37 @@ public class DirectedAcyclicGraph<T> {
   public void printMermaid(PrintStream printStream) {
     printStream.println("```mermaid");
     printStream.println("graph LR");
-    for (var entry : incomingMap.entrySet()) {
-      for (var incoming : entry.getValue()) {
+    for (var entry : successorMap.entrySet()) {
+      if (entry.getValue().isEmpty()) {
+        System.out.println("  " + entry.getKey().hashCode() + "(\"" + entry.getKey() + ")\"");
+      }
+      for (var outgoing : entry.getValue()) {
         System.out.println(
             "  "
-                + incoming.hashCode()
-                + "(\""
-                + incoming
-                + "\") --> "
                 + entry.getKey().hashCode()
                 + "(\""
                 + entry.getKey()
+                + "\") --> "
+                + outgoing.hashCode()
+                + "(\""
+                + outgoing
                 + "\")");
       }
     }
     printStream.println("```");
+  }
+
+  public void printDOT(PrintStream printStream) {
+    printStream.println("digraph {");
+    for (var entry : successorMap.entrySet()) {
+      if (entry.getValue().isEmpty()) {
+        System.out.println("  \"" + entry.getKey() + "\"");
+      }
+
+      for (var outgoing : entry.getValue()) {
+        System.out.println("  " + "\"" + entry.getKey() + "\" -> " + "\"" + outgoing + "\"");
+      }
+    }
+    printStream.println("}");
   }
 }

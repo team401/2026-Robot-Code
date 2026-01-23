@@ -178,7 +178,8 @@ public class RobotContainer {
           Translation2d goalXYPlane =
               new Translation2d(goalTranslation.getX(), goalTranslation.getY());
           Logger.recordOutput(
-              "Superstructure/ShotXYDistanceMeters", robotPose.getTranslation().getDistance(goalXYPlane));
+              "Superstructure/ShotXYDistanceMeters",
+              robotPose.getTranslation().getDistance(goalXYPlane));
 
           Optional<ShotInfo> maybeShot =
               ShooterCalculations.calculateMovingShot(
