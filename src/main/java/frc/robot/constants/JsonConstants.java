@@ -28,5 +28,5 @@ public class JsonConstants {
   public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
-  public static HopperConstants hopperConstants; 
+  public static HopperConstants hopperConstants;
 }

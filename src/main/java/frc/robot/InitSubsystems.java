@@ -3,6 +3,7 @@ package frc.robot;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import frc.robot.constants.JsonConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -12,7 +13,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.hopper.MotorIOX60Sim;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -80,7 +80,7 @@ public class InitSubsystems {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        return new HopperSubsystem(new MotorIOX60Sim(JsonConstants.hopperConstants.buildMechanismConfig(),
+        return new HopperSubsystem(MotorIOTalonFXSim.newLeader(JsonConstants.hopperConstants.buildMechanismConfig(),
                 JsonConstants.hopperConstants.buildTalonFXConfigs(),
                 JsonConstants.hopperConstants.buildHopperSim()));
 
