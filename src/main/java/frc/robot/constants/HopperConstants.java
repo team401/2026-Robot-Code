@@ -76,7 +76,11 @@ public class HopperConstants {
 
   public final InvertedValue hopperMotorDirection = InvertedValue.CounterClockwise_Positive;
 
-  public final MomentOfInertia simHopperMOI = KilogramSquareMeters.of(0.0); // Placeholder
+  public final MomentOfInertia simHopperMOI =
+      KilogramSquareMeters.of(
+          0.01170557658); // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 * 0.0508^2
+
+  // = this number
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

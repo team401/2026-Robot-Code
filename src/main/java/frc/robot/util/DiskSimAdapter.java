@@ -6,13 +6,13 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
-import coppercore.wpilib_interface.subsystems.sim.PositionSimAdapter;
+import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
-public class DiskSimAdapter implements PositionSimAdapter {
+public class DiskSimAdapter implements CoppercoreSimAdapter {
   private final MechanismConfig config;
   // The states of the system are [angle,
   // angular velocity]ᵀ, inputs are [voltage], and outputs are [angle, angular velocity]
