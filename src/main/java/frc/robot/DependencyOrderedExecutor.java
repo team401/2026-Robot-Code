@@ -64,10 +64,6 @@ public class DependencyOrderedExecutor {
 
   public void addDependencies(ActionKey action, ActionKey... dependencies) {
     checkForModificationAfterFinalization();
-    if (!actionMap.containsKey(action)) {
-      throw new IllegalArgumentException(
-          "Dependencies for key " + action.name() + " were added before action was registered.");
-    }
 
     for (var dependency : dependencies) {
       dependencyGraph.addEdge(dependency, action);

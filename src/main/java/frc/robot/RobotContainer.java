@@ -7,33 +7,19 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
-import frc.robot.ShooterCalculations.ShotInfo;
-import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -46,18 +32,15 @@ public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
   private final Optional<TurretSubsystem> turret;
+  private final Optional<HoodSubsystem> hood;
   private final Optional<Void> homingSwitch = Optional.empty();
+
+  private final CoordinationLayer coordinationLayer;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
 
   public static final ActionKey RUN_COMMAND_SCHEDULER = new ActionKey("CommandScheduler::run");
-  // TODO: Decide if these belong in RobotContainer or if our coordination layer should have its own
-  // class
-  public static final ActionKey UPDATE_TURRET_DEPENDENCIES =
-      new ActionKey("RobotContainer::updateTurretDependencies");
-  public static final ActionKey RUN_SHOT_CALCULATOR =
-      new ActionKey("RobotContainer::runShotCalculator");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -66,10 +49,8 @@ public class RobotContainer {
     var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
     dependencyOrderedExecutor.registerAction(
         RUN_COMMAND_SCHEDULER, CommandScheduler.getInstance()::run);
-    dependencyOrderedExecutor.registerAction(
-        UPDATE_TURRET_DEPENDENCIES, this::updateTurretDependencies);
-    dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
-    dependencyOrderedExecutor.addDependencies(RUN_COMMAND_SCHEDULER, RUN_SHOT_CALCULATOR);
+    dependencyOrderedExecutor.addDependencies(
+        RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_SHOT_CALCULATOR);
 
     TestModeManager.init();
 
@@ -79,9 +60,14 @@ public class RobotContainer {
       drive = Optional.empty();
     }
 
+    if (JsonConstants.featureFlags.runHood) {
+      hood = Optional.of(InitSubsystems.initHoodSubsystem());
+    } else {
+      hood = Optional.empty();
+    }
+
     if (JsonConstants.featureFlags.runTurret) {
       turret = Optional.of(InitSubsystems.initTurretSubsystem());
-      dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
     } else {
       turret = Optional.empty();
     }
@@ -114,6 +100,8 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
+    coordinationLayer = new CoordinationLayer(drive, turret, hood, homingSwitch);
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -141,125 +129,5 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
-  }
-
-  // Subsystem dependency updates
-  /** Update the turret subsystem on the state of the homing switch. */
-  private void updateTurretDependencies() {
-    // TODO: Add other subsystems that require homing, like the hood and the intake.
-    // TODO: Add actual check for whether homing switch is present once it is designed
-    // This check is written to mimic how the actual check would look when dealing with a homing
-    // switch that was an actual "mini-subsystem"
-    turret.ifPresent(
-        turret -> turret.setIsHomingSwitchPressed(homingSwitch.map(s -> false).orElse(false)));
-  }
-
-  public static InterpolatingDoubleTreeMap distanceToVi = new InterpolatingDoubleTreeMap();
-
-  static {
-    distanceToVi.put(1.8, 6.4);
-    distanceToVi.put(2.0, 6.8);
-    distanceToVi.put(4.0, 8.8);
-  }
-
-  /**
-   * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
-   * method should also command the subsystems to take their actinos.
-   *
-   * <p>This should likely go into some kind of coordination layer class.
-   */
-  public void runShotCalculator() {
-    drive.ifPresent(
-        driveInstance -> {
-          Translation3d hubTranslation =
-              new Translation3d(
-                  Units.inchesToMeters(182.11),
-                  Units.inchesToMeters(158.84),
-                  Units.inchesToMeters(72 - 8));
-          // Placeholder passing "example" translation
-          Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
-
-          Pose2d robotPose = driveInstance.getPose();
-          // Pose taken from CAD
-          Transform3d robotToShooter =
-              new Transform3d(
-                Units.inchesToMeters(4.175),
-                Units.inchesToMeters(-2.088),
-                Units.inchesToMeters(17.0),
-                new Rotation3d());
-          Translation3d shooterPosition = new Pose3d(robotPose).plus(robotToShooter).getTranslation();
-
-          // Pick either passing target or hub here.
-          Translation3d goalTranslation = hubTranslation;
-
-          ChassisSpeeds fieldCentricSpeeds =
-              ChassisSpeeds.fromRobotRelativeSpeeds(
-                  driveInstance.getChassisSpeeds(), robotPose.getRotation());
-
-          Translation2d goalXYPlane =
-              new Translation2d(goalTranslation.getX(), goalTranslation.getY());
-          double shotDistanceXYMeters = robotPose.getTranslation().getDistance(goalXYPlane);
-          Logger.recordOutput("Superstructure/ShotXYDistanceMeters", shotDistanceXYMeters);
-
-          double viMetersPerSecond = distanceToVi.get(shotDistanceXYMeters);
-          Logger.recordOutput("Superstructure/viMetersPerSecond", viMetersPerSecond);
-
-          Optional<ShotInfo> maybeShot =
-              ShooterCalculations.calculateMovingShot(
-                  shooterPosition,
-                  goalTranslation,
-                  fieldCentricSpeeds,
-                  MetersPerSecond.of(viMetersPerSecond),
-                  ShotType.HIGH,
-                  Optional.empty());
-
-          Optional<ShotInfo> maybeStaticShot =
-              ShooterCalculations.calculateStationaryShot(
-                  shooterPosition,
-                  goalTranslation,
-                  MetersPerSecond.of(viMetersPerSecond),
-                  ShotType.HIGH);
-
-          final int trajectoryPointsPerMeter = 4;
-
-          maybeShot.ifPresent(
-              shot -> {
-                shot =
-                    new ShotInfo(
-                        MathUtil.clamp(
-                            shot.pitchRadians(), Math.toRadians(90 - 40), Math.toRadians(90 - 20)),
-                        shot.yawRadians(),
-                        shot.timeSeconds());
-                Translation3d[] shotTrajectory =
-                    shot.projectMotion(
-                        viMetersPerSecond,
-                        shooterPosition,
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter);
-                Logger.recordOutput("Superstructure/Shot", shot);
-                Logger.recordOutput(
-                    "Superstructure/EffectiveTrajectory",
-                    shot.projectMotion(
-                        viMetersPerSecond,
-                        shooterPosition,
-                        new ChassisSpeeds(),
-                        trajectoryPointsPerMeter));
-                Logger.recordOutput("Superstructure/ShotTrajectory", shotTrajectory);
-                Logger.recordOutput(
-                    "Superstructure/ShotErrorMeters",
-                    shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
-              });
-
-          maybeStaticShot.ifPresent(
-              shot -> {
-                Logger.recordOutput(
-                    "Superstructure/StaticTrajectory",
-                    shot.projectMotion(
-                        viMetersPerSecond,
-                        shooterPosition,
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter));
-              });
-        });
   }
 }

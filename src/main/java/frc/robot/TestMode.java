@@ -6,6 +6,10 @@ public enum TestMode {
   TurretCurrentTuning("Turret Current Open Loop Tuning"),
   TurretClosedLoopTuning("Turret Closed Loop Tuning"),
   TurretPhoenixTuning("Turret Phoenix Tuning (no-op)"),
+  HoodVoltageTuning("Hood Voltage Open Loop Tuning"),
+  HoodCurrentTuning("Hood Current Open Loop Tuning"),
+  HoodClosedLoopTuning("Hood Closed Loop Tuning"),
+  HoodPhoenixTuning("Hood Phoenix Tuning (no-op)"),
   None; // No test mode selected
 
   private final String description;

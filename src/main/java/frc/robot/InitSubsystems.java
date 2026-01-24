@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
 /**
@@ -93,6 +94,29 @@ public class InitSubsystems {
       default:
         // Replayed robot, disable IO implementations
         return new TurretSubsystem(new MotorIOReplay());
+    }
+  }
+
+  public static HoodSubsystem initHoodSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new HoodSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.hoodConstants.buildMechanismConfig(),
+                JsonConstants.hoodConstants.buildTalonFXConfigs()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig config = JsonConstants.hoodConstants.buildMechanismConfig();
+        return new HoodSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                    config,
+                    JsonConstants.hoodConstants.buildTalonFXConfigs(),
+                    JsonConstants.hoodConstants.buildHoodSim())
+                .withMotorType(MotorType.KrakenX44));
+      default:
+        // Replayed robot, disable IO implementations
+        return new HoodSubsystem(new MotorIOReplay());
     }
   }
 }

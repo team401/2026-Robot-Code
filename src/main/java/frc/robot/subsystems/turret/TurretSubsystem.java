@@ -18,9 +18,9 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.CoordinationLayer;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
-import frc.robot.RobotContainer;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForButtonState;
@@ -36,7 +36,7 @@ import org.littletonrobotics.junction.Logger;
 /**
  * A single motor turret.
  *
- * <p>Assume all angles are clockwise-positive since that's what physics & math use.
+ * <p>Assume all angles are counterclockwise-positive since that's what physics & math use.
  */
 public class TurretSubsystem extends MonitoredSubsystem {
   // Motor and inputs
@@ -162,7 +162,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .registerAction(UPDATE_INPUTS, this::updateInputs);
 
     DependencyOrderedExecutor.getDefaultInstance()
-        .addDependencies(UPDATE_INPUTS, RobotContainer.UPDATE_TURRET_DEPENDENCIES);
+        .addDependencies(UPDATE_INPUTS, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
   }
 
   public void updateInputs() {

@@ -9,4 +9,5 @@ package frc.robot.constants;
 public class FeatureFlags {
   public final Boolean runDrive = true;
   public final Boolean runTurret = true;
+  public final Boolean runHood = true;
 }
