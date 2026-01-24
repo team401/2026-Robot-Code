@@ -1,0 +1,37 @@
+{
+  "maxLinearSpeed": {
+    "value": 4,
+    "unit": "Meter per Second"
+  },
+  "maxAngularSpeed": {
+    "value": 7.2,
+    "unit": "Radian per Second"
+  },
+  "maxLinearVelocity": {
+    "value": 4.0,
+    "unit": "Meter per Second"
+  },
+  "maxAngularVelocity": {
+    "value": 6.2,
+    "unit": "Radian per Second"
+  },
+  "maxLinearAcceleration": {
+    "value": 6.0,
+    "unit": "Meter per Second per Second"
+  },
+  "maxAngularAcceleration": {
+    "value": 6.0,
+    "unit": "Radian per Second per Second"
+  },
+  "joystickDeadband": 0.02,
+  "joystickMagnitudeExponent": 2.0,
+  "driveGains": {
+    "kP": 0.1,
+    "kI": 0,
+    "kD": 0,
+    "kS": 0.20845,
+    "kV": 0.75722,
+    "kG": 0.0,
+    "kA": 0.0
+  }
+}

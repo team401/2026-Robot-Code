@@ -12,6 +12,7 @@ import static frc.robot.util.PhoenixUtil.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -34,7 +35,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.generated.TunerConstants;
+import frc.robot.constants.JsonConstants;
+import frc.robot.util.PIDGains;
+
 import java.util.Queue;
 
 /**
@@ -95,9 +98,9 @@ public class ModuleIOTalonFX implements ModuleIO {
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
     this.constants = constants;
-    driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.kCANBus);
-    turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.kCANBus);
-    cancoder = new CANcoder(constants.EncoderId, TunerConstants.kCANBus);
+    driveTalon = new TalonFX(constants.DriveMotorId, JsonConstants.robotInfo.kCANBus);
+    turnTalon = new TalonFX(constants.SteerMotorId, JsonConstants.robotInfo.kCANBus);
+    cancoder = new CANcoder(constants.EncoderId, JsonConstants.robotInfo.kCANBus);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -262,4 +265,14 @@ public class ModuleIOTalonFX implements ModuleIO {
               positionTorqueCurrentRequest.withPosition(rotation.getRotations());
         });
   }
+
+    public void setDriveGains(PIDGains gains) {
+        driveTalon.getConfigurator()
+            .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.driveGains.clone()));
+    }
+
+    public void setSteerGains(PIDGains gains) {
+        turnTalon.getConfigurator()
+            .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.steerGains.clone()));
+    }
 }

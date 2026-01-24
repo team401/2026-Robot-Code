@@ -27,7 +27,12 @@
     {
       "port": 0,
       "type": "xbox",
-      "buttons": [],
+      "buttons": [
+        {
+          "command": "linearDrive",
+          "button": "XBOX_B"
+        }
+      ],
       "axes": [
         {
           "command": "driveX",
