@@ -14,10 +14,10 @@ public class RobotInfo {
 
   // Fields loaded after JSON
 
-  public CANBus kCanBus;
+  public CANBus kCANBus;
 
   // @AfterJSONLoad
   public void loadFieldsFromJSON() {
-    kCanBus = new CANBus(canivoreBusName, logFilePath);
+    kCANBus = new CANBus(canivoreBusName, logFilePath);
   }
 }

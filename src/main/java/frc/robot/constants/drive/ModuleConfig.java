@@ -1,5 +1,10 @@
 package frc.robot.constants.drive;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 
@@ -53,4 +58,22 @@ public class ModuleConfig {
         return this;
     }
     
+    public SwerveModuleConstants<
+          TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> toSwerveModuleConstants(
+            SwerveModuleConstantsFactory<
+                        TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> factory,
+                        boolean driveMotorInverted
+        ) {
+        return factory.createModuleConstants(
+            driveMotorId,
+            steerMotorId,
+            encoderId,
+            encoderOffset,
+            xPos,
+            yPos,
+            driveMotorInverted,
+            steerMotorInverted,
+            encoderInverted
+        );
+    }
 }
