@@ -23,7 +23,6 @@ public class JsonConstants {
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     driveConstants = jsonHandler.getObject(new DriveConstants(), "DriveConstants.json");
-    jsonHandler.saveObject(new DriveConstants(), "DrivetrainConstants.json");
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");

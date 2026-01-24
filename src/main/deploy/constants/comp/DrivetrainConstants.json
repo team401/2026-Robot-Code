@@ -1,0 +1,123 @@
+{
+  "wheelRadius": {
+    "value": 2.0,
+    "unit": "Inch"
+  },
+  "driveMotorConfig": {
+    "closedLoopOutputType": "Voltage",
+    "gearRatio": 6.026785714285714,
+    "momentOfInertia": {
+      "value": 0.01,
+      "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+    },
+    "frictionVoltage": {
+      "value": 0.2,
+      "unit": "Volt"
+    },
+    "staticFeedforwardSignValue": "UseVelocitySign"
+  },
+  "steerMotorConfig": {
+    "closedLoopOutputType": "Voltage",
+    "gearRatio": 26.09090909090909,
+    "momentOfInertia": {
+      "value": 0.01,
+      "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+    },
+    "frictionVoltage": {
+      "value": 0.2,
+      "unit": "Volt"
+    },
+    "staticFeedforwardSignValue": "UseClosedLoopSign"
+  },
+  "kSteerFeedbackType": "FusedCANcoder",
+  "kDriveMotorType": "TalonFX_Integrated",
+  "kSteerMotorType": "TalonFX_Integrated",
+  "frontLeftModule": {
+    "driveMotorId": 7,
+    "steerMotorId": 2,
+    "encoderId": 9,
+    "encoderOffset": {
+      "value": 0.113525390625,
+      "unit": "Rotation"
+    },
+    "steerMotorInverted": false,
+    "encoderInverted": false,
+    "xPos": {
+      "value": 10.875,
+      "unit": "Inch"
+    },
+    "yPos": {
+      "value": 10.875,
+      "unit": "Inch"
+    }
+  },
+  "frontRightModule": {
+    "driveMotorId": 1,
+    "steerMotorId": 6,
+    "encoderId": 12,
+    "encoderOffset": {
+      "value": -0.136474609375,
+      "unit": "Rotation"
+    },
+    "steerMotorInverted": false,
+    "encoderInverted": false,
+    "xPos": {
+      "value": 10.875,
+      "unit": "Inch"
+    },
+    "yPos": {
+      "value": -10.875,
+      "unit": "Inch"
+    }
+  },
+  "backLeftModule": {
+    "driveMotorId": 5,
+    "steerMotorId": 8,
+    "encoderId": 10,
+    "encoderOffset": {
+      "value": 0.0986328125,
+      "unit": "Rotation"
+    },
+    "steerMotorInverted": false,
+    "encoderInverted": false,
+    "xPos": {
+      "value": -10.875,
+      "unit": "Inch"
+    },
+    "yPos": {
+      "value": 10.875,
+      "unit": "Inch"
+    }
+  },
+  "backRightModule": {
+    "driveMotorId": 3,
+    "steerMotorId": 4,
+    "encoderId": 11,
+    "encoderOffset": {
+      "value": -0.180908203125,
+      "unit": "Rotation"
+    },
+    "steerMotorInverted": false,
+    "encoderInverted": false,
+    "xPos": {
+      "value": -10.875,
+      "unit": "Inch"
+    },
+    "yPos": {
+      "value": -10.875,
+      "unit": "Inch"
+    }
+  },
+  "kSlipCurrent": {
+    "value": 120.0,
+    "unit": "Amp"
+  },
+  "kSpeedAt12Volts": {
+    "value": 5.12,
+    "unit": "Meter per Second"
+  },
+  "kCoupleRatio": 3.857142857142857,
+  "kInvertLeftSide": true,
+  "kInvertRightSide": false,
+  "kPigeonId": 13
+}
