@@ -93,7 +93,7 @@ public class ControllerSetup {
             JsonConstants.drivetrainConstants.maxAngularSpeed, // type: double (rad/s)
             JsonConstants.drivetrainConstants.joystickDeadband, // type: double
             JsonConstants.drivetrainConstants.joystickMagnitudeExponent));
-    Transform2d offset = new Transform2d(0.0, 2.0, new Rotation2d(Math.toRadians(180)));
+    Transform2d offset = new Transform2d(0.0, 3.0, new Rotation2d(Math.toRadians(180)));
     getTriggerForButton("linearDrive")
         .onTrue(
             new InstantCommand(

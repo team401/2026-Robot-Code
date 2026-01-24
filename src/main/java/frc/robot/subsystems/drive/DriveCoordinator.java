@@ -5,6 +5,7 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.states.DriveTestModeState;
 import frc.robot.subsystems.drive.states.DriveWithJoysticksState;
 import frc.robot.subsystems.drive.states.LinearDriveToPoseState;
@@ -48,6 +49,21 @@ public class DriveCoordinator extends SubsystemBase {
     testModeState.whenFinished("No Drive Test Mode Active").transitionTo(driveWithJoysticksState);
 
     driveStateMachine.setState(driveWithJoysticksState);
+
+    drive.setDriveGains(
+        JsonConstants.drivetrainConstants.driveGains.kP(),
+        JsonConstants.drivetrainConstants.driveGains.kI(),
+        JsonConstants.drivetrainConstants.driveGains.kD(),
+        JsonConstants.drivetrainConstants.driveGains.kS(),
+        JsonConstants.drivetrainConstants.driveGains.kV(),
+        JsonConstants.drivetrainConstants.driveGains.kA());
+    drive.setSteerGains(
+        JsonConstants.drivetrainConstants.steerGains.kP(),
+        JsonConstants.drivetrainConstants.steerGains.kI(),
+        JsonConstants.drivetrainConstants.steerGains.kD(),
+        JsonConstants.drivetrainConstants.steerGains.kS(),
+        JsonConstants.drivetrainConstants.steerGains.kV(),
+        JsonConstants.drivetrainConstants.steerGains.kA());
   }
 
   public DriveCoordinator(Drive drive) {

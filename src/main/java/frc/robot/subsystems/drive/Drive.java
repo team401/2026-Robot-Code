@@ -394,7 +394,5 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     return;
   }
 
-  public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {
-    return;
-  }
+  public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
 }

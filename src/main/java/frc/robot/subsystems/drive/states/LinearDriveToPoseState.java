@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import org.littletonrobotics.junction.Logger;
 
 // Copilot used to help write this class
 
@@ -89,6 +90,12 @@ public class LinearDriveToPoseState extends State<Drive> {
     world.setGoalSpeedsBlueOrigins(pathState.speeds);
 
     timeElapsed += 0.02; // Assuming periodic is called every 20ms
+
+    Logger.recordOutput(
+        "Drive/LinearDriveToPoseState/goalOmegaRadPerSec", pathState.speeds.omegaRadiansPerSecond);
+    Logger.recordOutput(
+        "Drive/LinearDriveToPoseState/actualOmegaRadPerSec",
+        world.getChassisSpeeds().omegaRadiansPerSecond);
 
     if (world.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.02
         && Math.abs(world.getPose().getRotation().minus(targetPose.getRotation()).getRadians())
