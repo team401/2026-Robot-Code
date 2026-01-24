@@ -1,4 +1,4 @@
-package frc.robot.constants;
+package frc.robot.constants.drive;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -9,8 +9,9 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.util.PIDGains;
 
-public class DrivetrainConstants {
+public class DriveConstants {
   public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(0.5);
   public final AngularVelocity maxAngularSpeed = RadiansPerSecond.of(0.5);
 
@@ -27,10 +28,4 @@ public class DrivetrainConstants {
   public final PIDGains steerGains = new PIDGains(100, 0.0, 0.5, 0.1, 2.49, 0.0);
 
   public final PIDGains driveGains = new PIDGains(0.1, 0.0, 0.0, 0.0, 0.124, 0.0);
-
-  public record PIDGains(double kP, double kI, double kD, double kS, double kV, double kA) {
-    public double[] asArray() {
-      return new double[] {kP, kI, kD, kS, kV, kA};
-    }
-  }
 }

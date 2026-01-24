@@ -44,6 +44,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.PIDGains;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -394,5 +396,15 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     return;
   }
 
-  public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
+  public void setSteerGains(PIDGains gains) {
+    setSteerGains(gains.kP(), gains.kI(), gains.kD(), gains.kS(), gains.kV(), gains.kA());
+  }
+
+  public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {
+    return;
+  }
+
+  public void setDriveGains(PIDGains gains) {
+    setDriveGains(gains.kP(), gains.kI(), gains.kD(), gains.kS(), gains.kV(), gains.kA());
+  }
 }

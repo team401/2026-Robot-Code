@@ -27,10 +27,10 @@ public class DriveTestModeState extends DriveWithJoysticksState {
 
     steerGains =
         new LoggedTunablePIDGains(
-            "Drive Test Mode Steer Gains", JsonConstants.drivetrainConstants.steerGains.asArray());
+            "Drive Test Mode Steer Gains", JsonConstants.driveConstants.steerGains.asArray());
     driveGains =
         new LoggedTunablePIDGains(
-            "Drive Test Mode Drive Gains", JsonConstants.drivetrainConstants.driveGains.asArray());
+            "Drive Test Mode Drive Gains", JsonConstants.driveConstants.driveGains.asArray());
   }
 
   @Override

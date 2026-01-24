@@ -26,11 +26,8 @@ public class LinearDriveToPoseState extends State<Drive> {
 
   private LinearPath linearPath;
 
-  private double timeElapsed = 0.0;
-
   public void setTargetPose(Pose2d targetPose) {
     this.targetPose = targetPose;
-    reconstructLinearPath();
   }
 
   protected void setLinearConstraints(TrapezoidProfile.Constraints constraints) {
@@ -53,8 +50,6 @@ public class LinearDriveToPoseState extends State<Drive> {
 
   protected void reconstructLinearPath() {
     linearPath = new LinearPath(linearConstraints, angularConstraints);
-    // Reset time elapsed when reconstructing the path
-    timeElapsed = 0.0;
   }
 
   public LinearDriveToPoseState() {
@@ -62,17 +57,17 @@ public class LinearDriveToPoseState extends State<Drive> {
 
     setConstraints(
         new TrapezoidProfile.Constraints(
-            JsonConstants.drivetrainConstants.maxLinearSpeed.in(MetersPerSecond),
-            JsonConstants.drivetrainConstants.maxLinearAcceleration.in(MetersPerSecondPerSecond)),
+            JsonConstants.driveConstants.maxLinearSpeed.in(MetersPerSecond),
+            JsonConstants.driveConstants.maxLinearAcceleration.in(MetersPerSecondPerSecond)),
         new TrapezoidProfile.Constraints(
-            JsonConstants.drivetrainConstants.maxAngularSpeed.in(RadiansPerSecond),
-            JsonConstants.drivetrainConstants.maxAngularAcceleration.in(
+            JsonConstants.driveConstants.maxAngularSpeed.in(RadiansPerSecond),
+            JsonConstants.driveConstants.maxAngularAcceleration.in(
                 RadiansPerSecondPerSecond)));
   }
 
   @Override
   public void onEntry(StateMachine<Drive> stateMachine, Drive world) {
-    reconstructLinearPath();
+    
   }
 
   @Override
@@ -88,8 +83,6 @@ public class LinearDriveToPoseState extends State<Drive> {
             targetPose);
 
     world.setGoalSpeedsBlueOrigins(pathState.speeds);
-
-    timeElapsed += 0.02; // Assuming periodic is called every 20ms
 
     Logger.recordOutput(
         "Drive/LinearDriveToPoseState/goalOmegaRadPerSec", pathState.speeds.omegaRadiansPerSecond);

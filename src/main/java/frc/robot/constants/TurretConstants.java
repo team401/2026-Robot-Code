@@ -74,7 +74,7 @@ public class TurretConstants {
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), turretKrakenId))
+            new CANDeviceID(JsonConstants.robotInfo.kCanBus, turretKrakenId))
         .build();
   }
 

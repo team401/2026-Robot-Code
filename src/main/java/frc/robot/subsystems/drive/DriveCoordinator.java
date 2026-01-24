@@ -50,20 +50,8 @@ public class DriveCoordinator extends SubsystemBase {
 
     driveStateMachine.setState(driveWithJoysticksState);
 
-    drive.setDriveGains(
-        JsonConstants.drivetrainConstants.driveGains.kP(),
-        JsonConstants.drivetrainConstants.driveGains.kI(),
-        JsonConstants.drivetrainConstants.driveGains.kD(),
-        JsonConstants.drivetrainConstants.driveGains.kS(),
-        JsonConstants.drivetrainConstants.driveGains.kV(),
-        JsonConstants.drivetrainConstants.driveGains.kA());
-    drive.setSteerGains(
-        JsonConstants.drivetrainConstants.steerGains.kP(),
-        JsonConstants.drivetrainConstants.steerGains.kI(),
-        JsonConstants.drivetrainConstants.steerGains.kD(),
-        JsonConstants.drivetrainConstants.steerGains.kS(),
-        JsonConstants.drivetrainConstants.steerGains.kV(),
-        JsonConstants.drivetrainConstants.steerGains.kA());
+    drive.setDriveGains(JsonConstants.driveConstants.driveGains);
+    drive.setSteerGains(JsonConstants.driveConstants.steerGains);
   }
 
   public DriveCoordinator(Drive drive) {
