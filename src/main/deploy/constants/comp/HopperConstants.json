@@ -26,6 +26,6 @@
   "hopperMotionMagicCruiseVelocityRotationsPerSecond": 3.0,
   "hopperMotionMagicExpo_kA": 0.4,
   "hopperMotionMagicExpo_kV": 0.1,
-  "maxHopperSetpointVelocityRotationsPerSec": 0.0,
+  "maxHopperSetpointVelocityRotationsPerSec": 5.0,
   "hopperStableDebounceTimeSeconds": 0.1
 }

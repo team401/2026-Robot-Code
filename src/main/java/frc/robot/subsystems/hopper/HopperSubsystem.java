@@ -1,7 +1,6 @@
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -65,6 +64,8 @@ public class HopperSubsystem extends MonitoredSubsystem {
     testModeState = (HopperState) stateMachine.registerState(new TestModeState());
 
     spinningState.whenFinished().transitionTo(idleState);
+    spinningState.when(hopper -> hopper.dejamRequired(), "Dejam required").transitionTo(dejamState);
+    dejamState.whenFinished().transitionTo(idleState);
     idleState
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
         .transitionTo(testModeState);
@@ -144,7 +145,8 @@ public class HopperSubsystem extends MonitoredSubsystem {
             hopperExpoKV,
             hopperExpoKA);
 
-        motor.controlToPositionExpoProfiled(Degrees.of(hopperTuningSetpointVelocity.getAsDouble()));
+        motor.controlToVelocityUnprofiled(
+            RadiansPerSecond.of(hopperTuningSetpointVelocity.getAsDouble()));
       }
       case HopperCurrentTuning -> {
         motor.controlOpenLoopCurrent(Amps.of(hopperTuningAmps.getAsDouble()));
@@ -165,6 +167,10 @@ public class HopperSubsystem extends MonitoredSubsystem {
         MechanismConfig.builder().build(), new TalonFXConfiguration());
   }
 
+  public AngularVelocity getHopperVelocity() {
+    return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
+  }
+
   protected void runHopperAtSpeed(AngularVelocity speed) {
     motor.controlToVelocityUnprofiled(speed);
   }
@@ -175,6 +181,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   protected void dejam() {
+    stopHopper();
     runHopperAtSpeed(
         RotationsPerSecond.of(-JsonConstants.hopperConstants.spinningVoltage.in(Volts)));
   }
@@ -185,6 +192,14 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
   protected void coast() {
     motor.controlCoast();
+  }
+
+  private boolean dejamRequired() {
+    if (!isHopperTestMode()) { // Figure out how to detect jams, current idea is to get the velocity
+      // and the current and see if it is stalled unexpectedly like that but I really don't know
+      return true;
+    }
+    return false;
   }
 
   private boolean isHopperTestMode() {

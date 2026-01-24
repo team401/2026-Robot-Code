@@ -116,10 +116,11 @@ public class HopperConstants {
         buildMechanismConfig(),
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60(1), simHopperMOI.in(KilogramSquareMeters), 1 / hopperReduction),
+                DCMotor.getKrakenX60(1),
+                simHopperMOI.in(KilogramSquareMeters),
+                1 / hopperReduction),
             DCMotor.getKrakenX60(1),
             hopperReduction,
-            0.0,
             0.0));
   }
 }
