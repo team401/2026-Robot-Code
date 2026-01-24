@@ -26,14 +26,6 @@
   "hopperMotionMagicCruiseVelocityRotationsPerSecond": 3.0,
   "hopperMotionMagicExpo_kA": 0.4,
   "hopperMotionMagicExpo_kV": 0.1,
-  "hopperStartingAngle": {
-    "value": 0.0,
-    "unit": "Radian"
-  },
-  "hopperSetpointEpsilon": {
-    "value": 0.0,
-    "unit": "Radian"
-  },
-  "maxHopperSetpointVelocityRadPerSec": 0.0,
+  "maxHopperSetpointVelocityRotationsPerSec": 0.0,
   "hopperStableDebounceTimeSeconds": 0.1
 }

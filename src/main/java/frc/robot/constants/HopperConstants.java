@@ -19,6 +19,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
+import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
+import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -27,8 +29,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.util.DiskSim;
-import frc.robot.util.DiskSimAdapter;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class HopperConstants {
 
@@ -110,12 +111,12 @@ public class HopperConstants {
                 .withSensorToMechanismRatio(hopperReduction));
   }
 
-  public DiskSimAdapter buildHopperSim() {
-    return new DiskSimAdapter(
+  public CoppercoreSimAdapter buildHopperSim() {
+    return new DCMotorSimAdapter(
         buildMechanismConfig(),
-        new DiskSim(
-            LinearSystemId.createSingleJointedArmSystem(
-                DCMotor.getKrakenX60(1), simHopperMOI.in(KilogramSquareMeters), hopperReduction),
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(
+                DCMotor.getKrakenX60(1), simHopperMOI.in(KilogramSquareMeters), 1 / hopperReduction),
             DCMotor.getKrakenX60(1),
             hopperReduction,
             0.0,
