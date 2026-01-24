@@ -18,7 +18,6 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.CoordinationLayer;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.TestModeManager;
@@ -160,9 +159,6 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     DependencyOrderedExecutor.getDefaultInstance()
         .registerAction(UPDATE_INPUTS, this::updateInputs);
-
-    DependencyOrderedExecutor.getDefaultInstance()
-        .addDependencies(UPDATE_INPUTS, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
   }
 
   public void updateInputs() {

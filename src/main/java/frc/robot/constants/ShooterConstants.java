@@ -1,11 +1,12 @@
 package frc.robot.constants;
 
+import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public class ShooterConstants {
-  public final Double[] distanceToViDistancesMeters = {1.8, 2.0, 4.0};
-  public final Double[] distanceToViVisMetersPerSecond = {6.4, 6.8, 8.8};
+  public final Double[] distanceToViDistancesMeters = {1.8, 2.0, 3.5};
+  public final Double[] distanceToViVisMetersPerSecond = {6.4, 6.8, 7.5};
 
   /**
    * The "default initial velocity" that is used if getViFromDistance is called without first
@@ -15,11 +16,8 @@ public class ShooterConstants {
 
   @JSONExclude private InterpolatingDoubleTreeMap distanceToVi;
 
-  /**
-   * Initialize the map of distance to initial velocity
-   *
-   * <p>This method must be called before getViFromDistance can be used
-   */
+  /** Initialize the map of distance to initial velocity */
+  @AfterJsonLoad
   public void initializeViMap() {
     if (distanceToViDistancesMeters.length != distanceToViVisMetersPerSecond.length) {
       throw new IllegalArgumentException(

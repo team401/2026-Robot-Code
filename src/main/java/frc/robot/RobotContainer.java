@@ -51,6 +51,10 @@ public class RobotContainer {
         RUN_COMMAND_SCHEDULER, CommandScheduler.getInstance()::run);
     dependencyOrderedExecutor.addDependencies(
         RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_SHOT_CALCULATOR);
+    // Homing switch must be updated before running subsystem periodics because certain state
+    // machines will take action during periodic based on its state.
+    dependencyOrderedExecutor.addDependencies(
+        RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_HOMING_SWITCH);
 
     TestModeManager.init();
 
@@ -62,12 +66,16 @@ public class RobotContainer {
 
     if (JsonConstants.featureFlags.runHood) {
       hood = Optional.of(InitSubsystems.initHoodSubsystem());
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_HOOD_DEPENDENCIES);
     } else {
       hood = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runTurret) {
       turret = Optional.of(InitSubsystems.initTurretSubsystem());
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
     } else {
       turret = Optional.empty();
     }

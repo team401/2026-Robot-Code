@@ -9,7 +9,6 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import frc.robot.CoordinationLayer;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.TestModeManager;
@@ -87,10 +86,11 @@ public class HoodSubsystem extends MonitoredSubsystem {
     idleState = (HoodState) stateMachine.registerState(new IdleState());
     testModeState = (HoodState) stateMachine.registerState(new TestModeState());
 
+    stateMachine.setState(homingWaitForButtonState);
+
     var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
+
     dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
-    dependencyOrderedExecutor.addDependencies(
-        UPDATE_INPUTS, CoordinationLayer.UPDATE_HOOD_DEPENDENCIES);
 
     AutoLogOutputManager.addObject(this);
   }
@@ -101,7 +101,11 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   @Override
-  public void monitoredPeriodic() {}
+  public void monitoredPeriodic() {
+    Logger.recordOutput("Hood/state", stateMachine.getCurrentState().getName());
+    stateMachine.periodic();
+    Logger.recordOutput("Hood/stateAfter", stateMachine.getCurrentState().getName());
+  }
 
   /**
    * Polls for test-mode specific actions (such as updating gains from network tables)

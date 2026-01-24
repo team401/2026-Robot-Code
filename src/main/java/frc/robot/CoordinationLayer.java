@@ -71,9 +71,6 @@ public class CoordinationLayer {
     if (hood.isPresent()) {
       dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, HoodSubsystem.UPDATE_INPUTS);
     }
-
-    dependencyOrderedExecutor.addDependencies(UPDATE_TURRET_DEPENDENCIES, UPDATE_HOMING_SWITCH);
-    dependencyOrderedExecutor.addDependencies(UPDATE_HOOD_DEPENDENCIES, UPDATE_HOMING_SWITCH);
   }
 
   // Subsystem dependency updates
@@ -160,28 +157,39 @@ public class CoordinationLayer {
           final int trajectoryPointsPerMeter = 4;
 
           maybeShot.ifPresent(
-              shot -> {
-                shot =
+              idealShot -> {
+                ShotInfo shot =
                     new ShotInfo(
                         MathUtil.clamp(
-                            shot.pitchRadians(), Math.toRadians(90 - 40), Math.toRadians(90 - 20)),
-                        shot.yawRadians(),
-                        shot.timeSeconds());
+                            idealShot.pitchRadians(),
+                            Math.toRadians(90 - 40),
+                            Math.toRadians(90 - 20)),
+                        idealShot.yawRadians(),
+                        idealShot.timeSeconds());
+                Translation3d[] idealShotTrajectory =
+                    idealShot.projectMotion(
+                        viMetersPerSecond,
+                        shooterPosition,
+                        fieldCentricSpeeds,
+                        trajectoryPointsPerMeter);
                 Translation3d[] shotTrajectory =
                     shot.projectMotion(
                         viMetersPerSecond,
                         shooterPosition,
                         fieldCentricSpeeds,
                         trajectoryPointsPerMeter);
+                Logger.recordOutput("CoordinationLayer/IdealShot", idealShot);
                 Logger.recordOutput("CoordinationLayer/Shot", shot);
-                Logger.recordOutput(
-                    "CoordinationLayer/EffectiveTrajectory",
-                    shot.projectMotion(
-                        viMetersPerSecond,
-                        shooterPosition,
-                        new ChassisSpeeds(),
-                        trajectoryPointsPerMeter));
+
+                // Logger.recordOutput(
+                //     "CoordinationLayer/EffectiveTrajectory",
+                //     idealShot.projectMotion(
+                //         viMetersPerSecond,
+                //         shooterPosition,
+                //         new ChassisSpeeds(),
+                //         trajectoryPointsPerMeter));
                 Logger.recordOutput("CoordinationLayer/ShotTrajectory", shotTrajectory);
+                Logger.recordOutput("CoordinationLayer/IdealShotTrajectory", idealShotTrajectory);
                 Logger.recordOutput(
                     "CoordinationLayer/ShotErrorMeters",
                     shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
