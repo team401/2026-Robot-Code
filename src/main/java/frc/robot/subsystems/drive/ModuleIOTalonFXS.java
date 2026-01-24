@@ -33,6 +33,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
+import frc.robot.util.PIDGains;
+
 import java.util.Queue;
 
 /**
@@ -247,5 +249,15 @@ public class ModuleIOTalonFXS implements ModuleIO {
   @Override
   public void setTurnPosition(Rotation2d rotation) {
     turnTalon.setControl(positionVoltageRequest.withPosition(rotation.getRotations()));
+  }
+
+  public void setDriveGains(PIDGains gains) {
+      driveTalon.getConfigurator()
+          .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.driveGains.clone()));
+  }
+
+  public void setSteerGains(PIDGains gains) {
+      turnTalon.getConfigurator()
+          .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.steerGains.clone()));
   }
 }

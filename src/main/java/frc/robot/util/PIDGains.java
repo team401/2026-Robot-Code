@@ -27,16 +27,19 @@ public record PIDGains(
     return new double[] {kP, kI, kD, kS, kV, kA, kG};
   }
 
-  public void applyToSlot0Config(Slot0Configs slot0Configs) {
+  public Slot0Configs applyToSlot0Config(Slot0Configs slot0Configs) {
     slot0Configs.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA).withKG(kG);
+    return slot0Configs;
   }
 
-  public void applyToSlot1Config(Slot1Configs slot1Configs) {
+  public Slot1Configs applyToSlot1Config(Slot1Configs slot1Configs) {
     slot1Configs.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA).withKG(kG);
+    return slot1Configs;
   }
 
-  public void applyToSlot2Config(Slot2Configs slot2Configs) {
+  public Slot2Configs applyToSlot2Config(Slot2Configs slot2Configs) {
     slot2Configs.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA).withKG(kG);
+    return slot2Configs;
   }
 
   public Slot0Configs toSlot0Config() {
