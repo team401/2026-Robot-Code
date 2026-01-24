@@ -61,14 +61,11 @@ public class LinearDriveToPoseState extends State<Drive> {
             JsonConstants.driveConstants.maxLinearAcceleration.in(MetersPerSecondPerSecond)),
         new TrapezoidProfile.Constraints(
             JsonConstants.driveConstants.maxAngularSpeed.in(RadiansPerSecond),
-            JsonConstants.driveConstants.maxAngularAcceleration.in(
-                RadiansPerSecondPerSecond)));
+            JsonConstants.driveConstants.maxAngularAcceleration.in(RadiansPerSecondPerSecond)));
   }
 
   @Override
-  public void onEntry(StateMachine<Drive> stateMachine, Drive world) {
-    
-  }
+  public void onEntry(StateMachine<Drive> stateMachine, Drive world) {}
 
   @Override
   protected void periodic(StateMachine<Drive> stateMachine, Drive world) {

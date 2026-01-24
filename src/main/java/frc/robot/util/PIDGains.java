@@ -4,8 +4,9 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 
-public record PIDGains(double kP, double kI, double kD, double kS, double kV, double kA, double kG) {
-  
+public record PIDGains(
+    double kP, double kI, double kD, double kS, double kV, double kA, double kG) {
+
   public PIDGains(double kP, double kI, double kD) {
     this(kP, kI, kD, 0.0, 0.0, 0.0, 0.0);
   }
@@ -27,36 +28,15 @@ public record PIDGains(double kP, double kI, double kD, double kS, double kV, do
   }
 
   public void applyToSlot0Config(Slot0Configs slot0Configs) {
-    slot0Configs
-        .withKP(kP)
-        .withKI(kI)
-        .withKD(kD)
-        .withKS(kS)
-        .withKV(kV)
-        .withKA(kA)
-        .withKG(kG);
+    slot0Configs.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA).withKG(kG);
   }
 
   public void applyToSlot1Config(Slot1Configs slot1Configs) {
-    slot1Configs
-        .withKP(kP)
-        .withKI(kI)
-        .withKD(kD)
-        .withKS(kS)
-        .withKV(kV)
-        .withKA(kA)
-        .withKG(kG);
+    slot1Configs.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA).withKG(kG);
   }
 
   public void applyToSlot2Config(Slot2Configs slot2Configs) {
-    slot2Configs
-        .withKP(kP)
-        .withKI(kI)
-        .withKD(kD)
-        .withKS(kS)
-        .withKV(kV)
-        .withKA(kA)
-        .withKG(kG);
+    slot2Configs.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA).withKG(kG);
   }
 
   public Slot0Configs toSlot0Config() {

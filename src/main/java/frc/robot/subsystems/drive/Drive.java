@@ -45,7 +45,6 @@ import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.PIDGains;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -54,15 +53,24 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements DriveTemplate {
   // TunerConstants doesn't include these constants, so they are declared locally
-  static final double ODOMETRY_FREQUENCY = JsonConstants.robotInfo.kCANBus.isNetworkFD() ? 250.0 : 100.0;
+  static final double ODOMETRY_FREQUENCY =
+      JsonConstants.robotInfo.kCANBus.isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
           Math.max(
-              Math.hypot(JsonConstants.drivetrainConstants.FrontLeft.LocationX, JsonConstants.drivetrainConstants.FrontLeft.LocationY),
-              Math.hypot(JsonConstants.drivetrainConstants.FrontRight.LocationX, JsonConstants.drivetrainConstants.FrontRight.LocationY)),
+              Math.hypot(
+                  JsonConstants.drivetrainConstants.FrontLeft.LocationX,
+                  JsonConstants.drivetrainConstants.FrontLeft.LocationY),
+              Math.hypot(
+                  JsonConstants.drivetrainConstants.FrontRight.LocationX,
+                  JsonConstants.drivetrainConstants.FrontRight.LocationY)),
           Math.max(
-              Math.hypot(JsonConstants.drivetrainConstants.BackLeft.LocationX, JsonConstants.drivetrainConstants.BackLeft.LocationY),
-              Math.hypot(JsonConstants.drivetrainConstants.BackRight.LocationX, JsonConstants.drivetrainConstants.BackRight.LocationY)));
+              Math.hypot(
+                  JsonConstants.drivetrainConstants.BackLeft.LocationX,
+                  JsonConstants.drivetrainConstants.BackLeft.LocationY),
+              Math.hypot(
+                  JsonConstants.drivetrainConstants.BackRight.LocationX,
+                  JsonConstants.drivetrainConstants.BackRight.LocationY)));
 
   // PathPlanner config constants
   private static final double ROBOT_MASS_KG = 74.088;
@@ -224,7 +232,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, JsonConstants.drivetrainConstants.kSpeedAt12Volts);
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        setpointStates, JsonConstants.drivetrainConstants.kSpeedAt12Volts);
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -385,26 +394,22 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   /** Returns an array of module translations. */
   public static Translation2d[] getModuleTranslations() {
     return new Translation2d[] {
-      new Translation2d(JsonConstants.drivetrainConstants.FrontLeft.LocationX, JsonConstants.drivetrainConstants.FrontLeft.LocationY),
-      new Translation2d(JsonConstants.drivetrainConstants.FrontRight.LocationX, JsonConstants.drivetrainConstants.FrontRight.LocationY),
-      new Translation2d(JsonConstants.drivetrainConstants.BackLeft.LocationX, JsonConstants.drivetrainConstants.BackLeft.LocationY),
-      new Translation2d(JsonConstants.drivetrainConstants.BackRight.LocationX, JsonConstants.drivetrainConstants.BackRight.LocationY)
+      new Translation2d(
+          JsonConstants.drivetrainConstants.FrontLeft.LocationX,
+          JsonConstants.drivetrainConstants.FrontLeft.LocationY),
+      new Translation2d(
+          JsonConstants.drivetrainConstants.FrontRight.LocationX,
+          JsonConstants.drivetrainConstants.FrontRight.LocationY),
+      new Translation2d(
+          JsonConstants.drivetrainConstants.BackLeft.LocationX,
+          JsonConstants.drivetrainConstants.BackLeft.LocationY),
+      new Translation2d(
+          JsonConstants.drivetrainConstants.BackRight.LocationX,
+          JsonConstants.drivetrainConstants.BackRight.LocationY)
     };
   }
 
-  public void setSteerGains(double kP, double kI, double kD, double kS, double kV, double kA) {
-    return;
-  }
+  public void setSteerGains(PIDGains gains) {}
 
-  public void setSteerGains(PIDGains gains) {
-    setSteerGains(gains.kP(), gains.kI(), gains.kD(), gains.kS(), gains.kV(), gains.kA());
-  }
-
-  public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {
-    return;
-  }
-
-  public void setDriveGains(PIDGains gains) {
-    setDriveGains(gains.kP(), gains.kI(), gains.kD(), gains.kS(), gains.kV(), gains.kA());
-  }
+  public void setDriveGains(PIDGains gains) {}
 }

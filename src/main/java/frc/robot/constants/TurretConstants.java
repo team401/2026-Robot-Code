@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -73,8 +72,7 @@ public class TurretConstants {
         .withEncoderToMechanismRatio(turretReduction)
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
-        .withLeadMotorId(
-            new CANDeviceID(JsonConstants.robotInfo.kCANBus, turretKrakenId))
+        .withLeadMotorId(new CANDeviceID(JsonConstants.robotInfo.kCANBus, turretKrakenId))
         .build();
   }
 
