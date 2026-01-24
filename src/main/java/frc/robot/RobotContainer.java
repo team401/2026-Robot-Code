@@ -10,10 +10,14 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -150,6 +154,14 @@ public class RobotContainer {
         turret -> turret.setIsHomingSwitchPressed(homingSwitch.map(s -> false).orElse(false)));
   }
 
+  public static InterpolatingDoubleTreeMap distanceToVi = new InterpolatingDoubleTreeMap();
+
+  static {
+    distanceToVi.put(1.8, 6.4);
+    distanceToVi.put(2.0, 6.8);
+    distanceToVi.put(4.0, 8.8);
+  }
+
   /**
    * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
    * method should also command the subsystems to take their actinos.
@@ -167,52 +179,69 @@ public class RobotContainer {
           // Placeholder passing "example" translation
           Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
 
+          Pose2d robotPose = driveInstance.getPose();
+          // Pose taken from CAD
+          Transform3d robotToShooter =
+              new Transform3d(
+                Units.inchesToMeters(4.175),
+                Units.inchesToMeters(-2.088),
+                Units.inchesToMeters(17.0),
+                new Rotation3d());
+          Translation3d shooterPosition = new Pose3d(robotPose).plus(robotToShooter).getTranslation();
+
           // Pick either passing target or hub here.
           Translation3d goalTranslation = hubTranslation;
 
-          Pose2d robotPose = driveInstance.getPose();
           ChassisSpeeds fieldCentricSpeeds =
               ChassisSpeeds.fromRobotRelativeSpeeds(
                   driveInstance.getChassisSpeeds(), robotPose.getRotation());
 
           Translation2d goalXYPlane =
               new Translation2d(goalTranslation.getX(), goalTranslation.getY());
-          Logger.recordOutput(
-              "Superstructure/ShotXYDistanceMeters",
-              robotPose.getTranslation().getDistance(goalXYPlane));
+          double shotDistanceXYMeters = robotPose.getTranslation().getDistance(goalXYPlane);
+          Logger.recordOutput("Superstructure/ShotXYDistanceMeters", shotDistanceXYMeters);
+
+          double viMetersPerSecond = distanceToVi.get(shotDistanceXYMeters);
+          Logger.recordOutput("Superstructure/viMetersPerSecond", viMetersPerSecond);
 
           Optional<ShotInfo> maybeShot =
               ShooterCalculations.calculateMovingShot(
-                  new Pose3d(robotPose).getTranslation(),
+                  shooterPosition,
                   goalTranslation,
                   fieldCentricSpeeds,
-                  MetersPerSecond.of(10.64),
+                  MetersPerSecond.of(viMetersPerSecond),
                   ShotType.HIGH,
                   Optional.empty());
 
           Optional<ShotInfo> maybeStaticShot =
               ShooterCalculations.calculateStationaryShot(
-                  new Pose3d(robotPose).getTranslation(),
+                  shooterPosition,
                   goalTranslation,
-                  MetersPerSecond.of(10.64),
+                  MetersPerSecond.of(viMetersPerSecond),
                   ShotType.HIGH);
 
           final int trajectoryPointsPerMeter = 4;
 
           maybeShot.ifPresent(
               shot -> {
+                shot =
+                    new ShotInfo(
+                        MathUtil.clamp(
+                            shot.pitchRadians(), Math.toRadians(90 - 40), Math.toRadians(90 - 20)),
+                        shot.yawRadians(),
+                        shot.timeSeconds());
                 Translation3d[] shotTrajectory =
                     shot.projectMotion(
-                        10.64,
-                        driveInstance.getPose(),
+                        viMetersPerSecond,
+                        shooterPosition,
                         fieldCentricSpeeds,
                         trajectoryPointsPerMeter);
                 Logger.recordOutput("Superstructure/Shot", shot);
                 Logger.recordOutput(
                     "Superstructure/EffectiveTrajectory",
                     shot.projectMotion(
-                        10.64,
-                        driveInstance.getPose(),
+                        viMetersPerSecond,
+                        shooterPosition,
                         new ChassisSpeeds(),
                         trajectoryPointsPerMeter));
                 Logger.recordOutput("Superstructure/ShotTrajectory", shotTrajectory);
@@ -226,7 +255,10 @@ public class RobotContainer {
                 Logger.recordOutput(
                     "Superstructure/StaticTrajectory",
                     shot.projectMotion(
-                        10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
+                        viMetersPerSecond,
+                        shooterPosition,
+                        fieldCentricSpeeds,
+                        trajectoryPointsPerMeter));
               });
         });
   }

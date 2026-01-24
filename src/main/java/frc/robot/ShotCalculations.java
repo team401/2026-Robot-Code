@@ -24,7 +24,7 @@ class ShooterCalculations {
   public static record ShotInfo(double pitchRadians, double yawRadians, double timeSeconds) {
     public Translation3d[] projectMotion(
         double shooterVelocityMps,
-        Pose2d robotPose,
+        Translation3d initialPosition,
         ChassisSpeeds fieldRelativeRobotVel,
         double pointsPerMeter) {
       List<Translation3d> trajectory = new ArrayList<>();
@@ -35,7 +35,7 @@ class ShooterCalculations {
       double vy = vxy * Math.sin(yawRadians()) + fieldRelativeRobotVel.vyMetersPerSecond;
       double vz = shooterVelocityMps * Math.sin(pitchRadians());
 
-      Translation3d position = new Translation3d(robotPose.getTranslation());
+      Translation3d position = initialPosition;
 
       Function<Double, Translation3d> pointFromTime =
           t -> position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * G * t * t));
