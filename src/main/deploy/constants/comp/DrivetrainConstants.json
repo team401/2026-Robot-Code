@@ -1,28 +1,28 @@
 {
   "maxLinearSpeed": {
-    "value": 1.0,
+    "value": 4,
     "unit": "Meter per Second"
   },
   "maxAngularSpeed": {
-    "value": 6.2,
+    "value": 9.3,
     "unit": "Radian per Second"
   },
   "maxLinearVelocity": {
-    "value": 0.5,
+    "value": 4.0,
     "unit": "Meter per Second"
   },
   "maxAngularVelocity": {
-    "value": 3.0,
+    "value": 6.2,
     "unit": "Radian per Second"
   },
   "maxLinearAcceleration": {
-    "value": 1.0,
+    "value": 6.0,
     "unit": "Meter per Second per Second"
   },
   "maxAngularAcceleration": {
-    "value": 6.2,
+    "value": 9.0,
     "unit": "Radian per Second per Second"
   },
-  "joystickDeadband": 0.06,
+  "joystickDeadband": 0.02,
   "joystickMagnitudeExponent": 2.0
 }

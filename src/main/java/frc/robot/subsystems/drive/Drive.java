@@ -237,6 +237,12 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
   }
 
+  public void setGoalSpeedsBlueOrigins(ChassisSpeeds goalSpeeds) {
+    Rotation2d robotRotation = getRotation();
+
+    runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(goalSpeeds, robotRotation));
+  }
+
   @Override
   public void setGoalSpeeds(ChassisSpeeds goalSpeeds, boolean isFieldCentric) {
     Logger.recordOutput("drive/goalSpeeds", goalSpeeds);

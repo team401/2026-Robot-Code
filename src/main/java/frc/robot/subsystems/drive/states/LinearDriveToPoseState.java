@@ -9,6 +9,7 @@ import com.ctre.phoenix6.swerve.utility.LinearPath;
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -28,6 +29,7 @@ public class LinearDriveToPoseState extends State<Drive> {
 
   public void setTargetPose(Pose2d targetPose) {
     this.targetPose = targetPose;
+    reconstructLinearPath();
   }
 
   protected void setLinearConstraints(TrapezoidProfile.Constraints constraints) {
@@ -68,20 +70,31 @@ public class LinearDriveToPoseState extends State<Drive> {
   }
 
   @Override
+  public void onEntry(StateMachine<Drive> stateMachine, Drive world) {
+    reconstructLinearPath();
+  }
+
+  @Override
   protected void periodic(StateMachine<Drive> stateMachine, Drive world) {
 
     LinearPath.State pathState =
         linearPath.calculate(
-            timeElapsed,
-            new LinearPath.State(world.getPose(), world.getChassisSpeeds()),
+            0.02,
+            new LinearPath.State(
+                world.getPose(),
+                ChassisSpeeds.fromRobotRelativeSpeeds(
+                    world.getChassisSpeeds(), world.getPose().getRotation())),
             targetPose);
 
-    world.setGoalSpeeds(pathState.speeds, true);
+    world.setGoalSpeedsBlueOrigins(pathState.speeds);
 
     timeElapsed += 0.02; // Assuming periodic is called every 20ms
 
-    if (linearPath.isFinished(timeElapsed)) {
+    if (world.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.02
+        && Math.abs(world.getPose().getRotation().minus(targetPose.getRotation()).getRadians())
+            < 0.05) {
       finish();
+      return;
     }
   }
 }

@@ -3,6 +3,9 @@ package frc.robot;
 import coppercore.wpilib_interface.Controllers;
 import coppercore.wpilib_interface.Controllers.Controller;
 import coppercore.wpilib_interface.DriveWithJoysticks;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -90,5 +93,18 @@ public class ControllerSetup {
             JsonConstants.drivetrainConstants.maxAngularSpeed, // type: double (rad/s)
             JsonConstants.drivetrainConstants.joystickDeadband, // type: double
             JsonConstants.drivetrainConstants.joystickMagnitudeExponent));
+    Transform2d offset = new Transform2d(0.0, 2.0, new Rotation2d(Math.toRadians(180)));
+    getTriggerForButton("linearDrive")
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.setDriveAction(DriveCoordinator.DriveAction.LinearDriveToPose);
+                  driveCoordinator.setLinearTargetPose(drive.getPose().plus(offset));
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.setDriveAction(DriveCoordinator.DriveAction.DriveWithJoysticks);
+                }));
   }
 }

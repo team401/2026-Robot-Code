@@ -14,7 +14,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class DriveCoordinator extends SubsystemBase {
 
-  enum DriveAction {
+  public enum DriveAction {
     DriveWithJoysticks,
     LinearDriveToPose
   }
@@ -55,6 +55,7 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   public void setLinearTargetPose(Pose2d pose) {
+    Logger.recordOutput("driveCoordinator/linearTarget", pose);
     linearDriveToPoseState.setTargetPose(pose);
   }
 
