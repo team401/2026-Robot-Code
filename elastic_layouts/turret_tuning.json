@@ -162,14 +162,14 @@
             }
           },
           {
-            "title": "Test Mode Selector",
+            "title": "Turret Test Mode Selector",
             "x": 0.0,
             "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/Test Mode Selector",
+              "topic": "/SmartDashboard/Turret Test Mode Selector",
               "period": 0.06,
               "sort_options": false
             }

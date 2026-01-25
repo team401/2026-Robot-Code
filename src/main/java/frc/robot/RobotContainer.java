@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import coppercore.metadata.CopperCoreMetadata;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -50,9 +51,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    JsonConstants.loadConstants();
+    CopperCoreMetadata.printInfo();
 
-    TestModeManager.init();
+    JsonConstants.loadConstants();
 
     if (JsonConstants.featureFlags.runDrive) {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
