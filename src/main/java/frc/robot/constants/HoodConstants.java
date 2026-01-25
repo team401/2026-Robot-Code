@@ -48,8 +48,9 @@ public class HoodConstants {
    * The angle offset/conversion between the mechanism angle (which must be 0 = center-of-mass
    * horizontal due to Phoenix-6 constraints) and the exit angle of a fuel being shot.
    *
-   * <p>mechanism angle + mechanismAngleToExitAngle = exit angle, exit angle -
-   * mechanismAgnleToExitAngle = mechanism angle.
+   * <p>90 - exit angle - mechanismAngleToExitAngle = mechanismAngle
+   *
+   * <p>90 - mechanismAngle - mechanismAngleToExitAngle = exitAngle
    */
   public final Angle mechanismAngleToExitAngle =
       Degrees.of(10.0); // Placeholder. TODO: Analyze CAD for actual measurement.
@@ -85,7 +86,7 @@ public class HoodConstants {
   public final InvertedValue hoodMotorDirection = InvertedValue.Clockwise_Positive;
 
   public final Angle minHoodAngle = Degrees.of(10.0);
-  public final Angle maxHoodAngle = Degrees.of(20.0);
+  public final Angle maxHoodAngle = Degrees.of(30.0);
 
   public final Voltage homingVoltage = Volts.of(-3.0);
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);

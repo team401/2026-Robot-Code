@@ -1,6 +1,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,6 +19,7 @@ import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.hood.HoodSubsystem.HoodAction;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretAction;
 import java.util.Optional;
@@ -166,13 +168,20 @@ public class CoordinationLayer {
                       turret.setGoalHeading(new Rotation2d(idealShot.yawRadians()));
                       turret.setAction(TurretAction.TrackHeading);
                     });
+                hood.ifPresent(
+                    hood -> {
+                      hood.setGoalPitch(Radians.of(idealShot.pitchRadians()));
+                      hood.setAction(HoodAction.TargetPitch);
+                    });
 
                 ShotInfo currentShot =
                     new ShotInfo(
-                        MathUtil.clamp(
-                            idealShot.pitchRadians(),
-                            Math.toRadians(90 - 40),
-                            Math.toRadians(90 - 20)),
+                        hood.map(hood -> hood.getCurrentExitAngle().in(Radians))
+                            .orElse(
+                                MathUtil.clamp(
+                                    idealShot.pitchRadians(),
+                                    Math.toRadians(90 - 40),
+                                    Math.toRadians(90 - 20))),
                         turret
                             .map(turret -> turret.getFieldCentricTurretHeading().getRadians())
                             .orElse(idealShot.yawRadians()),

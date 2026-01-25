@@ -2,6 +2,7 @@ package frc.robot.subsystems.hood;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -12,10 +13,13 @@ import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitorWithAlert.MonitorWithAlertBuilder;
 import coppercore.wpilib_interface.MonitoredSubsystem;
+import coppercore.wpilib_interface.UnitUtils;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.DependencyOrderedExecutor;
@@ -25,8 +29,10 @@ import frc.robot.subsystems.hood.HoodState.HomingWaitForButtonState;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForMovementState;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForStoppingState;
 import frc.robot.subsystems.hood.HoodState.IdleState;
+import frc.robot.subsystems.hood.HoodState.TargetPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
 import frc.robot.util.TestModeManager;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -36,6 +42,13 @@ import org.littletonrobotics.junction.Logger;
  * tasks.
  */
 public class HoodSubsystem extends MonitoredSubsystem {
+  public enum HoodAction {
+    /** Coasts the hood and waits for input */
+    Idle,
+    /** Targets a certain pitch, commanded by the supervisor layer */
+    TargetPitch,
+  }
+
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
@@ -66,6 +79,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private final HoodState homingWaitForMovementState;
   private final HoodState homingWaitForStoppingState;
   private final HoodState idleState;
+  private final HoodState targetPitchState;
   private final HoodState testModeState;
 
   // Test mode
@@ -88,6 +102,17 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private final LoggedTunableNumber hoodTuningAmps;
   private final LoggedTunableNumber hoodTuningVolts;
 
+  // State variables
+  @AutoLogOutput(key = "Hood/action")
+  private HoodAction currentAction = HoodAction.Idle;
+
+  @AutoLogOutput(key = "Hood/goalPitch")
+  private MutAngle goalPitch =
+      JsonConstants.hoodConstants
+          .minHoodAngle
+          .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle)
+          .mutableCopy();
+
   public HoodSubsystem(MotorIO motor) {
     this.motor = motor;
 
@@ -106,14 +131,12 @@ public class HoodSubsystem extends MonitoredSubsystem {
     // Define state machine and transitions
     stateMachine = new StateMachine<>(this);
 
-    homingWaitForButtonState =
-        (HoodState) stateMachine.registerState(new HomingWaitForButtonState());
-    homingWaitForMovementState =
-        (HoodState) stateMachine.registerState(new HomingWaitForMovementState());
-    homingWaitForStoppingState =
-        (HoodState) stateMachine.registerState(new HomingWaitForStoppingState());
-    idleState = (HoodState) stateMachine.registerState(new IdleState());
-    testModeState = (HoodState) stateMachine.registerState(new TestModeState());
+    homingWaitForButtonState = stateMachine.registerState(new HomingWaitForButtonState());
+    homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
+    homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
+    idleState = stateMachine.registerState(new IdleState());
+    targetPitchState = stateMachine.registerState(new TargetPitchState());
+    testModeState = stateMachine.registerState(new TestModeState());
 
     homingWaitForButtonState.whenFinished().transitionTo(idleState);
     homingWaitForButtonState
@@ -127,7 +150,18 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
     homingWaitForStoppingState.whenFinished().transitionTo(idleState);
 
-    idleState.when(() -> isHoodTestMode(), "Is hood test mode").transitionTo(testModeState);
+    idleState.when(hood -> hood.isHoodTestMode(), "Is hood test mode").transitionTo(testModeState);
+    idleState
+        .when(hood -> hood.currentAction == HoodAction.TargetPitch, "Action == TargetPitch")
+        .transitionTo(targetPitchState);
+
+    targetPitchState
+        .when(hood -> hood.currentAction != HoodAction.TargetPitch, "Action != TargetPitch")
+        .transitionTo(idleState);
+
+    testModeState
+        .when(hood -> !hood.isHoodTestMode(), "Isn't hood test mode")
+        .transitionTo(idleState);
 
     stateMachine.setState(homingWaitForButtonState);
 
@@ -167,6 +201,9 @@ public class HoodSubsystem extends MonitoredSubsystem {
     // Log values with units so that AdvantageScope can understand them correctly
     Logger.recordOutput("Hood/closedLoopReferenceRadians", inputs.closedLoopReference);
     Logger.recordOutput("Hood/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
+
+    // For some reason, AutoLogOutput doesn't log the unit correctly, so we have to log it here.
+    Logger.recordOutput("Hood/exitAngleRadians", getCurrentExitAngle().in(Radians));
   }
 
   @Override
@@ -277,8 +314,35 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /** Applies a CoastOut/neutral request. */
-  public void coast() {
+  protected void coast() {
     motor.controlCoast();
+  }
+
+  protected void controlToGoalPitch() {
+    Angle goalAngle =
+        Degrees.of(90)
+            .minus(goalPitch)
+            .minus(JsonConstants.hoodConstants.mechanismAngleToExitAngle);
+    Logger.recordOutput("Hood/goalAngleRadians", goalAngle.in(Radians));
+    Angle clampedGoalAngle =
+        UnitUtils.clampMeasure(
+            goalAngle,
+            JsonConstants.hoodConstants.minHoodAngle,
+            JsonConstants.hoodConstants.maxHoodAngle);
+    Logger.recordOutput("Hood/clampedGoalAngleRadians", goalAngle.in(Radians));
+    motor.controlToPositionExpoProfiled(clampedGoalAngle);
+  }
+
+  /**
+   * Get the current fuel exit angle based on the position of the hood
+   *
+   * @return An Angle representing the current exit angle of a fuel being shot from the hood.
+   */
+  public Angle getCurrentExitAngle() {
+    return Degrees.of(90)
+        .minus(
+            Radians.of(inputs.positionRadians)
+                .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle));
   }
 
   public boolean isHoodTestMode() {
@@ -286,5 +350,28 @@ public class HoodSubsystem extends MonitoredSubsystem {
       case HoodClosedLoopTuning, HoodCurrentTuning, HoodVoltageTuning, HoodPhoenixTuning -> true;
       default -> false;
     };
+  }
+
+  /**
+   * Sets the current goal action of the hood.
+   *
+   * <p>This method should only be called by the coordination layer
+   *
+   * @param action The HoodAction to target. Note that this may vary from the current state of the
+   *     hood as states progress to reflect the actual state of the hood (e.g. homing).
+   */
+  public void setAction(HoodAction action) {
+    this.currentAction = action;
+  }
+
+  /**
+   * Sets the goal exit angle of the hood. Note that this value is NOT the goal angle of the hood,
+   * but rather the desired fuel exit angle while shooting.
+   *
+   * @param goalPitch An Angle containing the desired angle above the horizon (zero being horizontal
+   *     and 90 degrees being a vertical shot) at which a fuel should exit the hood.
+   */
+  public void setGoalPitch(Angle goalPitch) {
+    this.goalPitch.mut_replace(goalPitch);
   }
 }

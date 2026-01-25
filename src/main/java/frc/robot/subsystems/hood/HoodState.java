@@ -85,6 +85,17 @@ public abstract class HoodState extends State<HoodSubsystem> {
     }
   }
 
+  /**
+   * The TargetPitchState continually commands the hood to target its goal pitch, as commanded by
+   * the coordination layer
+   */
+  public static class TargetPitchState extends HoodState {
+    @Override
+    public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
+      hood.controlToGoalPitch();
+    }
+  }
+
   public static class TestModeState extends HoodState {
     @Override
     public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
