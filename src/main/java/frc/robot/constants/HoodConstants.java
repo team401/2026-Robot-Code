@@ -33,6 +33,8 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 
 public class HoodConstants {
   /**
@@ -52,16 +54,16 @@ public class HoodConstants {
   public final Angle mechanismAngleToExitAngle =
       Degrees.of(10.0); // Placeholder. TODO: Analyze CAD for actual measurement.
 
-  public final Double hoodKP = 0.0;
+  public final Double hoodKP = 80.0;
   public final Double hoodKI = 0.0;
-  public final Double hoodKD = 0.0;
+  public final Double hoodKD = 20.0;
   public final Double hoodKS = 0.0;
-  public final Double hoodKG = 0.0;
+  public final Double hoodKG = 2.5;
   public final Double hoodKV = 0.0;
-  public final Double hoodKA = 0.0;
+  public final Double hoodKA = 0.1;
 
-  public final Double hoodExpoKV = 0.0;
-  public final Double hoodExpoKA = 0.0;
+  public final Double hoodExpoKV = 32.0;
+  public final Double hoodExpoKA = 32.0;
 
   public final Double hoodReduction = 20.0; // TODO: Get real value once design finalizes it
 
@@ -107,7 +109,15 @@ public class HoodConstants {
                 .withSupplyCurrentLimitEnable(true)
                 .withStatorCurrentLimit(hoodStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true))
-        .withMotorOutput(new MotorOutputConfigs().withInverted(hoodMotorDirection))
+        .withMotorOutput(
+            new MotorOutputConfigs()
+                .withInverted(
+                    Constants.currentMode == Mode.REAL
+                        ? hoodMotorDirection
+                        : InvertedValue
+                            .CounterClockwise_Positive)) // TODO: Fix motor inverts with single
+        // jointed arm sim
+        // adapter/MotorIOTalonFXSim
         .withMotionMagic(
             new MotionMagicConfigs()
                 .withMotionMagicExpo_kA(hoodExpoKA)

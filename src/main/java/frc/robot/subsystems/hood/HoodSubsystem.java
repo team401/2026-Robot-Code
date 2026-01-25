@@ -20,13 +20,13 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
-import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForButtonState;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForMovementState;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForStoppingState;
 import frc.robot.subsystems.hood.HoodState.IdleState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
+import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -67,6 +67,9 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private final HoodState homingWaitForStoppingState;
   private final HoodState idleState;
   private final HoodState testModeState;
+
+  // Test mode
+  TestModeManager<TestMode> testModeManager = new TestModeManager<TestMode>("Hood", TestMode.class);
 
   // Tunable numbers
   private final LoggedTunableNumber hoodKP;
@@ -144,9 +147,11 @@ public class HoodSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber("HoodTunables/HoodExpoKA", JsonConstants.hoodConstants.hoodExpoKA);
 
     hoodTuningSetpointDegrees =
-        new LoggedTunableNumber("HoodTunables/HoodTuningSetpointDegrees", 0.0);
-    hoodTuningAmps = new LoggedTunableNumber("HoodTunables/HoodTuningAmps", 0.0);
-    hoodTuningVolts = new LoggedTunableNumber("HoodTunables/HoodTuningVolts", 0.0);
+        new LoggedTunableNumber(
+            "HoodTunables/HoodTuningSetpointDegrees",
+            JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
+    hoodTuningAmps = new LoggedTunableNumber("HoodTunables/HoodAmps", 0.0);
+    hoodTuningVolts = new LoggedTunableNumber("HoodTunables/HoodVolts", 0.0);
 
     var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
 
@@ -158,6 +163,10 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private void updateInputs() {
     motor.updateInputs(inputs);
     Logger.processInputs("Hood/inputs", inputs);
+
+    // Log values with units so that AdvantageScope can understand them correctly
+    Logger.recordOutput("Hood/closedLoopReferenceRadians", inputs.closedLoopReference);
+    Logger.recordOutput("Hood/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
   }
 
   @Override
@@ -173,7 +182,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * <p>This method must be called by the test mode state, as it does not run automatically
    */
   protected void testPeriodic() {
-    switch (TestModeManager.getTestMode()) {
+    switch (testModeManager.getTestMode()) {
       case HoodClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -273,7 +282,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   public boolean isHoodTestMode() {
-    return switch (TestModeManager.getTestMode()) {
+    return switch (testModeManager.getTestMode()) {
       case HoodClosedLoopTuning, HoodCurrentTuning, HoodVoltageTuning, HoodPhoenixTuning -> true;
       default -> false;
     };

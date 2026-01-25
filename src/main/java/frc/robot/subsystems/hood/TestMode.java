@@ -1,14 +1,13 @@
-package frc.robot.subsystems.turret;
+package frc.robot.subsystems.hood;
 
 import frc.robot.util.TestModeDescription;
 
 public enum TestMode implements TestModeDescription {
-  // Turret-related test modes
-  TurretVoltageTuning("Turret Voltage Open Loop Tuning"),
-  TurretCurrentTuning("Turret Current Open Loop Tuning"),
-  TurretClosedLoopTuning("Turret Closed Loop Tuning"),
-  TurretPhoenixTuning("Turret Phoenix Tuning (no-op)"),
-  None; // No test mode selected
+  HoodVoltageTuning("Hood Voltage Open Loop Tuning"),
+  HoodCurrentTuning("Hood Current Open Loop Tuning"),
+  HoodClosedLoopTuning("Hood Closed Loop Tuning"),
+  HoodPhoenixTuning("Hood Phoenix Tuning (no-op)"),
+  None;
 
   private final String description;
 
