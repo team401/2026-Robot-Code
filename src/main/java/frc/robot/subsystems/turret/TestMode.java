@@ -1,6 +1,8 @@
-package frc.robot;
+package frc.robot.subsystems.turret;
 
-public enum TestMode {
+import frc.robot.util.TestModeDescription;
+
+public enum TestMode implements TestModeDescription {
   // Turret-related test modes
   TurretVoltageTuning("Turret Voltage Open Loop Tuning"),
   TurretCurrentTuning("Turret Current Open Loop Tuning"),
@@ -22,7 +24,8 @@ public enum TestMode {
     this.description = name();
   }
 
-  String getDescription() {
+  @Override
+  public String getDescription() {
     return this.description;
   }
 }

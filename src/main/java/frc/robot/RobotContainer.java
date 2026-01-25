@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import coppercore.metadata.CopperCoreMetadata;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -44,6 +45,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    CopperCoreMetadata.printInfo();
+
     JsonConstants.loadConstants();
 
     var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
@@ -55,8 +58,6 @@ public class RobotContainer {
     // machines will take action during periodic based on its state.
     dependencyOrderedExecutor.addDependencies(
         RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_HOMING_SWITCH);
-
-    TestModeManager.init();
 
     if (JsonConstants.featureFlags.runDrive) {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
