@@ -96,10 +96,10 @@ public class DirectedAcyclicGraph<T> {
     printStream.println("graph LR");
     for (var entry : successorMap.entrySet()) {
       if (entry.getValue().isEmpty()) {
-        System.out.println("  " + entry.getKey().hashCode() + "(\"" + entry.getKey() + ")\"");
+        printStream.println("  " + entry.getKey().hashCode() + "(\"" + entry.getKey() + ")\"");
       }
       for (var outgoing : entry.getValue()) {
-        System.out.println(
+        printStream.println(
             "  "
                 + entry.getKey().hashCode()
                 + "(\""
@@ -118,11 +118,11 @@ public class DirectedAcyclicGraph<T> {
     printStream.println("digraph {");
     for (var entry : successorMap.entrySet()) {
       if (entry.getValue().isEmpty()) {
-        System.out.println("  \"" + entry.getKey() + "\"");
+        printStream.println("  \"" + entry.getKey() + "\"");
       }
 
       for (var outgoing : entry.getValue()) {
-        System.out.println("  " + "\"" + entry.getKey() + "\" -> " + "\"" + outgoing + "\"");
+        printStream.println("  " + "\"" + entry.getKey() + "\" -> " + "\"" + outgoing + "\"");
       }
     }
     printStream.println("}");
