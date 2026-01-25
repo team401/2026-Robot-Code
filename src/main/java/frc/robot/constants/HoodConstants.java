@@ -5,7 +5,9 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
@@ -28,6 +30,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
@@ -80,10 +83,12 @@ public class HoodConstants {
   public final InvertedValue hoodMotorDirection = InvertedValue.Clockwise_Positive;
 
   public final Angle minHoodAngle = Degrees.of(10.0);
-  public final Angle maxHoodAngle = Degrees.of(10.0);
+  public final Angle maxHoodAngle = Degrees.of(20.0);
 
   public final Voltage homingVoltage = Volts.of(-3.0);
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
+
+  public final Time homingMaxUnmovingTime = Seconds.of(5.0);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
@@ -113,7 +118,7 @@ public class HoodConstants {
                 .withSensorToMechanismRatio(hoodReduction));
   }
 
-  public final MomentOfInertia simHoodMOI = KilogramSquareMeters.of(0.001);
+  public final MomentOfInertia simHoodMOI = KilogramSquareMeters.of(0.01);
   public final Distance simHoodArmLength = Inches.of(7.678); // estimate from CAD
 
   public CoppercoreSimAdapter buildHoodSim() {
@@ -123,7 +128,7 @@ public class HoodConstants {
             DCMotor.getKrakenX44Foc(1),
             hoodReduction,
             simHoodMOI.in(KilogramSquareMeters),
-            simHoodArmLength.in(Inches),
+            simHoodArmLength.in(Meters),
             minHoodAngle.in(Radians),
             maxHoodAngle.in(Radians),
             true,

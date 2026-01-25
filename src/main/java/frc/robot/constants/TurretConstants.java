@@ -40,7 +40,6 @@ public class TurretConstants {
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
-  public final Time homingMaxOverallTime = Seconds.of(10.0);
 
   /**
    * The robot-relative angle that the turret is at once it has homed. This should be determined

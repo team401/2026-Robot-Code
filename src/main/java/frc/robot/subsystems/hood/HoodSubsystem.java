@@ -1,14 +1,23 @@
 package frc.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitorWithAlert.MonitorWithAlertBuilder;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.TestModeManager;
@@ -59,6 +68,23 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private final HoodState idleState;
   private final HoodState testModeState;
 
+  // Tunable numbers
+  private final LoggedTunableNumber hoodKP;
+  private final LoggedTunableNumber hoodKI;
+  private final LoggedTunableNumber hoodKD;
+
+  private final LoggedTunableNumber hoodKS;
+  private final LoggedTunableNumber hoodKV;
+  private final LoggedTunableNumber hoodKA;
+  private final LoggedTunableNumber hoodKG;
+
+  private final LoggedTunableNumber hoodExpoKV;
+  private final LoggedTunableNumber hoodExpoKA;
+
+  private final LoggedTunableNumber hoodTuningSetpointDegrees;
+  private final LoggedTunableNumber hoodTuningAmps;
+  private final LoggedTunableNumber hoodTuningVolts;
+
   public HoodSubsystem(MotorIO motor) {
     this.motor = motor;
 
@@ -86,7 +112,41 @@ public class HoodSubsystem extends MonitoredSubsystem {
     idleState = (HoodState) stateMachine.registerState(new IdleState());
     testModeState = (HoodState) stateMachine.registerState(new TestModeState());
 
+    homingWaitForButtonState.whenFinished().transitionTo(idleState);
+    homingWaitForButtonState
+        .when(() -> DriverStation.isEnabled(), "Robot is enabled")
+        .transitionTo(homingWaitForMovementState);
+
+    homingWaitForMovementState.whenFinished().transitionTo(homingWaitForStoppingState);
+    homingWaitForMovementState
+        .whenTimeout(JsonConstants.hoodConstants.homingMaxUnmovingTime)
+        .transitionTo(homingWaitForStoppingState);
+
+    homingWaitForStoppingState.whenFinished().transitionTo(idleState);
+
+    idleState.when(() -> isHoodTestMode(), "Is hood test mode").transitionTo(testModeState);
+
     stateMachine.setState(homingWaitForButtonState);
+
+    // Initialize tunable numbers for test modes
+    hoodKP = new LoggedTunableNumber("HoodTunables/HoodKP", JsonConstants.hoodConstants.hoodKP);
+    hoodKI = new LoggedTunableNumber("HoodTunables/HoodKI", JsonConstants.hoodConstants.hoodKI);
+    hoodKD = new LoggedTunableNumber("HoodTunables/HoodKD", JsonConstants.hoodConstants.hoodKD);
+
+    hoodKS = new LoggedTunableNumber("HoodTunables/HoodKS", JsonConstants.hoodConstants.hoodKS);
+    hoodKG = new LoggedTunableNumber("HoodTunables/HoodKG", JsonConstants.hoodConstants.hoodKG);
+    hoodKV = new LoggedTunableNumber("HoodTunables/HoodKV", JsonConstants.hoodConstants.hoodKV);
+    hoodKA = new LoggedTunableNumber("HoodTunables/HoodKA", JsonConstants.hoodConstants.hoodKA);
+
+    hoodExpoKV =
+        new LoggedTunableNumber("HoodTunables/HoodExpoKV", JsonConstants.hoodConstants.hoodExpoKV);
+    hoodExpoKA =
+        new LoggedTunableNumber("HoodTunables/HoodExpoKA", JsonConstants.hoodConstants.hoodExpoKA);
+
+    hoodTuningSetpointDegrees =
+        new LoggedTunableNumber("HoodTunables/HoodTuningSetpointDegrees", 0.0);
+    hoodTuningAmps = new LoggedTunableNumber("HoodTunables/HoodTuningAmps", 0.0);
+    hoodTuningVolts = new LoggedTunableNumber("HoodTunables/HoodTuningVolts", 0.0);
 
     var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
 
@@ -112,7 +172,54 @@ public class HoodSubsystem extends MonitoredSubsystem {
    *
    * <p>This method must be called by the test mode state, as it does not run automatically
    */
-  protected void testPeriodic() {}
+  protected void testPeriodic() {
+    switch (TestModeManager.getTestMode()) {
+      case HoodClosedLoopTuning -> {
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (pid_sgva) -> {
+              motor.setGains(
+                  pid_sgva[0],
+                  pid_sgva[1],
+                  pid_sgva[2],
+                  pid_sgva[3],
+                  pid_sgva[4],
+                  pid_sgva[5],
+                  pid_sgva[6]);
+            },
+            hoodKP,
+            hoodKI,
+            hoodKD,
+            hoodKS,
+            hoodKG,
+            hoodKV,
+            hoodKA);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (maxProfile) -> {
+              motor.setProfileConstraints(
+                  MotionProfileConfig.immutable(
+                      RotationsPerSecond.zero(),
+                      RotationsPerSecondPerSecond.zero(),
+                      RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
+                      Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
+                      Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
+            },
+            hoodExpoKV,
+            hoodExpoKA);
+
+        motor.controlToPositionExpoProfiled(Degrees.of(hoodTuningSetpointDegrees.getAsDouble()));
+      }
+      case HoodCurrentTuning -> {
+        motor.controlOpenLoopCurrent(Amps.of(hoodTuningAmps.getAsDouble()));
+      }
+      case HoodVoltageTuning -> {
+        motor.controlOpenLoopVoltage(Volts.of(hoodTuningVolts.getAsDouble()));
+      }
+      default -> {}
+    }
+  }
 
   /**
    * Sets the hood's current position to the homed position. Should be called whenever homing states
