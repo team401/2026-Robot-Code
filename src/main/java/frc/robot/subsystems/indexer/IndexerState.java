@@ -7,7 +7,9 @@ public abstract class IndexerState extends State<IndexerSubsystem> {
 
   public static class IdleState extends IndexerState {
     @Override
-    public void periodic(StateMachine<IndexerSubsystem> stateMachine, IndexerSubsystem indexer) {}
+    public void periodic(StateMachine<IndexerSubsystem> stateMachine, IndexerSubsystem indexer) {
+      indexer.setToTargetVelocity();
+    }
   }
 
   /**
@@ -18,6 +20,21 @@ public abstract class IndexerState extends State<IndexerSubsystem> {
     @Override
     public void periodic(StateMachine<IndexerSubsystem> stateMachine, IndexerSubsystem indexer) {
       indexer.testPeriodic();
+    }
+  }
+
+  public static class WarmupState extends IndexerState {
+    @Override
+    public void periodic(StateMachine<IndexerSubsystem> stateMachine, IndexerSubsystem indexer) {
+      indexer.setToTargetVelocity();
+    }
+  }
+
+  public static class ShootingState extends IndexerState {
+    @Override
+    public void periodic(StateMachine<IndexerSubsystem> stateMachine, IndexerSubsystem indexer) {
+      // TODO: discuss this as each state basically does the same thing
+      indexer.setToTargetVelocity();
     }
   }
 }

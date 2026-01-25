@@ -8,10 +8,12 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -189,6 +191,25 @@ public class RobotContainer {
                         10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
               });
         });
+
+    if (JsonConstants.indexerConstants.indexerDemoMode) {
+      indexer.ifPresent(
+          indexer -> {
+            drive.ifPresent(
+                driveInstance -> {
+                  Pose2d robotPose = driveInstance.getPose();
+                  Translation2d hubTranslation =
+                      new Translation2d(Units.inchesToMeters(182.11), Units.inchesToMeters(158.84));
+                  var distance = robotPose.getTranslation().minus(hubTranslation).getNorm();
+                  if (distance < 2.0) {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(500));
+                  } else {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(0));
+                  }
+                });
+          });
+    }
+    ;
   }
 
   // Subsystem dependency updates

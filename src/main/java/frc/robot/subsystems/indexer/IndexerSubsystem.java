@@ -9,10 +9,15 @@ import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
+import frc.robot.subsystems.indexer.IndexerState.ShootingState;
 import frc.robot.subsystems.indexer.IndexerState.TestModeState;
+import frc.robot.subsystems.indexer.IndexerState.WarmupState;
+import java.io.PrintWriter;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends MonitoredSubsystem {
@@ -20,11 +25,16 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
+  // Desired shooting velocity
+  private AngularVelocity targetVelocity = RadiansPerSecond.of(0.0);
+
   // State machine and states
   private final StateMachine<IndexerSubsystem> stateMachine;
 
   private final IndexerState idleState;
   private final IndexerState testModeState;
+  private final IndexerState warmupState;
+  private final IndexerState shootingState;
 
   // Tunable numbers
   LoggedTunableNumber indexerKP;
@@ -50,16 +60,38 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     stateMachine = new StateMachine<>(this);
     idleState = (IndexerState) stateMachine.registerState(new IdleState());
     testModeState = (IndexerState) stateMachine.registerState(new TestModeState());
+    warmupState = (IndexerState) stateMachine.registerState(new WarmupState());
+    shootingState = (IndexerState) stateMachine.registerState(new ShootingState());
 
     idleState
         .when(indexer -> indexer.isIndexerTestMode(), "In indexer test mode")
         .transitionTo(testModeState);
 
+    idleState
+        .when(indexer -> indexer.shouldShoot(), "Nonzero targetVelocity requested")
+        .transitionTo(warmupState);
+
     testModeState
         .when(indexer -> !indexer.isIndexerTestMode(), "Not in indexer test mode")
         .transitionTo(idleState);
 
-    stateMachine.setState(testModeState);
+    warmupState
+        .when(indexer -> indexer.readyToShoot(), "Indexer velocity at target")
+        .transitionTo(shootingState);
+
+    warmupState.when(indexer -> !indexer.shouldShoot(), "Warmup aborted").transitionTo(idleState);
+
+    shootingState
+        .when(indexer -> !indexer.shouldShoot(), "Shooting aborted")
+        .transitionTo(idleState);
+
+    shootingState
+        .when(
+            indexer -> !indexer.readyToShoot() && indexer.shouldShoot(), "Changing shooting speed")
+        .transitionTo(warmupState);
+
+    stateMachine.setState(idleState);
+    stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
 
     // Initialize tunable numbers for test modes
     indexerKP =
@@ -153,5 +185,27 @@ public class IndexerSubsystem extends MonitoredSubsystem {
           true;
       default -> false;
     };
+  }
+
+  public AngularVelocity getVelocity() {
+    return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
+  }
+
+  public void setToTargetVelocity() {
+    motor.controlToVelocityUnprofiled(targetVelocity);
+  }
+
+  // If the target velocity is not zero, the indexer should start the shooting process
+  public boolean shouldShoot() {
+    return !targetVelocity.equals(RadiansPerSecond.of(0));
+  }
+
+  public void setTargetVelocity(AngularVelocity velocity) {
+    targetVelocity = velocity;
+  }
+
+  public boolean readyToShoot() {
+    return getVelocity().minus(targetVelocity).div(targetVelocity).abs(Units.Value)
+        < JsonConstants.indexerConstants.indexerMaximumRelativeVelocityError;
   }
 }

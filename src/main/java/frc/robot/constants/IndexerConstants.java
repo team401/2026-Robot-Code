@@ -29,9 +29,11 @@ public class IndexerConstants {
   // motor output
   public final Double indexerMaximumRelativeVelocityError = 0.01;
 
+  public final Boolean indexerDemoMode = true;
+
   public final Integer indexerKrakenId = 10; // TODO: Verify this ID
 
-  public final Double indexerKP = 0.0;
+  public final Double indexerKP = 10.0;
   public final Double indexerKI = 0.0;
   public final Double indexerKD = 0.0;
   public final Double indexerKS = 0.0;
@@ -47,8 +49,7 @@ public class IndexerConstants {
         .withName("Indexer")
         .withEncoderToMechanismRatio(indexerReduction)
         .withMotorToEncoderRatio(1.0)
-        .withGravityFeedforwardType(
-            GravityFeedforwardType.STATIC_ELEVATOR)
+        .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), indexerKrakenId))
         .build();
