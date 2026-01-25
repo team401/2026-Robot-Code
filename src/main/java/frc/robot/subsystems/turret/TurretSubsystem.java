@@ -12,9 +12,11 @@ import static edu.wpi.first.units.Units.Volts;
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
+import coppercore.wpilib_interface.UnitUtils;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +28,7 @@ import frc.robot.subsystems.turret.TurretState.HomingWaitForMovementState;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForStoppingState;
 import frc.robot.subsystems.turret.TurretState.IdleState;
 import frc.robot.subsystems.turret.TurretState.TestModeState;
+import frc.robot.subsystems.turret.TurretState.TrackHeadingState;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -38,6 +41,13 @@ import org.littletonrobotics.junction.Logger;
  * <p>Assume all angles are counterclockwise-positive since that's what physics & math use.
  */
 public class TurretSubsystem extends MonitoredSubsystem {
+  public enum TurretAction {
+    /** Do nothing, coast the turret and wait */
+    Idle,
+    /** Track the heading supplied to the turret as its goal heading */
+    TrackHeading
+  }
+
   // Motor and inputs
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
@@ -51,8 +61,15 @@ public class TurretSubsystem extends MonitoredSubsystem {
      */
     private boolean isHomingSwitchPressed = false;
 
+    /** The current field-centric heading of the robot, according to the drivetrain pose estimate */
+    private Rotation2d robotHeading = Rotation2d.kZero;
+
     public boolean isHomingSwitchPressed() {
       return isHomingSwitchPressed;
+    }
+
+    public Rotation2d getRobotHeading() {
+      return robotHeading;
     }
   }
 
@@ -67,6 +84,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   private final TurretState homingWaitForMovementState;
   private final TurretState homingWaitForStoppingState;
   private final TurretState idleState;
+  private final TurretState trackHeadingState;
   private final TurretState testModeState;
 
   // Tunable numbers
@@ -89,20 +107,33 @@ public class TurretSubsystem extends MonitoredSubsystem {
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Turret", TestMode.class);
 
+  // State variables
+  /**
+   * The current goal action of the turret. This is different from a state, which is what the turret
+   * is currently doing by necessity.
+   */
+  @AutoLogOutput(key = "Turret/action")
+  private TurretAction currentAction = TurretAction.Idle;
+
+  /**
+   * The field-centric goal heading of the turret to track when in TrackingState. This value should
+   * be updated by the coordinator layer via setGoalHeading.
+   */
+  @AutoLogOutput(key = "Turret/goalHeading")
+  private Rotation2d goalTurretHeading = Rotation2d.kZero;
+
   public TurretSubsystem(MotorIO motor) {
     this.motor = motor;
 
     // Define state machine transitions, register states
     stateMachine = new StateMachine<>(this);
 
-    homingWaitForButtonState =
-        (TurretState) stateMachine.registerState(new HomingWaitForButtonState());
-    homingWaitForMovementState =
-        (TurretState) stateMachine.registerState(new HomingWaitForMovementState());
-    homingWaitForStoppingState =
-        (TurretState) stateMachine.registerState(new HomingWaitForStoppingState());
-    idleState = (TurretState) stateMachine.registerState(new IdleState());
-    testModeState = (TurretState) stateMachine.registerState(new TestModeState());
+    homingWaitForButtonState = stateMachine.registerState(new HomingWaitForButtonState());
+    homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
+    homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
+    idleState = stateMachine.registerState(new IdleState());
+    trackHeadingState = stateMachine.registerState(new TrackHeadingState());
+    testModeState = stateMachine.registerState(new TestModeState());
 
     homingWaitForButtonState.whenFinished().transitionTo(idleState);
     homingWaitForButtonState
@@ -120,8 +151,16 @@ public class TurretSubsystem extends MonitoredSubsystem {
     homingWaitForStoppingState.whenFinished().transitionTo(idleState);
 
     idleState
+        .when(turret -> turret.currentAction == TurretAction.TrackHeading, "Action == TrackHeading")
+        .transitionTo(trackHeadingState);
+
+    idleState
         .when(turret -> turret.isTurretTestMode(), "In turret test mode")
         .transitionTo(testModeState);
+
+    trackHeadingState
+        .when(turret -> turret.currentAction != TurretAction.TrackHeading, "Action != TrackHeading")
+        .transitionTo(idleState);
 
     testModeState
         .when(turret -> !turret.isTurretTestMode(), "Not in turret test mode")
@@ -269,8 +308,44 @@ public class TurretSubsystem extends MonitoredSubsystem {
     };
   }
 
-  public void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
-    motor.controlToPositionExpoProfiled(goalAngleTurretCentric);
+  private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
+    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
+    Angle clampedGoalAngle =
+        UnitUtils.clampMeasure(
+            goalAngleTurretCentric,
+            JsonConstants.turretConstants.minTurretAngle,
+            JsonConstants.turretConstants.maxTurretAngle);
+    Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
+
+    motor.controlToPositionExpoProfiled(clampedGoalAngle);
+  }
+
+  /**
+   * Control to the current goal heading, based on the current robot heading
+   *
+   * <p>Converts the current goal heading into a turret angle by subtracting the drivetrain heading
+   * and then applying the heading offset from TurretConstants
+   */
+  protected void controlToGoalHeading() {
+    Angle goalAngle =
+        goalTurretHeading
+            .minus(dependencies.robotHeading)
+            .plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle))
+            .getMeasure();
+    controlToTurretCentricPosition(goalAngle);
+  }
+
+  /**
+   * Calculates the current field centric turret heading, by converting turret heading to a
+   * robot-centric heading and then adjusting for robot heading.
+   *
+   * @return A Rotation2d representing the current field-centric heading of the turret.
+   */
+  @AutoLogOutput(key = "Turret/FieldCentricTurretHeading")
+  public Rotation2d getFieldCentricTurretHeading() {
+    return new Rotation2d(
+            getTurretAngleRobotRelative().minus(JsonConstants.turretConstants.headingToTurretAngle))
+        .plus(dependencies.robotHeading);
   }
 
   /**
@@ -282,5 +357,36 @@ public class TurretSubsystem extends MonitoredSubsystem {
    */
   public void setIsHomingSwitchPressed(boolean isHomingSwitchPressed) {
     dependencies.isHomingSwitchPressed = isHomingSwitchPressed;
+  }
+
+  /**
+   * Update the turret subsystem on the robot's current heading. This should only be called by a
+   * coordinator/supervisor-layer action scheduled with the DependencyOrderedExecutor to update
+   * turret inputs.
+   *
+   * @param robotHeading A Rotation2d, the heading of the robot from the drivetrain's pose estimate.
+   */
+  public void setRobotHeading(Rotation2d robotHeading) {
+    dependencies.robotHeading = robotHeading;
+  }
+
+  /**
+   * Update the turret's current goal action. This method should only be called by the coordination
+   * layer.
+   *
+   * @param action The TurretAction for the turret to target.
+   */
+  public void setAction(TurretAction action) {
+    this.currentAction = action;
+  }
+
+  /**
+   * Sets the turret's field centric goal heading. This method should only be called by the
+   * coordination layer.
+   *
+   * @param heading A Rotation2d containing the field-centric goal heading
+   */
+  public void setGoalHeading(Rotation2d goalHeading) {
+    this.goalTurretHeading = goalHeading;
   }
 }

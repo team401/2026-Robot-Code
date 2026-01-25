@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,6 +19,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretAction;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
@@ -85,7 +87,14 @@ public class CoordinationLayer {
 
   /** Update the turret subsystem on the state of the homing switch. */
   private void updateTurretDependencies() {
-    turret.ifPresent(turret -> turret.setIsHomingSwitchPressed(isHomingSwitchPressed));
+    turret.ifPresent(
+        turret -> {
+          turret.setIsHomingSwitchPressed(isHomingSwitchPressed);
+          drive.ifPresent(
+              drive -> {
+                turret.setRobotHeading(drive.getRotation());
+              });
+        });
   }
 
   /** Update the hood subsystem on the state of the homing switch. */
@@ -147,24 +156,26 @@ public class CoordinationLayer {
                   ShotType.HIGH,
                   Optional.empty());
 
-          Optional<ShotInfo> maybeStaticShot =
-              ShooterCalculations.calculateStationaryShot(
-                  shooterPosition,
-                  goalTranslation,
-                  MetersPerSecond.of(viMetersPerSecond),
-                  ShotType.HIGH);
-
           final int trajectoryPointsPerMeter = 4;
 
           maybeShot.ifPresent(
               idealShot -> {
-                ShotInfo shot =
+                // Command subsystems to follow ideal shot
+                turret.ifPresent(
+                    turret -> {
+                      turret.setGoalHeading(new Rotation2d(idealShot.yawRadians()));
+                      turret.setAction(TurretAction.TrackHeading);
+                    });
+
+                ShotInfo currentShot =
                     new ShotInfo(
                         MathUtil.clamp(
                             idealShot.pitchRadians(),
                             Math.toRadians(90 - 40),
                             Math.toRadians(90 - 20)),
-                        idealShot.yawRadians(),
+                        turret
+                            .map(turret -> turret.getFieldCentricTurretHeading().getRadians())
+                            .orElse(idealShot.yawRadians()),
                         idealShot.timeSeconds());
                 Translation3d[] idealShotTrajectory =
                     idealShot.projectMotion(
@@ -173,13 +184,13 @@ public class CoordinationLayer {
                         fieldCentricSpeeds,
                         trajectoryPointsPerMeter);
                 Translation3d[] shotTrajectory =
-                    shot.projectMotion(
+                    currentShot.projectMotion(
                         viMetersPerSecond,
                         shooterPosition,
                         fieldCentricSpeeds,
                         trajectoryPointsPerMeter);
                 Logger.recordOutput("CoordinationLayer/IdealShot", idealShot);
-                Logger.recordOutput("CoordinationLayer/Shot", shot);
+                Logger.recordOutput("CoordinationLayer/Shot", currentShot);
 
                 // Logger.recordOutput(
                 //     "CoordinationLayer/EffectiveTrajectory",
@@ -193,17 +204,6 @@ public class CoordinationLayer {
                 Logger.recordOutput(
                     "CoordinationLayer/ShotErrorMeters",
                     shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
-              });
-
-          maybeStaticShot.ifPresent(
-              shot -> {
-                Logger.recordOutput(
-                    "CoordinationLayer/StaticTrajectory",
-                    shot.projectMotion(
-                        viMetersPerSecond,
-                        shooterPosition,
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter));
               });
         });
   }

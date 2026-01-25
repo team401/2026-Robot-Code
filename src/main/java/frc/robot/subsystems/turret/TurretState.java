@@ -85,6 +85,18 @@ public abstract class TurretState extends State<TurretSubsystem> {
   }
 
   /**
+   * The TrackHeadingState executes {@link TurretSubsystem.TurretAction#TrackHeading} by
+   * continuously commanding the turret to track its goal heading, as informed by the coordination
+   * layer.
+   */
+  public static class TrackHeadingState extends TurretState {
+    @Override
+    public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
+      turret.controlToGoalHeading();
+    }
+  }
+
+  /**
    * TestModeState calls testPeriodic and does nothing else, to allow for the subsystem's
    * testPeriodic method to take action when in test mode without conflict.
    */
