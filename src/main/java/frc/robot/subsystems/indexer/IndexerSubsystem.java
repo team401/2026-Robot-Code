@@ -11,12 +11,12 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
 import frc.robot.subsystems.indexer.IndexerState.ShootingState;
 import frc.robot.subsystems.indexer.IndexerState.TestModeState;
 import frc.robot.subsystems.indexer.IndexerState.WarmupState;
+import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.Logger;
 
@@ -52,6 +52,9 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber indexerTuningAmps;
   LoggedTunableNumber indexerTuningVolts;
   LoggedTunableNumber indexerTuningSetpointVelocity;
+
+  TestModeManager<TestMode> testModeManager =
+      new TestModeManager<TestMode>("Indexer", TestMode.class);
 
   public IndexerSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -139,7 +142,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    switch (TestModeManager.getTestMode()) {
+    switch (testModeManager.getTestMode()) {
       case IndexerClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -177,7 +180,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
    *     initialized.
    */
   private boolean isIndexerTestMode() {
-    return switch (TestModeManager.getTestMode()) {
+    return switch (testModeManager.getTestMode()) {
       case IndexerClosedLoopTuning,
           IndexerCurrentTuning,
           IndexerVoltageTuning,
