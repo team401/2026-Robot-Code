@@ -41,7 +41,7 @@ import org.littletonrobotics.junction.Logger;
  * <p>Assume all angles are counterclockwise-positive since that's what physics & math use.
  */
 public class TurretSubsystem extends MonitoredSubsystem {
-  public enum TurretAction {
+  private enum TurretAction {
     /** Do nothing, coast the turret and wait */
     Idle,
     /** Track the heading supplied to the turret as its goal heading */
@@ -122,7 +122,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Turret/goalHeading")
   private Rotation2d goalTurretHeading = Rotation2d.kZero;
 
-  public TurretSubsystem(MotorIO motor) {
+  public TurretSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
 
     // Define state machine transitions, register states
@@ -199,8 +199,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     // to the recursive search of Robot's fields
     AutoLogOutputManager.addObject(this);
 
-    DependencyOrderedExecutor.getDefaultInstance()
-        .registerAction(UPDATE_INPUTS, this::updateInputs);
+    dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
   }
 
   public void updateInputs() {
@@ -328,10 +327,16 @@ public class TurretSubsystem extends MonitoredSubsystem {
    */
   protected void controlToGoalHeading() {
     Angle goalAngle =
-        goalTurretHeading
-            .minus(dependencies.robotHeading)
-            .plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle))
-            .getMeasure();
+        Radians.of(
+            goalTurretHeading
+                    .minus(dependencies.robotHeading)
+                    .plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle))
+                    .getMeasure()
+                    .in(Radians)
+                // Change range from [-pi,pi) to [0, 2*pi)
+                % Math.PI
+                * 2);
+
     controlToTurretCentricPosition(goalAngle);
   }
 
@@ -371,22 +376,17 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Update the turret's current goal action. This method should only be called by the coordination
-   * layer.
-   *
-   * @param action The TurretAction for the turret to target.
-   */
-  public void setAction(TurretAction action) {
-    this.currentAction = action;
-  }
-
-  /**
    * Sets the turret's field centric goal heading. This method should only be called by the
    * coordination layer.
    *
-   * @param heading A Rotation2d containing the field-centric goal heading
+   * <p>This method updates the turret's current action to track the goal heading. This means that,
+   * if no other state is in the way (e.g. homing), the turret will immediately begin tracking the
+   * heading next time periodic is run.
+   *
+   * @param goalHeading A Rotation2d containing the field-centric goal heading
    */
-  public void setGoalHeading(Rotation2d goalHeading) {
+  public void targetGoalHeading(Rotation2d goalHeading) {
+    this.currentAction = TurretAction.TrackHeading;
     this.goalTurretHeading = goalHeading;
   }
 }

@@ -1,5 +1,11 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
+
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Watchdog;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -21,12 +27,13 @@ import java.util.stream.Collectors;
 public class DependencyOrderedExecutor {
   /** The ActionKey class represents a unique identifier for a DependencyOrderedExecutor action. */
   public record ActionKey(String name) {
+    @Override
     public String toString() {
       return "ActionKey(" + name + ")";
     }
   }
 
-  private static DependencyOrderedExecutor instance = null;
+  private record NamedAction(String name, Runnable action) {}
 
   private final HashMap<ActionKey, Runnable> actionMap = new HashMap<>();
   private final DirectedAcyclicGraph<ActionKey> dependencyGraph = new DirectedAcyclicGraph<>();
@@ -35,14 +42,27 @@ public class DependencyOrderedExecutor {
    * An Optional containing either the actions in the order in which they should be run, if the
    * schedule has been finalized, or empty if the schedule has not yet been finalized.
    */
-  private Optional<List<Runnable>> actionSchedule = Optional.empty();
+  private Optional<List<NamedAction>> actionSchedule = Optional.empty();
 
-  public static DependencyOrderedExecutor getDefaultInstance() {
-    if (instance == null) {
-      instance = new DependencyOrderedExecutor();
-    }
+  private final Watchdog watchdog;
 
-    return instance;
+  /**
+   * Create a new DependencyOrderedExecutor with the default period of 0.02 seconds
+   *
+   * <p>See {@link DependencyOrderedExecutor#DependencyOrderedExecutor(Time)} to customize the
+   * period.
+   */
+  public DependencyOrderedExecutor() {
+    watchdog = new Watchdog(Seconds.of(TimedRobot.kDefaultPeriod), () -> {});
+  }
+
+  /**
+   * Create a new DependencyOrderedExecutor with a custom loop period
+   *
+   * @param period A Time, defining how long each loop should take
+   */
+  public DependencyOrderedExecutor(Time period) {
+    watchdog = new Watchdog(period, () -> {});
   }
 
   /**
@@ -77,20 +97,19 @@ public class DependencyOrderedExecutor {
   public void finalizeSchedule() {
     System.out.println("[DOE] Finalizing schedule: ");
     System.out.println("[DOE] Dependency graph:");
-    dependencyGraph.printMermaid(System.out);
-    dependencyGraph.printDOT(System.out);
+    dependencyGraph.printMermaid(new PrintWriter(System.out));
+    dependencyGraph.printDOT(new PrintWriter(System.out));
 
+    System.out.println("[DOE] Finalized schedule:");
     actionSchedule =
         Optional.of(
             dependencyGraph.topologicalSort().stream()
-                .map(key -> actionMap.get(key))
+                .map(
+                    key -> {
+                      System.out.println(" - " + key.name());
+                      return new NamedAction(key.name(), actionMap.get(key));
+                    })
                 .collect(Collectors.toList()));
-
-    System.out.println("[DOE] Finalized schedule:");
-    dependencyGraph.topologicalSort().stream()
-        .map(ActionKey::name)
-        .map(n -> " - " + n)
-        .forEach(System.out::println);
   }
 
   /**
@@ -122,11 +141,30 @@ public class DependencyOrderedExecutor {
    * It does not crash code in case a cycle is required before initialization is complete.
    */
   public void execute() {
+    watchdog.reset();
     actionSchedule.ifPresentOrElse(
-        (actions) -> actions.forEach(Runnable::run),
+        this::runActions,
         () ->
             new Exception(
                     "Warning: DependencyOrderedInjector.execute() called before schedule was finalized.")
                 .printStackTrace());
+
+    watchdog.disable();
+    if (watchdog.isExpired()) {
+      System.out.println("DependencyOrderedExecutor loop overrun");
+      watchdog.printEpochs();
+    }
+  }
+
+  /**
+   * Run a sequence of actions and add their epochs to the watchdog
+   *
+   * @param actions The List of NamedActions to run
+   */
+  private void runActions(List<NamedAction> actions) {
+    for (var namedAction : actions) {
+      namedAction.action().run();
+      watchdog.addEpoch(namedAction.name());
+    }
   }
 }

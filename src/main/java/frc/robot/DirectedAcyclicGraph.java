@@ -1,6 +1,6 @@
 package frc.robot;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -89,17 +89,17 @@ public class DirectedAcyclicGraph<T> {
   /**
    * Print the graph as a mermaid diagram
    *
-   * @param printStream the PrintStream to print to, e.g. System.out
+   * @param printWriter the PrintWriter to print to
    */
-  public void printMermaid(PrintStream printStream) {
-    printStream.println("```mermaid");
-    printStream.println("graph LR");
+  public void printMermaid(PrintWriter printWriter) {
+    printWriter.println("```mermaid");
+    printWriter.println("graph LR");
     for (var entry : successorMap.entrySet()) {
       if (entry.getValue().isEmpty()) {
-        printStream.println("  " + entry.getKey().hashCode() + "(\"" + entry.getKey() + ")\"");
+        printWriter.println("  " + entry.getKey().hashCode() + "(\"" + entry.getKey() + ")\"");
       }
       for (var outgoing : entry.getValue()) {
-        printStream.println(
+        printWriter.println(
             "  "
                 + entry.getKey().hashCode()
                 + "(\""
@@ -111,20 +111,20 @@ public class DirectedAcyclicGraph<T> {
                 + "\")");
       }
     }
-    printStream.println("```");
+    printWriter.println("```");
   }
 
-  public void printDOT(PrintStream printStream) {
-    printStream.println("digraph {");
+  public void printDOT(PrintWriter printWriter) {
+    printWriter.println("digraph {");
     for (var entry : successorMap.entrySet()) {
       if (entry.getValue().isEmpty()) {
-        printStream.println("  \"" + entry.getKey() + "\"");
+        printWriter.println("  \"" + entry.getKey() + "\"");
       }
 
       for (var outgoing : entry.getValue()) {
-        printStream.println("  " + "\"" + entry.getKey() + "\" -> " + "\"" + outgoing + "\"");
+        printWriter.println("  " + "\"" + entry.getKey() + "\" -> " + "\"" + outgoing + "\"");
       }
     }
-    printStream.println("}");
+    printWriter.println("}");
   }
 }

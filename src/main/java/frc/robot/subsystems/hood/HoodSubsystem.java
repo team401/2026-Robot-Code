@@ -42,7 +42,7 @@ import org.littletonrobotics.junction.Logger;
  * tasks.
  */
 public class HoodSubsystem extends MonitoredSubsystem {
-  public enum HoodAction {
+  private enum HoodAction {
     /** Coasts the hood and waits for input */
     Idle,
     /** Targets a certain pitch, commanded by the supervisor layer */
@@ -113,7 +113,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
           .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle)
           .mutableCopy();
 
-  public HoodSubsystem(MotorIO motor) {
+  public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
 
     addMonitor(
@@ -186,8 +186,6 @@ public class HoodSubsystem extends MonitoredSubsystem {
             JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
     hoodTuningAmps = new LoggedTunableNumber("HoodTunables/HoodAmps", 0.0);
     hoodTuningVolts = new LoggedTunableNumber("HoodTunables/HoodVolts", 0.0);
-
-    var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
 
     dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
 
@@ -353,25 +351,18 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Sets the current goal action of the hood.
-   *
-   * <p>This method should only be called by the coordination layer
-   *
-   * @param action The HoodAction to target. Note that this may vary from the current state of the
-   *     hood as states progress to reflect the actual state of the hood (e.g. homing).
-   */
-  public void setAction(HoodAction action) {
-    this.currentAction = action;
-  }
-
-  /**
    * Sets the goal exit angle of the hood. Note that this value is NOT the goal angle of the hood,
    * but rather the desired fuel exit angle while shooting.
+   *
+   * <p>This method updates the hood's current action, so that as soon as homing is completed, it
+   * will target the pitch requested. This means that it can safely be called at any time,
+   * regardless of homing status.
    *
    * @param goalPitch An Angle containing the desired angle above the horizon (zero being horizontal
    *     and 90 degrees being a vertical shot) at which a fuel should exit the hood.
    */
-  public void setGoalPitch(Angle goalPitch) {
+  public void targetPitch(Angle goalPitch) {
+    this.currentAction = HoodAction.TargetPitch;
     this.goalPitch.mut_replace(goalPitch);
   }
 }

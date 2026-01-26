@@ -19,9 +19,7 @@ import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
-import frc.robot.subsystems.hood.HoodSubsystem.HoodAction;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretAction;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,14 +29,17 @@ import org.littletonrobotics.junction.Logger;
  */
 public class CoordinationLayer {
   // Subsystems
-  private final Optional<Drive> drive;
-  private final Optional<TurretSubsystem> turret;
-  private final Optional<HoodSubsystem> hood;
-  private final Optional<Void> homingSwitch;
+  private Optional<Drive> drive = Optional.empty();
+  private Optional<TurretSubsystem> turret = Optional.empty();
+  private Optional<HoodSubsystem> hood = Optional.empty();
+  // The homing switch will likely be either added to one subsystem or made its own subsystem later
+  private Optional<Void> homingSwitch = Optional.empty();
+
+  private final DependencyOrderedExecutor dependencyOrderedExecutor;
 
   // DOE Action Keys
-  public static final ActionKey UPDATE_HOMING_SWITCH =
-      new ActionKey("CoordinationLayer::updateHomingSwitch");
+  public static final ActionKey READ_HOMING_SWITCH =
+      new ActionKey("CoordinationLayer::readHomingSwitch");
   public static final ActionKey UPDATE_TURRET_DEPENDENCIES =
       new ActionKey("CoordinationLayer::updateTurretDependencies");
   public static final ActionKey UPDATE_HOOD_DEPENDENCIES =
@@ -50,39 +51,64 @@ public class CoordinationLayer {
   // to subsystems during the execution of a cycle)
   private boolean isHomingSwitchPressed = false;
 
-  public CoordinationLayer(
-      Optional<Drive> drive,
-      Optional<TurretSubsystem> turret,
-      Optional<HoodSubsystem> hood,
-      Optional<Void> homingSwitch) {
-    this.drive = drive;
-    this.turret = turret;
-    this.hood = hood;
-    this.homingSwitch = homingSwitch;
+  public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
+    this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
-    var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
-    dependencyOrderedExecutor.registerAction(UPDATE_HOMING_SWITCH, this::updateHomingSwitch);
+    dependencyOrderedExecutor.registerAction(READ_HOMING_SWITCH, this::readHomingSwitch);
     dependencyOrderedExecutor.registerAction(
         UPDATE_TURRET_DEPENDENCIES, this::updateTurretDependencies);
     dependencyOrderedExecutor.registerAction(
         UPDATE_HOOD_DEPENDENCIES, this::updateHoodDependencies);
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
+  }
 
-    if (turret.isPresent()) {
-      dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
+  public void setDrive(Drive drive) {
+    if (this.drive.isPresent()) {
+      throw new IllegalStateException("CoordinationLayer setDrive was called twice!");
     }
 
-    if (hood.isPresent()) {
-      dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, HoodSubsystem.UPDATE_INPUTS);
+    this.drive = Optional.of(drive);
+  }
+
+  /**
+   * Sets the turret instance for the CoordinationLayer to use.
+   *
+   * <p>This method must run before the DependencyOrderedExecutor's schedule is finalized, as it
+   * adds dependencies. However, if the turret subsystem is disabled in FeatureFlags, it does not
+   * need to be called at all.
+   *
+   * @param turret The TurretSubsystem instance to use
+   */
+  public void setTurret(TurretSubsystem turret) {
+    if (this.turret.isPresent()) {
+      throw new IllegalStateException("CoordinationLayer setTurret was called twice!");
     }
+
+    this.turret = Optional.of(turret);
+    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
+  }
+
+  /**
+   * Sets the hood instance for the CoordinationLayer to use.
+   *
+   * <p>This method must run before the DependencyOrderedExecutor's schedule is finalized, as it
+   * adds dependencies. However, if the hood subsystem is disabled in FeatureFlags, it does not need
+   * to be called at all.
+   *
+   * @param hood The HoodSubsystem instance to use
+   */
+  public void setHood(HoodSubsystem hood) {
+    if (this.hood.isPresent()) {
+      throw new IllegalStateException("CoordinationLayer setHood was called twice!");
+    }
+
+    this.hood = Optional.of(hood);
+    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, HoodSubsystem.UPDATE_INPUTS);
   }
 
   // Subsystem dependency updates
-  /**
-   * Update the CoordinationLayer homing switch stated based on the last value from the homing
-   * switch
-   */
-  private void updateHomingSwitch() {
+  /** Read homing switch state to determine if it's pressed */
+  private void readHomingSwitch() {
     // TODO: Add actual check for whether homing switch is pressed once it is designed
     isHomingSwitchPressed = homingSwitch.map(s -> false).orElse(false);
   }
@@ -112,108 +138,127 @@ public class CoordinationLayer {
    * <p>This should likely go into some kind of coordination layer class.
    */
   public void runShotCalculator() {
-    drive.ifPresent(
-        driveInstance -> {
-          Translation3d hubTranslation =
-              new Translation3d(
-                  Units.inchesToMeters(182.11),
-                  Units.inchesToMeters(158.84),
-                  Units.inchesToMeters(72 - 8));
-          // Placeholder passing "example" translation
-          Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
+    drive.ifPresent(this::runShotCalculatorWithDrive);
+  }
 
-          Pose2d robotPose = driveInstance.getPose();
-          // Pose taken from CAD
-          Transform3d robotToShooter =
-              new Transform3d(
-                  Units.inchesToMeters(4.175),
-                  Units.inchesToMeters(-2.088),
-                  Units.inchesToMeters(17.0),
-                  new Rotation3d());
-          Translation3d shooterPosition =
-              new Pose3d(robotPose).plus(robotToShooter).getTranslation();
+  /**
+   * Run the shot calculations, given an actual drive instance
+   *
+   * <p>This method exists to reduce the indentation in runShotCalculator introduced by widespread
+   * use of optionals
+   *
+   * @param drive A Drive instance
+   */
+  private void runShotCalculatorWithDrive(Drive driveInstance) {
+    Translation3d hubTranslation =
+        new Translation3d(
+            Units.inchesToMeters(182.11),
+            Units.inchesToMeters(158.84),
+            Units.inchesToMeters(72 - 8));
+    // Placeholder passing "example" translation
+    Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
 
-          // Pick either passing target or hub here.
-          Translation3d goalTranslation = hubTranslation;
+    Pose2d robotPose = driveInstance.getPose();
+    // Pose taken from CAD
+    Transform3d robotToShooter =
+        new Transform3d(
+            Units.inchesToMeters(4.175),
+            Units.inchesToMeters(-2.088),
+            Units.inchesToMeters(17.0),
+            new Rotation3d());
+    Translation3d shooterPosition = new Pose3d(robotPose).plus(robotToShooter).getTranslation();
 
-          ChassisSpeeds fieldCentricSpeeds =
-              ChassisSpeeds.fromRobotRelativeSpeeds(
-                  driveInstance.getChassisSpeeds(), robotPose.getRotation());
+    // Pick either passing target or hub here.
+    Translation3d goalTranslation = hubTranslation;
 
-          Translation2d goalXYPlane =
-              new Translation2d(goalTranslation.getX(), goalTranslation.getY());
-          double shotDistanceXYMeters = robotPose.getTranslation().getDistance(goalXYPlane);
-          Logger.recordOutput("CoordinationLayer/ShotXYDistanceMeters", shotDistanceXYMeters);
+    ChassisSpeeds fieldCentricSpeeds =
+        ChassisSpeeds.fromRobotRelativeSpeeds(
+            driveInstance.getChassisSpeeds(), robotPose.getRotation());
 
-          double viMetersPerSecond =
-              JsonConstants.shooterConstants.getViFromDistance(shotDistanceXYMeters);
-          Logger.recordOutput("CoordinationLayer/viMetersPerSecond", viMetersPerSecond);
+    Translation2d goalXYPlane = new Translation2d(goalTranslation.getX(), goalTranslation.getY());
+    double shotDistanceXYMeters = robotPose.getTranslation().getDistance(goalXYPlane);
+    Logger.recordOutput("CoordinationLayer/ShotXYDistanceMeters", shotDistanceXYMeters);
 
-          Optional<ShotInfo> maybeShot =
-              ShooterCalculations.calculateMovingShot(
-                  shooterPosition,
-                  goalTranslation,
-                  fieldCentricSpeeds,
-                  MetersPerSecond.of(viMetersPerSecond),
-                  ShotType.HIGH,
-                  Optional.empty());
+    double viMetersPerSecond =
+        JsonConstants.shooterConstants.getViFromDistance(shotDistanceXYMeters);
+    Logger.recordOutput("CoordinationLayer/viMetersPerSecond", viMetersPerSecond);
+
+    Optional<ShotInfo> maybeShot =
+        ShooterCalculations.calculateMovingShot(
+            shooterPosition,
+            goalTranslation,
+            fieldCentricSpeeds,
+            MetersPerSecond.of(viMetersPerSecond),
+            ShotType.HIGH,
+            Optional.empty());
+
+    maybeShot.ifPresent(
+        idealShot -> {
+          sendIdealShotToSubsystems(idealShot);
 
           final int trajectoryPointsPerMeter = 4;
 
-          maybeShot.ifPresent(
-              idealShot -> {
-                // Command subsystems to follow ideal shot
-                turret.ifPresent(
-                    turret -> {
-                      turret.setGoalHeading(new Rotation2d(idealShot.yawRadians()));
-                      turret.setAction(TurretAction.TrackHeading);
-                    });
-                hood.ifPresent(
-                    hood -> {
-                      hood.setGoalPitch(Radians.of(idealShot.pitchRadians()));
-                      hood.setAction(HoodAction.TargetPitch);
-                    });
+          ShotInfo currentShot = getCurrentShot(idealShot);
 
-                ShotInfo currentShot =
-                    new ShotInfo(
-                        hood.map(hood -> hood.getCurrentExitAngle().in(Radians))
-                            .orElse(
-                                MathUtil.clamp(
-                                    idealShot.pitchRadians(),
-                                    Math.toRadians(90 - 40),
-                                    Math.toRadians(90 - 20))),
-                        turret
-                            .map(turret -> turret.getFieldCentricTurretHeading().getRadians())
-                            .orElse(idealShot.yawRadians()),
-                        idealShot.timeSeconds());
-                Translation3d[] idealShotTrajectory =
-                    idealShot.projectMotion(
-                        viMetersPerSecond,
-                        shooterPosition,
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter);
-                Translation3d[] shotTrajectory =
-                    currentShot.projectMotion(
-                        viMetersPerSecond,
-                        shooterPosition,
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter);
-                Logger.recordOutput("CoordinationLayer/IdealShot", idealShot);
-                Logger.recordOutput("CoordinationLayer/Shot", currentShot);
+          Translation3d[] idealShotTrajectory =
+              idealShot.projectMotion(
+                  viMetersPerSecond, shooterPosition, fieldCentricSpeeds, trajectoryPointsPerMeter);
+          Translation3d[] shotTrajectory =
+              currentShot.projectMotion(
+                  viMetersPerSecond, shooterPosition, fieldCentricSpeeds, trajectoryPointsPerMeter);
+          Logger.recordOutput("CoordinationLayer/IdealShot", idealShot);
+          Logger.recordOutput("CoordinationLayer/Shot", currentShot);
 
-                // Logger.recordOutput(
-                //     "CoordinationLayer/EffectiveTrajectory",
-                //     idealShot.projectMotion(
-                //         viMetersPerSecond,
-                //         shooterPosition,
-                //         new ChassisSpeeds(),
-                //         trajectoryPointsPerMeter));
-                Logger.recordOutput("CoordinationLayer/ShotTrajectory", shotTrajectory);
-                Logger.recordOutput("CoordinationLayer/IdealShotTrajectory", idealShotTrajectory);
-                Logger.recordOutput(
-                    "CoordinationLayer/ShotErrorMeters",
-                    shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
-              });
+          // Logger.recordOutput(
+          //     "CoordinationLayer/EffectiveTrajectory",
+          //     idealShot.projectMotion(
+          //         viMetersPerSecond,
+          //         shooterPosition,
+          //         new ChassisSpeeds(),
+          //         trajectoryPointsPerMeter));
+          Logger.recordOutput("CoordinationLayer/ShotTrajectory", shotTrajectory);
+          Logger.recordOutput("CoordinationLayer/IdealShotTrajectory", idealShotTrajectory);
+          Logger.recordOutput(
+              "CoordinationLayer/ShotErrorMeters",
+              shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
         });
+  }
+
+  /**
+   * Given an "ideal" shot, command the scoring subsystems to target it
+   *
+   * <p>This method exists to reduce the indentation introduced by the use of Optionals in
+   * runShotCalculator
+   *
+   * @param idealShot A ShotInfo representing the ideal shot to take
+   */
+  private void sendIdealShotToSubsystems(ShotInfo idealShot) {
+    // Command subsystems to follow ideal shot
+    turret.ifPresent(
+        turret -> {
+          turret.targetGoalHeading(new Rotation2d(idealShot.yawRadians()));
+        });
+    hood.ifPresent(
+        hood -> {
+          hood.targetPitch(Radians.of(idealShot.pitchRadians()));
+        });
+  }
+
+  /**
+   * Get the "current shot" that the robot is aimed for.
+   *
+   * @param idealShot The "ideal shot" to use for fallback values if certain subsystems are disabled
+   * @return A ShotInfo representing where the robot is currently aimed
+   */
+  private ShotInfo getCurrentShot(ShotInfo idealShot) {
+    return new ShotInfo(
+        hood.map(hood -> hood.getCurrentExitAngle().in(Radians))
+            .orElse(
+                MathUtil.clamp(
+                    idealShot.pitchRadians(), Math.toRadians(90 - 40), Math.toRadians(90 - 20))),
+        turret
+            .map(turret -> turret.getFieldCentricTurretHeading().getRadians())
+            .orElse(idealShot.yawRadians()),
+        idealShot.timeSeconds());
   }
 }

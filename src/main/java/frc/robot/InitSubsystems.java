@@ -74,11 +74,13 @@ public class InitSubsystems {
     }
   }
 
-  public static TurretSubsystem initTurretSubsystem() {
+  public static TurretSubsystem initTurretSubsystem(
+      DependencyOrderedExecutor dependencyOrderedExecutor) {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         return new TurretSubsystem(
+            dependencyOrderedExecutor,
             MotorIOTalonFX.newLeader(
                 JsonConstants.turretConstants.buildMechanismConfig(),
                 JsonConstants.turretConstants.buildTalonFXConfigs()));
@@ -86,6 +88,7 @@ public class InitSubsystems {
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.turretConstants.buildMechanismConfig();
         return new TurretSubsystem(
+            dependencyOrderedExecutor,
             MotorIOTalonFXSim.newLeader(
                     config,
                     JsonConstants.turretConstants.buildTalonFXConfigs(),
@@ -93,15 +96,17 @@ public class InitSubsystems {
                 .withMotorType(MotorType.KrakenX44));
       default:
         // Replayed robot, disable IO implementations
-        return new TurretSubsystem(new MotorIOReplay());
+        return new TurretSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
     }
   }
 
-  public static HoodSubsystem initHoodSubsystem() {
+  public static HoodSubsystem initHoodSubsystem(
+      DependencyOrderedExecutor dependencyOrderedExecutor) {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         return new HoodSubsystem(
+            dependencyOrderedExecutor,
             MotorIOTalonFX.newLeader(
                 JsonConstants.hoodConstants.buildMechanismConfig(),
                 JsonConstants.hoodConstants.buildTalonFXConfigs()));
@@ -109,6 +114,7 @@ public class InitSubsystems {
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.hoodConstants.buildMechanismConfig();
         return new HoodSubsystem(
+            dependencyOrderedExecutor,
             MotorIOTalonFXSim.newLeader(
                     config,
                     JsonConstants.hoodConstants.buildTalonFXConfigs(),
@@ -116,7 +122,7 @@ public class InitSubsystems {
                 .withMotorType(MotorType.KrakenX44));
       default:
         // Replayed robot, disable IO implementations
-        return new HoodSubsystem(new MotorIOReplay());
+        return new HoodSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
     }
   }
 }

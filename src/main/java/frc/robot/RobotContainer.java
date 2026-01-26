@@ -30,6 +30,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private final DependencyOrderedExecutor dependencyOrderedExecutor;
+
   // Subsystems
   private final Optional<Drive> drive;
   private final Optional<TurretSubsystem> turret;
@@ -49,24 +51,32 @@ public class RobotContainer {
 
     JsonConstants.loadConstants();
 
-    var dependencyOrderedExecutor = DependencyOrderedExecutor.getDefaultInstance();
+    dependencyOrderedExecutor = new DependencyOrderedExecutor();
     dependencyOrderedExecutor.registerAction(
         RUN_COMMAND_SCHEDULER, CommandScheduler.getInstance()::run);
-    dependencyOrderedExecutor.addDependencies(
-        RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_SHOT_CALCULATOR);
     // Homing switch must be updated before running subsystem periodics because certain state
     // machines will take action during periodic based on its state.
     dependencyOrderedExecutor.addDependencies(
-        RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_HOMING_SWITCH);
+        RUN_COMMAND_SCHEDULER,
+        CoordinationLayer.RUN_SHOT_CALCULATOR,
+        CoordinationLayer.READ_HOMING_SWITCH);
+
+    coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
     if (JsonConstants.featureFlags.runDrive) {
-      drive = Optional.of(InitSubsystems.initDriveSubsystem());
+      Drive driveInstance = InitSubsystems.initDriveSubsystem();
+      drive = Optional.of(driveInstance);
+
+      coordinationLayer.setDrive(driveInstance);
     } else {
       drive = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runHood) {
-      hood = Optional.of(InitSubsystems.initHoodSubsystem());
+      HoodSubsystem hoodInstance = InitSubsystems.initHoodSubsystem(dependencyOrderedExecutor);
+
+      coordinationLayer.setHood(hoodInstance);
+      hood = Optional.of(hoodInstance);
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_HOOD_DEPENDENCIES);
     } else {
@@ -74,7 +84,11 @@ public class RobotContainer {
     }
 
     if (JsonConstants.featureFlags.runTurret) {
-      turret = Optional.of(InitSubsystems.initTurretSubsystem());
+      TurretSubsystem turretInstance =
+          InitSubsystems.initTurretSubsystem(dependencyOrderedExecutor);
+
+      coordinationLayer.setTurret(turretInstance);
+      turret = Optional.of(turretInstance);
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
     } else {
@@ -82,39 +96,42 @@ public class RobotContainer {
     }
 
     drive.ifPresentOrElse(
-        drive -> {
-          // TODO: Stop using pathplanner AutoBuilder
-          // Set up auto routines
-          autoChooser =
-              new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-          // Set up SysId routines
-          autoChooser.addOption(
-              "Drive Wheel Radius Characterization",
-              DriveCommands.wheelRadiusCharacterization(drive));
-          autoChooser.addOption(
-              "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-          autoChooser.addOption(
-              "Drive SysId (Quasistatic Forward)",
-              drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-          autoChooser.addOption(
-              "Drive SysId (Quasistatic Reverse)",
-              drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-          autoChooser.addOption(
-              "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-          autoChooser.addOption(
-              "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        },
+        this::createAutoChooser,
         () -> {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
-
-    coordinationLayer = new CoordinationLayer(drive, turret, hood, homingSwitch);
 
     // Configure the button bindings
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+  }
+
+  /**
+   * Create the auto chooser and publish it to network tables
+   *
+   * @param drive The Drive instance to use for the auto chooser
+   */
+  private void createAutoChooser(Drive drive) {
+    // TODO: Stop using pathplanner AutoBuilder
+    // Set up auto routines
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    // Set up SysId routines
+    autoChooser.addOption(
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /**
@@ -138,5 +155,16 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  /**
+   * Get the DependencyOrderedExecutor instance used by the RobotContainer and all subsystems
+   *
+   * <p>This method exists so that Robot can access the DOE in its periodic method
+   *
+   * @return The DependencyOrderedExecutor instance
+   */
+  public DependencyOrderedExecutor getDependencyOrderedExecutor() {
+    return dependencyOrderedExecutor;
   }
 }
