@@ -20,12 +20,12 @@ import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hopper.HopperState.DejamState;
 import frc.robot.subsystems.hopper.HopperState.IdleState;
 import frc.robot.subsystems.hopper.HopperState.SpinningState;
 import frc.robot.subsystems.hopper.HopperState.TestModeState;
+import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -55,6 +55,9 @@ public class HopperSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber hopperTuningSetpointVelocity;
   LoggedTunableNumber hopperTuningAmps;
   LoggedTunableNumber hopperTuningVolts;
+
+  TestModeManager<TestMode> testModeManager =
+      new TestModeManager<TestMode>("Hopper", TestMode.class);
 
   public HopperSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -118,7 +121,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    switch (TestModeManager.getTestMode()) {
+    switch (testModeManager.getTestMode()) {
       case HopperClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -204,7 +207,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   private boolean isHopperTestMode() {
-    return switch (TestModeManager.getTestMode()) {
+    return switch (testModeManager.getTestMode()) {
       case HopperClosedLoopTuning, HopperCurrentTuning, HopperVoltageTuning, HopperPhoenixTuning ->
           true;
       default -> false;
