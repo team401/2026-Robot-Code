@@ -7,8 +7,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -159,14 +157,8 @@ public class CoordinationLayer {
     Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
 
     Pose2d robotPose = driveInstance.getPose();
-    // Pose taken from CAD
-    Transform3d robotToShooter =
-        new Transform3d(
-            Units.inchesToMeters(4.175),
-            Units.inchesToMeters(-2.088),
-            Units.inchesToMeters(17.0),
-            new Rotation3d());
-    Translation3d shooterPosition = new Pose3d(robotPose).plus(robotToShooter).getTranslation();
+    Translation3d shooterPosition =
+        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
 
     // Pick either passing target or hub here.
     Translation3d goalTranslation = hubTranslation;
