@@ -44,14 +44,13 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber indexerKS;
   LoggedTunableNumber indexerKV;
   LoggedTunableNumber indexerKA;
-  LoggedTunableNumber indexerKG;
 
   LoggedTunableNumber indexerExpoKV;
   LoggedTunableNumber indexerExpoKA;
 
   LoggedTunableNumber indexerTuningAmps;
   LoggedTunableNumber indexerTuningVolts;
-  LoggedTunableNumber indexerTuningSetpointVelocity;
+  LoggedTunableNumber indexerTuningSetpointVelocityRPM;
 
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Indexer", TestMode.class);
@@ -61,10 +60,10 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
     // Define state machine transitions, register states
     stateMachine = new StateMachine<>(this);
-    idleState = (IndexerState) stateMachine.registerState(new IdleState());
-    testModeState = (IndexerState) stateMachine.registerState(new TestModeState());
-    warmupState = (IndexerState) stateMachine.registerState(new WarmupState());
-    shootingState = (IndexerState) stateMachine.registerState(new ShootingState());
+    idleState = stateMachine.registerState(new IdleState());
+    testModeState = stateMachine.registerState(new TestModeState());
+    warmupState = stateMachine.registerState(new WarmupState());
+    shootingState = stateMachine.registerState(new ShootingState());
 
     idleState
         .when(indexer -> indexer.isIndexerTestMode(), "In indexer test mode")
@@ -124,8 +123,8 @@ public class IndexerSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber(
             "IndexerTunables/indexerExpoKA", JsonConstants.indexerConstants.indexerExpoKA);
 
-    indexerTuningSetpointVelocity =
-        new LoggedTunableNumber("IndexerTunables/indexerTuningSetpointVelocity", 0.0);
+    indexerTuningSetpointVelocityRPM =
+        new LoggedTunableNumber("IndexerTunables/indexerTuningSetpointVelocityRPM", 0.0);
     indexerTuningAmps = new LoggedTunableNumber("IndexerTunables/indexerTuningAmps", 0.0);
     indexerTuningVolts = new LoggedTunableNumber("IndexerTunables/indexerTuningVolts", 0.0);
   }
@@ -158,7 +157,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
             indexerKA);
 
         motor.controlToVelocityUnprofiled(
-            RadiansPerSecond.of(indexerTuningSetpointVelocity.getAsDouble()));
+            RadiansPerSecond.of(indexerTuningSetpointVelocityRPM.getAsDouble()));
       }
       case IndexerCurrentTuning -> {
         motor.controlOpenLoopCurrent(Amps.of(indexerTuningAmps.getAsDouble()));
