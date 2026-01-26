@@ -103,8 +103,12 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private final LoggedTunableNumber hoodTuningVolts;
 
   // State variables
+  /**
+   * The last action requested of the Hood. This is the action that the hood should target, but only
+   * if the state machine allows. For example, it should only track a pitch after homing.
+   */
   @AutoLogOutput(key = "Hood/action")
-  private HoodAction currentAction = HoodAction.Idle;
+  private HoodAction requestedAction = HoodAction.Idle;
 
   @AutoLogOutput(key = "Hood/goalPitch")
   private MutAngle goalPitch =
@@ -152,11 +156,11 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
     idleState.when(hood -> hood.isHoodTestMode(), "Is hood test mode").transitionTo(testModeState);
     idleState
-        .when(hood -> hood.currentAction == HoodAction.TargetPitch, "Action == TargetPitch")
+        .when(hood -> hood.requestedAction == HoodAction.TargetPitch, "Action == TargetPitch")
         .transitionTo(targetPitchState);
 
     targetPitchState
-        .when(hood -> hood.currentAction != HoodAction.TargetPitch, "Action != TargetPitch")
+        .when(hood -> hood.requestedAction != HoodAction.TargetPitch, "Action != TargetPitch")
         .transitionTo(idleState);
 
     testModeState
@@ -362,7 +366,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    *     and 90 degrees being a vertical shot) at which a fuel should exit the hood.
    */
   public void targetPitch(Angle goalPitch) {
-    this.currentAction = HoodAction.TargetPitch;
+    this.requestedAction = HoodAction.TargetPitch;
     this.goalPitch.mut_replace(goalPitch);
   }
 }

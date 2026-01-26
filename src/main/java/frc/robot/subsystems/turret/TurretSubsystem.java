@@ -109,11 +109,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   // State variables
   /**
-   * The current goal action of the turret. This is different from a state, which is what the turret
-   * is currently doing by necessity.
+   * The last action requested of the turret. This is different from a state, which is what the
+   * turret is currently doing by necessity (e.g. homing).
    */
   @AutoLogOutput(key = "Turret/action")
-  private TurretAction currentAction = TurretAction.Idle;
+  private TurretAction requestedAction = TurretAction.Idle;
 
   /**
    * The field-centric goal heading of the turret to track when in TrackingState. This value should
@@ -151,7 +151,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
     homingWaitForStoppingState.whenFinished().transitionTo(idleState);
 
     idleState
-        .when(turret -> turret.currentAction == TurretAction.TrackHeading, "Action == TrackHeading")
+        .when(
+            turret -> turret.requestedAction == TurretAction.TrackHeading, "Action == TrackHeading")
         .transitionTo(trackHeadingState);
 
     idleState
@@ -159,7 +160,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .transitionTo(testModeState);
 
     trackHeadingState
-        .when(turret -> turret.currentAction != TurretAction.TrackHeading, "Action != TrackHeading")
+        .when(
+            turret -> turret.requestedAction != TurretAction.TrackHeading, "Action != TrackHeading")
         .transitionTo(idleState);
 
     testModeState
@@ -386,7 +388,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    * @param goalHeading A Rotation2d containing the field-centric goal heading
    */
   public void targetGoalHeading(Rotation2d goalHeading) {
-    this.currentAction = TurretAction.TrackHeading;
+    this.requestedAction = TurretAction.TrackHeading;
     this.goalTurretHeading = goalHeading;
   }
 }
