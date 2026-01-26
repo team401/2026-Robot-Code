@@ -1,7 +1,11 @@
 {
-  "hopperMotorId": 11,
-  "sensorToMechanismRatio": 1.0,
+  "spinningVoltage": {
+    "value": -3.0,
+    "unit": "Volt"
+  },
   "hopperReduction": 20.0,
+  "hopperKrakenId": 11,
+  "sensorToMechanismRatio": 1.0,
   "hopperMotorInvertedValue": "Clockwise_Positive",
   "hopperNeutralModeValue": "Brake",
   "hopperSupplyCurrentLimit": {

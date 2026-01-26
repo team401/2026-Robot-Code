@@ -17,7 +17,9 @@ import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
+import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hopper.HopperState.DejamState;
@@ -65,14 +67,15 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
     spinningState.whenFinished().transitionTo(idleState);
     spinningState.when(hopper -> hopper.dejamRequired(), "Dejam required").transitionTo(dejamState);
-    dejamState.whenFinished().transitionTo(idleState);
+    dejamState.whenFinished().transitionTo(spinningState);
+    idleState.whenFinished().transitionTo(spinningState);
     idleState
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
         .transitionTo(testModeState);
     testModeState
         .when(hopper -> !hopper.isHopperTestMode(), "Not in hopper test mode")
         .transitionTo(idleState);
-    stateMachine.setState(spinningState);
+    stateMachine.setState(idleState);
     hopperKP =
         new LoggedTunableNumber("HopperTunables/hopperKP", JsonConstants.hopperConstants.hopperKP);
     hopperKI =
@@ -109,7 +112,6 @@ public class HopperSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Hopper/closedLoopReferenceRadians", inputs.closedLoopReference);
     Logger.recordOutput(
         "Hopper/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
-
     Logger.recordOutput("Hopper/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
     Logger.recordOutput("Hopper/StateAfter", stateMachine.getCurrentState().getName());
@@ -171,32 +173,31 @@ public class HopperSubsystem extends MonitoredSubsystem {
     return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
   }
 
-  protected void runHopperAtSpeed(AngularVelocity speed) {
-    motor.controlToVelocityUnprofiled(speed);
+  protected void applyVoltage(Voltage volts) {
+    motor.controlOpenLoopVoltage(volts);
   }
 
-  protected void spin() {
-    runHopperAtSpeed(
-        RotationsPerSecond.of(JsonConstants.hopperConstants.spinningVoltage.in(Volts)));
+  protected void applySpinningVoltage() {
+    applyVoltage(JsonConstants.hopperConstants.spinningVoltage);
   }
 
   protected void dejam() {
     stopHopper();
-    runHopperAtSpeed(
-        RotationsPerSecond.of(-JsonConstants.hopperConstants.spinningVoltage.in(Volts)));
+    applyVoltage(Volts.of(-JsonConstants.hopperConstants.spinningVoltage.in(Volts)));
   }
 
   protected void stopHopper() {
-    motor.controlToVelocityUnprofiled(RadiansPerSecond.of(0.0));
+    applyVoltage(Volts.of(0.0));
   }
 
   protected void coast() {
     motor.controlCoast();
   }
 
-  private boolean dejamRequired() {
-    if (!isHopperTestMode()) { // Figure out how to detect jams, current idea is to get the velocity
-      // and the current and see if it is stalled unexpectedly like that but I really don't know
+  public boolean dejamRequired() {
+    final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
+    if (getHopperVelocity().abs(velocityComparisonUnit)
+        < JsonConstants.hopperConstants.spinningMovementThreshold.in(velocityComparisonUnit)) {
       return true;
     }
     return false;

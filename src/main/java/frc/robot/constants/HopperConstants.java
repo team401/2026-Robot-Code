@@ -2,8 +2,9 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
+// import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -33,14 +34,14 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class HopperConstants {
 
-  public final Voltage spinningVoltage = Volts.of(0.0); // placeholder
+  public final Voltage spinningVoltage = Volts.of(-3.0); // placeholder
 
   public final Double hopperReduction = 37.5;
 
-  public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
+  public final AngularVelocity spinningMovementThreshold = RadiansPerSecond.of(3.0);
 
-  public final Time homingMaxUnmovingTime = Seconds.of(5.0);
-  public final Time homingMaxOverallTime = Seconds.of(10.0);
+  public final Time spinningMaxUnmovingTime = Seconds.of(5.0);
+  public final Time spinningMaxOverallTime = Seconds.of(10.0);
 
   /**
    * The robot-relative angle that the hopper is at once it has homed. This should be determined
