@@ -33,7 +33,7 @@ public abstract class HoodState extends State<HoodSubsystem> {
   public static class HomingWaitForButtonState extends HoodState {
     @Override
     public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
-      if (hood.getDependencies().isHomingSwitchPressed()) {
+      if (hood.isHomingSwitchPressed()) {
         homeHoodAndFinish(hood);
       }
     }

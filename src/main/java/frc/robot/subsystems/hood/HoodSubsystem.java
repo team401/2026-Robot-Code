@@ -55,22 +55,10 @@ public class HoodSubsystem extends MonitoredSubsystem {
   public static final ActionKey UPDATE_INPUTS = new ActionKey("HoodSubsystem::updateInputs");
 
   /**
-   * The HoodDependencies class contains input values that the hood depends on getting from other
-   * subsystems/the supervisor layer
+   * Whether or not the homing switch is currently pressed. This value is updated by the
+   * CoordinationLayer via the setIsHomingSwitchPressed method.
    */
-  public static class HoodDependencies {
-    /**
-     * Whether or not the homing switch is currently pressed. This value should default to false
-     * when a homing limit switch is not present.
-     */
-    private boolean isHomingSwitchPressed = false;
-
-    public boolean isHomingSwitchPressed() {
-      return isHomingSwitchPressed;
-    }
-  }
-
-  private final HoodDependencies dependencies = new HoodDependencies();
+  private boolean isHomingSwitchPressed = false;
 
   // State machine and states
   private final StateMachine<HoodSubsystem> stateMachine;
@@ -285,17 +273,18 @@ public class HoodSubsystem extends MonitoredSubsystem {
    *     homed), false if the switch isn't pressed.
    */
   public void setIsHomingSwitchPressed(boolean isHomingSwitchPressed) {
-    dependencies.isHomingSwitchPressed = isHomingSwitchPressed;
+    this.isHomingSwitchPressed = isHomingSwitchPressed;
   }
 
   /**
-   * Get the dependencies object associated with this HoodSubsystem instance. This method provides a
-   * way for hood states to access the dependency values of the hood.
+   * Returns whether or not the homing switch is currently pressed (or was pressed when its inputs
+   * were last read from hardware.)
    *
-   * @return The HoodDependencies object that this Hood uses/contains
+   * @return True if the homing switch is pressed (the mechanism should consider itself homed),
+   *     false if not
    */
-  protected HoodDependencies getDependencies() {
-    return dependencies;
+  protected boolean isHomingSwitchPressed() {
+    return isHomingSwitchPressed;
   }
 
   /**
