@@ -199,7 +199,8 @@ public class InitSubsystems {
         // Sim robot, instantiate physics sim IO implementations
         return new ShooterSubsystem(
             dependencyOrderedExecutor,
-            MotorIOTalonFXSim.newLeader(mechanismConfig, talonFXConfigs),
+            MotorIOTalonFXSim.newLeader(
+                mechanismConfig, talonFXConfigs, JsonConstants.shooterConstants.buildShooterSim()),
             MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs),
             MotorIOTalonFXSim.newFollower(mechanismConfig, 1, talonFXConfigs));
       default:

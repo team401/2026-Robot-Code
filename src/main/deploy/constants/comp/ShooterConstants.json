@@ -25,7 +25,7 @@
     "unit": "Amp"
   },
   "shooterStatorCurrentLimit": {
-    "value": 40.0,
+    "value": 80.0,
     "unit": "Amp"
   },
   "shooterMotorDirection": "CounterClockwise_Positive",
@@ -41,7 +41,7 @@
     "unit": "Radian per Second per Second"
   },
   "shooterMOI": {
-    "value": 0.01,
+    "value": 5.0E-4,
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
   }
 }

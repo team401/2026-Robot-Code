@@ -71,11 +71,11 @@ public class ShooterConstants {
   public final Integer shooterTopFollowerMotorId = 15;
   public final Integer shooterBottomFollowerMotorId = 16;
 
-  public final Double shooterKP = 0.0;
+  public final Double shooterKP = 4.0;
   public final Double shooterKI = 0.0;
   public final Double shooterKD = 0.0;
   public final Double shooterKS = 0.0;
-  public final Double shooterKV = 0.0;
+  public final Double shooterKV = 1.85;
   public final Double shooterKA = 0.0;
 
   /**
@@ -89,7 +89,7 @@ public class ShooterConstants {
   public final Current shooterSupplyCurrentLimit = Amps.of(40.0);
 
   /** Per-motor stator current limit */
-  public final Current shooterStatorCurrentLimit = Amps.of(40.0);
+  public final Current shooterStatorCurrentLimit = Amps.of(80.0);
 
   public final InvertedValue shooterMotorDirection =
       InvertedValue.CounterClockwise_Positive; // TODO: Actual value
@@ -148,7 +148,7 @@ public class ShooterConstants {
   }
 
   // TODO: Find a reasonable value for this MOI
-  public final MomentOfInertia shooterMOI = KilogramSquareMeters.of(0.01);
+  public final MomentOfInertia shooterMOI = KilogramSquareMeters.of(0.0005);
 
   public CoppercoreSimAdapter buildShooterSim() {
     return new DCMotorSimAdapter(
