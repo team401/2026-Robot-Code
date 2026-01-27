@@ -29,6 +29,7 @@ import frc.robot.subsystems.turret.TurretState.HomingWaitForStoppingState;
 import frc.robot.subsystems.turret.TurretState.IdleState;
 import frc.robot.subsystems.turret.TurretState.TestModeState;
 import frc.robot.subsystems.turret.TurretState.TrackHeadingState;
+import frc.robot.util.AngleUtil;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -328,18 +329,13 @@ public class TurretSubsystem extends MonitoredSubsystem {
    * and then applying the heading offset from TurretConstants
    */
   protected void controlToGoalHeading() {
-    Angle goalAngle =
-        Radians.of(
-            goalTurretHeading
-                    .minus(dependencies.robotHeading)
-                    .plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle))
-                    .getMeasure()
-                    .in(Radians)
-                // Change range from [-pi,pi) to [0, 2*pi)
-                % Math.PI
-                * 2);
+    Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
+    Rotation2d turretRelativeHeading =
+        AngleUtil.normalizeHeading(
+            robotRelativeHeading.plus(
+                new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
 
-    controlToTurretCentricPosition(goalAngle);
+    controlToTurretCentricPosition(turretRelativeHeading.getMeasure());
   }
 
   /**
