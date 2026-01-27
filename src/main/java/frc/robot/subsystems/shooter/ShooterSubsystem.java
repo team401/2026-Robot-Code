@@ -20,6 +20,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
 import frc.robot.util.TestModeManager;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -123,6 +124,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     shooterTuningRPM = new LoggedTunableNumber("ShooterTunables/shooterTuningRPM", 0.0);
     shooterTuningAmps = new LoggedTunableNumber("ShooterTunables/shooterTuningAmps", 0.0);
     shooterTuningVolts = new LoggedTunableNumber("ShooterTunables/shooterTuningVolts", 0.0);
+
+    AutoLogOutputManager.addObject(this);
 
     dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
   }

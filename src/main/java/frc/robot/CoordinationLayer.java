@@ -17,6 +17,7 @@ import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -29,6 +30,7 @@ public class CoordinationLayer {
   // Subsystems
   private Optional<Drive> drive = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
+  private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
   private Optional<Void> homingSwitch = Optional.empty();
@@ -84,6 +86,24 @@ public class CoordinationLayer {
 
     this.turret = Optional.of(turret);
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
+  }
+
+  /**
+   * Sets the shooter instance for the CoordinationLayer to use.
+   *
+   * <p>This method must run before the DependencyOrderedExecutor's schedule is finalized, as it
+   * adds dependencies. However, if the shooter subsystem is disabled in FeatureFlags, it does not
+   * need to be called at all.
+   *
+   * @param shooter The ShooterSubsystem instance to use
+   */
+  public void setShooter(ShooterSubsystem shooter) {
+    if (this.shooter.isPresent()) {
+      throw new IllegalStateException("CoordinationLayer setShooter was called twice!");
+    }
+
+    this.shooter = Optional.of(shooter);
+    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, ShooterSubsystem.UPDATE_INPUTS);
   }
 
   /**
