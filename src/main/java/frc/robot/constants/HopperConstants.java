@@ -47,7 +47,6 @@ public class HopperConstants {
    * The robot-relative angle that the hopper is at once it has homed. This should be determined
    * using CAD to find the angle of the "negative direction" hardstop.
    */
-  public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
 
   public final Integer hopperKrakenId = 11; // TODO: Verify this ID
 
