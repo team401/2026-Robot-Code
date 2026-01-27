@@ -140,9 +140,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     Logger.processInputs("Shooter/BottomFollowerInputs", bottomFollowerMotorInputs);
 
     Logger.recordOutput(
-        "Shooter/ClosedLoopReferenceRotationsPerSecond", leadMotorInputs.closedLoopReference);
+        "Shooter/ClosedLoopReferenceRadiansPerSecond", leadMotorInputs.closedLoopReference);
     Logger.recordOutput(
-        "Shooter/ClosedLoopReferenceSlopeRotationsPerSecondPerSecond",
+        "Shooter/ClosedLoopReferenceSlopeRadiansPerSecondPerSecond",
         leadMotorInputs.closedLoopReferenceSlope);
   }
 
