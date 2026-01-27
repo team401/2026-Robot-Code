@@ -22,6 +22,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -95,6 +96,11 @@ public class RobotContainer {
       coordinationLayer.setTurret(turret);
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
+    }
+
+    if (JsonConstants.featureFlags.runShooter) {
+      ShooterSubsystem shooter =
+          InitSubsystems.initShooterSubsystem(dependencyOrderedExecutor);
     }
 
     if (JsonConstants.featureFlags.useHomingSwitch) {
