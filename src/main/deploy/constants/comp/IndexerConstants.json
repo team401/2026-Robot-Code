@@ -4,14 +4,13 @@
   "indexerDemoMode": true,
   "indexerKrakenId": 10,
   "indexerKP": 10.0,
-  "indexerKI": 0.0,
+  "indexerKI": 5.0,
   "indexerKD": 0.0,
   "indexerKS": 0.0,
   "indexerKV": 0.0,
-  "indexerKG": 0.0,
   "indexerKA": 0.0,
-  "indexerExpoKV": 12.0,
-  "indexerExpoKA": 12.0,
+  "indexerMaxAcceleration": 3000.0,
+  "indexerMaxJerk": 1000.0,
   "indexerSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"

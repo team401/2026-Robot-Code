@@ -34,15 +34,14 @@ public class IndexerConstants {
   public final Integer indexerKrakenId = 10; // TODO: Verify this ID
 
   public final Double indexerKP = 10.0;
-  public final Double indexerKI = 0.0;
+  public final Double indexerKI = 5.0;
   public final Double indexerKD = 0.0;
   public final Double indexerKS = 0.0;
   public final Double indexerKV = 0.0;
-  public final Double indexerKG = 0.0;
   public final Double indexerKA = 0.0;
 
-  public final Double indexerExpoKV = 12.0;
-  public final Double indexerExpoKA = 12.0;
+  public final Double indexerMaxAcceleration = 3000.0; // TODO: Find actual values
+  public final Double indexerMaxJerk = 1000.0;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -72,7 +71,7 @@ public class IndexerConstants {
                 .withKD(indexerKD)
                 .withKS(indexerKS)
                 .withKV(indexerKV)
-                .withKG(indexerKG)
+                .withKG(0)
                 .withKA(indexerKA))
         .withCurrentLimits(
             new CurrentLimitsConfigs()
@@ -83,8 +82,8 @@ public class IndexerConstants {
         .withMotorOutput(new MotorOutputConfigs().withInverted(indexerMotorDirection))
         .withMotionMagic(
             new MotionMagicConfigs()
-                .withMotionMagicExpo_kA(indexerExpoKA)
-                .withMotionMagicExpo_kV(indexerExpoKV));
+                .withMotionMagicAcceleration(indexerMaxAcceleration)
+                .withMotionMagicJerk(indexerMaxJerk));
   }
 
   public CoppercoreSimAdapter buildIndexerSim() {

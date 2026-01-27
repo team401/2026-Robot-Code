@@ -45,8 +45,8 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber indexerKV;
   LoggedTunableNumber indexerKA;
 
-  LoggedTunableNumber indexerExpoKV;
-  LoggedTunableNumber indexerExpoKA;
+  LoggedTunableNumber indexerMaxAcceleration;
+  LoggedTunableNumber indexerMaxJerk;
 
   LoggedTunableNumber indexerTuningAmps;
   LoggedTunableNumber indexerTuningVolts;
@@ -116,12 +116,13 @@ public class IndexerSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber(
             "IndexerTunables/indexerKA", JsonConstants.indexerConstants.indexerKA);
 
-    indexerExpoKV =
+    indexerMaxAcceleration =
         new LoggedTunableNumber(
-            "IndexerTunables/indexerExpoKV", JsonConstants.indexerConstants.indexerExpoKV);
-    indexerExpoKA =
+            "IndexerTunables/indexerMaxAcceleration",
+            JsonConstants.indexerConstants.indexerMaxAcceleration);
+    indexerMaxJerk =
         new LoggedTunableNumber(
-            "IndexerTunables/indexerExpoKA", JsonConstants.indexerConstants.indexerExpoKA);
+            "IndexerTunables/indexerMaxJerk", JsonConstants.indexerConstants.indexerMaxJerk);
 
     indexerTuningSetpointVelocityRPM =
         new LoggedTunableNumber("IndexerTunables/indexerTuningSetpointVelocityRPM", 0.0);
@@ -156,7 +157,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
             indexerKV,
             indexerKA);
 
-        motor.controlToVelocityUnprofiled(
+        motor.controlToVelocityProfiled(
             RadiansPerSecond.of(indexerTuningSetpointVelocityRPM.getAsDouble()));
       }
       case IndexerCurrentTuning -> {
@@ -179,14 +180,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
    *     initialized.
    */
   private boolean isIndexerTestMode() {
-    return switch (testModeManager.getTestMode()) {
-      case IndexerClosedLoopTuning,
-          IndexerCurrentTuning,
-          IndexerVoltageTuning,
-          IndexerPhoenixTuning ->
-          true;
-      default -> false;
-    };
+    return testModeManager.isInTestMode();
   }
 
   public AngularVelocity getVelocity() {
@@ -194,7 +188,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   public void setToTargetVelocity() {
-    motor.controlToVelocityUnprofiled(targetVelocity);
+    motor.controlToVelocityProfiled(targetVelocity);
   }
 
   // If the target velocity is not zero, the indexer should start the shooting process
