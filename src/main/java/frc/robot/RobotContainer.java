@@ -20,6 +20,8 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.util.io.dio_switch.DigitalInputIO;
+
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -36,7 +38,6 @@ public class RobotContainer {
   private final Optional<Drive> drive;
   private final Optional<TurretSubsystem> turret;
   private final Optional<HoodSubsystem> hood;
-  private final Optional<Void> homingSwitch = Optional.empty();
 
   private final CoordinationLayer coordinationLayer;
 
@@ -93,6 +94,11 @@ public class RobotContainer {
           RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
     } else {
       turret = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.useHomingSwitch) {
+      DigitalInputIO homingSwitch = InitSubsystems.initHomingSwitch(dependencyOrderedExecutor);
+      coordinationLayer.setHomingSwitch(homingSwitch);
     }
 
     drive.ifPresentOrElse(

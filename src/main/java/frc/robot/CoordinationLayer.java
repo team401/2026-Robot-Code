@@ -15,9 +15,12 @@ import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShooterCalculations.ShotInfo;
 import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.util.io.dio_switch.DigitalInputIO;
+
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,13 +34,11 @@ public class CoordinationLayer {
   private Optional<TurretSubsystem> turret = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
-  private Optional<Void> homingSwitch = Optional.empty();
+  private Optional<HomingSwitch> homingSwitch = Optional.empty();
 
   private final DependencyOrderedExecutor dependencyOrderedExecutor;
 
   // DOE Action Keys
-  public static final ActionKey READ_HOMING_SWITCH =
-      new ActionKey("CoordinationLayer::readHomingSwitch");
   public static final ActionKey UPDATE_TURRET_DEPENDENCIES =
       new ActionKey("CoordinationLayer::updateTurretDependencies");
   public static final ActionKey UPDATE_HOOD_DEPENDENCIES =
@@ -47,12 +48,9 @@ public class CoordinationLayer {
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
-  private boolean isHomingSwitchPressed = false;
-
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
-    dependencyOrderedExecutor.registerAction(READ_HOMING_SWITCH, this::readHomingSwitch);
     dependencyOrderedExecutor.registerAction(
         UPDATE_TURRET_DEPENDENCIES, this::updateTurretDependencies);
     dependencyOrderedExecutor.registerAction(
@@ -104,18 +102,27 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, HoodSubsystem.UPDATE_INPUTS);
   }
 
-  // Subsystem dependency updates
-  /** Read homing switch state to determine if it's pressed */
-  private void readHomingSwitch() {
-    // TODO: Add actual check for whether homing switch is pressed once it is designed
-    isHomingSwitchPressed = homingSwitch.map(s -> false).orElse(false);
+  public void setHomingSwitch(HomingSwitch homingSwitch) {
+    if (this.hood.isPresent()) {
+      throw new IllegalStateException("CoordinationLayer setHomingSwitch was called twice!");
+    }
+
+    this.homingSwitch = Optional.of(homingSwitch);
+
+    dependencyOrderedExecutor.addDependencies(UPDATE_TURRET_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
+    dependencyOrderedExecutor.addDependencies(UPDATE_HOOD_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
   }
 
+  private boolean isHomingSwitchPressed() {
+    return homingSwitch.map(homingSwitch -> homingSwitch.isHomingSwitchPressed()).orElse(false);
+  }
+
+  // Subsystem dependency updates
   /** Update the turret subsystem on the state of the homing switch. */
   private void updateTurretDependencies() {
     turret.ifPresent(
         turret -> {
-          turret.setIsHomingSwitchPressed(isHomingSwitchPressed);
+          turret.setIsHomingSwitchPressed(isHomingSwitchPressed());
           drive.ifPresent(
               drive -> {
                 turret.setRobotHeading(drive.getRotation());
@@ -125,7 +132,7 @@ public class CoordinationLayer {
 
   /** Update the hood subsystem on the state of the homing switch. */
   private void updateHoodDependencies() {
-    hood.ifPresent(hood -> hood.setIsHomingSwitchPressed(isHomingSwitchPressed));
+    hood.ifPresent(hood -> hood.setIsHomingSwitchPressed(isHomingSwitchPressed()));
   }
 
   // Coordination and processing

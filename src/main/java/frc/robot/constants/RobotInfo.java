@@ -14,4 +14,6 @@ public class RobotInfo {
           Units.inchesToMeters(-2.088),
           Units.inchesToMeters(17.0),
           new Rotation3d());
+
+  public final Integer homingSwitchDIOChannel = 0;
 }
