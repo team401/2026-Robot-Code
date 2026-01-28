@@ -9,7 +9,6 @@ import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
@@ -45,8 +44,8 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber indexerKV;
   LoggedTunableNumber indexerKA;
 
-  LoggedTunableNumber indexerMaxAcceleration;
-  LoggedTunableNumber indexerMaxJerk;
+  LoggedTunableNumber indexerMaxAccelerationRotationsPerSecondSquared;
+  LoggedTunableNumber indexerMaxJerkRotationsPerSecondCubed;
 
   LoggedTunableNumber indexerTuningAmps;
   LoggedTunableNumber indexerTuningVolts;
@@ -116,13 +115,14 @@ public class IndexerSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber(
             "IndexerTunables/indexerKA", JsonConstants.indexerConstants.indexerKA);
 
-    indexerMaxAcceleration =
+    indexerMaxAccelerationRotationsPerSecondSquared =
         new LoggedTunableNumber(
-            "IndexerTunables/indexerMaxAcceleration",
-            JsonConstants.indexerConstants.indexerMaxAcceleration);
-    indexerMaxJerk =
+            "IndexerTunables/indexerMaxAccelerationRotationsPerSecond",
+            JsonConstants.indexerConstants.indexerMaxAccelerationRotationsPerSecondSquared);
+    indexerMaxJerkRotationsPerSecondCubed =
         new LoggedTunableNumber(
-            "IndexerTunables/indexerMaxJerk", JsonConstants.indexerConstants.indexerMaxJerk);
+            "IndexerTunables/indexerMaxJerkRotationsPerSecond",
+            JsonConstants.indexerConstants.indexerMaxJerkRotationsPerSecondCubed);
 
     indexerTuningSetpointVelocityRPM =
         new LoggedTunableNumber("IndexerTunables/indexerTuningSetpointVelocityRPM", 0.0);
@@ -134,7 +134,6 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   public void monitoredPeriodic() {
     motor.updateInputs(inputs);
     Logger.processInputs("Indexer/inputs", inputs);
-    Logger.recordOutput("Indexer/velocityRadiansPerSecond", inputs.velocityRadiansPerSecond);
 
     Logger.recordOutput("Indexer/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
@@ -201,7 +200,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   public boolean readyToShoot() {
-    return getVelocity().minus(targetVelocity).div(targetVelocity).abs(Units.Value)
-        < JsonConstants.indexerConstants.indexerMaximumRelativeVelocityError;
+    return getVelocity()
+        .isNear(targetVelocity, JsonConstants.indexerConstants.indexerMaximumRelativeVelocityError);
   }
 }
