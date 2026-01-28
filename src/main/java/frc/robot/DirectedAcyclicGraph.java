@@ -96,7 +96,7 @@ public class DirectedAcyclicGraph<T> {
     printWriter.println("graph LR");
     for (var entry : successorMap.entrySet()) {
       if (entry.getValue().isEmpty()) {
-        printWriter.println("  " + entry.getKey().hashCode() + "(\"" + entry.getKey() + ")\"");
+        printWriter.println("  " + entry.getKey().hashCode() + "(\"" + entry.getKey() + "\")");
       }
       for (var outgoing : entry.getValue()) {
         printWriter.println(

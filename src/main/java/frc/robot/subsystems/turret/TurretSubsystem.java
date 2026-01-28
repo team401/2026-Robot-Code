@@ -31,8 +31,6 @@ import frc.robot.subsystems.turret.TurretState.TestModeState;
 import frc.robot.subsystems.turret.TurretState.TrackHeadingState;
 import frc.robot.util.AngleUtil;
 import frc.robot.util.TestModeManager;
-import frc.robot.util.io.dio_switch.DigitalInputIO;
-import frc.robot.util.io.dio_switch.DigitalInputInputsAutoLogged;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -125,9 +123,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Turret/goalHeading")
   private Rotation2d goalTurretHeading = Rotation2d.kZero;
 
-  public TurretSubsystem(
-      DependencyOrderedExecutor dependencyOrderedExecutor,
-      MotorIO motor) {
+  public TurretSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
 
     // Define state machine transitions, register states

@@ -17,11 +17,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.util.io.dio_switch.DigitalInputIO;
-
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -58,9 +57,7 @@ public class RobotContainer {
     // Homing switch must be updated before running subsystem periodics because certain state
     // machines will take action during periodic based on its state.
     dependencyOrderedExecutor.addDependencies(
-        RUN_COMMAND_SCHEDULER,
-        CoordinationLayer.RUN_SHOT_CALCULATOR,
-        CoordinationLayer.READ_HOMING_SWITCH);
+        RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_SHOT_CALCULATOR);
 
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
@@ -97,7 +94,7 @@ public class RobotContainer {
     }
 
     if (JsonConstants.featureFlags.useHomingSwitch) {
-      DigitalInputIO homingSwitch = InitSubsystems.initHomingSwitch(dependencyOrderedExecutor);
+      HomingSwitch homingSwitch = InitSubsystems.initHomingSwitch(dependencyOrderedExecutor);
       coordinationLayer.setHomingSwitch(homingSwitch);
     }
 

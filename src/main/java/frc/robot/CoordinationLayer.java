@@ -19,8 +19,6 @@ import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.util.io.dio_switch.DigitalInputIO;
-
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
@@ -51,10 +49,6 @@ public class CoordinationLayer {
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
-    dependencyOrderedExecutor.registerAction(
-        UPDATE_TURRET_DEPENDENCIES, this::updateTurretDependencies);
-    dependencyOrderedExecutor.registerAction(
-        UPDATE_HOOD_DEPENDENCIES, this::updateHoodDependencies);
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
   }
 
@@ -81,6 +75,10 @@ public class CoordinationLayer {
     }
 
     this.turret = Optional.of(turret);
+
+    dependencyOrderedExecutor.registerAction(
+        UPDATE_TURRET_DEPENDENCIES, () -> updateTurretDependencies(turret));
+
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
   }
 
@@ -99,18 +97,28 @@ public class CoordinationLayer {
     }
 
     this.hood = Optional.of(hood);
+
+    dependencyOrderedExecutor.registerAction(
+        UPDATE_HOOD_DEPENDENCIES, () -> updateHoodDependencies(hood));
+
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, HoodSubsystem.UPDATE_INPUTS);
   }
 
   public void setHomingSwitch(HomingSwitch homingSwitch) {
-    if (this.hood.isPresent()) {
+    if (this.homingSwitch.isPresent()) {
       throw new IllegalStateException("CoordinationLayer setHomingSwitch was called twice!");
     }
 
     this.homingSwitch = Optional.of(homingSwitch);
 
-    dependencyOrderedExecutor.addDependencies(UPDATE_TURRET_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
-    dependencyOrderedExecutor.addDependencies(UPDATE_HOOD_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
+    if (JsonConstants.featureFlags.runTurret) {
+      dependencyOrderedExecutor.addDependencies(
+          UPDATE_TURRET_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
+    }
+    if (JsonConstants.featureFlags.runHood) {
+      dependencyOrderedExecutor.addDependencies(
+          UPDATE_HOOD_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
+    }
   }
 
   private boolean isHomingSwitchPressed() {
@@ -119,20 +127,17 @@ public class CoordinationLayer {
 
   // Subsystem dependency updates
   /** Update the turret subsystem on the state of the homing switch. */
-  private void updateTurretDependencies() {
-    turret.ifPresent(
-        turret -> {
-          turret.setIsHomingSwitchPressed(isHomingSwitchPressed());
-          drive.ifPresent(
-              drive -> {
-                turret.setRobotHeading(drive.getRotation());
-              });
+  private void updateTurretDependencies(TurretSubsystem turret) {
+    turret.setIsHomingSwitchPressed(isHomingSwitchPressed());
+    drive.ifPresent(
+        drive -> {
+          turret.setRobotHeading(drive.getRotation());
         });
   }
 
   /** Update the hood subsystem on the state of the homing switch. */
-  private void updateHoodDependencies() {
-    hood.ifPresent(hood -> hood.setIsHomingSwitchPressed(isHomingSwitchPressed()));
+  private void updateHoodDependencies(HoodSubsystem hood) {
+    hood.setIsHomingSwitchPressed(isHomingSwitchPressed());
   }
 
   // Coordination and processing

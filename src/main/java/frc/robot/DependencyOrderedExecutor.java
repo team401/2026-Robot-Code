@@ -97,8 +97,8 @@ public class DependencyOrderedExecutor {
   public void finalizeSchedule() {
     System.out.println("[DOE] Finalizing schedule: ");
     System.out.println("[DOE] Dependency graph:");
-    dependencyGraph.printMermaid(new PrintWriter(System.out));
-    dependencyGraph.printDOT(new PrintWriter(System.out));
+    dependencyGraph.printMermaid(new PrintWriter(System.out, true));
+    dependencyGraph.printDOT(new PrintWriter(System.out, true));
 
     System.out.println("[DOE] Finalized schedule:");
     actionSchedule =
@@ -107,6 +107,9 @@ public class DependencyOrderedExecutor {
                 .map(
                     key -> {
                       System.out.println(" - " + key.name());
+                      if (!actionMap.containsKey(key)) {
+                        throw new IllegalStateException("No action was registered for " + key);
+                      }
                       return new NamedAction(key.name(), actionMap.get(key));
                     })
                 .collect(Collectors.toList()));

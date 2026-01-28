@@ -7,6 +7,7 @@ import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import frc.robot.constants.JsonConstants;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -15,7 +16,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.util.io.dio_switch.DigitalInputIO;
 import frc.robot.util.io.dio_switch.DigitalInputIOReal;
 import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
 import frc.robot.util.io.dio_switch.DigitalInputIOSimNT;
@@ -100,8 +100,8 @@ public class InitSubsystems {
                 .withMotorType(MotorType.KrakenX44));
       default:
         // Replayed robot, disable IO implementations
-        return new TurretSubsystem( dependencyOrderedExecutor, new MotorIOReplay());
-      }
+        return new TurretSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+    }
   }
 
   public static HoodSubsystem initHoodSubsystem(
@@ -130,17 +130,22 @@ public class InitSubsystems {
     }
   }
 
-  public static DigitalInputIO initHomingSwitch(DependencyOrderedExecutor dependencyOrderedExecutor) {
+  public static HomingSwitch initHomingSwitch(DependencyOrderedExecutor dependencyOrderedExecutor) {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        return new DigitalInputIOReal(JsonConstants.robotInfo.homingSwitchDIOChannel);
+        return new HomingSwitch(
+            dependencyOrderedExecutor,
+            new DigitalInputIOReal(JsonConstants.robotInfo.homingSwitchDIOChannel));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        return new DigitalInputIOSimNT("HomingSwitchIsOpen", JsonConstants.robotInfo.homingSwitchDIOChannel, false);
+        return new HomingSwitch(
+            dependencyOrderedExecutor,
+            new DigitalInputIOSimNT(
+                "HomingSwitchIsOpen", JsonConstants.robotInfo.homingSwitchDIOChannel, false));
       default:
         // Replayed robot, disable IO implementations
-        return new DigitalInputIOReplay();
+        return new HomingSwitch(dependencyOrderedExecutor, new DigitalInputIOReplay());
     }
   }
 }
