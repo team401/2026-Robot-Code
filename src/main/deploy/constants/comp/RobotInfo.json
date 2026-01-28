@@ -12,5 +12,6 @@
       "yaw": 0.0
     }
   },
-  "homingSwitchDIOChannel": 0
+  "homingSwitchCANdiID": 14,
+  "homingSwitchSignal": "S1"
 }

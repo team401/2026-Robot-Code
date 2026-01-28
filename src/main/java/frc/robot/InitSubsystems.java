@@ -1,6 +1,8 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
@@ -16,9 +18,9 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.util.io.dio_switch.DigitalInputIOReal;
+import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
+import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
 import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
-import frc.robot.util.io.dio_switch.DigitalInputIOSimNT;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -136,13 +138,24 @@ public class InitSubsystems {
         // Real robot, instantiate hardware IO implementations
         return new HomingSwitch(
             dependencyOrderedExecutor,
-            new DigitalInputIOReal(JsonConstants.robotInfo.homingSwitchDIOChannel));
+            new DigitalInputIOCANdi(
+                new CANDeviceID(
+                    new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                    JsonConstants.robotInfo.homingSwitchCANdiID),
+                JsonConstants.robotInfo.buildHomingSwitchConfig(),
+                JsonConstants.robotInfo.homingSwitchSignal));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         return new HomingSwitch(
             dependencyOrderedExecutor,
-            new DigitalInputIOSimNT(
-                "HomingSwitchIsOpen", JsonConstants.robotInfo.homingSwitchDIOChannel, false));
+            new DigitalInputIOCANdiSimNT(
+                new CANDeviceID(
+                    new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                    JsonConstants.robotInfo.homingSwitchCANdiID),
+                JsonConstants.robotInfo.buildHomingSwitchConfig(),
+                JsonConstants.robotInfo.homingSwitchSignal,
+                "HomingSwitchSim/isOpen",
+                false));
       default:
         // Replayed robot, disable IO implementations
         return new HomingSwitch(dependencyOrderedExecutor, new DigitalInputIOReplay());
