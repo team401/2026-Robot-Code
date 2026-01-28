@@ -10,10 +10,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShooterCalculations.ShotInfo;
 import frc.robot.ShooterCalculations.ShotType;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -160,11 +160,7 @@ public class CoordinationLayer {
    * @param drive A Drive instance
    */
   private void runShotCalculatorWithDrive(Drive driveInstance) {
-    Translation3d hubTranslation =
-        new Translation3d(
-            Units.inchesToMeters(182.11),
-            Units.inchesToMeters(158.84),
-            Units.inchesToMeters(72 - 8));
+    Translation3d hubTranslation = FieldConstants.Hub.topCenterPoint();
     // Placeholder passing "example" translation
     Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
 

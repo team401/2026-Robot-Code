@@ -19,6 +19,8 @@ public class JsonConstants {
     var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
+    jsonHandler.saveObject(new AprilTagConstants(), "AprilTagConstants.json");
+    aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
@@ -30,6 +32,7 @@ public class JsonConstants {
   }
 
   public static RobotInfo robotInfo;
+  public static AprilTagConstants aprilTagConstants;
   public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
