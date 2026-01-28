@@ -19,7 +19,6 @@ public class JsonConstants {
     var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
-    jsonHandler.saveObject(new AprilTagConstants(), "AprilTagConstants.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     drivetrainConstants =
