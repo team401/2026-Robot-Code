@@ -1,22 +1,14 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
-import edu.wpi.first.units.AngularVelocityUnit;
 
 // I helped copilot autocomplete write this file
 public abstract class HopperState extends State<HopperSubsystem> {
   public static class SpinningState extends HopperState {
     @Override
     public void periodic(StateMachine<HopperSubsystem> stateMachine, HopperSubsystem hopper) {
-      hopper.applySpinningVoltage();
-      final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
-      if (hopper.getHopperVelocity().abs(velocityComparisonUnit)
-          >= hopper.hopperTuningSetpointVelocity.getAsDouble()) {
-        finish();
-      }
+      hopper.setToTargetVelocity();
     }
   }
 
@@ -24,11 +16,6 @@ public abstract class HopperState extends State<HopperSubsystem> {
     @Override
     public void periodic(StateMachine<HopperSubsystem> stateMachine, HopperSubsystem hopper) {
       hopper.coast();
-      final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
-      if (hopper.getHopperVelocity().abs(velocityComparisonUnit)
-          < hopper.hopperTuningSetpointVelocity.getAsDouble()) {
-        finish();
-      }
     }
   }
 
@@ -38,9 +25,6 @@ public abstract class HopperState extends State<HopperSubsystem> {
         StateMachine<HopperSubsystem> stateMachine,
         HopperSubsystem hopper) { // TODO: Figure out this logic
       hopper.dejam();
-      if (!hopper.dejamRequired()) {
-        finish();
-      }
     }
   }
 

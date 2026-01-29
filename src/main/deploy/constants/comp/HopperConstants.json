@@ -3,17 +3,22 @@
     "value": -3.0,
     "unit": "Volt"
   },
-  "hopperReduction": 20.0,
+  "hopperDemoMode": false,
+  "hopperReduction": 1.0,
   "hopperKrakenId": 11,
   "sensorToMechanismRatio": 1.0,
   "hopperMotorInvertedValue": "Clockwise_Positive",
   "hopperNeutralModeValue": "Brake",
   "hopperSupplyCurrentLimit": {
-    "value": 40.0,
+    "value": 60.0,
     "unit": "Amp"
   },
   "hopperStatorCurrentLimit": {
     "value": 40.0,
+    "unit": "Amp"
+  },
+  "dejamCurrentThreshold": {
+    "value": 35.0,
     "unit": "Amp"
   },
   "peakFOCCurrent": {

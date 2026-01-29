@@ -8,6 +8,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import coppercore.metadata.CopperCoreMetadata;
@@ -191,6 +192,13 @@ public class RobotContainer {
                         10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
               });
         });
+    if (JsonConstants.hopperConstants.hopperDemoMode) {
+      hopper.ifPresent(
+          hopper -> {
+            hopper.setTargetVelocity(RadiansPerSecond.of(500));
+          });
+    }
+    ;
   }
 
   // Subsystem dependency updates

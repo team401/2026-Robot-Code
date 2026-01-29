@@ -2,21 +2,13 @@ package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
-import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
-import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
-import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
-import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -33,6 +25,8 @@ import org.littletonrobotics.junction.Logger;
 public class HopperSubsystem extends MonitoredSubsystem {
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
+
+  private AngularVelocity targetVelocity = RadiansPerSecond.of(0.0);
 
   private final StateMachine<HopperSubsystem> stateMachine;
   private final HopperState spinningState;
@@ -56,6 +50,9 @@ public class HopperSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber hopperTuningAmps;
   LoggedTunableNumber hopperTuningVolts;
 
+  LoggedTunableNumber hopperMaxAccelerationRotationsPerSecondSquared;
+  LoggedTunableNumber hopperMaxJerkRotationsPerSecondCubed;
+
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Hopper", TestMode.class);
 
@@ -68,10 +65,12 @@ public class HopperSubsystem extends MonitoredSubsystem {
     idleState = (HopperState) stateMachine.registerState(new IdleState());
     testModeState = (HopperState) stateMachine.registerState(new TestModeState());
 
-    spinningState.whenFinished().transitionTo(idleState);
+    spinningState.when(hopper -> hopper.shouldIdle(), "Should idle").transitionTo(idleState);
     spinningState.when(hopper -> hopper.dejamRequired(), "Dejam required").transitionTo(dejamState);
-    dejamState.whenFinished().transitionTo(spinningState);
-    idleState.whenFinished().transitionTo(spinningState);
+    dejamState
+        .when(hopper -> !hopper.dejamRequired(), "Dejam not required")
+        .transitionTo(spinningState);
+    idleState.when(hopper -> !hopper.shouldIdle(), "Should spin").transitionTo(spinningState);
     idleState
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
         .transitionTo(testModeState);
@@ -100,6 +99,15 @@ public class HopperSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber(
             "HopperTunables/hopperExpoKA", JsonConstants.hopperConstants.hopperExpoKA);
 
+    hopperMaxAccelerationRotationsPerSecondSquared =
+        new LoggedTunableNumber(
+            "HopperTunables/hopperMaxAccelerationRotationsPerSecond",
+            JsonConstants.hopperConstants.hopperMaxAccelerationRotationsPerSecondSquared);
+    hopperMaxJerkRotationsPerSecondCubed =
+        new LoggedTunableNumber(
+            "HopperTunables/hopperMaxJerkRotationsPerSecond",
+            JsonConstants.hopperConstants.hopperMaxJerkRotationsPerSecondCubed);
+
     hopperTuningSetpointVelocity =
         new LoggedTunableNumber("HopperTunables/hopperTuningSetpointVelocity", 0.0);
     hopperTuningAmps = new LoggedTunableNumber("HopperTunables/hopperTuningAmps", 0.0);
@@ -112,9 +120,6 @@ public class HopperSubsystem extends MonitoredSubsystem {
   public void monitoredPeriodic() {
     motor.updateInputs(inputs);
     Logger.processInputs("Hopper/inputs", inputs);
-    Logger.recordOutput("Hopper/closedLoopReferenceRadians", inputs.closedLoopReference);
-    Logger.recordOutput(
-        "Hopper/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
     Logger.recordOutput("Hopper/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
     Logger.recordOutput("Hopper/StateAfter", stateMachine.getCurrentState().getName());
@@ -136,21 +141,20 @@ public class HopperSubsystem extends MonitoredSubsystem {
             hopperKV,
             hopperKA);
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            (maxProfile) -> {
-              motor.setProfileConstraints(
-                  MotionProfileConfig.immutable(
-                      RotationsPerSecond.zero(),
-                      RotationsPerSecondPerSecond.zero(),
-                      RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
-                      Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
-                      Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
-            },
-            hopperExpoKV,
-            hopperExpoKA);
-
-        motor.controlToVelocityUnprofiled(
+        // LoggedTunableNumber.ifChanged(
+        //     hashCode(),
+        //     (maxProfile) -> {
+        //       motor.setProfileConstraints(
+        //           MotionProfileConfig.immutable(
+        //               RotationsPerSecond.zero(),
+        //               RotationsPerSecondPerSecond.zero(),
+        //               RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
+        //               Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
+        //               Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
+        //     },
+        //     hopperExpoKV,
+        //     hopperExpoKA);
+        motor.controlToVelocityProfiled(
             RadiansPerSecond.of(hopperTuningSetpointVelocity.getAsDouble()));
       }
       case HopperCurrentTuning -> {
@@ -163,33 +167,37 @@ public class HopperSubsystem extends MonitoredSubsystem {
     }
   }
 
-  protected static MotorIO getTalonFXMotorIO() {
-    return MotorIOTalonFX.newLeader(MechanismConfig.builder().build(), new TalonFXConfiguration());
+  private boolean isHopperTestMode() {
+    return testModeManager.isInTestMode();
   }
 
-  protected static MotorIO getTalonFXMotorSimIO() {
-    return MotorIOTalonFXSim.newLeader(
-        MechanismConfig.builder().build(), new TalonFXConfiguration());
+  private boolean shouldIdle() {
+    return false; //TODO: ask if the hopper should be idling at all
   }
 
   public AngularVelocity getHopperVelocity() {
     return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
   }
 
+  public void setTargetVelocity(AngularVelocity velocity) {
+    targetVelocity = velocity;
+  }
+
+  public void setToTargetVelocity() {
+    motor.controlToVelocityProfiled(targetVelocity);
+  }
+
   protected void applyVoltage(Voltage volts) {
     motor.controlOpenLoopVoltage(volts);
   }
 
-  protected void applySpinningVoltage() {
-    applyVoltage(JsonConstants.hopperConstants.spinningVoltage);
-  }
-
   protected void dejam() {
     stopHopper();
-    applyVoltage(Volts.of(-JsonConstants.hopperConstants.spinningVoltage.in(Volts)));
+    applyVoltage(JsonConstants.hopperConstants.dejamVoltage);
   }
 
-  protected void stopHopper() {
+  protected void
+      stopHopper() { // This method might actually be useless, i don't think it stops the hopper
     applyVoltage(Volts.of(0.0));
   }
 
@@ -199,18 +207,15 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
   public boolean dejamRequired() {
     final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
-    if (getHopperVelocity().abs(velocityComparisonUnit)
-        < JsonConstants.hopperConstants.spinningMovementThreshold.in(velocityComparisonUnit)) {
+    boolean notSpinning =
+        getHopperVelocity().abs(velocityComparisonUnit)
+            < JsonConstants.hopperConstants.spinningMovementThreshold.in(velocityComparisonUnit);
+    boolean highCurrent =
+        inputs.statorCurrentAmps
+            > JsonConstants.hopperConstants.dejamCurrentThreshold.in(Amps); // Figure out this logic
+    if (notSpinning && highCurrent) {
       return true;
     }
     return false;
-  }
-
-  private boolean isHopperTestMode() {
-    return switch (testModeManager.getTestMode()) {
-      case HopperClosedLoopTuning, HopperCurrentTuning, HopperVoltageTuning, HopperPhoenixTuning ->
-          true;
-      default -> false;
-    };
   }
 }

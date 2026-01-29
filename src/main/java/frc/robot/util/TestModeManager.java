@@ -48,4 +48,8 @@ public final class TestModeManager<TestMode extends Enum<?> & TestModeDescriptio
 
     return testModeChooser.get();
   }
+
+  public boolean isInTestMode() {
+    return getTestMode() != this.None;
+  }
 }
