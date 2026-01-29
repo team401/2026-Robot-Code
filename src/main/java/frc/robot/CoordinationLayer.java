@@ -11,8 +11,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
-import frc.robot.ShooterCalculations.ShotInfo;
-import frc.robot.ShooterCalculations.ShotType;
+import frc.robot.ShotCalculations.ShotInfo;
+import frc.robot.ShotCalculations.ShotType;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
@@ -184,7 +184,7 @@ public class CoordinationLayer {
     Logger.recordOutput("CoordinationLayer/viMetersPerSecond", viMetersPerSecond);
 
     Optional<ShotInfo> maybeShot =
-        ShooterCalculations.calculateMovingShot(
+        ShotCalculations.calculateMovingShot(
             shooterPosition,
             goalTranslation,
             fieldCentricSpeeds,

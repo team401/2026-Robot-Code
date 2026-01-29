@@ -32,6 +32,13 @@ public class DigitalInputIOCANdi implements DigitalInputIO {
 
   protected final Alert disconnectedAlert;
 
+  /**
+   * The number of times updateInputs has been called. When less than 3, the inputs should be
+   * ignored (not updated). The first update after connection provides a stale "false" value for
+   * isClosed, resulting in the homing switch being stuck "pressed" during startup.
+   */
+  protected int readCount = 0;
+
   public DigitalInputIOCANdi(CANDeviceID id, CANdiConfiguration candiConfig, CANdiSignal signal) {
     this.candi = new CANdi(id.id(), id.canbus());
 
@@ -73,6 +80,13 @@ public class DigitalInputIOCANdi implements DigitalInputIO {
     }
 
     inputs.connected = code.isOK();
-    inputs.isOpen = !closedSignal.getValue();
+    if (inputs.connected && closedSignal.hasUpdated()) {
+      readCount++;
+      if (readCount < 3) {
+        return;
+      }
+      System.out.println("got value " + closedSignal.getValue());
+      inputs.isOpen = !closedSignal.getValue();
+    }
   }
 }

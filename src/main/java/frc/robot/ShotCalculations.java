@@ -12,8 +12,8 @@ import java.util.function.Function;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.littletonrobotics.junction.Logger;
 
-class ShooterCalculations {
-  private ShooterCalculations() {} // Utility class
+class ShotCalculations {
+  private ShotCalculations() {} // Utility class
 
   public enum ShotType {
     LOW,
