@@ -105,7 +105,7 @@ public class InitSubsystems {
   }
 
   public static TurretSubsystem initTurretSubsystem(
-    DependencyOrderedExecutor dependencyOrderedExecutor) {
+      DependencyOrderedExecutor dependencyOrderedExecutor) {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations

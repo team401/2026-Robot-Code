@@ -4,7 +4,6 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
-import java.util.function.Supplier;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
