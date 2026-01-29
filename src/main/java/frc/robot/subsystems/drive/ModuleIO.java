@@ -9,7 +9,6 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.util.PIDGains;
-
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
@@ -52,5 +51,4 @@ public interface ModuleIO {
   public default void setDriveGains(PIDGains gains) {}
 
   public default void setSteerGains(PIDGains gains) {}
-
 }

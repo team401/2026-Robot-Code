@@ -34,7 +34,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.PIDGains;
-
 import java.util.Queue;
 
 /**
@@ -252,12 +251,14 @@ public class ModuleIOTalonFXS implements ModuleIO {
   }
 
   public void setDriveGains(PIDGains gains) {
-      driveTalon.getConfigurator()
-          .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.driveGains.clone()));
+    driveTalon
+        .getConfigurator()
+        .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.driveGains.clone()));
   }
 
   public void setSteerGains(PIDGains gains) {
-      turnTalon.getConfigurator()
-          .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.steerGains.clone()));
+    turnTalon
+        .getConfigurator()
+        .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.steerGains.clone()));
   }
 }

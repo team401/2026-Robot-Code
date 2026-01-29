@@ -34,13 +34,13 @@ public class LoggedTunablePIDGains {
       throw new IllegalArgumentException("defaultValues must have length 7");
     }
 
-    kP = new LoggedTunableNumber(namePrefix + " kP", defaultValues[0]);
-    kI = new LoggedTunableNumber(namePrefix + " kI", defaultValues[1]);
-    kD = new LoggedTunableNumber(namePrefix + " kD", defaultValues[2]);
-    kS = new LoggedTunableNumber(namePrefix + " kS", defaultValues[3]);
-    kV = new LoggedTunableNumber(namePrefix + " kV", defaultValues[4]);
-    kA = new LoggedTunableNumber(namePrefix + " kA", defaultValues[5]);
-    kG = new LoggedTunableNumber(namePrefix + " kG", defaultValues[6]);
+    kP = new LoggedTunableNumber(namePrefix + "kP", defaultValues[0]);
+    kI = new LoggedTunableNumber(namePrefix + "kI", defaultValues[1]);
+    kD = new LoggedTunableNumber(namePrefix + "kD", defaultValues[2]);
+    kS = new LoggedTunableNumber(namePrefix + "kS", defaultValues[3]);
+    kV = new LoggedTunableNumber(namePrefix + "kV", defaultValues[4]);
+    kA = new LoggedTunableNumber(namePrefix + "kA", defaultValues[5]);
+    kG = new LoggedTunableNumber(namePrefix + "kG", defaultValues[6]);
   }
 
   public LoggedTunableNumber[] getGainsArray() {
