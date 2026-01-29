@@ -25,6 +25,7 @@ public class JsonConstants {
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
   }
 
   public static RobotInfo robotInfo;
@@ -33,4 +34,5 @@ public class JsonConstants {
   public static OperatorConstants operatorConstants;
   public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
+  public static IntakeConstants intakeConstants;
 }

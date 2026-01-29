@@ -14,5 +14,7 @@
   },
   "intakePositionAngleRadians": 0.0,
   "stowPositionAngleRadians": 1.5707963267948966,
-  "intakeRollerSpeedRPM": 100.0
+  "intakeRollerSpeedRPM": 100.0,
+  "intakePivotMotorId": 30,
+  "intakeRollersMotorId": 31
 }
