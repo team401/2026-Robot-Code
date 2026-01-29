@@ -26,19 +26,16 @@ public class ControllerSetup {
    * @param drive A Drive object, the drive subsystem to set the command for
    */
   public static void initDriveBindings(Drive drive) {
-    Controllers controllers = getControllers();
-    Supplier<Double> xAxis = controllers.getAxis("driveX").getSupplier();
-    Supplier<Double> yAxis = controllers.getAxis("driveY").getSupplier();
-    var rotationAxis = controllers.getAxis("driveRotation").getSupplier();
+    var controllers = getControllers();
     /* By making DriveWithJoysticks the default command for the drive subsystem,
      * we ensure that it is run iff no other Command that uses the drive subsystem
      * is activated. */
     drive.setDefaultCommand(
         new DriveWithJoysticks(
             drive,
-            xAxis,
-            yAxis,
-            rotationAxis,
+            controllers.getAxis("driveX").getSupplier(),
+            controllers.getAxis("driveY").getSupplier(),
+            controllers.getAxis("driveRotation").getSupplier(),
             JsonConstants.drivetrainConstants.maxLinearSpeed, // type: double (m/s)
             JsonConstants.drivetrainConstants.maxAngularSpeed, // type: double (rad/s)
             JsonConstants.drivetrainConstants.joystickDeadband, // type: double
