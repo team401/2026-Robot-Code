@@ -1,0 +1,18 @@
+{
+  "pivotInertia": {
+    "value": 0.05,
+    "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+  },
+  "pivotGearing": 0.01,
+  "armLengthMeters": 0.1,
+  "minPivotAngleRadians": -15.5707963267948966,
+  "maxPivotAngleRadians": 15.5707963267948966,
+  "pivotStartingAngleRadians": 0.0,
+  "rollersInertia": {
+    "value": 0.02,
+    "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+  },
+  "intakePositionAngleRadians": 0.0,
+  "stowPositionAngleRadians": 1.5707963267948966,
+  "intakeRollerSpeedRPM": 100.0
+}
