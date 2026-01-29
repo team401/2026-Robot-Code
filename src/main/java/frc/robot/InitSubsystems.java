@@ -17,6 +17,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
@@ -80,8 +81,31 @@ public class InitSubsystems {
     }
   }
 
+  public static IndexerSubsystem initIndexerSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new IndexerSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.indexerConstants.buildMechanismConfig(),
+                JsonConstants.indexerConstants.buildTalonFXConfigs()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig config = JsonConstants.indexerConstants.buildMechanismConfig();
+        return new IndexerSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                    config,
+                    JsonConstants.indexerConstants.buildTalonFXConfigs(),
+                    JsonConstants.indexerConstants.buildIndexerSim())
+                .withMotorType(MotorType.KrakenX44));
+      default:
+        // Replayed robot, disable IO implementations
+        return new IndexerSubsystem(new MotorIOReplay());
+    }
+  }
+
   public static TurretSubsystem initTurretSubsystem(
-      DependencyOrderedExecutor dependencyOrderedExecutor) {
+    DependencyOrderedExecutor dependencyOrderedExecutor) {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations

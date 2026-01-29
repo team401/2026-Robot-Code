@@ -1,5 +1,6 @@
 {
   "runDrive": true,
+  "runIndexer": true,
   "runTurret": true,
   "runHood": true,
   "useHomingSwitch": true

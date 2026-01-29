@@ -9,6 +9,17 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import coppercore.metadata.CopperCoreMetadata;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import coppercore.metadata.CopperCoreMetadata;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,6 +31,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -35,6 +47,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<IndexerSubsystem> indexer;
   private final Optional<TurretSubsystem> turret;
   private final Optional<HoodSubsystem> hood;
 
@@ -68,6 +81,12 @@ public class RobotContainer {
       coordinationLayer.setDrive(driveInstance);
     } else {
       drive = Optional.empty();
+    }
+    
+    if (JsonConstants.featureFlags.runIndexer) {
+      indexer = Optional.of(InitSubsystems.initIndexerSubsystem());
+    } else {
+      indexer = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runHood) {
@@ -145,7 +164,6 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // TODO: Create a robust and clean input/action layer.
-    ControllerSetup.setupControllers();
 
     // Default command, normal field-relative drive
     drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));

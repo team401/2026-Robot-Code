@@ -1,7 +1,9 @@
 package frc.robot.constants;
 
 import coppercore.parameter_tools.json.JSONHandler;
+import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
+import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.wpilibj.Filesystem;
 
 /**
@@ -16,7 +18,12 @@ public class JsonConstants {
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
-    var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
+    var jsonSyncSettings = new JSONSyncConfigBuilder();
+
+    Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
+
+    var jsonHandler =
+        new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
@@ -24,10 +31,14 @@ public class JsonConstants {
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
+    indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     shooterConstants.initializeViMap(); // TODO: Use AfterJsonLoad annotation for this instead
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
+
+    controllers =
+        jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
   }
 
   public static RobotInfo robotInfo;
@@ -35,7 +46,10 @@ public class JsonConstants {
   public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
+  public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
+
+  public static Controllers controllers;
 }
