@@ -172,7 +172,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   private boolean shouldIdle() {
-    return false; //TODO: ask if the hopper should be idling at all
+    return false; // TODO: ask if the hopper should be idling at all
   }
 
   public AngularVelocity getHopperVelocity() {
