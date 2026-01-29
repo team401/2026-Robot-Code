@@ -1,10 +1,10 @@
 {
   "maxLinearSpeed": {
-    "value": 1.0,
+    "value": 4.0,
     "unit": "Meter per Second"
   },
   "maxAngularSpeed": {
-    "value": 1.0,
+    "value": 2.0,
     "unit": "Radian per Second"
   },
   "joystickDeadband": 0.06,

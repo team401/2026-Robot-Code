@@ -113,7 +113,6 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // TODO: Create a robust and clean input/action layer.
-    ControllerSetup.setupControllers();
 
     // Default command, normal field-relative drive
     drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));
