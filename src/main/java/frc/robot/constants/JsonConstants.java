@@ -20,12 +20,10 @@ public class JsonConstants {
 
     var jsonSyncSettings = new JSONSyncConfigBuilder();
 
-    // TODO: After coppercore update add line to add controllers to sync settings
+    Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
-    var jsonHandler = new JSONHandler(
-        jsonSyncSettings.build(),
-        environmentHandler.getEnvironmentPathProvider()
-      );
+    var jsonHandler =
+        new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
