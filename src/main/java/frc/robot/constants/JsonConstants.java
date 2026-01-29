@@ -23,6 +23,7 @@ public class JsonConstants {
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
+    indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
   }
 
@@ -30,5 +31,6 @@ public class JsonConstants {
   public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
+  public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
 }
