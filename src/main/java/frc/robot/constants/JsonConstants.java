@@ -1,7 +1,9 @@
 package frc.robot.constants;
 
 import coppercore.parameter_tools.json.JSONHandler;
+import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
+import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.wpilibj.Filesystem;
 
 /**
@@ -16,7 +18,14 @@ public class JsonConstants {
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
-    var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
+    var jsonSyncSettings = new JSONSyncConfigBuilder();
+
+    // TODO: After coppercore update add line to add controllers to sync settings
+
+    var jsonHandler = new JSONHandler(
+        jsonSyncSettings.build(),
+        environmentHandler.getEnvironmentPathProvider()
+      );
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
@@ -24,6 +33,9 @@ public class JsonConstants {
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+
+    controllers =
+        jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
   }
 
   public static RobotInfo robotInfo;
@@ -31,4 +43,5 @@ public class JsonConstants {
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
   public static TurretConstants turretConstants;
+  public static Controllers controllers;
 }

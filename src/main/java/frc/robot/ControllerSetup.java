@@ -1,12 +1,9 @@
 package frc.robot;
 
-import coppercore.wpilib_interface.Controllers;
-import coppercore.wpilib_interface.Controllers.Controller;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -19,19 +16,6 @@ import java.util.function.Supplier;
 public class ControllerSetup {
   private ControllerSetup() {}
 
-  private static List<Controller> controllers;
-
-  /** Initialize operator interfae/controllers by loading their configurations from JSON. */
-  public static void setupControllers() {
-    Controllers.synced.setFile(
-        JsonConstants.environmentHandler
-            .getEnvironmentPathProvider()
-            .resolvePath(JsonConstants.operatorConstants.controllerBindingsFile));
-    Controllers.loadControllers();
-
-    controllers = Controllers.getControllers();
-  }
-
   /**
    * Given the name of an axis, return a double supplier for that axis's value
    *
@@ -40,13 +24,11 @@ public class ControllerSetup {
    *     unknown axis.
    */
   private static Supplier<Double> getAxis(String axisName) {
-    for (Controllers.Controller controller : controllers) {
-      if (controller.hasAxis(axisName)) {
-        return () -> controller.getAxis(axisName).getAsDouble();
-      }
+    var axis = JsonConstants.controllers.getAxis(axisName);
+    if (axis != null) {
+      return axis.getSupplier();
     }
-
-    System.out.println("Could not find Axis with command: " + axisName);
+    System.err.println("Could not find Axis with command: " + axisName);
     return () -> 0.0;
   }
 
@@ -57,13 +39,11 @@ public class ControllerSetup {
    * @return A Trigger that wraps the state of that button.
    */
   private static Trigger getTriggerForButton(String buttonName) {
-    for (Controllers.Controller controller : controllers) {
-      if (controller.hasButton(buttonName)) {
-        return controller.getButton(buttonName);
-      }
+    var button = JsonConstants.controllers.getButton(buttonName);
+    if (button != null) {
+      return button.getTrigger();
     }
-
-    System.out.println("Could not find button with name/command: " + buttonName);
+    System.err.println("Could not find button with name/command: " + buttonName);
     return new Trigger(() -> false);
   }
 
