@@ -81,11 +81,14 @@ public class DigitalInputIOCANdi implements DigitalInputIO {
 
     inputs.connected = code.isOK();
     if (inputs.connected && closedSignal.hasUpdated()) {
-      readCount++;
       if (readCount < 3) {
+        // Only increment readCount inside here to prevent an eventual overflow issue during very
+        // long runtimes
+        // Doing the math, it would take about 1.5 years of continuous runtime at 50hz to cause this
+        // to occur, but in the spirit of doing things the right way this check should exist anyway.
+        readCount++;
         return;
       }
-      System.out.println("got value " + closedSignal.getValue());
       inputs.isOpen = !closedSignal.getValue();
     }
   }

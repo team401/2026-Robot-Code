@@ -160,7 +160,7 @@ public class CoordinationLayer {
    * @param drive A Drive instance
    */
   private void runShotCalculatorWithDrive(Drive driveInstance) {
-    Translation3d hubTranslation = FieldConstants.Hub.topCenterPoint();
+    Translation3d hubTranslation = FieldConstants.Hub.innerCenterPoint();
     // Placeholder passing "example" translation
     Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
 
