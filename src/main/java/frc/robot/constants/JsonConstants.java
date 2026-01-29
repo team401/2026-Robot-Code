@@ -19,16 +19,23 @@ public class JsonConstants {
     var jsonHandler = new JSONHandler(environmentHandler.getEnvironmentPathProvider());
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
+    aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     drivetrainConstants =
         jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
+    shooterConstants.initializeViMap(); // TODO: Use AfterJsonLoad annotation for this instead
+    hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
   }
 
   public static RobotInfo robotInfo;
+  public static AprilTagConstants aprilTagConstants;
   public static FeatureFlags featureFlags;
   public static DrivetrainConstants drivetrainConstants;
   public static OperatorConstants operatorConstants;
   public static TurretConstants turretConstants;
+  public static ShooterConstants shooterConstants;
+  public static HoodConstants hoodConstants;
 }

@@ -2,7 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -13,8 +12,8 @@ import java.util.function.Function;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.littletonrobotics.junction.Logger;
 
-class ShooterCalculations {
-  private ShooterCalculations() {} // Utility class
+class ShotCalculations {
+  private ShotCalculations() {} // Utility class
 
   public enum ShotType {
     LOW,
@@ -24,7 +23,7 @@ class ShooterCalculations {
   public static record ShotInfo(double pitchRadians, double yawRadians, double timeSeconds) {
     public Translation3d[] projectMotion(
         double shooterVelocityMps,
-        Pose2d robotPose,
+        Translation3d initialPosition,
         ChassisSpeeds fieldRelativeRobotVel,
         double pointsPerMeter) {
       List<Translation3d> trajectory = new ArrayList<>();
@@ -35,7 +34,7 @@ class ShooterCalculations {
       double vy = vxy * Math.sin(yawRadians()) + fieldRelativeRobotVel.vyMetersPerSecond;
       double vz = shooterVelocityMps * Math.sin(pitchRadians());
 
-      Translation3d position = new Translation3d(robotPose.getTranslation());
+      Translation3d position = initialPosition;
 
       Function<Double, Translation3d> pointFromTime =
           t -> position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * G * t * t));
@@ -106,6 +105,9 @@ class ShooterCalculations {
       return Optional.empty();
     }
     double t = distanceMeters / (Math.cos(theta) * velocityMps);
+    // Here's an alternative calculation using height. It isn't quite right either.
+    // double viy = velocityMps * Math.sin(theta);
+    // double t = (viy + Math.sqrt(viy * viy - 2 * h * G)) / (G);
 
     double yaw = calculateYawRadians(shooterPosition, goalPosition);
 
@@ -113,7 +115,7 @@ class ShooterCalculations {
   }
 
   public static final int MAX_ITERATIONS = 6;
-  public static final double ACCEPTABLE_TIME_VARIATION = 0.005;
+  public static final double ACCEPTABLE_TIME_VARIATION = 0.025;
 
   public static Optional<ShotInfo> calculateMovingShot(
       Translation3d shooterPosition,
@@ -160,12 +162,12 @@ class ShooterCalculations {
 
       ShotInfo newSolution = effectiveShot.get();
 
-      solution = newSolution;
-
       if (Math.abs(newSolution.timeSeconds - solution.timeSeconds) < ACCEPTABLE_TIME_VARIATION) {
         Logger.recordOutput("ShotCalculations/succeeded", true);
-        return Optional.of(solution);
+        return Optional.of(newSolution);
       }
+
+      solution = newSolution;
     }
 
     return Optional.empty();
