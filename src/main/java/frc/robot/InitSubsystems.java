@@ -14,6 +14,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
 /**
@@ -117,6 +118,38 @@ public class InitSubsystems {
       default:
         // Replayed robot, disable IO implementations
         return new TurretSubsystem(new MotorIOReplay());
+    }
+  }
+
+  public static IntakeSubsystem initIntakeSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new IntakeSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.intakeConstants.buildPivotMechanismConfig(),
+                JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig()),
+            MotorIOTalonFX.newLeader(
+                JsonConstants.intakeConstants.buildRollersMechanismConfig(),
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig pivotConfig = JsonConstants.intakeConstants.buildPivotMechanismConfig();
+        MechanismConfig rollersConfig = JsonConstants.intakeConstants.buildRollersMechanismConfig();
+        return new IntakeSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                    pivotConfig,
+                    JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig(),
+                    JsonConstants.intakeConstants.buildPivotSim())
+                .withMotorType(MotorType.KrakenX44),
+            MotorIOTalonFXSim.newLeader(
+                    rollersConfig,
+                    JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                    JsonConstants.intakeConstants.buildRollersSim())
+                .withMotorType(MotorType.KrakenX44));
+      default:
+        // Replayed robot, disable IO implementations
+        return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay());
     }
   }
 }

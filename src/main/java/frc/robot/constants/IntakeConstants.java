@@ -77,7 +77,7 @@ public class IntakeConstants {
         return config;
     }
 
-    public CoppercoreSimAdapter buildPivotSimAdapter() {
+    public CoppercoreSimAdapter buildPivotSim() {
         return new ArmSimAdapter(
             buildPivotMechanismConfig(),
             new SingleJointedArmSim(
@@ -123,7 +123,7 @@ public class IntakeConstants {
             .build();
     }
 
-    public CoppercoreSimAdapter buildRollersSimAdapter() {
+    public CoppercoreSimAdapter buildRollersSim() {
         return new DCMotorSimAdapter(
             buildRollersMechanismConfig(),
             new DCMotorSim(

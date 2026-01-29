@@ -28,6 +28,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
 import java.util.Optional;
@@ -45,6 +46,7 @@ public class RobotContainer {
   private final Optional<Drive> drive;
   private final Optional<IndexerSubsystem> indexer;
   private final Optional<TurretSubsystem> turret;
+  private final Optional<IntakeSubsystem> intake;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
@@ -71,6 +73,12 @@ public class RobotContainer {
       turret = Optional.of(InitSubsystems.initTurretSubsystem());
     } else {
       turret = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runIntake) {
+      intake = Optional.of(InitSubsystems.initIntakeSubsystem());
+    } else {
+      intake = Optional.empty();
     }
 
     drive.ifPresentOrElse(
