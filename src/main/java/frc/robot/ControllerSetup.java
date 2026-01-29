@@ -1,6 +1,7 @@
 package frc.robot;
 
 import coppercore.wpilib_interface.DriveWithJoysticks;
+import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -16,35 +17,9 @@ import java.util.function.Supplier;
 public class ControllerSetup {
   private ControllerSetup() {}
 
-  /**
-   * Given the name of an axis, return a double supplier for that axis's value
-   *
-   * @param axisName The name of the axis, e.g. driveX
-   * @return A double supplier for that axis, or a supplier that supplies 0.0 in the case of an
-   *     unknown axis.
-   */
-  private static Supplier<Double> getAxis(String axisName) {
-    var axis = JsonConstants.controllers.getAxis(axisName);
-    if (axis != null) {
-      return axis.getSupplier();
-    }
-    System.err.println("Could not find Axis with command: " + axisName);
-    return () -> 0.0;
-  }
 
-  /**
-   * Gets a Trigger object for a button based on that button's name in the JSON controller config.
-   *
-   * @param buttonName The name of the button, as seen in the JSON file.
-   * @return A Trigger that wraps the state of that button.
-   */
-  private static Trigger getTriggerForButton(String buttonName) {
-    var button = JsonConstants.controllers.getButton(buttonName);
-    if (button != null) {
-      return button.getTrigger();
-    }
-    System.err.println("Could not find button with name/command: " + buttonName);
-    return new Trigger(() -> false);
+  private static Controllers getControllers() {
+    return JsonConstants.controllers;
   }
 
   /**
@@ -53,9 +28,10 @@ public class ControllerSetup {
    * @param drive A Drive object, the drive subsystem to set the command for
    */
   public static void initDriveBindings(Drive drive) {
-    Supplier<Double> xAxis = () -> -getAxis("driveX").get();
-    Supplier<Double> yAxis = () -> -getAxis("driveY").get();
-    var rotationAxis = getAxis("driveRotation");
+    Controllers controllers = getControllers();
+    Supplier<Double> xAxis = () -> -controllers.getAxis("driveX").getValue();
+    Supplier<Double> yAxis = () -> -controllers.getAxis("driveY").getValue();
+    var rotationAxis = controllers.getAxis("driveRotation").getSupplier();
     /* By making DriveWithJoysticks the default command for the drive subsystem,
      * we ensure that it is run iff no other Command that uses the drive subsystem
      * is activated. */
