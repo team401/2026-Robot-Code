@@ -2,7 +2,6 @@ package frc.robot;
 
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import java.util.function.Supplier;
@@ -17,7 +16,6 @@ import java.util.function.Supplier;
 public class ControllerSetup {
   private ControllerSetup() {}
 
-
   private static Controllers getControllers() {
     return JsonConstants.controllers;
   }
@@ -29,8 +27,8 @@ public class ControllerSetup {
    */
   public static void initDriveBindings(Drive drive) {
     Controllers controllers = getControllers();
-    Supplier<Double> xAxis = () -> -controllers.getAxis("driveX").getValue();
-    Supplier<Double> yAxis = () -> -controllers.getAxis("driveY").getValue();
+    Supplier<Double> xAxis = controllers.getAxis("driveX").getSupplier();
+    Supplier<Double> yAxis = controllers.getAxis("driveY").getSupplier();
     var rotationAxis = controllers.getAxis("driveRotation").getSupplier();
     /* By making DriveWithJoysticks the default command for the drive subsystem,
      * we ensure that it is run iff no other Command that uses the drive subsystem

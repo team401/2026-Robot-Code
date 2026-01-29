@@ -9,7 +9,8 @@
           "commandType": "axis",
           "hapticControlElement": {
             "elementType": "axis",
-            "id": "leftX"
+            "id": "leftX",
+            "inverted": true
           }
         },
         {
@@ -17,7 +18,8 @@
           "commandType": "axis",
           "hapticControlElement": {
             "elementType": "axis",
-            "id": "leftY"
+            "id": "leftY",
+            "inverted": true
           }
         },
         {
