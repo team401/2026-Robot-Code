@@ -8,7 +8,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * One of the enum values must be `None`. The enum class must implement TestModeDescription.
  */
 public final class TestModeManager<TestMode extends Enum<?> & TestModeDescription> {
-  private String prefix;
   private TestMode None;
   private LoggedDashboardChooser<TestMode> testModeChooser = null;
 
@@ -21,7 +20,6 @@ public final class TestModeManager<TestMode extends Enum<?> & TestModeDescriptio
    * @param enumClazz - the enum class containing the test modes
    */
   public TestModeManager(String prefix, Class<TestMode> enumClazz) {
-    this.prefix = prefix;
     this.testModeChooser = new LoggedDashboardChooser<>(prefix + " Test Mode Selector");
     for (TestMode mode : enumClazz.getEnumConstants()) {
       if ("None".equals(mode.name())) {
@@ -49,6 +47,11 @@ public final class TestModeManager<TestMode extends Enum<?> & TestModeDescriptio
     return testModeChooser.get();
   }
 
+  /**
+   * Returns whether any test mode is active.
+   *
+   * @return True if any test mode is selected, false otherwise.
+   */
   public boolean isInTestMode() {
     return getTestMode() != this.None;
   }
