@@ -1,10 +1,10 @@
 package frc.robot;
 
 import coppercore.wpilib_interface.DriveWithJoysticks;
+import coppercore.wpilib_interface.controllers.Controllers;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
-import coppercore.wpilib_interface.controllers.Controllers;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings

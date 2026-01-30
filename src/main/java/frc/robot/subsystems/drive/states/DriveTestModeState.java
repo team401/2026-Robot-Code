@@ -1,22 +1,19 @@
 package frc.robot.subsystems.drive.states;
 
 import coppercore.controls.state_machine.StateMachine;
-import frc.robot.TestMode;
-import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.drive.TestMode;
 import frc.robot.util.LoggedTunablePIDGains;
-import java.util.Set;
 
 // Extends DriveWithJoysticksState to allow you to drive the robot while tuning
 // the drive and steer gains
 public class DriveTestModeState extends DriveWithJoysticksState {
 
-  private static final Set<TestMode> driveTestModes = Set.of(TestMode.DriveGainsTuning);
-
   // I put this method here so that all drive test code is in one place
   public static boolean isDriveTestMode() {
-    return driveTestModes.contains(TestModeManager.getTestMode());
+    return DriveCoordinator.getTestModeManager().getTestMode() != TestMode.None;
   }
 
   LoggedTunablePIDGains steerGains;
@@ -35,7 +32,7 @@ public class DriveTestModeState extends DriveWithJoysticksState {
 
   @Override
   public void periodic(StateMachine<Drive> stateMachine, Drive drive) {
-    switch (TestModeManager.getTestMode()) {
+    switch (DriveCoordinator.getTestModeManager().getTestMode()) {
       case DriveGainsTuning:
         steerGains.ifChanged(hashCode(), drive::setSteerGains);
         driveGains.ifChanged(hashCode(), drive::setDriveGains);

@@ -6,10 +6,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.JsonConstants;
-import frc.robot.constants.drive.DriveConstants;
 import frc.robot.subsystems.drive.states.DriveTestModeState;
 import frc.robot.subsystems.drive.states.DriveWithJoysticksState;
 import frc.robot.subsystems.drive.states.LinearDriveToPoseState;
+import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.Logger;
 
 // Copilot used to help write this class
@@ -26,6 +26,12 @@ public class DriveCoordinator extends SubsystemBase {
   private DriveWithJoysticksState driveWithJoysticksState;
   private LinearDriveToPoseState linearDriveToPoseState;
   private DriveTestModeState testModeState;
+  static final TestModeManager<TestMode> testModeManager =
+      new TestModeManager<>("Drive", TestMode.class);
+
+  public static TestModeManager<TestMode> getTestModeManager() {
+    return testModeManager;
+  }
 
   private void createDriveStateMachine(Drive drive) {
     driveStateMachine = new StateMachine<>(drive);
