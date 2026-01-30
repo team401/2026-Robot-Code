@@ -177,6 +177,12 @@ public class TurretSubsystem extends MonitoredSubsystem {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (pid_sva) -> {
+              JsonConstants.turretConstants.turretKP = pid_sva[0];
+              JsonConstants.turretConstants.turretKI = pid_sva[1];
+              JsonConstants.turretConstants.turretKD = pid_sva[2];
+              JsonConstants.turretConstants.turretKS = pid_sva[3];
+              JsonConstants.turretConstants.turretKV = pid_sva[4];
+              JsonConstants.turretConstants.turretKA = pid_sva[5];
               motor.setGains(
                   pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
             },
@@ -190,6 +196,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (maxProfile) -> {
+              JsonConstants.turretConstants.turretExpoKV = maxProfile[0];
+              JsonConstants.turretConstants.turretExpoKA = maxProfile[1];
               motor.setProfileConstraints(
                   MotionProfileConfig.immutable(
                       RotationsPerSecond.zero(),

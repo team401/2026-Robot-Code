@@ -11,4 +11,5 @@ public class FeatureFlags {
   public final Boolean runHopper = true;
   public final Boolean runIndexer = true;
   public final Boolean runTurret = true;
+  public final Boolean useTuningServer = true;
 }

@@ -2,6 +2,9 @@ package frc.robot.subsystems.indexer;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
@@ -9,6 +12,7 @@ import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
@@ -146,6 +150,12 @@ public class IndexerSubsystem extends MonitoredSubsystem {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (pid_sva) -> {
+              JsonConstants.indexerConstants.indexerKP = pid_sva[0];
+              JsonConstants.indexerConstants.indexerKI = pid_sva[1];
+              JsonConstants.indexerConstants.indexerKD = pid_sva[2];
+              JsonConstants.indexerConstants.indexerKS = pid_sva[3];
+              JsonConstants.indexerConstants.indexerKV = pid_sva[4];
+              JsonConstants.indexerConstants.indexerKA = pid_sva[5];
               motor.setGains(
                   pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
             },
@@ -155,6 +165,22 @@ public class IndexerSubsystem extends MonitoredSubsystem {
             indexerKS,
             indexerKV,
             indexerKA);
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (acc_jerk) -> {
+              JsonConstants.indexerConstants.indexerMaxAccelerationRotationsPerSecondSquared =
+                  acc_jerk[0];
+              JsonConstants.indexerConstants.indexerMaxJerkRotationsPerSecondCubed = acc_jerk[1];
+              motor.setProfileConstraints(
+                  MotionProfileConfig.immutable(
+                      RotationsPerSecond.zero(),
+                      RotationsPerSecondPerSecond.of(acc_jerk[0]),
+                      RotationsPerSecondPerSecond.of(acc_jerk[1]).div(Seconds.of(1.0)),
+                      Volts.zero().div(RotationsPerSecond.of(1)),
+                      Volts.zero().div(RotationsPerSecondPerSecond.of(1))));
+            },
+            indexerMaxAccelerationRotationsPerSecondSquared,
+            indexerMaxJerkRotationsPerSecondCubed);
 
         motor.controlToVelocityProfiled(
             RadiansPerSecond.of(indexerTuningSetpointVelocityRPM.getAsDouble()));

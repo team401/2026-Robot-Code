@@ -2,5 +2,6 @@
   "runDrive": true,
   "runHopper": true,
   "runIndexer": true,
-  "runTurret": true
+  "runTurret": true,
+  "useTuningServer": true
 }
