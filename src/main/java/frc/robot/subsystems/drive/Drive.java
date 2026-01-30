@@ -409,7 +409,15 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     };
   }
 
-  public void setSteerGains(PIDGains gains) {}
+  public void setSteerGains(PIDGains gains) {
+    for (var module : modules) {
+      module.setSteerGains(gains);
+    }
+  }
 
-  public void setDriveGains(PIDGains gains) {}
+  public void setDriveGains(PIDGains gains) {
+    for (var module : modules) {
+      module.setDriveGains(gains);
+    }
+  }
 }
