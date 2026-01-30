@@ -18,13 +18,13 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForButtonState;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForMovementState;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForStoppingState;
 import frc.robot.subsystems.turret.TurretState.IdleState;
 import frc.robot.subsystems.turret.TurretState.TestModeState;
+import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -77,6 +77,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber turretTuningSetpointDegrees;
   LoggedTunableNumber turretTuningAmps;
   LoggedTunableNumber turretTuningVolts;
+
+  TestModeManager<TestMode> testModeManager =
+      new TestModeManager<TestMode>("Turret", TestMode.class);
 
   public TurretSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -169,7 +172,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    * <p>This method MUST be called in periodic by the TestModeState
    */
   protected void testPeriodic() {
-    switch (TestModeManager.getTestMode()) {
+    switch (testModeManager.getTestMode()) {
       case TurretClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -245,7 +248,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    *     initialized.
    */
   private boolean isTurretTestMode() {
-    return switch (TestModeManager.getTestMode()) {
+    return switch (testModeManager.getTestMode()) {
       case TurretClosedLoopTuning, TurretCurrentTuning, TurretVoltageTuning, TurretPhoenixTuning ->
           true;
       default -> false;

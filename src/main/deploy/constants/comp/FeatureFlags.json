@@ -1,4 +1,5 @@
 {
   "runDrive": true,
-  "runTurret": false
+  "runIndexer": true,
+  "runTurret": true
 }

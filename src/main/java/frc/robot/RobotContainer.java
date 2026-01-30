@@ -8,10 +8,13 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import coppercore.metadata.CopperCoreMetadata;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -25,6 +28,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
 import java.util.Optional;
@@ -40,6 +44,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<IndexerSubsystem> indexer;
   private final Optional<TurretSubsystem> turret;
   private final Optional<DriveCoordinator> driveCoordinator;
 
@@ -48,9 +53,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    JsonConstants.loadConstants();
+    CopperCoreMetadata.printInfo();
 
-    TestModeManager.init();
+    JsonConstants.loadConstants();
 
     if (JsonConstants.featureFlags.runDrive) {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
@@ -58,6 +63,12 @@ public class RobotContainer {
     } else {
       drive = Optional.empty();
       driveCoordinator = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runIndexer) {
+      indexer = Optional.of(InitSubsystems.initIndexerSubsystem());
+    } else {
+      indexer = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runTurret) {
@@ -106,7 +117,6 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // TODO: Create a robust and clean input/action layer.
-    ControllerSetup.setupControllers();
 
     // Default command, normal field-relative drive
     driveCoordinator.ifPresent(
@@ -191,6 +201,25 @@ public class RobotContainer {
                         10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
               });
         });
+
+    if (JsonConstants.indexerConstants.indexerDemoMode) {
+      indexer.ifPresent(
+          indexer -> {
+            drive.ifPresent(
+                driveInstance -> {
+                  Pose2d robotPose = driveInstance.getPose();
+                  Translation2d hubTranslation =
+                      new Translation2d(Units.inchesToMeters(182.11), Units.inchesToMeters(158.84));
+                  var distance = robotPose.getTranslation().minus(hubTranslation).getNorm();
+                  if (distance < 2.0) {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(500));
+                  } else {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(0));
+                  }
+                });
+          });
+    }
+    ;
   }
 
   // Subsystem dependency updates
