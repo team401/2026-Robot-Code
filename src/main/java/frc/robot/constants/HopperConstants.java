@@ -47,19 +47,16 @@ public class HopperConstants {
    */
   public final Integer hopperKrakenId = 11; // TODO: Verify this ID
 
-  public final Double hopperKP = 0.0;
-  public final Double hopperKI = 0.0;
-  public final Double hopperKD = 0.0;
-  public final Double hopperKS = 0.0;
-  public final Double hopperKV = 0.0;
-  public final Double hopperKG = 0.0;
-  public final Double hopperKA = 80.0;
+  public Double hopperKP = 0.0;
+  public Double hopperKI = 0.0;
+  public Double hopperKD = 0.0;
+  public Double hopperKS = 0.0;
+  public Double hopperKV = 0.0;
+  public Double hopperKG = 0.0;
+  public Double hopperKA = 80.0;
 
-  public final Double hopperExpoKV = 12.0;
-  public final Double hopperExpoKA = 12.0;
-  public final Double hopperMaxAccelerationRotationsPerSecondSquared =
-      3000.0; // TODO: Find actual values
-  public final Double hopperMaxJerkRotationsPerSecondCubed = 1000.0;
+  public Double hopperMaxAccelerationRotationsPerSecondSquared = 3000.0; // TODO: Find actual values
+  public Double hopperMaxJerkRotationsPerSecondCubed = 1000.0;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()

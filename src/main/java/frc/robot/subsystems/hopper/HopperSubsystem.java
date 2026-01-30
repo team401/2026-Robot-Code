@@ -2,6 +2,9 @@ package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
@@ -9,6 +12,7 @@ import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -92,13 +96,6 @@ public class HopperSubsystem extends MonitoredSubsystem {
     hopperKA =
         new LoggedTunableNumber("HopperTunables/hopperKA", JsonConstants.hopperConstants.hopperKA);
 
-    hopperExpoKV =
-        new LoggedTunableNumber(
-            "HopperTunables/hopperExpoKV", JsonConstants.hopperConstants.hopperExpoKV);
-    hopperExpoKA =
-        new LoggedTunableNumber(
-            "HopperTunables/hopperExpoKA", JsonConstants.hopperConstants.hopperExpoKA);
-
     hopperMaxAccelerationRotationsPerSecondSquared =
         new LoggedTunableNumber(
             "HopperTunables/hopperMaxAccelerationRotationsPerSecond",
@@ -128,9 +125,17 @@ public class HopperSubsystem extends MonitoredSubsystem {
   protected void testPeriodic() {
     switch (testModeManager.getTestMode()) {
       case HopperClosedLoopTuning -> {
+        // if the user changes any of the gains, update the motor gains
+        // and the hopperConstants
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (pid_sva) -> {
+              JsonConstants.hopperConstants.hopperKP = pid_sva[0];
+              JsonConstants.hopperConstants.hopperKI = pid_sva[1];
+              JsonConstants.hopperConstants.hopperKD = pid_sva[2];
+              JsonConstants.hopperConstants.hopperKS = pid_sva[3];
+              JsonConstants.hopperConstants.hopperKV = pid_sva[4];
+              JsonConstants.hopperConstants.hopperKA = pid_sva[5];
               motor.setGains(
                   pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
             },
@@ -141,19 +146,25 @@ public class HopperSubsystem extends MonitoredSubsystem {
             hopperKV,
             hopperKA);
 
-        // LoggedTunableNumber.ifChanged(
-        //     hashCode(),
-        //     (maxProfile) -> {
-        //       motor.setProfileConstraints(
-        //           MotionProfileConfig.immutable(
-        //               RotationsPerSecond.zero(),
-        //               RotationsPerSecondPerSecond.zero(),
-        //               RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
-        //               Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
-        //               Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
-        //     },
-        //     hopperExpoKV,
-        //     hopperExpoKA);
+        // if the user changes acceleration or jerk, update the motor profile
+        // and the hopperConstants
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (acc_jerk) -> {
+              JsonConstants.hopperConstants.hopperMaxAccelerationRotationsPerSecondSquared =
+                  acc_jerk[0];
+              JsonConstants.hopperConstants.hopperMaxJerkRotationsPerSecondCubed = acc_jerk[1];
+              motor.setProfileConstraints(
+                  MotionProfileConfig.immutable(
+                      RotationsPerSecond.zero(),
+                      RotationsPerSecondPerSecond.of(acc_jerk[0]),
+                      RotationsPerSecondPerSecond.of(acc_jerk[1]).div(Seconds.of(1.0)),
+                      Volts.zero().div(RotationsPerSecond.of(1)),
+                      Volts.zero().div(RotationsPerSecondPerSecond.of(1))));
+            },
+            hopperMaxAccelerationRotationsPerSecondSquared,
+            hopperMaxJerkRotationsPerSecondCubed);
+
         motor.controlToVelocityProfiled(
             RadiansPerSecond.of(hopperTuningSetpointVelocity.getAsDouble()));
       }
