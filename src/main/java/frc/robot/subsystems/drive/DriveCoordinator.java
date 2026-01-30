@@ -5,6 +5,8 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.JsonConstants;
+import frc.robot.constants.drive.DriveConstants;
 import frc.robot.subsystems.drive.states.DriveTestModeState;
 import frc.robot.subsystems.drive.states.DriveWithJoysticksState;
 import frc.robot.subsystems.drive.states.LinearDriveToPoseState;
@@ -52,6 +54,8 @@ public class DriveCoordinator extends SubsystemBase {
 
   public DriveCoordinator(Drive drive) {
     createDriveStateMachine(drive);
+    drive.setDriveGains(JsonConstants.driveConstants.driveGains);
+    drive.setSteerGains(JsonConstants.driveConstants.steerGains);
   }
 
   public void setLinearTargetPose(Pose2d pose) {
