@@ -25,7 +25,7 @@ public class ControllerSetup {
    *
    * @param drive A Drive object, the drive subsystem to set the command for
    */
-  public static void initDriveBindings(Drive drive, DriveCoordinator driveCoordinator) {
+  public static void initDriveBindings(DriveCoordinator driveCoordinator, Drive drive) {
     var controllers = getControllers();
     /* By making DriveWithJoysticks the default command for the drive subsystem,
      * we ensure that it is run iff no other Command that uses the drive subsystem
