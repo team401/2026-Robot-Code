@@ -32,6 +32,15 @@ public class JsonConstants {
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    if (featureFlags.useTuningServer) {
+      // do not crash Robot if routes could not be added for any reason
+      try {
+        jsonHandler.addRoute("/indexer", indexerConstants);
+        jsonHandler.addRoute("/turret", turretConstants);
+      } catch (Exception ex) {
+        System.err.println("could not add routes for constant tuning: " + ex);
+      }
+    }
 
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
