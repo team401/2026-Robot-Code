@@ -33,16 +33,16 @@ public class IndexerConstants {
 
   public final Integer indexerKrakenId = 10; // TODO: Verify this ID
 
-  public final Double indexerKP = 10.0;
-  public final Double indexerKI = 5.0;
-  public final Double indexerKD = 0.0;
-  public final Double indexerKS = 0.0;
-  public final Double indexerKV = 0.0;
-  public final Double indexerKA = 0.0;
+  public Double indexerKP = 10.0;
+  public Double indexerKI = 5.0;
+  public Double indexerKD = 0.0;
+  public Double indexerKS = 0.0;
+  public Double indexerKV = 0.0;
+  public Double indexerKA = 0.0;
 
-  public final Double indexerMaxAccelerationRotationsPerSecondSquared =
+  public Double indexerMaxAccelerationRotationsPerSecondSquared =
       3000.0; // TODO: Find actual values
-  public final Double indexerMaxJerkRotationsPerSecondCubed = 1000.0;
+  public Double indexerMaxJerkRotationsPerSecondCubed = 1000.0;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()

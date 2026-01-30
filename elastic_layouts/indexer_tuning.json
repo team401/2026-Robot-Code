@@ -15,7 +15,7 @@
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/Test Mode Selector",
+              "topic": "/SmartDashboard/Indexer Test Mode Selector",
               "period": 0.06,
               "sort_options": false
             }
@@ -119,28 +119,28 @@
             }
           },
           {
-            "title": "indexerMaxAcceleration",
+            "title": "indexerMaxAccelerationRotationsPerSecond",
             "x": 384.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerMaxAcceleration",
+              "topic": "TunableNumbers/IndexerTunables/indexerMaxAccelerationRotationsPerSecond",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerMaxJerk",
+            "title": "indexerMaxJerkRotationsPerSecond",
             "x": 384.0,
             "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerMaxJerk",
+              "topic": "TunableNumbers/IndexerTunables/indexerMaxJerkRotationsPerSecond",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
