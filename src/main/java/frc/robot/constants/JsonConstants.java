@@ -37,6 +37,16 @@ public class JsonConstants {
     shooterConstants.initializeViMap(); // TODO: Use AfterJsonLoad annotation for this instead
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
 
+    if (featureFlags.useTuningServer) {
+      // do not crash Robot if routes could not be added for any reason
+      try {
+        jsonHandler.addRoute("/indexer", indexerConstants);
+        jsonHandler.addRoute("/turret", turretConstants);
+      } catch (Exception ex) {
+        System.err.println("could not add routes for constant tuning: " + ex);
+      }
+    }
+
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
   }
