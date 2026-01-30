@@ -34,7 +34,6 @@ public class JsonConstants {
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
-    shooterConstants.initializeViMap(); // TODO: Use AfterJsonLoad annotation for this instead
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
 
     if (featureFlags.useTuningServer) {
