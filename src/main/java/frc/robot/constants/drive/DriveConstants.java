@@ -14,7 +14,16 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.util.PIDGains;
-
+/**
+ * Constants for the drivetrain subsystem related to driving performance and control.
+ * 
+ * <p>These include maximum speeds, profile constraints for driving to a pose, tolerances for
+ * considering the robot "at" a target pose, joystick deadband and response shaping, and PID
+ * gains for steering and driving.  
+ * 
+ * Values related to physical dimensions or motor configurations are located in {@link
+ * DrivetrainConstants}.
+ */
 public class DriveConstants {
   public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(4.0);
   public final AngularVelocity maxAngularSpeed = RadiansPerSecond.of(7.2);

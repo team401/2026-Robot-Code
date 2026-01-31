@@ -28,6 +28,17 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
 
+/**
+ * Constants for the swerve drivetrain subsystem.
+ * 
+ * These are more so the physical constants of the drivetrain, rather than tuning constants.
+ *
+ * <p>These include module configurations (motor IDs, encoder offsets, module positions), motor
+ * configurations (closed-loop output types, gear ratios, moment of inertia, friction voltages),
+ * feedback types, theoretical speed at 12V, coupling ratios, and slip current.
+ * 
+ * <p>PID gains and other tuning-related constants are instead found in {@link DriveConstants}.
+ */
 public class DrivetrainConstants {
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
