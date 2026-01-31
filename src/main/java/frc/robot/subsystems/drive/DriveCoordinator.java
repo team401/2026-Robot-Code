@@ -33,12 +33,21 @@ public class DriveCoordinator extends SubsystemBase {
     return testModeManager;
   }
 
-  private void createDriveStateMachine(Drive drive) {
+  Drive drive;
+
+  public DriveCoordinator(Drive drive) {
+    this.drive = drive;
+    drive.setDriveGains(JsonConstants.driveConstants.driveGains);
+    drive.setSteerGains(JsonConstants.driveConstants.steerGains);
+  }
+
+  public void createStateMachine(DriveWithJoysticks command) {
     driveStateMachine = new StateMachine<>(drive);
 
-    driveWithJoysticksState = driveStateMachine.registerState(new DriveWithJoysticksState());
     linearDriveToPoseState = driveStateMachine.registerState(new LinearDriveToPoseState());
-    testModeState = driveStateMachine.registerState(new DriveTestModeState(drive));
+    driveWithJoysticksState = driveStateMachine.registerState(new DriveWithJoysticksState(command));
+    testModeState = driveStateMachine.registerState(new DriveTestModeState(drive, command));
+
 
     driveWithJoysticksState.whenRequestedTransitionTo(linearDriveToPoseState);
     driveWithJoysticksState
@@ -53,20 +62,9 @@ public class DriveCoordinator extends SubsystemBase {
     driveStateMachine.setState(driveWithJoysticksState);
   }
 
-  public DriveCoordinator(Drive drive) {
-    createDriveStateMachine(drive);
-    drive.setDriveGains(JsonConstants.driveConstants.driveGains);
-    drive.setSteerGains(JsonConstants.driveConstants.steerGains);
-  }
-
   public void setLinearTargetPose(Pose2d pose) {
     Logger.recordOutput("driveCoordinator/linearTarget", pose);
     linearDriveToPoseState.setTargetPose(pose);
-  }
-
-  public void setDriveWithJoysticksCommand(DriveWithJoysticks command) {
-    driveWithJoysticksState.setDriveCommand(command);
-    testModeState.setDriveCommand(command);
   }
 
   public void setDriveAction(DriveAction action) {

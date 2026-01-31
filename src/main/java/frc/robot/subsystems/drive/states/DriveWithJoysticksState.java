@@ -7,19 +7,13 @@ import frc.robot.util.CommandState;
 public class DriveWithJoysticksState extends CommandState<Drive> {
 
   // This is to allow subclasses (DriveTestModeState) to set the name
-  protected DriveWithJoysticksState(String name) {
-    super(name);
+
+  protected DriveWithJoysticksState(String name, DriveWithJoysticks driveCommand) {
+    super(name, driveCommand);
   }
 
-  public DriveWithJoysticksState() {
-    super("DriveWithJoysticks");
+  public DriveWithJoysticksState(DriveWithJoysticks driveCommand) {
+    this("DriveWithJoysticks", driveCommand);
   }
-
-  public DriveWithJoysticks getDriveCommand() {
-    return (DriveWithJoysticks) getCommand();
-  }
-
-  public void setDriveCommand(DriveWithJoysticks driveCommand) {
-    setCommand(driveCommand); 
-  }
+  
 }

@@ -31,7 +31,7 @@ public class ControllerSetup {
     /* By making DriveWithJoysticks the default command for the drive subsystem,
      * we ensure that it is run iff no other Command that uses the drive subsystem
      * is activated. */
-    driveCoordinator.setDriveWithJoysticksCommand(
+    driveCoordinator.createStateMachine(
         new DriveWithJoysticks(
             drive,
             controllers.getAxis("driveX").getSupplier(),

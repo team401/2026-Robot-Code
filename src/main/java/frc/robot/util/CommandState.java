@@ -32,18 +32,6 @@ public class CommandState<World> extends State<World> {
     private Command command;
 
     /**
-     * Creates a new CommandState with the given name and a null initial state.
-     *
-     * This constructor delegates to the two-argument constructor passing {@code null}
-     * for the state, indicating no explicit state is provided at construction time.
-     *
-     * @param name the name identifying this CommandState
-     */
-    public CommandState(String name) {
-        this(name, null);
-    }
-
-    /**
      * Constructs a new CommandState with the specified name and associated Command.
      *
      * The provided name is forwarded to the superclass constructor and is used to
@@ -56,25 +44,7 @@ public class CommandState<World> extends State<World> {
     public CommandState(String name, Command command) {
         super(name);
         this.command = command;
-    }
-
-    /**
-     * Returns the Command associated with this CommandState.
-     *
-     * @return the current Command for this state, or null if no command is set
-     */
-    public Command getCommand() {
-        return command;
-    }
-
-    /**
-     * Sets the current Command for this CommandState.
-     *
-     * @param command the Command to set as the current command; may be {@code null} to clear the current command
-     */
-    public void setCommand(Command command) {
-        this.command = command;
-    }
+    } 
 
     /**
      * Called when this state is entered by the state machine.
