@@ -22,11 +22,15 @@ import frc.robot.util.PIDGains;
  * gains for steering and driving.  
  * 
  * Values related to physical dimensions or motor configurations are located in {@link
- * DrivetrainConstants}.
+ * PhysicalDriveConstants}.
  */
 public class DriveConstants {
   public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(4.0);
   public final AngularVelocity maxAngularSpeed = RadiansPerSecond.of(7.2);
+
+  public final Double joystickDeadband =
+      0.02; // Very low deadband for hall effect sticks; needs to be tuned
+  public final Double joystickMagnitudeExponent = 2.0;
 
   // Linear Drive to Pose Profile Constraints
 
@@ -47,10 +51,6 @@ public class DriveConstants {
   public final LinearVelocity linearDriveMaxLinearVelocityError = MetersPerSecond.of(0.05);
   // This is the maximum allowable angular speed to consider the robot "at" the target
   public final AngularVelocity linearDriveMaxAngularVelocityError = RadiansPerSecond.of(0.05);
-
-  public final Double joystickDeadband =
-      0.02; // Very low deadband for hall effect sticks; needs to be tuned
-  public final Double joystickMagnitudeExponent = 2.0;
 
   public PIDGains steerGains = new PIDGains(100, 0.0, 0.5, 0.1, 2.49, 0.0);
 

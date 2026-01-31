@@ -31,10 +31,10 @@ public class InitSubsystems {
         // a CANcoder
         return new Drive(
             new GyroIOPigeon2(),
-            new ModuleIOTalonFX(JsonConstants.drivetrainConstants.FrontLeft),
-            new ModuleIOTalonFX(JsonConstants.drivetrainConstants.FrontRight),
-            new ModuleIOTalonFX(JsonConstants.drivetrainConstants.BackLeft),
-            new ModuleIOTalonFX(JsonConstants.drivetrainConstants.BackRight));
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.FrontLeft),
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.FrontRight),
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.BackLeft),
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.BackRight));
 
       // The ModuleIOTalonFXS implementation provides an example implementation for
       // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -58,10 +58,10 @@ public class InitSubsystems {
         // Sim robot, instantiate physics sim IO implementations
         return new Drive(
             new GyroIO() {},
-            new ModuleIOSim(JsonConstants.drivetrainConstants.FrontLeft),
-            new ModuleIOSim(JsonConstants.drivetrainConstants.FrontRight),
-            new ModuleIOSim(JsonConstants.drivetrainConstants.BackLeft),
-            new ModuleIOSim(JsonConstants.drivetrainConstants.BackRight));
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.FrontLeft),
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.FrontRight),
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.BackLeft),
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.BackRight));
 
       default:
         // Replayed robot, disable IO implementations

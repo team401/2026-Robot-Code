@@ -23,7 +23,7 @@ import java.util.Queue;
 public class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 pigeon =
       new Pigeon2(
-          JsonConstants.drivetrainConstants.DrivetrainConstants.Pigeon2Id,
+          JsonConstants.physicalDriveConstants.DrivetrainConstants.Pigeon2Id,
           JsonConstants.robotInfo.CANBus);
   private final StatusSignal<Angle> yaw = pigeon.getYaw();
   private final Queue<Double> yawPositionQueue;
@@ -31,10 +31,10 @@ public class GyroIOPigeon2 implements GyroIO {
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
 
   public GyroIOPigeon2() {
-    if (JsonConstants.drivetrainConstants.DrivetrainConstants.Pigeon2Configs != null) {
+    if (JsonConstants.physicalDriveConstants.DrivetrainConstants.Pigeon2Configs != null) {
       pigeon
           .getConfigurator()
-          .apply(JsonConstants.drivetrainConstants.DrivetrainConstants.Pigeon2Configs);
+          .apply(JsonConstants.physicalDriveConstants.DrivetrainConstants.Pigeon2Configs);
     } else {
       pigeon.getConfigurator().apply(new Pigeon2Configuration());
     }

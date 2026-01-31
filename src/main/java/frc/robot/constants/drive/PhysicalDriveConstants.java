@@ -41,7 +41,7 @@ import frc.robot.constants.JsonConstants;
  * 
  * <p>PID gains and other tuning-related constants are instead found in {@link DriveConstants}.
  */
-public class DrivetrainConstants {
+public class PhysicalDriveConstants {
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.

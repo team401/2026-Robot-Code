@@ -59,18 +59,18 @@ public class Drive extends SubsystemBase implements DriveTemplate {
       Math.max(
           Math.max(
               Math.hypot(
-                  JsonConstants.drivetrainConstants.FrontLeft.LocationX,
-                  JsonConstants.drivetrainConstants.FrontLeft.LocationY),
+                  JsonConstants.physicalDriveConstants.FrontLeft.LocationX,
+                  JsonConstants.physicalDriveConstants.FrontLeft.LocationY),
               Math.hypot(
-                  JsonConstants.drivetrainConstants.FrontRight.LocationX,
-                  JsonConstants.drivetrainConstants.FrontRight.LocationY)),
+                  JsonConstants.physicalDriveConstants.FrontRight.LocationX,
+                  JsonConstants.physicalDriveConstants.FrontRight.LocationY)),
           Math.max(
               Math.hypot(
-                  JsonConstants.drivetrainConstants.BackLeft.LocationX,
-                  JsonConstants.drivetrainConstants.BackLeft.LocationY),
+                  JsonConstants.physicalDriveConstants.BackLeft.LocationX,
+                  JsonConstants.physicalDriveConstants.BackLeft.LocationY),
               Math.hypot(
-                  JsonConstants.drivetrainConstants.BackRight.LocationX,
-                  JsonConstants.drivetrainConstants.BackRight.LocationY)));
+                  JsonConstants.physicalDriveConstants.BackRight.LocationX,
+                  JsonConstants.physicalDriveConstants.BackRight.LocationY)));
 
   // PathPlanner config constants
   private static final double ROBOT_MASS_KG = 74.088;
@@ -81,12 +81,12 @@ public class Drive extends SubsystemBase implements DriveTemplate {
           ROBOT_MASS_KG,
           ROBOT_MOI,
           new ModuleConfig(
-              JsonConstants.drivetrainConstants.FrontLeft.WheelRadius,
-              JsonConstants.drivetrainConstants.kSpeedAt12Volts.in(MetersPerSecond),
+              JsonConstants.physicalDriveConstants.FrontLeft.WheelRadius,
+              JsonConstants.physicalDriveConstants.kSpeedAt12Volts.in(MetersPerSecond),
               WHEEL_COF,
               DCMotor.getKrakenX60Foc(1)
-                  .withReduction(JsonConstants.drivetrainConstants.FrontLeft.DriveMotorGearRatio),
-              JsonConstants.drivetrainConstants.FrontLeft.SlipCurrent,
+                  .withReduction(JsonConstants.physicalDriveConstants.FrontLeft.DriveMotorGearRatio),
+              JsonConstants.physicalDriveConstants.FrontLeft.SlipCurrent,
               1),
           getModuleTranslations());
 
@@ -117,10 +117,10 @@ public class Drive extends SubsystemBase implements DriveTemplate {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
     this.gyroIO = gyroIO;
-    modules[0] = new Module(flModuleIO, 0, JsonConstants.drivetrainConstants.FrontLeft);
-    modules[1] = new Module(frModuleIO, 1, JsonConstants.drivetrainConstants.FrontRight);
-    modules[2] = new Module(blModuleIO, 2, JsonConstants.drivetrainConstants.BackLeft);
-    modules[3] = new Module(brModuleIO, 3, JsonConstants.drivetrainConstants.BackRight);
+    modules[0] = new Module(flModuleIO, 0, JsonConstants.physicalDriveConstants.FrontLeft);
+    modules[1] = new Module(frModuleIO, 1, JsonConstants.physicalDriveConstants.FrontRight);
+    modules[2] = new Module(blModuleIO, 2, JsonConstants.physicalDriveConstants.BackLeft);
+    modules[3] = new Module(brModuleIO, 3, JsonConstants.physicalDriveConstants.BackRight);
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -233,7 +233,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        setpointStates, JsonConstants.drivetrainConstants.kSpeedAt12Volts);
+        setpointStates, JsonConstants.physicalDriveConstants.kSpeedAt12Volts);
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -383,7 +383,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   /** Returns the maximum linear speed in meters per sec. */
   public double getMaxLinearSpeedMetersPerSec() {
-    return JsonConstants.drivetrainConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    return JsonConstants.physicalDriveConstants.kSpeedAt12Volts.in(MetersPerSecond);
   }
 
   /** Returns the maximum angular speed in radians per sec. */
@@ -395,17 +395,17 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   public static Translation2d[] getModuleTranslations() {
     return new Translation2d[] {
       new Translation2d(
-          JsonConstants.drivetrainConstants.FrontLeft.LocationX,
-          JsonConstants.drivetrainConstants.FrontLeft.LocationY),
+          JsonConstants.physicalDriveConstants.FrontLeft.LocationX,
+          JsonConstants.physicalDriveConstants.FrontLeft.LocationY),
       new Translation2d(
-          JsonConstants.drivetrainConstants.FrontRight.LocationX,
-          JsonConstants.drivetrainConstants.FrontRight.LocationY),
+          JsonConstants.physicalDriveConstants.FrontRight.LocationX,
+          JsonConstants.physicalDriveConstants.FrontRight.LocationY),
       new Translation2d(
-          JsonConstants.drivetrainConstants.BackLeft.LocationX,
-          JsonConstants.drivetrainConstants.BackLeft.LocationY),
+          JsonConstants.physicalDriveConstants.BackLeft.LocationX,
+          JsonConstants.physicalDriveConstants.BackLeft.LocationY),
       new Translation2d(
-          JsonConstants.drivetrainConstants.BackRight.LocationX,
-          JsonConstants.drivetrainConstants.BackRight.LocationY)
+          JsonConstants.physicalDriveConstants.BackRight.LocationX,
+          JsonConstants.physicalDriveConstants.BackRight.LocationY)
     };
   }
 

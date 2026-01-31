@@ -253,12 +253,12 @@ public class ModuleIOTalonFXS implements ModuleIO {
   public void setDriveGains(PIDGains gains) {
     driveTalon
         .getConfigurator()
-        .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.driveGains.clone()));
+        .apply(gains.applyToSlot0Config(JsonConstants.physicalDriveConstants.driveGains.clone()));
   }
 
   public void setSteerGains(PIDGains gains) {
     turnTalon
         .getConfigurator()
-        .apply(gains.applyToSlot0Config(JsonConstants.drivetrainConstants.steerGains.clone()));
+        .apply(gains.applyToSlot0Config(JsonConstants.physicalDriveConstants.steerGains.clone()));
   }
 }
