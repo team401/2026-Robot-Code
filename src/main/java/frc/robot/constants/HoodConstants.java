@@ -41,6 +41,11 @@ public class HoodConstants {
    * How long the hood motor IO must report a disconnected state before displaying the alert. This
    * should be long enough that momentary disconnects (e.g. from going over the bump) don't trigger
    * the alert, but actual disconnects don't go unnoticed for a long time.
+   *
+   * <p>A "disconnected state" means that the IO has reported that the motor is not connected. It
+   * detects this when the Version signal has not been updated for the past 0.5 seconds, indicating
+   * the connection to the motor has been lost. This can indicate a disconnected CAN wire or an
+   * electronic failure in the motor itself.
    */
   public final Double disconnectedDebounceTimeSeconds = 1.0;
 
