@@ -33,8 +33,12 @@ public class RobotInfo {
   @JSONExclude
   public CANBus CANBus;
 
+  @JSONExclude
+  public double ODOMETRY_FREQUENCY;
+
   @AfterJsonLoad
   public void loadFieldsFromJSON() {
     CANBus = new CANBus(canivoreBusName, logFilePath);
+    ODOMETRY_FREQUENCY = CANBus.isNetworkFD() ? 250.0 : 100.0;
   }
 }

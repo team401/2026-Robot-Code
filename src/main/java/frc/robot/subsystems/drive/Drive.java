@@ -52,25 +52,6 @@ import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements DriveTemplate {
-  // TunerConstants doesn't include these constants, so they are declared locally
-  static final double ODOMETRY_FREQUENCY =
-      JsonConstants.robotInfo.CANBus.isNetworkFD() ? 250.0 : 100.0;
-  public static final double DRIVE_BASE_RADIUS =
-      Math.max(
-          Math.max(
-              Math.hypot(
-                  JsonConstants.physicalDriveConstants.FrontLeft.LocationX,
-                  JsonConstants.physicalDriveConstants.FrontLeft.LocationY),
-              Math.hypot(
-                  JsonConstants.physicalDriveConstants.FrontRight.LocationX,
-                  JsonConstants.physicalDriveConstants.FrontRight.LocationY)),
-          Math.max(
-              Math.hypot(
-                  JsonConstants.physicalDriveConstants.BackLeft.LocationX,
-                  JsonConstants.physicalDriveConstants.BackLeft.LocationY),
-              Math.hypot(
-                  JsonConstants.physicalDriveConstants.BackRight.LocationX,
-                  JsonConstants.physicalDriveConstants.BackRight.LocationY)));
 
   // PathPlanner config constants
   private final double ROBOT_MASS_KG = JsonConstants.robotInfo.robotMass.in(Kilograms);
@@ -388,7 +369,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   /** Returns the maximum angular speed in radians per sec. */
   public double getMaxAngularSpeedRadPerSec() {
-    return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
+    return getMaxLinearSpeedMetersPerSec() / JsonConstants.physicalDriveConstants.drive_base_radius;
   }
 
   /** Returns an array of module translations. */

@@ -185,6 +185,9 @@ public class PhysicalDriveConstants {
     public SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
         BackRight;
 
+    @JSONExclude
+    public double drive_base_radius;
+
     @AfterJsonLoad
     public void finishLoadingConstants() {
         driveGains =
@@ -231,5 +234,21 @@ public class PhysicalDriveConstants {
         FrontRight = frontRightModule.toSwerveModuleConstants(constantCreator, kInvertRightSide);
         BackLeft = backLeftModule.toSwerveModuleConstants(constantCreator, kInvertLeftSide);
         BackRight = backRightModule.toSwerveModuleConstants(constantCreator, kInvertRightSide);
+
+        drive_base_radius = Math.max(
+          Math.max(
+              Math.hypot(
+                  FrontLeft.LocationX,
+                  FrontLeft.LocationY),
+              Math.hypot(
+                  FrontRight.LocationX,
+                  FrontRight.LocationY)),
+          Math.max(
+              Math.hypot(
+                  BackLeft.LocationX,
+                  BackLeft.LocationY),
+              Math.hypot(
+                  BackRight.LocationX,
+                  BackRight.LocationY)));
     }
 }
