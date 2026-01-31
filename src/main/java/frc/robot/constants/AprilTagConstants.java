@@ -25,7 +25,7 @@ public class AprilTagConstants {
     }
   }
 
-  public final FieldType fieldType = FieldType.WELDED;
+  public final FieldType fieldType = FieldType.ANDYMARK;
 
   public AprilTagFieldLayout getTagLayout() {
     try {
