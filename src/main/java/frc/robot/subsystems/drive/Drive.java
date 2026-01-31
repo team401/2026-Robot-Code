@@ -73,10 +73,10 @@ public class Drive extends SubsystemBase implements DriveTemplate {
                   JsonConstants.physicalDriveConstants.BackRight.LocationY)));
 
   // PathPlanner config constants
-  private static final double ROBOT_MASS_KG = 74.088;
-  private static final double ROBOT_MOI = 6.883;
-  private static final double WHEEL_COF = 1.2;
-  private static final RobotConfig PP_CONFIG =
+  private final double ROBOT_MASS_KG = JsonConstants.robotInfo.robotMass.in(Kilograms);
+  private final double ROBOT_MOI = JsonConstants.robotInfo.robotMOI.in(KilogramSquareMeters);
+  private final double WHEEL_COF = JsonConstants.robotInfo.wheelCof;
+  private final RobotConfig PP_CONFIG =
       new RobotConfig(
           ROBOT_MASS_KG,
           ROBOT_MOI,
