@@ -1,4 +1,5 @@
 // Original file copyright notice:
+// https://github.com/Mechanical-Advantage/RobotCode2026Public/blob/5db972dbede8b28aed5cf21d47887b0bba90f7a9/src/main/java/org/littletonrobotics/frc2026/FieldConstants.java
 // Copyright (c) 2025-2026 Littleton Robotics
 // http://github.com/Mechanical-Advantage
 //
