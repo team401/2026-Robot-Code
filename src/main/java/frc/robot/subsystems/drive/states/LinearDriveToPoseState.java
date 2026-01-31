@@ -68,11 +68,6 @@ import org.littletonrobotics.junction.Logger;
  *   state to drive to a location.
  * - Constraints may be adjusted at runtime; changing constraints causes a new {@link LinearPath}
  *   instance to be constructed so that subsequent periodic calls use the updated profile.
- *
- * <p>Limitations and thread-safety:
- * - This class is not explicitly synchronized; callers should ensure that configuration methods
- *   ({@code setTargetPose}, {@code set*Constraints}) are not racing with periodic execution from a
- *   different thread, or provide external synchronization if required.
  */
 public class LinearDriveToPoseState extends State<Drive> {
 
