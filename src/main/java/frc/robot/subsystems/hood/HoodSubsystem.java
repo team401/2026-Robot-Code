@@ -214,14 +214,22 @@ public class HoodSubsystem extends MonitoredSubsystem {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (pid_sgva) -> {
+              JsonConstants.hoodConstants.hoodKP = pid_sgva[0];
+              JsonConstants.hoodConstants.hoodKI = pid_sgva[1];
+              JsonConstants.hoodConstants.hoodKD = pid_sgva[2];
+              JsonConstants.hoodConstants.hoodKS = pid_sgva[3];
+              JsonConstants.hoodConstants.hoodKG = pid_sgva[4];
+              JsonConstants.hoodConstants.hoodKV = pid_sgva[5];
+              JsonConstants.hoodConstants.hoodKA = pid_sgva[6];
+
               motor.setGains(
-                  pid_sgva[0],
-                  pid_sgva[1],
-                  pid_sgva[2],
-                  pid_sgva[3],
-                  pid_sgva[4],
-                  pid_sgva[5],
-                  pid_sgva[6]);
+                  JsonConstants.hoodConstants.hoodKP,
+                  JsonConstants.hoodConstants.hoodKI,
+                  JsonConstants.hoodConstants.hoodKD,
+                  JsonConstants.hoodConstants.hoodKS,
+                  JsonConstants.hoodConstants.hoodKG,
+                  JsonConstants.hoodConstants.hoodKV,
+                  JsonConstants.hoodConstants.hoodKA);
             },
             hoodKP,
             hoodKI,
@@ -233,14 +241,17 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
-            (maxProfile) -> {
+            (expoConstraintsVA) -> {
               motor.setProfileConstraints(
                   MotionProfileConfig.immutable(
                       RotationsPerSecond.zero(),
                       RotationsPerSecondPerSecond.zero(),
                       RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
-                      Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
-                      Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
+                      Volts.of(expoConstraintsVA[0]).div(RotationsPerSecond.of(1)),
+                      Volts.of(expoConstraintsVA[1]).div(RotationsPerSecondPerSecond.of(1))));
+
+              JsonConstants.hoodConstants.hoodExpoKV = expoConstraintsVA[0];
+              JsonConstants.hoodConstants.hoodExpoKA = expoConstraintsVA[1];
             },
             hoodExpoKV,
             hoodExpoKA);

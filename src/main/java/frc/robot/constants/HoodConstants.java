@@ -60,16 +60,16 @@ public class HoodConstants {
   public final Angle mechanismAngleToExitAngle =
       Degrees.of(10.0); // Placeholder. TODO: Analyze CAD for actual measurement.
 
-  public final Double hoodKP = 80.0;
-  public final Double hoodKI = 0.0;
-  public final Double hoodKD = 20.0;
-  public final Double hoodKS = 0.0;
-  public final Double hoodKG = 2.5;
-  public final Double hoodKV = 0.0;
-  public final Double hoodKA = 0.1;
+  public Double hoodKP = 80.0;
+  public Double hoodKI = 0.0;
+  public Double hoodKD = 20.0;
+  public Double hoodKS = 0.0;
+  public Double hoodKG = 2.5;
+  public Double hoodKV = 0.0;
+  public Double hoodKA = 0.1;
 
-  public final Double hoodExpoKV = 32.0;
-  public final Double hoodExpoKA = 32.0;
+  public Double hoodExpoKV = 32.0;
+  public Double hoodExpoKA = 32.0;
 
   public final Double hoodReduction = 20.0; // TODO: Get real value once design finalizes it
 

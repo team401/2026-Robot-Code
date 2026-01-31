@@ -40,9 +40,10 @@ public class JsonConstants {
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
       try {
+        jsonHandler.addRoute("/hopper", hopperConstants);
         jsonHandler.addRoute("/indexer", indexerConstants);
         jsonHandler.addRoute("/turret", turretConstants);
-        jsonHandler.addRoute("/hopper", hopperConstants);
+        jsonHandler.addRoute("/hood", hopperConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
