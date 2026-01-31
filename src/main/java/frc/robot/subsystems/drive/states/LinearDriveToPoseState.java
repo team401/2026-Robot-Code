@@ -1,9 +1,11 @@
 package frc.robot.subsystems.drive.states;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.swerve.utility.LinearPath;
 import coppercore.controls.state_machine.State;
@@ -11,6 +13,10 @@ import coppercore.controls.state_machine.StateMachine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import org.littletonrobotics.junction.Logger;
@@ -57,11 +63,13 @@ public class LinearDriveToPoseState extends State<Drive> {
 
     setConstraints(
         new TrapezoidProfile.Constraints(
-            JsonConstants.driveConstants.maxLinearSpeed.in(MetersPerSecond),
-            JsonConstants.driveConstants.maxLinearAcceleration.in(MetersPerSecondPerSecond)),
+            JsonConstants.driveConstants.linearDriveProfileMaxLinearVelocity.in(MetersPerSecond),
+            JsonConstants.driveConstants.linearDriveProfileMaxLinearAcceleration.in(
+                MetersPerSecondPerSecond)),
         new TrapezoidProfile.Constraints(
-            JsonConstants.driveConstants.maxAngularSpeed.in(RadiansPerSecond),
-            JsonConstants.driveConstants.maxAngularAcceleration.in(RadiansPerSecondPerSecond)));
+            JsonConstants.driveConstants.linearDriveProfileMaxAngularVelocity.in(RadiansPerSecond),
+            JsonConstants.driveConstants.linearDriveProfileMaxAngularAcceleration.in(
+                RadiansPerSecondPerSecond)));
   }
 
   @Override
@@ -87,11 +95,34 @@ public class LinearDriveToPoseState extends State<Drive> {
         "Drive/LinearDriveToPoseState/actualOmegaRadPerSec",
         world.getChassisSpeeds().omegaRadiansPerSecond);
 
-    if (world.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.02
-        && Math.abs(world.getPose().getRotation().minus(targetPose.getRotation()).getRadians())
-            < 0.05) {
+    Distance positionError = getPoseDistance(world.getPose(), targetPose);
+
+    Angle currentRotation = Rotations.of(world.getPose().getRotation().getRotations());
+    Angle targetRotation = Rotations.of(targetPose.getRotation().getRotations());
+
+    LinearVelocity currentVelocity =
+        MetersPerSecond.of(
+            Math.hypot(
+                world.getChassisSpeeds().vxMetersPerSecond,
+                world.getChassisSpeeds().vyMetersPerSecond));
+    AngularVelocity currentAngularVelocity =
+        RadiansPerSecond.of(world.getChassisSpeeds().omegaRadiansPerSecond);
+
+    if (currentRotation.isNear(
+            targetRotation, JsonConstants.driveConstants.linearDriveMaxAngularError)
+        && positionError.isNear(
+            Meters.zero(), JsonConstants.driveConstants.linearDriveMaxPositionError)
+        && currentVelocity.isNear(
+            MetersPerSecond.zero(), JsonConstants.driveConstants.linearDriveMaxLinearVelocityError)
+        && currentAngularVelocity.isNear(
+            RadiansPerSecond.zero(),
+            JsonConstants.driveConstants.linearDriveMaxAngularVelocityError)) {
       finish();
       return;
     }
+  }
+
+  private static Distance getPoseDistance(Pose2d current, Pose2d target) {
+    return Meters.of(current.getTranslation().getDistance(target.getTranslation()));
   }
 }
