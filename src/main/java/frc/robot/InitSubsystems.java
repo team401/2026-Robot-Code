@@ -87,7 +87,7 @@ public class InitSubsystems {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         return new HopperSubsystem(
-            new MotorIOTalonFXSim(
+            MotorIOTalonFXSim.newLeader(
                 JsonConstants.hopperConstants.buildMechanismConfig(),
                 JsonConstants.hopperConstants.buildTalonFXConfigs(),
                 JsonConstants.hopperConstants.buildHopperSim()));

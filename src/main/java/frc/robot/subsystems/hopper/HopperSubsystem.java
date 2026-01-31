@@ -64,10 +64,10 @@ public class HopperSubsystem extends MonitoredSubsystem {
     this.motor = motor;
     stateMachine = new StateMachine<>(this);
 
-    spinningState = (HopperState) stateMachine.registerState(new SpinningState());
-    dejamState = (HopperState) stateMachine.registerState(new DejamState());
-    idleState = (HopperState) stateMachine.registerState(new IdleState());
-    testModeState = (HopperState) stateMachine.registerState(new TestModeState());
+    spinningState = stateMachine.registerState(new SpinningState());
+    dejamState = stateMachine.registerState(new DejamState());
+    idleState = stateMachine.registerState(new IdleState());
+    testModeState = stateMachine.registerState(new TestModeState());
 
     spinningState.when(hopper -> hopper.shouldIdle(), "Should idle").transitionTo(idleState);
     spinningState
