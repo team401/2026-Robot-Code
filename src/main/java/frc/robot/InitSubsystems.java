@@ -17,6 +17,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
@@ -78,6 +79,29 @@ public class InitSubsystems {
             new ModuleIO() {},
             new ModuleIO() {},
             new ModuleIO() {});
+    }
+  }
+
+  public static HopperSubsystem initHopperSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new HopperSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.hopperConstants.buildMechanismConfig(),
+                JsonConstants.hopperConstants.buildTalonFXConfigs()));
+
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        return new HopperSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                JsonConstants.hopperConstants.buildMechanismConfig(),
+                JsonConstants.hopperConstants.buildTalonFXConfigs(),
+                JsonConstants.hopperConstants.buildHopperSim()));
+
+      default:
+        // Replayed robot, disable IO implementations
+        return new HopperSubsystem(new MotorIOReplay() {});
     }
   }
 

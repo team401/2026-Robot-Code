@@ -20,6 +20,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
@@ -31,11 +32,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
+// i helped copilot autocomplete write this
 public class RobotContainer {
   private final DependencyOrderedExecutor dependencyOrderedExecutor;
 
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<HopperSubsystem> hopper;
   private final Optional<IndexerSubsystem> indexer;
   private final Optional<TurretSubsystem> turret;
   private final Optional<HoodSubsystem> hood;
@@ -70,6 +73,12 @@ public class RobotContainer {
       coordinationLayer.setDrive(driveInstance);
     } else {
       drive = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runHopper) {
+      hopper = Optional.of(InitSubsystems.initHopperSubsystem());
+    } else {
+      hopper = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runIndexer) {
@@ -165,6 +174,94 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  /*
+   * <p>This method will not run automatically and must be called by Robot periodic.
+   */
+  public void periodic() {
+    // TODO: Move this to CoordinationLayer
+    drive.ifPresent(
+        driveInstance -> {
+          Translation3d hubTranslation =
+              new Translation3d(
+                  Units.inchesToMeters(182.11),
+                  Units.inchesToMeters(158.84),
+                  Units.inchesToMeters(72 - 8));
+          Pose2d robotPose = driveInstance.getPose();
+          ChassisSpeeds fieldCentricSpeeds =
+              ChassisSpeeds.fromRobotRelativeSpeeds(
+                  driveInstance.getChassisSpeeds(), robotPose.getRotation());
+
+          Optional<ShotInfo> maybeShot =
+              ShooterCalculations.calculateMovingShot(
+                  new Pose3d(robotPose).getTranslation(),
+                  hubTranslation,
+                  fieldCentricSpeeds,
+                  MetersPerSecond.of(10.64),
+                  ShotType.HIGH,
+                  Optional.empty());
+
+          Optional<ShotInfo> maybeStaticShot =
+              ShooterCalculations.calculateStationaryShot(
+                  new Pose3d(robotPose).getTranslation(),
+                  hubTranslation,
+                  MetersPerSecond.of(10.64),
+                  ShotType.HIGH);
+
+          final int trajectoryPointsPerMeter = 4;
+          maybeShot.ifPresent(
+              shot -> {
+                Logger.recordOutput("Superstructure/Shot", shot);
+                Logger.recordOutput(
+                    "Superstructure/EffectiveTrajectory",
+                    shot.projectMotion(
+                        10.64,
+                        driveInstance.getPose(),
+                        new ChassisSpeeds(),
+                        trajectoryPointsPerMeter));
+                Logger.recordOutput(
+                    "Superstructure/ShotTrajectory",
+                    shot.projectMotion(
+                        10.64,
+                        driveInstance.getPose(),
+                        fieldCentricSpeeds,
+                        trajectoryPointsPerMeter));
+              });
+
+          maybeStaticShot.ifPresent(
+              shot -> {
+                Logger.recordOutput(
+                    "Superstructure/StaticTrajectory",
+                    shot.projectMotion(
+                        10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
+              });
+        });
+    if (JsonConstants.hopperConstants.hopperDemoMode) {
+      hopper.ifPresent(
+          hopper -> {
+            hopper.setTargetVelocity(RadiansPerSecond.of(500));
+          });
+    }
+
+    if (JsonConstants.indexerConstants.indexerDemoMode) {
+      indexer.ifPresent(
+          indexer -> {
+            drive.ifPresent(
+                driveInstance -> {
+                  Pose2d robotPose = driveInstance.getPose();
+                  Translation2d hubTranslation =
+                      new Translation2d(Units.inchesToMeters(182.11), Units.inchesToMeters(158.84));
+                  var distance = robotPose.getTranslation().minus(hubTranslation).getNorm();
+                  if (distance < 2.0) {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(500));
+                  } else {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(0));
+                  }
+                });
+          });
+    }
+    ;
   }
 
   /**

@@ -1,0 +1,37 @@
+{
+  "dejamVoltage": {
+    "value": 3.0,
+    "unit": "Volt"
+  },
+  "hopperDemoMode": true,
+  "hopperReduction": 1.0,
+  "hopperKrakenId": 11,
+  "sensorToMechanismRatio": 1.0,
+  "hopperMotorInvertedValue": "Clockwise_Positive",
+  "hopperNeutralModeValue": "Brake",
+  "hopperSupplyCurrentLimit": {
+    "value": 60.0,
+    "unit": "Amp"
+  },
+  "hopperStatorCurrentLimit": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
+  "dejamCurrentThreshold": {
+    "value": 35.0,
+    "unit": "Amp"
+  },
+  "peakFOCCurrent": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
+  "hopperKG": 0.0,
+  "hopperKS": 0.0,
+  "hopperKV": 0.0,
+  "hopperKA": 0.0,
+  "hopperKP": 16.0,
+  "hopperKI": 0.0,
+  "hopperKD": 0.0,
+  "hopperMotionMagicCruiseVelocityRotationsPerSecond": 3.0,
+  "hopperStableDebounceTimeSeconds": 0.1
+}
