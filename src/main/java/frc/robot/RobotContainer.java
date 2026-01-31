@@ -99,8 +99,7 @@ public class RobotContainer {
     }
 
     if (JsonConstants.featureFlags.runShooter) {
-      ShooterSubsystem shooter =
-          InitSubsystems.initShooterSubsystem(dependencyOrderedExecutor);
+      ShooterSubsystem shooter = InitSubsystems.initShooterSubsystem(dependencyOrderedExecutor);
     }
 
     if (JsonConstants.featureFlags.useHomingSwitch) {
