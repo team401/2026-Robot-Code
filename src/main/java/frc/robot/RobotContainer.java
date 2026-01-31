@@ -38,10 +38,8 @@ public class RobotContainer {
 
   // Subsystems
   private final Optional<Drive> drive;
-  private final Optional<HopperSubsystem> hopper;
-  private final Optional<IndexerSubsystem> indexer;
-  private final Optional<TurretSubsystem> turret;
-  private final Optional<HoodSubsystem> hood;
+  // Since the RobotContainer doesn't really need a reference to any subsystem except for drive,
+  // their references are stored in the CoordinationLayer instead
 
   private final CoordinationLayer coordinationLayer;
 
@@ -76,43 +74,39 @@ public class RobotContainer {
     }
 
     if (JsonConstants.featureFlags.runHopper) {
-      hopper = Optional.of(InitSubsystems.initHopperSubsystem());
-    } else {
-      hopper = Optional.empty();
+      HopperSubsystem hopper = InitSubsystems.initHopperSubsystem();
+      coordinationLayer.setHopper(hopper);
     }
 
     if (JsonConstants.featureFlags.runIndexer) {
-      indexer = Optional.of(InitSubsystems.initIndexerSubsystem());
-    } else {
-      indexer = Optional.empty();
+      IndexerSubsystem indexer = InitSubsystems.initIndexerSubsystem();
+      coordinationLayer.setIndexer(indexer);
     }
 
     if (JsonConstants.featureFlags.runHood) {
-      HoodSubsystem hoodInstance = InitSubsystems.initHoodSubsystem(dependencyOrderedExecutor);
-
-      coordinationLayer.setHood(hoodInstance);
-      hood = Optional.of(hoodInstance);
+      HoodSubsystem hood = InitSubsystems.initHoodSubsystem(dependencyOrderedExecutor);
+      coordinationLayer.setHood(hood);
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_HOOD_DEPENDENCIES);
-    } else {
-      hood = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runTurret) {
-      TurretSubsystem turretInstance =
-          InitSubsystems.initTurretSubsystem(dependencyOrderedExecutor);
-
-      coordinationLayer.setTurret(turretInstance);
-      turret = Optional.of(turretInstance);
+      TurretSubsystem turret = InitSubsystems.initTurretSubsystem(dependencyOrderedExecutor);
+      coordinationLayer.setTurret(turret);
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
-    } else {
-      turret = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.useHomingSwitch) {
       HomingSwitch homingSwitch = InitSubsystems.initHomingSwitch(dependencyOrderedExecutor);
       coordinationLayer.setHomingSwitch(homingSwitch);
+    }
+
+    if (JsonConstants.featureFlags.runIndexer || JsonConstants.featureFlags.runHopper) {
+      // Ensure that demo modes are run before subsystem periodics if either of the 2 subsystems
+      // that have demo modes are active
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_DEMO_MODES);
     }
 
     drive.ifPresentOrElse(
@@ -174,94 +168,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
-  }
-
-  /*
-   * <p>This method will not run automatically and must be called by Robot periodic.
-   */
-  public void periodic() {
-    // TODO: Move this to CoordinationLayer
-    drive.ifPresent(
-        driveInstance -> {
-          Translation3d hubTranslation =
-              new Translation3d(
-                  Units.inchesToMeters(182.11),
-                  Units.inchesToMeters(158.84),
-                  Units.inchesToMeters(72 - 8));
-          Pose2d robotPose = driveInstance.getPose();
-          ChassisSpeeds fieldCentricSpeeds =
-              ChassisSpeeds.fromRobotRelativeSpeeds(
-                  driveInstance.getChassisSpeeds(), robotPose.getRotation());
-
-          Optional<ShotInfo> maybeShot =
-              ShooterCalculations.calculateMovingShot(
-                  new Pose3d(robotPose).getTranslation(),
-                  hubTranslation,
-                  fieldCentricSpeeds,
-                  MetersPerSecond.of(10.64),
-                  ShotType.HIGH,
-                  Optional.empty());
-
-          Optional<ShotInfo> maybeStaticShot =
-              ShooterCalculations.calculateStationaryShot(
-                  new Pose3d(robotPose).getTranslation(),
-                  hubTranslation,
-                  MetersPerSecond.of(10.64),
-                  ShotType.HIGH);
-
-          final int trajectoryPointsPerMeter = 4;
-          maybeShot.ifPresent(
-              shot -> {
-                Logger.recordOutput("Superstructure/Shot", shot);
-                Logger.recordOutput(
-                    "Superstructure/EffectiveTrajectory",
-                    shot.projectMotion(
-                        10.64,
-                        driveInstance.getPose(),
-                        new ChassisSpeeds(),
-                        trajectoryPointsPerMeter));
-                Logger.recordOutput(
-                    "Superstructure/ShotTrajectory",
-                    shot.projectMotion(
-                        10.64,
-                        driveInstance.getPose(),
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter));
-              });
-
-          maybeStaticShot.ifPresent(
-              shot -> {
-                Logger.recordOutput(
-                    "Superstructure/StaticTrajectory",
-                    shot.projectMotion(
-                        10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
-              });
-        });
-    if (JsonConstants.hopperConstants.hopperDemoMode) {
-      hopper.ifPresent(
-          hopper -> {
-            hopper.setTargetVelocity(RadiansPerSecond.of(500));
-          });
-    }
-
-    if (JsonConstants.indexerConstants.indexerDemoMode) {
-      indexer.ifPresent(
-          indexer -> {
-            drive.ifPresent(
-                driveInstance -> {
-                  Pose2d robotPose = driveInstance.getPose();
-                  Translation2d hubTranslation =
-                      new Translation2d(Units.inchesToMeters(182.11), Units.inchesToMeters(158.84));
-                  var distance = robotPose.getTranslation().minus(hubTranslation).getNorm();
-                  if (distance < 2.0) {
-                    indexer.setTargetVelocity(RadiansPerSecond.of(500));
-                  } else {
-                    indexer.setTargetVelocity(RadiansPerSecond.of(0));
-                  }
-                });
-          });
-    }
-    ;
   }
 
   /**

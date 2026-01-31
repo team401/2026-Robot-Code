@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,6 +19,8 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -29,6 +32,8 @@ import org.littletonrobotics.junction.Logger;
 public class CoordinationLayer {
   // Subsystems
   private Optional<Drive> drive = Optional.empty();
+  private Optional<HopperSubsystem> hopper = Optional.empty();
+  private Optional<IndexerSubsystem> indexer = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
@@ -43,6 +48,8 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::updateHoodDependencies");
   public static final ActionKey RUN_SHOT_CALCULATOR =
       new ActionKey("CoordinationLayer::runShotCalculator");
+  public static final ActionKey RUN_DEMO_MODES =
+      new ActionKey("CoordinationLayer::runSubsystemDemoModes");
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
@@ -50,14 +57,35 @@ public class CoordinationLayer {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
+    dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
+  }
+
+  /**
+   * Checks whether a subsystem has already been initialized and, if it has, throws an error.
+   *
+   * @param optionalSubsystem The Optional potentially containing the already-initialized subsystem
+   * @param name The name of the subsystem, capitalized, as it appears in the set... method, to use
+   *     in the error message (e.g. "Hopper" for "setHopper")
+   */
+  private void checkForDuplicateSubsystem(Optional<?> optionalSubsystem, String name) {
+    if (optionalSubsystem.isPresent()) {
+      throw new IllegalStateException("CoordinationLayer set" + name + " was called twice!");
+    }
   }
 
   public void setDrive(Drive drive) {
-    if (this.drive.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setDrive was called twice!");
-    }
-
+    checkForDuplicateSubsystem(this.drive, "Drive");
     this.drive = Optional.of(drive);
+  }
+
+  public void setHopper(HopperSubsystem hopper) {
+    checkForDuplicateSubsystem(this.hopper, "Hopper");
+    this.hopper = Optional.of(hopper);
+  }
+
+  public void setIndexer(IndexerSubsystem indexer) {
+    checkForDuplicateSubsystem(this.indexer, "Indexer");
+    this.indexer = Optional.of(indexer);
   }
 
   /**
@@ -70,10 +98,7 @@ public class CoordinationLayer {
    * @param turret The TurretSubsystem instance to use
    */
   public void setTurret(TurretSubsystem turret) {
-    if (this.turret.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setTurret was called twice!");
-    }
-
+    checkForDuplicateSubsystem(this.turret, "Turret");
     this.turret = Optional.of(turret);
 
     dependencyOrderedExecutor.registerAction(
@@ -222,6 +247,34 @@ public class CoordinationLayer {
               "CoordinationLayer/ShotErrorMeters",
               shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
         });
+  }
+
+  private void runSubsystemDemoModes() {
+    if (JsonConstants.hopperConstants.hopperDemoMode) {
+      hopper.ifPresent(
+          hopper -> {
+            hopper.setTargetVelocity(RadiansPerSecond.of(500));
+          });
+    }
+
+    if (JsonConstants.indexerConstants.indexerDemoMode) {
+      indexer.ifPresent(
+          indexer -> {
+            drive.ifPresent(
+                driveInstance -> {
+                  Pose2d robotPose = driveInstance.getPose();
+                  Translation2d hubTranslation =
+                      FieldConstants.Hub.topCenterPoint().toTranslation2d();
+                  var distance = robotPose.getTranslation().minus(hubTranslation).getNorm();
+                  if (distance < 2.0) {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(500));
+                  } else {
+                    indexer.setTargetVelocity(RadiansPerSecond.of(0));
+                  }
+                });
+          });
+    }
+    ;
   }
 
   /**
