@@ -1,9 +1,9 @@
 {
-  "spinningVoltage": {
-    "value": -3.0,
+  "dejamVoltage": {
+    "value": 3.0,
     "unit": "Volt"
   },
-  "hopperDemoMode": false,
+  "hopperDemoMode": true,
   "hopperReduction": 1.0,
   "hopperKrakenId": 11,
   "sensorToMechanismRatio": 1.0,
@@ -29,7 +29,7 @@
   "hopperKS": 0.0,
   "hopperKV": 0.0,
   "hopperKA": 0.0,
-  "hopperKP": 0.0,
+  "hopperKP": 16.0,
   "hopperKI": 0.0,
   "hopperKD": 0.0,
   "hopperMotionMagicCruiseVelocityRotationsPerSecond": 3.0,

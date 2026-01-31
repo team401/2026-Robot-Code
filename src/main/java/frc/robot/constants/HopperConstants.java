@@ -32,7 +32,7 @@ public class HopperConstants {
 
   public final Voltage dejamVoltage = Volts.of(3.0); // placeholder
 
-  public final Boolean hopperDemoMode = false;
+  public final Boolean hopperDemoMode = true;
 
   public final Double hopperReduction = 1.0;
 
@@ -47,13 +47,13 @@ public class HopperConstants {
    */
   public final Integer hopperKrakenId = 11; // TODO: Verify this ID
 
-  public Double hopperKP = 0.0;
+  public Double hopperKP = 16.0;
   public Double hopperKI = 0.0;
   public Double hopperKD = 0.0;
   public Double hopperKS = 0.0;
   public Double hopperKV = 0.0;
   public Double hopperKG = 0.0;
-  public Double hopperKA = 80.0;
+  public Double hopperKA = 0.0;
 
   public Double hopperMaxAccelerationRotationsPerSecondSquared = 3000.0; // TODO: Find actual values
   public Double hopperMaxJerkRotationsPerSecondCubed = 1000.0;
