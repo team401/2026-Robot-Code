@@ -1,39 +1,59 @@
 package frc.robot.subsystems.intake;
 
+import org.littletonrobotics.junction.Logger;
+
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
+import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.TestModeManager;
 
 public class IntakeSubsystem extends SubsystemBase {
   // TODO: add test mode support
-  // TODO: Move IntakeMechanism functionality into this class and remove IntakeMechanism class
-  private final IntakeMechanism intakeMechanism;
   
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Intake", TestMode.class);
 
-  public IntakeSubsystem(MotorIO pivotIO, MotorIO rollersIO) {
-    intakeMechanism = new IntakeMechanism(pivotIO, rollersIO);
-  }
+  private MotorIO pivotIO;
+  private MotorIO rollersIO;
 
-  public void setTargetPivotAngle(double angleRadians) {
-    intakeMechanism.setTargetPivotAngle(angleRadians);
+  private MotorInputsAutoLogged pivotInputs;
+  private MotorInputsAutoLogged rollersInputs;
+
+  public IntakeSubsystem(MotorIO pivotIO, MotorIO rollersIO) {
+    this.pivotIO = pivotIO;
+    this.rollersIO = rollersIO;
+
+    this.pivotInputs = new MotorInputsAutoLogged();
+    this.rollersInputs = new MotorInputsAutoLogged();
   }
 
   public void runRollers(double speedRPM) {
-    intakeMechanism.runRollers(speedRPM);
+    rollersIO.controlToVelocityUnprofiled(Units.RPM.of(speedRPM));
   }
 
   public void stopRollers() {
-    intakeMechanism.runRollers(0.0);
+    runRollers(0.0);
   }
 
-  @Override
+  public void setTargetPivotAngle(Angle angle) {
+    pivotIO.controlToPositionUnprofiled(angle);
+  }
+
+  public void setTargetPivotAngle(double angleRadians) {
+    setTargetPivotAngle(Units.Radians.of(angleRadians));
+  }
+
   public void periodic() {
-    intakeMechanism.periodic();
+    pivotIO.updateInputs(pivotInputs);
+    rollersIO.updateInputs(rollersInputs);
+
+    Logger.processInputs("intake/pivot/inputs", pivotInputs);
+    Logger.processInputs("intake/rollers/inputs", rollersInputs);
   }
 
   public void testPeriodic() {
-    intakeMechanism.testPeriodic();
+    return;
   }
 }
