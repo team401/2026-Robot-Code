@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.swerve.utility.LinearPath;
 import coppercore.controls.state_machine.State;
@@ -72,15 +73,13 @@ public class LinearDriveToPoseState extends State<Drive> {
                 RadiansPerSecondPerSecond)));
   }
 
-  @Override
-  public void onEntry(StateMachine<Drive> stateMachine, Drive world) {}
 
   @Override
   protected void periodic(StateMachine<Drive> stateMachine, Drive world) {
 
     LinearPath.State pathState =
         linearPath.calculate(
-            0.02,
+            JsonConstants.robotInfo.robotPeriod.in(Seconds),
             new LinearPath.State(
                 world.getPose(),
                 ChassisSpeeds.fromRobotRelativeSpeeds(

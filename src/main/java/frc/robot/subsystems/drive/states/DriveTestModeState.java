@@ -11,11 +11,6 @@ import frc.robot.util.LoggedTunablePIDGains;
 // the drive and steer gains
 public class DriveTestModeState extends DriveWithJoysticksState {
 
-  // I put this method here so that all drive test code is in one place
-  public static boolean isDriveTestMode() {
-    return DriveCoordinator.getTestModeManager().getTestMode() != TestMode.None;
-  }
-
   LoggedTunablePIDGains steerGains;
   LoggedTunablePIDGains driveGains;
 

@@ -36,18 +36,13 @@ public class DriveCoordinator extends SubsystemBase {
   private void createDriveStateMachine(Drive drive) {
     driveStateMachine = new StateMachine<>(drive);
 
-    // TODO: Remove casts when CopperCore is updated to latest version
-
-    driveWithJoysticksState =
-        (DriveWithJoysticksState) driveStateMachine.registerState(new DriveWithJoysticksState());
-    linearDriveToPoseState =
-        (LinearDriveToPoseState) driveStateMachine.registerState(new LinearDriveToPoseState());
-    testModeState =
-        (DriveTestModeState) driveStateMachine.registerState(new DriveTestModeState(drive));
+    driveWithJoysticksState = driveStateMachine.registerState(new DriveWithJoysticksState());
+    linearDriveToPoseState = driveStateMachine.registerState(new LinearDriveToPoseState());
+    testModeState = driveStateMachine.registerState(new DriveTestModeState(drive));
 
     driveWithJoysticksState.whenRequestedTransitionTo(linearDriveToPoseState);
     driveWithJoysticksState
-        .when(_drive -> DriveTestModeState.isDriveTestMode(), "drive test mode active")
+        .when(testModeManager::isInTestMode, "drive test mode active")
         .transitionTo(testModeState);
 
     linearDriveToPoseState.whenRequestedTransitionTo(driveWithJoysticksState);
