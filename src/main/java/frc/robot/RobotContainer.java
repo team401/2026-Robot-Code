@@ -27,6 +27,7 @@ import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
@@ -40,9 +41,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
+// i helped copilot autocomplete write this
 public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<HopperSubsystem> hopper;
   private final Optional<IndexerSubsystem> indexer;
   private final Optional<TurretSubsystem> turret;
 
@@ -59,6 +62,12 @@ public class RobotContainer {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
     } else {
       drive = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runHopper) {
+      hopper = Optional.of(InitSubsystems.initHopperSubsystem());
+    } else {
+      hopper = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runIndexer) {
@@ -191,6 +200,12 @@ public class RobotContainer {
                         10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
               });
         });
+    if (JsonConstants.hopperConstants.hopperDemoMode) {
+      hopper.ifPresent(
+          hopper -> {
+            hopper.setTargetVelocity(RadiansPerSecond.of(500));
+          });
+    }
 
     if (JsonConstants.indexerConstants.indexerDemoMode) {
       indexer.ifPresent(
