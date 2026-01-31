@@ -33,6 +33,8 @@ public class JsonConstants {
     hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
+
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
       try {
@@ -55,5 +57,6 @@ public class JsonConstants {
   public static HopperConstants hopperConstants;
   public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
+  public static IntakeConstants intakeConstants;
   public static Controllers controllers;
 }

@@ -3,5 +3,6 @@
   "runHopper": true,
   "runIndexer": true,
   "runTurret": true,
+  "runIntake": true,
   "useTuningServer": true
 }
