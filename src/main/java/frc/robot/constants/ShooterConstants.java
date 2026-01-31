@@ -71,12 +71,12 @@ public class ShooterConstants {
   public final Integer shooterTopFollowerMotorId = 15;
   public final Integer shooterBottomFollowerMotorId = 16;
 
-  public final Double shooterKP = 4.0;
-  public final Double shooterKI = 0.0;
-  public final Double shooterKD = 0.0;
-  public final Double shooterKS = 0.0;
-  public final Double shooterKV = 1.85;
-  public final Double shooterKA = 0.0;
+  public Double shooterKP = 4.0;
+  public Double shooterKI = 0.0;
+  public Double shooterKD = 0.0;
+  public Double shooterKS = 0.0;
+  public Double shooterKV = 1.85;
+  public Double shooterKA = 0.0;
 
   /**
    * The number of rotations the shooter motors rotate for each rotation of the output flywheels. If
@@ -100,8 +100,8 @@ public class ShooterConstants {
   // Perhaps regenerative braking can improve our battery performance?
   public final NeutralModeValue defaultShooterNeutralMode = NeutralModeValue.Brake;
 
-  public final AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
-  public final AngularAcceleration shooterMaxAcceleration = RPM.of(1000).per(Second);
+  public AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
+  public AngularAcceleration shooterMaxAcceleration = RPM.of(1000).per(Second);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

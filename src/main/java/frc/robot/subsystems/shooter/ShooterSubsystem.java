@@ -159,8 +159,21 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (pid_sva) -> {
+              JsonConstants.shooterConstants.shooterKP = pid_sva[0];
+              JsonConstants.shooterConstants.shooterKI = pid_sva[1];
+              JsonConstants.shooterConstants.shooterKD = pid_sva[2];
+              JsonConstants.shooterConstants.shooterKS = pid_sva[3];
+              JsonConstants.shooterConstants.shooterKV = pid_sva[4];
+              JsonConstants.shooterConstants.shooterKA = pid_sva[5];
+
               leadMotor.setGains(
-                  pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
+                  JsonConstants.shooterConstants.shooterKP,
+                  JsonConstants.shooterConstants.shooterKI,
+                  JsonConstants.shooterConstants.shooterKD,
+                  JsonConstants.shooterConstants.shooterKS,
+                  0.0,
+                  JsonConstants.shooterConstants.shooterKV,
+                  JsonConstants.shooterConstants.shooterKA);
             },
             shooterKP,
             shooterKI,
@@ -172,10 +185,14 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (maxProfile) -> {
+              JsonConstants.shooterConstants.shooterMaxVelocity = RPM.of(maxProfile[0]);
+              JsonConstants.shooterConstants.shooterMaxAcceleration =
+                  RPM.per(Second).of(maxProfile[1]);
+
               leadMotor.setProfileConstraints(
                   MotionProfileConfig.immutable(
-                      RPM.of(maxProfile[0]),
-                      RPM.per(Second).of(maxProfile[1]),
+                      JsonConstants.shooterConstants.shooterMaxVelocity,
+                      JsonConstants.shooterConstants.shooterMaxAcceleration,
                       RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
                       Volts.zero().div(RPM.of(1.0)),
                       Volts.zero().div(RotationsPerSecondPerSecond.of(1.0))));
