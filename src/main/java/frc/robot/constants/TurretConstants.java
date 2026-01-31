@@ -55,16 +55,16 @@ public class TurretConstants {
   // The current gains are by no means perfect, but they do make the turret track a goal position
   // decently in sim. Once we get a physical turret mechanism, the sim can be modified to closely
   // follow the behavior of the real life mechanism and then all will be more accurate.
-  public final Double turretKP = 5000.0; // 40
-  public final Double turretKI = 0.0;
-  public final Double turretKD = 800.0; // 600
-  public final Double turretKS = 0.0;
-  public final Double turretKV = 0.0;
-  public final Double turretKG = 0.0;
-  public final Double turretKA = 80.0; // 55
+  public Double turretKP = 5000.0; // 40
+  public Double turretKI = 0.0;
+  public Double turretKD = 800.0; // 600
+  public Double turretKS = 0.0;
+  public Double turretKV = 0.0;
+  public Double turretKG = 0.0;
+  public Double turretKA = 80.0; // 55
 
-  public final Double turretExpoKV = 2.0;
-  public final Double turretExpoKA = 37.5;
+  public Double turretExpoKV = 2.0;
+  public Double turretExpoKA = 37.5;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
