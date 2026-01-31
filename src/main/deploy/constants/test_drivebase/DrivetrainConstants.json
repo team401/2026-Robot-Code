@@ -113,7 +113,7 @@
     "unit": "Amp"
   },
   "kSpeedAt12Volts": {
-    "value": 5.12,
+    "value": 5.04,
     "unit": "Meter per Second"
   },
   "kCoupleRatio": 3.5714285714285716,
