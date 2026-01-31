@@ -2,6 +2,9 @@ package frc.robot.constants;
 
 import com.ctre.phoenix6.CANBus;
 
+import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
+import coppercore.parameter_tools.json.annotations.JSONExclude;
+
 public class RobotInfo {
 
   // JSON Only Fields (For initializing values from JSON files)
@@ -14,10 +17,11 @@ public class RobotInfo {
 
   // Fields loaded after JSON
 
-  public CANBus kCANBus;
+  @JSONExclude
+  public CANBus CANBus;
 
-  // @AfterJSONLoad
+  @AfterJsonLoad
   public void loadFieldsFromJSON() {
-    kCANBus = new CANBus(canivoreBusName, logFilePath);
+    CANBus = new CANBus(canivoreBusName, logFilePath);
   }
 }

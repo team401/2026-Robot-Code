@@ -36,9 +36,6 @@ public class JsonConstants {
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
 
-    // Temporary manual calls to load fields after JSON load
-    robotInfo.loadFieldsFromJSON();
-    drivetrainConstants.finishLoadingConstants();
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
   }

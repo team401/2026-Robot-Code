@@ -49,7 +49,7 @@ public class IndexerConstants {
         .withEncoderToMechanismRatio(indexerReduction)
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
-        .withLeadMotorId(new CANDeviceID(JsonConstants.robotInfo.kCANBus, indexerKrakenId))
+        .withLeadMotorId(new CANDeviceID(JsonConstants.robotInfo.CANBus, indexerKrakenId))
         .build();
   }
 
