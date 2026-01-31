@@ -17,6 +17,7 @@ import coppercore.wpilib_interface.UnitUtils;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutAngle;
@@ -32,6 +33,7 @@ import frc.robot.subsystems.hood.HoodState.IdleState;
 import frc.robot.subsystems.hood.HoodState.TargetPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
 import frc.robot.util.TestModeManager;
+import java.io.PrintWriter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -130,17 +132,23 @@ public class HoodSubsystem extends MonitoredSubsystem {
     targetPitchState = stateMachine.registerState(new TargetPitchState());
     testModeState = stateMachine.registerState(new TestModeState());
 
-    homingWaitForButtonState.whenFinished().transitionTo(idleState);
+    homingWaitForButtonState
+        .when(hood -> hood.isHomingSwitchPressed(), "Homing switch is pressed")
+        .transitionTo(idleState);
     homingWaitForButtonState
         .when(() -> DriverStation.isEnabled(), "Robot is enabled")
         .transitionTo(homingWaitForMovementState);
 
-    homingWaitForMovementState.whenFinished().transitionTo(homingWaitForStoppingState);
+    homingWaitForMovementState
+        .when((hood) -> hood.isMoving(), "Is moving")
+        .transitionTo(homingWaitForStoppingState);
     homingWaitForMovementState
         .whenTimeout(JsonConstants.hoodConstants.homingMaxUnmovingTime)
         .transitionTo(homingWaitForStoppingState);
 
-    homingWaitForStoppingState.whenFinished().transitionTo(idleState);
+    homingWaitForStoppingState
+        .when(hood -> !hood.isMoving(), "Is not moving")
+        .transitionTo(idleState);
 
     idleState.when(hood -> hood.isHoodTestMode(), "Is hood test mode").transitionTo(testModeState);
     idleState
@@ -155,6 +163,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
         .when(hood -> !hood.isHoodTestMode(), "Isn't hood test mode")
         .transitionTo(idleState);
 
+    System.out.println("Hood state machine graph:");
+    stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
     stateMachine.setState(homingWaitForButtonState);
 
     // Initialize tunable numbers for test modes
@@ -256,7 +266,9 @@ public class HoodSubsystem extends MonitoredSubsystem {
             hoodExpoKV,
             hoodExpoKA);
 
-        motor.controlToPositionExpoProfiled(Degrees.of(hoodTuningSetpointDegrees.getAsDouble()));
+        // Make sure that the mechanism doesn't break itself by controlling outside of its safe
+        // range of motion, even in test mode
+        clampAndControlToAngle(Degrees.of(hoodTuningSetpointDegrees.getAsDouble()));
       }
       case HoodCurrentTuning -> {
         motor.controlOpenLoopCurrent(Amps.of(hoodTuningAmps.getAsDouble()));
@@ -269,10 +281,24 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /**
+   * Returns `true` if the absolute value of the hood's velocity is greater than or equal to the
+   * hood homing movement threshold, `false` otherwise
+   *
+   * @return `true` if the absolute value of the hood's velocity is greater than or equal to the
+   *     hood homing movement threshold, `false` otherwise
+   */
+  protected boolean isMoving() {
+    final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
+
+    return getVelocity().abs(velocityComparisonUnit)
+        >= JsonConstants.turretConstants.homingMovementThreshold.in(velocityComparisonUnit);
+  }
+
+  /**
    * Sets the hood's current position to the homed position. Should be called whenever homing states
    * determine that the system is at its homed position.
    */
-  protected void homePositionReached() {
+  protected void onHomePositionReached() {
     motor.setCurrentPosition(JsonConstants.hoodConstants.minHoodAngle);
   }
 
@@ -326,6 +352,16 @@ public class HoodSubsystem extends MonitoredSubsystem {
             .minus(goalPitch)
             .minus(JsonConstants.hoodConstants.mechanismAngleToExitAngle);
     Logger.recordOutput("Hood/goalAngleRadians", goalAngle.in(Radians));
+    clampAndControlToAngle(goalAngle);
+  }
+
+  /**
+   * Given a target angle, clamp it to be within the allowed bounds and then control the mechanism
+   * toward it
+   *
+   * @param goalAngle The Angle to target
+   */
+  private void clampAndControlToAngle(Angle goalAngle) {
     Angle clampedGoalAngle =
         UnitUtils.clampMeasure(
             goalAngle,
@@ -348,10 +384,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   public boolean isHoodTestMode() {
-    return switch (testModeManager.getTestMode()) {
-      case HoodClosedLoopTuning, HoodCurrentTuning, HoodVoltageTuning, HoodPhoenixTuning -> true;
-      default -> false;
-    };
+    return testModeManager.isInTestMode();
   }
 
   /**

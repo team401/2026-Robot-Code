@@ -84,6 +84,7 @@ public class Robot extends LoggedRobot {
     // adding newly-scheduled commands, running already-scheduled commands, removing finished or
     // interrupted commands, and running subsystem periodic() methods.  This must be called from the
     // robot's periodic block in order for anything in the Command-based framework to work.
+    // The CommandScheduler action is added here: src/main/java/frc/robot/RobotContainer.java:58
     robotContainer.getDependencyOrderedExecutor().execute();
 
     // Return to non-RT thread priority (do not modify the first argument)

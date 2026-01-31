@@ -11,7 +11,16 @@ public class ExtraCTREUtil {
 
   /**
    * The DigitalSignalCloseState enum provides a common type for CTRE's signal-specific close-state
-   * values
+   * values. This is used to allow the simulated CANdi IO to correctly mock the value of the <a
+   * href="https://api.ctr-electronics.com/phoenix6/stable/java/com/ctre/phoenix6/hardware/core/CoreCANdi.html#getS1Closed()">S1Closed</a>
+   * or <a
+   * href="https://api.ctr-electronics.com/phoenix6/stable/java/com/ctre/phoenix6/hardware/core/CoreCANdi.html#getS2Closed()">S2Closed</a>
+   * signals without a ton of code duplication.
+   *
+   * <p>This exists because Phoenix-6 has separate types for <a
+   * href="https://api.ctr-electronics.com/phoenix6/stable/java/com/ctre/phoenix6/signals/S1CloseStateValue.html">S1CloseStateValue</a>
+   * and <a
+   * href="https://api.ctr-electronics.com/phoenix6/stable/java/com/ctre/phoenix6/signals/S2CloseStateValue.html">S2CloseStateValue</a>.
    */
   public enum DigitalSignalCloseState {
     CloseWhenLow,

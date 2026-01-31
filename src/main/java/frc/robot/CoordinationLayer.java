@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -274,7 +275,6 @@ public class CoordinationLayer {
                 });
           });
     }
-    ;
   }
 
   /**
@@ -308,7 +308,9 @@ public class CoordinationLayer {
         hood.map(hood -> hood.getCurrentExitAngle().in(Radians))
             .orElse(
                 MathUtil.clamp(
-                    idealShot.pitchRadians(), Math.toRadians(90 - 40), Math.toRadians(90 - 20))),
+                    idealShot.pitchRadians(),
+                    Math.toRadians(90 - JsonConstants.hoodConstants.maxHoodAngle.in(Degrees)),
+                    Math.toRadians(90 - JsonConstants.hoodConstants.minHoodAngle.in(Degrees)))),
         turret
             .map(turret -> turret.getFieldCentricTurretHeading().getRadians())
             .orElse(idealShot.yawRadians()),

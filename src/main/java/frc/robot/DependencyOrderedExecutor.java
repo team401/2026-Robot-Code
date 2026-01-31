@@ -160,7 +160,8 @@ public class DependencyOrderedExecutor {
   }
 
   /**
-   * Run a sequence of actions and add their epochs to the watchdog
+   * Run a sequence of actions and add their epochs to the watchdog, which will keep track of the
+   * time taken by each epoch (each action) and then report that time in the case of a loop overrun.
    *
    * @param actions The List of NamedActions to run
    */

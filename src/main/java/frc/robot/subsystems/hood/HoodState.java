@@ -13,19 +13,6 @@ import frc.robot.constants.JsonConstants;
  */
 public abstract class HoodState extends State<HoodSubsystem> {
   /**
-   * Home the hood (set its current position to the "homed" position) and finish the current state
-   *
-   * <p>This method is not referred to as "zeroing" the hood because the homing position likely
-   * won't be at 0 degrees.
-   *
-   * @param hood The HoodSubsystem to home
-   */
-  protected void homeHoodAndFinish(HoodSubsystem hood) {
-    hood.homePositionReached();
-    finish();
-  }
-
-  /**
    * The HomingWaitForButtonState waits for the homing switch to be pressed and then sets the hood
    * motor's encoder position to its homed position and finishes. The state machine must transition
    * to HomingWaitForMovement state whenever the robot enables.
@@ -34,7 +21,7 @@ public abstract class HoodState extends State<HoodSubsystem> {
     @Override
     public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
       if (hood.isHomingSwitchPressed()) {
-        homeHoodAndFinish(hood);
+        hood.onHomePositionReached();
       }
     }
   }
@@ -70,10 +57,8 @@ public abstract class HoodState extends State<HoodSubsystem> {
     public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
       hood.applyHomingVoltage();
 
-      final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
-      if (hood.getVelocity().abs(velocityComparisonUnit)
-          < JsonConstants.turretConstants.homingMovementThreshold.in(velocityComparisonUnit)) {
-        homeHoodAndFinish(hood);
+      if (!hood.isMoving()) {
+        hood.onHomePositionReached();
       }
     }
   }
