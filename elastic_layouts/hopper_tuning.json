@@ -8,139 +8,139 @@
         "layouts": [],
         "containers": [
           {
-            "title": "Indexer Test Mode Selector",
+            "title": "Hopper Test Mode Selector",
             "x": 128.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/Indexer Test Mode Selector",
+              "topic": "/SmartDashboard/Test Mode Selector",
               "period": 0.06,
               "sort_options": false
             }
           },
           {
-            "title": "indexerKP",
+            "title": "HopperKP",
             "x": 0.0,
             "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKP",
+              "topic": "TunableNumbers/HopperTunables/hopperKP",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerKI",
+            "title": "HopperKI",
             "x": 0.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKI",
+              "topic": "TunableNumbers/HopperTunables/hopperKI",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerKD",
+            "title": "HopperKD",
             "x": 0.0,
             "y": 384.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKD",
+              "topic": "TunableNumbers/HopperTunables/hopperKD",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerKS",
+            "title": "HopperKS",
             "x": 256.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKS",
+              "topic": "TunableNumbers/HopperTunables/hopperKS",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerKV",
+            "title": "HopperKV",
             "x": 128.0,
             "y": 384.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKV",
+              "topic": "TunableNumbers/HopperTunables/hopperKV",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerKA",
+            "title": "HopperKA",
             "x": 256.0,
             "y": 384.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKA",
+              "topic": "TunableNumbers/HopperTunables/hopperKA",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerTuningSetpointVelocityRPM",
+            "title": "HopperTuningSetpointVelocityRPM",
             "x": 128.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerTuningSetpointVelocityRPM",
+              "topic": "TunableNumbers/HopperTunables/hopperTuningSetpointVelocity",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerMaxAccelerationRotationsPerSecond",
+            "title": "HopperMaxAcceleration",
             "x": 384.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerMaxAccelerationRotationsPerSecond",
+              "topic": "TunableNumbers/HopperTunables/hopperMaxAcceleration",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
             }
           },
           {
-            "title": "indexerMaxJerkRotationsPerSecond",
+            "title": "HopperMaxJerk",
             "x": 384.0,
             "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerMaxJerkRotationsPerSecond",
+              "topic": "TunableNumbers/HopperTunables/hopperMaxJerk",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
