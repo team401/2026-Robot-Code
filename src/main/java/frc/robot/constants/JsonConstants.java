@@ -42,6 +42,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/indexer", indexerConstants);
         jsonHandler.addRoute("/turret", turretConstants);
         jsonHandler.addRoute("/hopper", hopperConstants);
+        jsonHandler.addRoute("/drive", driveConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
