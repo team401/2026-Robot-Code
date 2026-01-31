@@ -4,6 +4,8 @@ import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
 import edu.wpi.first.wpilibj2.command.Command;
 
+// Copilot used to help write the docs for this class
+
 /**
  * A State implementation that wraps and drives a {@code Command} for the duration of the state.
  *
