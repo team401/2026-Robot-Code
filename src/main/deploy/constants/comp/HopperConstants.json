@@ -33,6 +33,5 @@
   "hopperKI": 0.0,
   "hopperKD": 0.0,
   "hopperMotionMagicCruiseVelocityRotationsPerSecond": 3.0,
-  "maxHopperSetpointVelocityRotationsPerSec": 5.0,
   "hopperStableDebounceTimeSeconds": 0.1
 }
