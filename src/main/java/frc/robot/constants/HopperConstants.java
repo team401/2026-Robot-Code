@@ -65,7 +65,7 @@ public class HopperConstants {
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), hopperKrakenId))
+            new CANDeviceID(JsonConstants.robotInfo.CANBus, hopperKrakenId))
         .build();
   }
 

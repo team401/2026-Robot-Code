@@ -27,6 +27,8 @@ import frc.robot.ShooterCalculations.ShotType;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
+
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
@@ -48,6 +50,7 @@ public class RobotContainer {
   private final Optional<HopperSubsystem> hopper;
   private final Optional<IndexerSubsystem> indexer;
   private final Optional<TurretSubsystem> turret;
+  private final Optional<DriveCoordinator> driveCoordinator;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
@@ -60,8 +63,10 @@ public class RobotContainer {
 
     if (JsonConstants.featureFlags.runDrive) {
       drive = Optional.of(InitSubsystems.initDriveSubsystem());
+      driveCoordinator = Optional.of(new DriveCoordinator(drive.get()));
     } else {
       drive = Optional.empty();
+      driveCoordinator = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runHopper) {
@@ -124,7 +129,13 @@ public class RobotContainer {
     // TODO: Create a robust and clean input/action layer.
 
     // Default command, normal field-relative drive
-    drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));
+    driveCoordinator.ifPresent(
+        driveCoordinator -> {
+          drive.ifPresent(
+              (drive) -> {
+                ControllerSetup.initDriveBindings(driveCoordinator, drive);
+              });
+        });
   }
 
   /**
