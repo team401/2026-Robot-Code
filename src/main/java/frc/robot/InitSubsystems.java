@@ -155,6 +155,9 @@ public class InitSubsystems {
                 JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig()),
             MotorIOTalonFX.newLeader(
                 JsonConstants.intakeConstants.buildRollersMechanismConfig(),
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()),
+            MotorIOTalonFX.newFollower(JsonConstants.intakeConstants.buildRollersMechanismConfig(),
+            0,
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -164,16 +167,19 @@ public class InitSubsystems {
             MotorIOTalonFXSim.newLeader(
                     pivotConfig,
                     JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig(),
-                    JsonConstants.intakeConstants.buildPivotSim())
-                .withMotorType(MotorType.KrakenX44),
+                    JsonConstants.intakeConstants.buildPivotSim()),
             MotorIOTalonFXSim.newLeader(
                     rollersConfig,
                     JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
-                    JsonConstants.intakeConstants.buildRollersSim())
-                .withMotorType(MotorType.KrakenX44));
+                    JsonConstants.intakeConstants.buildRollersSim()),
+            MotorIOTalonFXSim.newFollower(
+                    rollersConfig,
+                    0,
+                    JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
+              
       default:
         // Replayed robot, disable IO implementations
-        return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay());
+        return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
     }
   }
 }

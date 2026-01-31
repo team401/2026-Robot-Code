@@ -2,6 +2,10 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -20,7 +24,11 @@ import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
@@ -34,15 +42,21 @@ public class IntakeConstants {
     public final MomentOfInertia rollersInertia = Units.KilogramSquareMeters.of(0.02);
 
     // Setpoints for various positions
-    public final Double intakePositionAngleRadians = 0.0;
-    public final Double stowPositionAngleRadians = Math.PI / 2;
+    public final Angle intakePositionAngle = Radians.of(0.0);
+    public final Angle stowPositionAngle = Radians.of(Math.PI / 2);
 
     // Roller speeds
     public final Double intakeRollerSpeedRPM = 1500.0;
 
+    // Homing parameters
+    public final AngularVelocity homingMovementThreshold= RadiansPerSecond.of(0.1);
+    public final Time homingTimeoutSeconds = Seconds.of(0.5);
+    public final Voltage homingVoltage = Volts.of(2.0);
+
     // CAN IDs
     public final Integer intakePivotMotorId = 30;
-    public final Integer intakeRollersMotorId = 31;
+    public final Integer intakeRollersLeadMotorId = 31;
+    public final Integer intakeRollersFollowerMotorId = 32;
 
     public MechanismConfig buildPivotMechanismConfig() {
         return MechanismConfig.builder()
@@ -119,7 +133,11 @@ public class IntakeConstants {
             .withLeadMotorId(
                 new CANDeviceID(
                     new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                    intakeRollersMotorId))
+                    intakeRollersLeadMotorId))
+            .addFollower(new CANDeviceID(
+                    new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                    intakeRollersFollowerMotorId),
+                    false)
             .build();
     }
 
@@ -128,10 +146,10 @@ public class IntakeConstants {
             buildRollersMechanismConfig(),
             new DCMotorSim(
                 LinearSystemId.createDCMotorSystem(
-                    DCMotor.getKrakenX44Foc(1),
+                    DCMotor.getKrakenX60Foc(2),
                     rollersInertia.in(KilogramSquareMeters),
                     1.0),
-                DCMotor.getKrakenX44Foc(1),
+                DCMotor.getKrakenX60Foc(2),
                 0.0,
                 0.0));
     }
