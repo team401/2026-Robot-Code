@@ -39,7 +39,6 @@ public class TurretConstants {
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
-  public final Time homingMaxOverallTime = Seconds.of(10.0);
 
   /**
    * The robot-relative angle that the turret is at once it has homed. This should be determined
@@ -91,7 +90,11 @@ public class TurretConstants {
   public final Angle minTurretAngle = Degrees.of(-5.0);
   public final Angle maxTurretAngle = Degrees.of(350);
 
-  // = this number
+  /**
+   * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
+   * headingToTurretAngle = turretRelativeAngle
+   */
+  public final Angle headingToTurretAngle = Degrees.of(-45.0); // TODO: Real value
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

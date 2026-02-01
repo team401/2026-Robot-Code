@@ -5,7 +5,6 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
-import frc.robot.subsystems.drive.TestMode;
 import frc.robot.util.LoggedTunablePIDGains;
 
 // Extends DriveWithJoysticksState to allow you to drive the robot while tuning

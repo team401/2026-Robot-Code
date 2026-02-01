@@ -48,7 +48,6 @@ public class DriveCoordinator extends SubsystemBase {
     driveWithJoysticksState = driveStateMachine.registerState(new DriveWithJoysticksState(command));
     testModeState = driveStateMachine.registerState(new DriveTestModeState(drive, command));
 
-
     driveWithJoysticksState.whenRequestedTransitionTo(linearDriveToPoseState);
     driveWithJoysticksState
         .when(testModeManager::isInTestMode, "drive test mode active")

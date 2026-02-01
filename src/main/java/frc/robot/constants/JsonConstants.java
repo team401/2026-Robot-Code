@@ -28,6 +28,7 @@ public class JsonConstants {
         new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
+    aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     driveConstants = jsonHandler.getObject(new DriveConstants(), "DriveConstants.json");
     physicalDriveConstants =
@@ -36,13 +37,18 @@ public class JsonConstants {
     hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
+    hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
+
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
       try {
+        jsonHandler.addRoute("/hopper", hopperConstants);
         jsonHandler.addRoute("/indexer", indexerConstants);
         jsonHandler.addRoute("/turret", turretConstants);
         jsonHandler.addRoute("/hopper", hopperConstants);
         jsonHandler.addRoute("/drive", driveConstants);
+        jsonHandler.addRoute("/hood", hoodConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
@@ -53,6 +59,7 @@ public class JsonConstants {
   }
 
   public static RobotInfo robotInfo;
+  public static AprilTagConstants aprilTagConstants;
   public static FeatureFlags featureFlags;
   public static DriveConstants driveConstants;
   public static PhysicalDriveConstants physicalDriveConstants;
@@ -60,5 +67,8 @@ public class JsonConstants {
   public static HopperConstants hopperConstants;
   public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
+  public static ShooterConstants shooterConstants;
+  public static HoodConstants hoodConstants;
+
   public static Controllers controllers;
 }

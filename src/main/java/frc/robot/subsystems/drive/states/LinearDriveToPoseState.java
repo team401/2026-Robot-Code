@@ -27,47 +27,38 @@ import org.littletonrobotics.junction.Logger;
 /**
  * State that drives the robot linearly toward a desired 2D pose (translation + rotation).
  *
- * <p>Responsibilities:
- * - Accepts a target {@code Pose2d} (via {@code setTargetPose}) and drives the robot toward that
- *   pose using a {@link LinearPath} motion profile for combined linear and angular motion.
- * - Rebuilds the {@link LinearPath} whenever linear or angular trapezoidal profile constraints are
- *   updated via {@code setLinearConstraints}, {@code setAngularConstraints}, or
- *   {@code setConstraints}.
- * - On each periodic update, computes the next goal chassis speeds from the {@link LinearPath},
- *   applies them to the drive subsystem via {@code world.setGoalSpeedsBlueOrigins(...)}, and
- *   records selected diagnostic values to {@code Logger}.
- * - Monitors pose, velocity, and angular error and finishes the state when all errors are within
- *   configurable tolerances.
+ * <p>Responsibilities: - Accepts a target {@code Pose2d} (via {@code setTargetPose}) and drives the
+ * robot toward that pose using a {@link LinearPath} motion profile for combined linear and angular
+ * motion. - Rebuilds the {@link LinearPath} whenever linear or angular trapezoidal profile
+ * constraints are updated via {@code setLinearConstraints}, {@code setAngularConstraints}, or
+ * {@code setConstraints}. - On each periodic update, computes the next goal chassis speeds from the
+ * {@link LinearPath}, applies them to the drive subsystem via {@code
+ * world.setGoalSpeedsBlueOrigins(...)}, and records selected diagnostic values to {@code Logger}. -
+ * Monitors pose, velocity, and angular error and finishes the state when all errors are within
+ * configurable tolerances.
  *
- * <p>Key behavior and contracts:
- * - The class extends {@code State<Drive>} and is intended to be used inside a drive state
- *   machine. The constructor initializes default trapezoidal-profile constraints from
- *   {@code JsonConstants.driveConstants.linearDriveProfile*}.
- * - Constraints are expressed in SI units:
- *   - Linear velocities/accelerations: meters / seconds and meters / seconds^2.
- *   - Angular velocities/accelerations: radians / seconds and radians / seconds^2.
- * - The periodic update uses the configured robot period value obtained from
- *   {@code JsonConstants.robotInfo.robotPeriod.in(Seconds)} when invoking
- *   {@code LinearPath.calculate(...)}.
- * - The state records the following Logger keys (example):
- *   - "Drive/LinearDriveToPoseState/goalOmegaRadPerSec"
- *   - "Drive/LinearDriveToPoseState/actualOmegaRadPerSec"
+ * <p>Key behavior and contracts: - The class extends {@code State<Drive>} and is intended to be
+ * used inside a drive state machine. The constructor initializes default trapezoidal-profile
+ * constraints from {@code JsonConstants.driveConstants.linearDriveProfile*}. - Constraints are
+ * expressed in SI units: - Linear velocities/accelerations: meters / seconds and meters /
+ * seconds^2. - Angular velocities/accelerations: radians / seconds and radians / seconds^2. - The
+ * periodic update uses the configured robot period value obtained from {@code
+ * JsonConstants.robotInfo.robotPeriod.in(Seconds)} when invoking {@code LinearPath.calculate(...)}.
+ * - The state records the following Logger keys (example): -
+ * "Drive/LinearDriveToPoseState/goalOmegaRadPerSec" -
+ * "Drive/LinearDriveToPoseState/actualOmegaRadPerSec"
  *
- * <p>Finish condition:
- * - The state calls {@code finish()} when all of the following are true:
- *   - Current heading is within {@code JsonConstants.driveConstants.linearDriveMaxAngularError} of
- *     the target heading.
- *   - Position error is within {@code JsonConstants.driveConstants.linearDriveMaxPositionError}.
- *   - Linear speed is within {@code JsonConstants.driveConstants.linearDriveMaxLinearVelocityError}
- *     of zero.
- *   - Angular velocity is within {@code JsonConstants.driveConstants.linearDriveMaxAngularVelocityError}
- *     of zero.
+ * <p>Finish condition: - The state calls {@code finish()} when all of the following are true: -
+ * Current heading is within {@code JsonConstants.driveConstants.linearDriveMaxAngularError} of the
+ * target heading. - Position error is within {@code
+ * JsonConstants.driveConstants.linearDriveMaxPositionError}. - Linear speed is within {@code
+ * JsonConstants.driveConstants.linearDriveMaxLinearVelocityError} of zero. - Angular velocity is
+ * within {@code JsonConstants.driveConstants.linearDriveMaxAngularVelocityError} of zero.
  *
- * <p>Usage notes:
- * - Clients must provide a non-null target pose via {@code setTargetPose} before relying on the
- *   state to drive to a location.
- * - Constraints may be adjusted at runtime; changing constraints causes a new {@link LinearPath}
- *   instance to be constructed so that subsequent periodic calls use the updated profile.
+ * <p>Usage notes: - Clients must provide a non-null target pose via {@code setTargetPose} before
+ * relying on the state to drive to a location. - Constraints may be adjusted at runtime; changing
+ * constraints causes a new {@link LinearPath} instance to be constructed so that subsequent
+ * periodic calls use the updated profile.
  */
 public class LinearDriveToPoseState extends State<Drive> {
 
@@ -117,7 +108,6 @@ public class LinearDriveToPoseState extends State<Drive> {
             JsonConstants.driveConstants.linearDriveProfileMaxAngularAcceleration.in(
                 RadiansPerSecondPerSecond)));
   }
-
 
   @Override
   protected void periodic(StateMachine<Drive> stateMachine, Drive world) {

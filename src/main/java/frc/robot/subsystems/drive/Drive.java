@@ -66,7 +66,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
               JsonConstants.physicalDriveConstants.kSpeedAt12Volts.in(MetersPerSecond),
               WHEEL_COF,
               DCMotor.getKrakenX60Foc(1)
-                  .withReduction(JsonConstants.physicalDriveConstants.FrontLeft.DriveMotorGearRatio),
+                  .withReduction(
+                      JsonConstants.physicalDriveConstants.FrontLeft.DriveMotorGearRatio),
               JsonConstants.physicalDriveConstants.FrontLeft.SlipCurrent,
               1),
           getModuleTranslations());

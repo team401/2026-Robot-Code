@@ -15,5 +15,4 @@ public class DriveWithJoysticksState extends CommandState<Drive> {
   public DriveWithJoysticksState(DriveWithJoysticks driveCommand) {
     this("DriveWithJoysticks", driveCommand);
   }
-  
 }
