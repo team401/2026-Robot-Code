@@ -186,7 +186,8 @@ public class InitSubsystems {
             dependencyOrderedExecutor,
             new DigitalInputIOCANdi(
                 new CANDeviceID(
-                    JsonConstants.robotInfo.CANBus, JsonConstants.robotInfo.homingSwitchCANdiID),
+                    JsonConstants.robotInfo.CANBus,
+                    JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
                 JsonConstants.robotInfo.homingSwitchSignal));
       case SIM:
@@ -195,7 +196,8 @@ public class InitSubsystems {
             dependencyOrderedExecutor,
             new DigitalInputIOCANdiSimNT(
                 new CANDeviceID(
-                    JsonConstants.robotInfo.CANBus, JsonConstants.robotInfo.homingSwitchCANdiID),
+                    JsonConstants.robotInfo.CANBus,
+                    JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
                 JsonConstants.robotInfo.homingSwitchSignal,
                 "HomingSwitchSim/isOpen",
