@@ -5,7 +5,6 @@
   },
   "hopperDemoMode": true,
   "hopperReduction": 1.0,
-  "hopperKrakenId": 11,
   "sensorToMechanismRatio": 1.0,
   "hopperMotorInvertedValue": "Clockwise_Positive",
   "hopperNeutralModeValue": "Brake",

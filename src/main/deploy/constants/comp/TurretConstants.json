@@ -20,7 +20,6 @@
     "value": 0.0,
     "unit": "Degree"
   },
-  "turretKrakenId": 9,
   "turretKP": 2500.0,
   "turretKI": 0.0,
   "turretKD": 900.0,

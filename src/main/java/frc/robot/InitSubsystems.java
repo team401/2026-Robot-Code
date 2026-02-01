@@ -189,7 +189,7 @@ public class InitSubsystems {
             new DigitalInputIOCANdi(
                 new CANDeviceID(
                     new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                    JsonConstants.robotInfo.homingSwitchCANdiID),
+                    JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
                 JsonConstants.robotInfo.homingSwitchSignal));
       case SIM:
@@ -199,7 +199,7 @@ public class InitSubsystems {
             new DigitalInputIOCANdiSimNT(
                 new CANDeviceID(
                     new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                    JsonConstants.robotInfo.homingSwitchCANdiID),
+                    JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
                 JsonConstants.robotInfo.homingSwitchSignal,
                 "HomingSwitchSim/isOpen",

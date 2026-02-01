@@ -22,8 +22,6 @@ public class RobotInfo {
           Units.inchesToMeters(17.0),
           new Rotation3d());
 
-  public final Integer homingSwitchCANdiID = 14; // TODO: Real id
-
   public final CANdiSignal homingSwitchSignal = CANdiSignal.S1;
 
   public final CANdiConfiguration buildHomingSwitchConfig() {
