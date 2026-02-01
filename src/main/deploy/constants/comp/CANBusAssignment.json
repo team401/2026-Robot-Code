@@ -1,7 +1,7 @@
 {
-  "hoodKrakenId": 13,
-  "hopperKrakenId": 11,
+  "turretKrakenId": 9,
   "indexerKrakenId": 10,
-  "homingSwitchCANdiID": 14,
-  "turretKrakenId": 9
+  "hopperKrakenId": 11,
+  "hoodKrakenId": 13,
+  "homingSwitchCANdiID": 14
 }

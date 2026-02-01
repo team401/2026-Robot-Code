@@ -46,7 +46,6 @@ public class HopperConstants {
    * using CAD to find the angle of the "negative direction" hardstop.
    */
   public Double hopperKP = 16.0;
-
   public Double hopperKI = 0.0;
   public Double hopperKD = 0.0;
   public Double hopperKS = 0.0;
