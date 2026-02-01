@@ -392,12 +392,14 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   }
 
   public void setSteerGains(PIDGains gains) {
+    JsonConstants.driveConstants.steerGains = gains;
     for (var module : modules) {
       module.setSteerGains(gains);
     }
   }
 
   public void setDriveGains(PIDGains gains) {
+    JsonConstants.driveConstants.driveGains = gains;
     for (var module : modules) {
       module.setDriveGains(gains);
     }

@@ -46,7 +46,6 @@ public class JsonConstants {
         jsonHandler.addRoute("/hopper", hopperConstants);
         jsonHandler.addRoute("/indexer", indexerConstants);
         jsonHandler.addRoute("/turret", turretConstants);
-        jsonHandler.addRoute("/hopper", hopperConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
       } catch (Exception ex) {
