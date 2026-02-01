@@ -45,9 +45,8 @@ public class HopperConstants {
    * The robot-relative angle that the hopper is at once it has homed. This should be determined
    * using CAD to find the angle of the "negative direction" hardstop.
    */
-  public final Integer hopperKrakenId = 11; // TODO: Verify this ID
-
   public Double hopperKP = 16.0;
+
   public Double hopperKI = 0.0;
   public Double hopperKD = 0.0;
   public Double hopperKS = 0.0;
@@ -65,7 +64,9 @@ public class HopperConstants {
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), hopperKrakenId))
+            new CANDeviceID(
+                new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                JsonConstants.canBusAssignment.hopperKrakenId))
         .build();
   }
 

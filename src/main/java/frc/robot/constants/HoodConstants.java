@@ -73,15 +73,15 @@ public class HoodConstants {
 
   public final Double hoodReduction = 20.0; // TODO: Get real value once design finalizes it
 
-  public final Integer hoodKrakenId = 13; // TODO: Real ID
-
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
         .withName("Hood")
         .withEncoderToMechanismRatio(hoodReduction)
         .withGravityFeedforwardType(GravityFeedforwardType.COSINE_ARM)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), hoodKrakenId))
+            new CANDeviceID(
+                new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                JsonConstants.canBusAssignment.hoodKrakenId))
         .build();
   }
 
