@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
@@ -177,6 +179,37 @@ public class InitSubsystems {
       default:
         // Replayed robot, disable IO implementations
         return new HoodSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+    }
+  }
+
+  public static ShooterSubsystem initShooterSubsystem(
+      DependencyOrderedExecutor dependencyOrderedExecutor) {
+    MechanismConfig mechanismConfig = JsonConstants.shooterConstants.buildMechanismConfig();
+    TalonFXConfiguration talonFXConfigs = JsonConstants.shooterConstants.buildTalonFXConfigs();
+
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new ShooterSubsystem(
+            dependencyOrderedExecutor,
+            MotorIOTalonFX.newLeader(mechanismConfig, talonFXConfigs),
+            MotorIOTalonFX.newFollower(mechanismConfig, 0, talonFXConfigs),
+            MotorIOTalonFX.newFollower(mechanismConfig, 1, talonFXConfigs));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        return new ShooterSubsystem(
+            dependencyOrderedExecutor,
+            MotorIOTalonFXSim.newLeader(
+                mechanismConfig, talonFXConfigs, JsonConstants.shooterConstants.buildShooterSim()),
+            MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs),
+            MotorIOTalonFXSim.newFollower(mechanismConfig, 1, talonFXConfigs));
+      default:
+        // Replayed robot, disable IO implementations
+        return new ShooterSubsystem(
+            dependencyOrderedExecutor,
+            new MotorIOReplay(),
+            new MotorIOReplay(),
+            new MotorIOReplay());
     }
   }
 

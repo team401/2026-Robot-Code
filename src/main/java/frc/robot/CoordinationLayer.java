@@ -22,6 +22,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -36,6 +37,7 @@ public class CoordinationLayer {
   private Optional<HopperSubsystem> hopper = Optional.empty();
   private Optional<IndexerSubsystem> indexer = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
+  private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
   private Optional<HomingSwitch> homingSwitch = Optional.empty();
@@ -109,6 +111,22 @@ public class CoordinationLayer {
   }
 
   /**
+   * Sets the shooter instance for the CoordinationLayer to use.
+   *
+   * <p>This method must run before the DependencyOrderedExecutor's schedule is finalized, as it
+   * adds dependencies. However, if the shooter subsystem is disabled in FeatureFlags, it does not
+   * need to be called at all.
+   *
+   * @param shooter The ShooterSubsystem instance to use
+   */
+  public void setShooter(ShooterSubsystem shooter) {
+    checkForDuplicateSubsystem(this.shooter, "Shooter");
+
+    this.shooter = Optional.of(shooter);
+    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, ShooterSubsystem.UPDATE_INPUTS);
+  }
+
+  /**
    * Sets the hood instance for the CoordinationLayer to use.
    *
    * <p>This method must run before the DependencyOrderedExecutor's schedule is finalized, as it
@@ -118,9 +136,7 @@ public class CoordinationLayer {
    * @param hood The HoodSubsystem instance to use
    */
   public void setHood(HoodSubsystem hood) {
-    if (this.hood.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setHood was called twice!");
-    }
+    checkForDuplicateSubsystem(this.hood, "Hood");
 
     this.hood = Optional.of(hood);
 
@@ -131,9 +147,7 @@ public class CoordinationLayer {
   }
 
   public void setHomingSwitch(HomingSwitch homingSwitch) {
-    if (this.homingSwitch.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setHomingSwitch was called twice!");
-    }
+    checkForDuplicateSubsystem(this.homingSwitch, "HomingSwitch");
 
     this.homingSwitch = Optional.of(homingSwitch);
 

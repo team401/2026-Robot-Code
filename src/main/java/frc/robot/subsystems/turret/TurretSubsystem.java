@@ -96,7 +96,6 @@ public class TurretSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber turretKS;
   LoggedTunableNumber turretKV;
   LoggedTunableNumber turretKA;
-  LoggedTunableNumber turretKG;
 
   LoggedTunableNumber turretExpoKV;
   LoggedTunableNumber turretExpoKA;
