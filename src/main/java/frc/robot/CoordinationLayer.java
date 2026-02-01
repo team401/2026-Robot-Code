@@ -120,9 +120,7 @@ public class CoordinationLayer {
    * @param shooter The ShooterSubsystem instance to use
    */
   public void setShooter(ShooterSubsystem shooter) {
-    if (this.shooter.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setShooter was called twice!");
-    }
+    checkForDuplicateSubsystem(this.shooter, "Shooter");
 
     this.shooter = Optional.of(shooter);
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, ShooterSubsystem.UPDATE_INPUTS);
@@ -138,9 +136,7 @@ public class CoordinationLayer {
    * @param hood The HoodSubsystem instance to use
    */
   public void setHood(HoodSubsystem hood) {
-    if (this.hood.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setHood was called twice!");
-    }
+    checkForDuplicateSubsystem(this.hood, "Hood");
 
     this.hood = Optional.of(hood);
 
@@ -151,9 +147,7 @@ public class CoordinationLayer {
   }
 
   public void setHomingSwitch(HomingSwitch homingSwitch) {
-    if (this.homingSwitch.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setHomingSwitch was called twice!");
-    }
+    checkForDuplicateSubsystem(this.homingSwitch, "HomingSwitch");
 
     this.homingSwitch = Optional.of(homingSwitch);
 

@@ -100,6 +100,8 @@ public class RobotContainer {
 
     if (JsonConstants.featureFlags.runShooter) {
       ShooterSubsystem shooter = InitSubsystems.initShooterSubsystem(dependencyOrderedExecutor);
+
+      coordinationLayer.setShooter(shooter);
     }
 
     if (JsonConstants.featureFlags.useHomingSwitch) {
