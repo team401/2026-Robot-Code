@@ -40,7 +40,7 @@ public abstract class TurretState extends State<TurretSubsystem> {
   public static class HomingWaitForButtonState extends TurretState {
     @Override
     public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
-      if (turret.getDependenciesObject().isHomingSwitchPressed) {
+      if (turret.getDependencies().isHomingSwitchPressed()) {
         zeroTurretAndFinish(turret);
       }
     }
@@ -81,6 +81,18 @@ public abstract class TurretState extends State<TurretSubsystem> {
           < JsonConstants.turretConstants.homingMovementThreshold.in(velocityComparisonUnit)) {
         zeroTurretAndFinish(turret);
       }
+    }
+  }
+
+  /**
+   * The TrackHeadingState executes {@link TurretSubsystem.TurretAction#TrackHeading} by
+   * continuously commanding the turret to track its goal heading, as informed by the coordination
+   * layer.
+   */
+  public static class TrackHeadingState extends TurretState {
+    @Override
+    public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
+      turret.controlToGoalHeading();
     }
   }
 
