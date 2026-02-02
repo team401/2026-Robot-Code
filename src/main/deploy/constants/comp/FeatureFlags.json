@@ -3,5 +3,7 @@
   "runHopper": true,
   "runIndexer": true,
   "runTurret": true,
+  "runHood": true,
+  "useHomingSwitch": true,
   "useTuningServer": true
 }

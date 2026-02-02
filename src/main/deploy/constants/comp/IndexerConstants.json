@@ -2,7 +2,6 @@
   "indexerReduction": 1.0,
   "indexerMaximumRelativeVelocityError": 0.01,
   "indexerDemoMode": false,
-  "indexerKrakenId": 10,
   "indexerKP": 10.0,
   "indexerKI": 5.0,
   "indexerKD": 0.0,

@@ -1,21 +1,28 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import frc.robot.constants.JsonConstants;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
+import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
+import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -121,11 +128,13 @@ public class InitSubsystems {
     }
   }
 
-  public static TurretSubsystem initTurretSubsystem() {
+  public static TurretSubsystem initTurretSubsystem(
+      DependencyOrderedExecutor dependencyOrderedExecutor) {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         return new TurretSubsystem(
+            dependencyOrderedExecutor,
             MotorIOTalonFX.newLeader(
                 JsonConstants.turretConstants.buildMechanismConfig(),
                 JsonConstants.turretConstants.buildTalonFXConfigs()));
@@ -133,6 +142,7 @@ public class InitSubsystems {
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.turretConstants.buildMechanismConfig();
         return new TurretSubsystem(
+            dependencyOrderedExecutor,
             MotorIOTalonFXSim.newLeader(
                     config,
                     JsonConstants.turretConstants.buildTalonFXConfigs(),
@@ -140,7 +150,63 @@ public class InitSubsystems {
                 .withMotorType(MotorType.KrakenX44));
       default:
         // Replayed robot, disable IO implementations
-        return new TurretSubsystem(new MotorIOReplay());
+        return new TurretSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+    }
+  }
+
+  public static HoodSubsystem initHoodSubsystem(
+      DependencyOrderedExecutor dependencyOrderedExecutor) {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new HoodSubsystem(
+            dependencyOrderedExecutor,
+            MotorIOTalonFX.newLeader(
+                JsonConstants.hoodConstants.buildMechanismConfig(),
+                JsonConstants.hoodConstants.buildTalonFXConfigs()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig config = JsonConstants.hoodConstants.buildMechanismConfig();
+        return new HoodSubsystem(
+            dependencyOrderedExecutor,
+            MotorIOTalonFXSim.newLeader(
+                    config,
+                    JsonConstants.hoodConstants.buildTalonFXConfigs(),
+                    JsonConstants.hoodConstants.buildHoodSim())
+                .withMotorType(MotorType.KrakenX44));
+      default:
+        // Replayed robot, disable IO implementations
+        return new HoodSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+    }
+  }
+
+  public static HomingSwitch initHomingSwitch(DependencyOrderedExecutor dependencyOrderedExecutor) {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new HomingSwitch(
+            dependencyOrderedExecutor,
+            new DigitalInputIOCANdi(
+                new CANDeviceID(
+                    new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                    JsonConstants.canBusAssignment.homingSwitchCANdiID),
+                JsonConstants.robotInfo.buildHomingSwitchConfig(),
+                JsonConstants.robotInfo.homingSwitchSignal));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        return new HomingSwitch(
+            dependencyOrderedExecutor,
+            new DigitalInputIOCANdiSimNT(
+                new CANDeviceID(
+                    new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                    JsonConstants.canBusAssignment.homingSwitchCANdiID),
+                JsonConstants.robotInfo.buildHomingSwitchConfig(),
+                JsonConstants.robotInfo.homingSwitchSignal,
+                "HomingSwitchSim/isOpen",
+                false));
+      default:
+        // Replayed robot, disable IO implementations
+        return new HomingSwitch(dependencyOrderedExecutor, new DigitalInputIOReplay());
     }
   }
 }

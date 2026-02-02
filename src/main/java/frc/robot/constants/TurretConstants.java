@@ -40,15 +40,12 @@ public class TurretConstants {
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
-  public final Time homingMaxOverallTime = Seconds.of(10.0);
 
   /**
    * The robot-relative angle that the turret is at once it has homed. This should be determined
    * using CAD to find the angle of the "negative direction" hardstop.
    */
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
-
-  public final Integer turretKrakenId = 9; // TODO: Verify this ID
 
   // TODO: Root cause why turret sim requires such ridiculous gains to function properly
   // These gains are CRAZY. MAKE SURE that you change these gains before deploying to a robot, or it
@@ -74,7 +71,9 @@ public class TurretConstants {
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), turretKrakenId))
+            new CANDeviceID(
+                new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                JsonConstants.canBusAssignment.turretKrakenId))
         .build();
   }
 
@@ -93,7 +92,11 @@ public class TurretConstants {
   public final Angle minTurretAngle = Degrees.of(-5.0);
   public final Angle maxTurretAngle = Degrees.of(350);
 
-  // = this number
+  /**
+   * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
+   * headingToTurretAngle = turretRelativeAngle
+   */
+  public final Angle headingToTurretAngle = Degrees.of(-45.0); // TODO: Real value
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
