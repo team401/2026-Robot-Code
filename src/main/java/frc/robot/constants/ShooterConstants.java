@@ -71,7 +71,7 @@ public class ShooterConstants {
   public final Integer shooterTopFollowerMotorId = 15;
   public final Integer shooterBottomFollowerMotorId = 16;
 
-  public Double shooterKP = 4.0;
+  public Double shooterKP = 48.0;
   public Double shooterKI = 0.0;
   public Double shooterKD = 0.0;
   public Double shooterKS = 0.0;
@@ -101,7 +101,7 @@ public class ShooterConstants {
   public final NeutralModeValue defaultShooterNeutralMode = NeutralModeValue.Brake;
 
   public AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
-  public AngularAcceleration shooterMaxAcceleration = RPM.of(1000).per(Second);
+  public AngularAcceleration shooterMaxAcceleration = RPM.of(3000).per(Second);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
@@ -155,9 +155,7 @@ public class ShooterConstants {
         buildMechanismConfig(),
         new FlywheelSim(
             LinearSystemId.createFlywheelSystem(
-                DCMotor.getKrakenX60Foc(1),
-                shooterMOI.in(KilogramSquareMeters),
-                shooterReduction),
-            DCMotor.getKrakenX60Foc(1)));
+                DCMotor.getKrakenX60Foc(3), shooterMOI.in(KilogramSquareMeters), 1.0),
+            DCMotor.getKrakenX60Foc(3)));
   }
 }

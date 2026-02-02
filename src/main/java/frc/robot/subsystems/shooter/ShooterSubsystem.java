@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -148,7 +149,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    Logger.recordOutput("Shooter/TargetVelocity", targetVelocity);
+    Logger.recordOutput("Shooter/TargetVelocityRadPerSec", targetVelocity.in(RadiansPerSecond));
 
     stateMachine.periodic();
   }

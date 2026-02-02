@@ -13,7 +13,7 @@
   "shooterLeadMotorId": 14,
   "shooterTopFollowerMotorId": 15,
   "shooterBottomFollowerMotorId": 16,
-  "shooterKP": 4.0,
+  "shooterKP": 48.0,
   "shooterKI": 0.0,
   "shooterKD": 0.0,
   "shooterKS": 0.0,
@@ -37,7 +37,7 @@
     "unit": "Rotation per Minute"
   },
   "shooterMaxAcceleration": {
-    "value": 104.71975511965977,
+    "value": 314.1592653589793,
     "unit": "Radian per Second per Second"
   },
   "shooterMOI": {
