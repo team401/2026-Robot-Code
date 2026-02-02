@@ -21,7 +21,6 @@ import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
-import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -29,7 +28,8 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.util.sim.FlywheelSimAdapter;
 
 public class ShooterConstants {
   public final Double[] distanceToViDistancesMeters = {1.8, 2.0, 3.5};
@@ -148,16 +148,16 @@ public class ShooterConstants {
   }
 
   // TODO: Find a reasonable value for this MOI
-  public final MomentOfInertia shooterMOI = KilogramSquareMeters.of(0.0005);
+  public final MomentOfInertia shooterMOI = KilogramSquareMeters.of(0.0049163462);
 
   public CoppercoreSimAdapter buildShooterSim() {
-    return new DCMotorSimAdapter(
+    return new FlywheelSimAdapter(
         buildMechanismConfig(),
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60Foc(3),
+        new FlywheelSim(
+            LinearSystemId.createFlywheelSystem(
+                DCMotor.getKrakenX60Foc(1),
                 shooterMOI.in(KilogramSquareMeters),
-                1 / shooterReduction),
-            DCMotor.getKrakenX60Foc(3)));
+                shooterReduction),
+            DCMotor.getKrakenX60Foc(1)));
   }
 }

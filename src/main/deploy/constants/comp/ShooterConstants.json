@@ -13,11 +13,11 @@
   "shooterLeadMotorId": 14,
   "shooterTopFollowerMotorId": 15,
   "shooterBottomFollowerMotorId": 16,
-  "shooterKP": 0.0,
+  "shooterKP": 4.0,
   "shooterKI": 0.0,
   "shooterKD": 0.0,
   "shooterKS": 0.0,
-  "shooterKV": 0.0,
+  "shooterKV": 1.85,
   "shooterKA": 0.0,
   "shooterReduction": 0.625,
   "shooterSupplyCurrentLimit": {
@@ -41,7 +41,7 @@
     "unit": "Radian per Second per Second"
   },
   "shooterMOI": {
-    "value": 5.0E-4,
+    "value": 0.0049163462,
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
   }
 }
