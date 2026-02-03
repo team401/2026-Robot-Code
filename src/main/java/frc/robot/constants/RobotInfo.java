@@ -23,9 +23,6 @@ public class RobotInfo {
 
   // JSON Only Fields (For initializing values from JSON files)
 
-  // TODO: Start a comprehensive list of all CAN ids on the robot (either in google sheets, a
-  // markdown file here, or one CANConstants.{java, json} file)
-
   // Private here, everyone else should use the CANBus object below
   private final String canivoreBusName = "canivore";
 
@@ -44,8 +41,6 @@ public class RobotInfo {
           Units.inchesToMeters(-2.088),
           Units.inchesToMeters(17.0),
           new Rotation3d());
-
-  public final Integer homingSwitchCANdiID = 14; // TODO: Real id; move to CANBus assignment file
 
   public final CANdiSignal homingSwitchSignal = CANdiSignal.S1;
 

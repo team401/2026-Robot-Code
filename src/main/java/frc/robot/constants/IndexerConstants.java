@@ -30,8 +30,6 @@ public class IndexerConstants {
 
   public final Boolean indexerDemoMode = false;
 
-  public final Integer indexerKrakenId = 10; // TODO: Verify this ID
-
   public Double indexerKP = 10.0;
   public Double indexerKI = 5.0;
   public Double indexerKD = 0.0;
@@ -49,7 +47,9 @@ public class IndexerConstants {
         .withEncoderToMechanismRatio(indexerReduction)
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
-        .withLeadMotorId(new CANDeviceID(JsonConstants.robotInfo.CANBus, indexerKrakenId))
+        .withLeadMotorId(
+            new CANDeviceID(
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.indexerKrakenId))
         .build();
   }
 
