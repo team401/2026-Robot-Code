@@ -19,6 +19,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -33,6 +34,7 @@ import org.littletonrobotics.junction.Logger;
 public class CoordinationLayer {
   // Subsystems
   private Optional<Drive> drive = Optional.empty();
+  private Optional<DriveCoordinator> driveCoordinator = Optional.empty();
   private Optional<HopperSubsystem> hopper = Optional.empty();
   private Optional<IndexerSubsystem> indexer = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
@@ -78,6 +80,11 @@ public class CoordinationLayer {
     checkForDuplicateSubsystem(this.drive, "Drive");
     this.drive = Optional.of(drive);
   }
+
+  public void setDriveCoordinator(DriveCoordinator driveCoordinator) {
+    checkForDuplicateSubsystem(this.driveCoordinator, "DriveCoordinator");
+    this.driveCoordinator = Optional.of(driveCoordinator);
+  } 
 
   public void setHopper(HopperSubsystem hopper) {
     checkForDuplicateSubsystem(this.hopper, "Hopper");
