@@ -23,9 +23,6 @@ public class RobotInfo {
 
   // JSON Only Fields (For initializing values from JSON files)
 
-  // TODO: Start a comprehensive list of all CAN ids on the robot (either in google sheets, a
-  // markdown file here, or one CANConstants.{java, json} file)
-
   // Private here, everyone else should use the CANBus object below
   private final String canivoreBusName = "canivore";
 
