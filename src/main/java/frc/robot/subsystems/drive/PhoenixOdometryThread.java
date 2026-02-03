@@ -37,7 +37,6 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-  private static boolean isCANFD = JsonConstants.robotInfo.CANBus.isNetworkFD();
   private static PhoenixOdometryThread instance = null;
 
   public static PhoenixOdometryThread getInstance() {
@@ -110,7 +109,7 @@ public class PhoenixOdometryThread extends Thread {
       // Wait for updates from all signals
       signalsLock.lock();
       try {
-        if (isCANFD && phoenixSignals.length > 0) {
+        if (JsonConstants.robotInfo.CANBus.isNetworkFD() && phoenixSignals.length > 0) {
           BaseStatusSignal.waitForAll(
               2.0 / JsonConstants.robotInfo.ODOMETRY_FREQUENCY, phoenixSignals);
         } else {

@@ -53,7 +53,7 @@ public class DriveConstants {
   // This is the maximum allowable angular speed to consider the robot "at" the target
   public final AngularVelocity linearDriveMaxAngularVelocityError = RadiansPerSecond.of(0.05);
 
-  public PIDGains steerGains = new PIDGains(100, 0.0, 0.5, 0.1, 2.49, 0.0);
+  public PIDGains steerGains = new PIDGains(100, 0.0, 0.5, 0.1, 0.0, 2.49, 0.0);
 
-  public PIDGains driveGains = new PIDGains(0.1, 0.0, 0.0, 0.20845, 0.75722, 0.0);
+  public PIDGains driveGains = new PIDGains(0.1, 0.0, 0.0, 0.20845, 0.0, 0.75722, 0.0);
 }
