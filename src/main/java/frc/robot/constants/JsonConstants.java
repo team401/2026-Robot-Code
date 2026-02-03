@@ -30,11 +30,11 @@ public class JsonConstants {
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
+    canBusAssignment = jsonHandler.getObject(new CANBusAssignment(), "CANBusAssignment.json");
     driveConstants = jsonHandler.getObject(new DriveConstants(), "DriveConstants.json");
     physicalDriveConstants =
         jsonHandler.getObject(new PhysicalDriveConstants(), "PhysicalDriveConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
-    canBusAssignment = jsonHandler.getObject(new CANBusAssignment(), "CANBusAssignment.json");
     hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
