@@ -27,9 +27,6 @@ public class ControllerSetup {
    */
   public static void initDriveBindings(DriveCoordinator driveCoordinator, Drive drive) {
     var controllers = getControllers();
-    /* By making DriveWithJoysticks the default command for the drive subsystem,
-     * we ensure that it is run iff no other Command that uses the drive subsystem
-     * is activated. */
     driveCoordinator.createStateMachine(
         new DriveWithJoysticks(
             drive,
