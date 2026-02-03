@@ -4,12 +4,17 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+
+import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 
 public class ModuleConfig {
+  @JSONExclude
   public Integer driveMotorId;
+  @JSONExclude
   public Integer steerMotorId;
+  @JSONExclude
   public Integer encoderId;
   public Angle encoderOffset;
   public Boolean steerMotorInverted;

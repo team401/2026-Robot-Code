@@ -86,9 +86,6 @@ public class PhysicalDriveConstants {
 
   private final ModuleConfig frontLeftModule =
       new ModuleConfig()
-          .withDriveMotorId(7)
-          .withSteerMotorId(2)
-          .withEncoderId(9)
           .withEncoderOffset(Rotations.of(0.113525390625))
           .withSteerMotorInverted(false)
           .withEncoderInverted(false)
@@ -97,9 +94,6 @@ public class PhysicalDriveConstants {
 
   private final ModuleConfig frontRightModule =
       new ModuleConfig()
-          .withDriveMotorId(1)
-          .withSteerMotorId(6)
-          .withEncoderId(12)
           .withEncoderOffset(Rotations.of(-0.136474609375))
           .withSteerMotorInverted(false)
           .withEncoderInverted(false)
@@ -108,9 +102,6 @@ public class PhysicalDriveConstants {
 
   private final ModuleConfig backLeftModule =
       new ModuleConfig()
-          .withDriveMotorId(5)
-          .withSteerMotorId(8)
-          .withEncoderId(10)
           .withEncoderOffset(Rotations.of(0.0986328125))
           .withSteerMotorInverted(false)
           .withEncoderInverted(false)
@@ -119,9 +110,6 @@ public class PhysicalDriveConstants {
 
   private final ModuleConfig backRightModule =
       new ModuleConfig()
-          .withDriveMotorId(3)
-          .withSteerMotorId(4)
-          .withEncoderId(11)
           .withEncoderOffset(Rotations.of(-0.180908203125))
           .withSteerMotorInverted(false)
           .withEncoderInverted(false)
@@ -188,6 +176,28 @@ public class PhysicalDriveConstants {
 
   @AfterJsonLoad
   public void finishLoadingConstants() {
+    frontLeftModule
+        .withDriveMotorId(JsonConstants.canBusAssignment.frontLeftDriveKrakenId)
+        .withSteerMotorId(JsonConstants.canBusAssignment.frontLeftSteerKrakenId)
+        .withEncoderId(JsonConstants.canBusAssignment.frontLeftEncoderId);
+
+    frontRightModule
+        .withDriveMotorId(JsonConstants.canBusAssignment.frontRightDriveKrakenId)
+        .withSteerMotorId(JsonConstants.canBusAssignment.frontRightSteerKrakenId)
+        .withEncoderId(JsonConstants.canBusAssignment.frontRightEncoderId);
+
+    backLeftModule
+        .withDriveMotorId(JsonConstants.canBusAssignment.backLeftDriveKrakenId)
+        .withSteerMotorId(JsonConstants.canBusAssignment.backLeftSteerKrakenId)
+        .withEncoderId(JsonConstants.canBusAssignment.backLeftEncoderId);
+    
+    
+    backRightModule
+        .withDriveMotorId(JsonConstants.canBusAssignment.backRightDriveKrakenId)
+        .withSteerMotorId(JsonConstants.canBusAssignment.backRightSteerKrakenId)
+        .withEncoderId(JsonConstants.canBusAssignment.backRightEncoderId);
+    
+    
     driveGains =
         JsonConstants.driveConstants
             .driveGains
