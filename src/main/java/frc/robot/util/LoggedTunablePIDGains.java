@@ -7,9 +7,9 @@ public class LoggedTunablePIDGains {
   LoggedTunableNumber kI;
   LoggedTunableNumber kD;
   LoggedTunableNumber kS;
+  LoggedTunableNumber kG;
   LoggedTunableNumber kV;
   LoggedTunableNumber kA;
-  LoggedTunableNumber kG;
 
   public LoggedTunablePIDGains(String namePrefix) {
     this(namePrefix, new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
@@ -23,9 +23,9 @@ public class LoggedTunablePIDGains {
           defaultGains.kI(),
           defaultGains.kD(),
           defaultGains.kS(),
+          defaultGains.kG(),
           defaultGains.kV(),
-          defaultGains.kA(),
-          defaultGains.kG()
+          defaultGains.kA()
         });
   }
 
@@ -38,13 +38,13 @@ public class LoggedTunablePIDGains {
     kI = new LoggedTunableNumber(namePrefix + "/kI", defaultValues[1]);
     kD = new LoggedTunableNumber(namePrefix + "/kD", defaultValues[2]);
     kS = new LoggedTunableNumber(namePrefix + "/kS", defaultValues[3]);
-    kV = new LoggedTunableNumber(namePrefix + "/kV", defaultValues[4]);
-    kA = new LoggedTunableNumber(namePrefix + "/kA", defaultValues[5]);
-    kG = new LoggedTunableNumber(namePrefix + "/kG", defaultValues[6]);
+    kG = new LoggedTunableNumber(namePrefix + "/kG", defaultValues[4]);
+    kV = new LoggedTunableNumber(namePrefix + "/kV", defaultValues[5]);
+    kA = new LoggedTunableNumber(namePrefix + "/kA", defaultValues[6]);
   }
 
   public LoggedTunableNumber[] getGainsArray() {
-    return new LoggedTunableNumber[] {kP, kI, kD, kS, kV, kA, kG};
+    return new LoggedTunableNumber[] {kP, kI, kD, kS, kG, kV, kA};
   }
 
   public PIDGains getCurrentGains() {
