@@ -19,6 +19,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -38,6 +39,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<DriveCoordinator> driveCoordinator;
   // Since the RobotContainer doesn't really need a reference to any subsystem except for drive,
   // their references are stored in the CoordinationLayer instead
 
@@ -65,12 +67,15 @@ public class RobotContainer {
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
     if (JsonConstants.featureFlags.runDrive) {
-      Drive driveInstance = InitSubsystems.initDriveSubsystem();
-      drive = Optional.of(driveInstance);
-
-      coordinationLayer.setDrive(driveInstance);
+      Drive drive = InitSubsystems.initDriveSubsystem();
+      DriveCoordinator driveCoordinator = new DriveCoordinator(drive);
+      this.drive = Optional.of(drive);
+      this.driveCoordinator = Optional.of(driveCoordinator);
+      coordinationLayer.setDrive(drive);
+      coordinationLayer.setDriveCoordinator(driveCoordinator);
     } else {
       drive = Optional.empty();
+      driveCoordinator = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runHopper) {
@@ -158,7 +163,13 @@ public class RobotContainer {
     // TODO: Create a robust and clean input/action layer.
 
     // Default command, normal field-relative drive
-    drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));
+    driveCoordinator.ifPresent(
+        driveCoordinator -> {
+          drive.ifPresent(
+              (drive) -> {
+                ControllerSetup.initDriveBindings(driveCoordinator, drive);
+              });
+        });
   }
 
   /**

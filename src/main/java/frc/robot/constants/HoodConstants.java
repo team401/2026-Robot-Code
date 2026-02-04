@@ -10,7 +10,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -80,8 +79,7 @@ public class HoodConstants {
         .withGravityFeedforwardType(GravityFeedforwardType.COSINE_ARM)
         .withLeadMotorId(
             new CANDeviceID(
-                new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                JsonConstants.canBusAssignment.hoodKrakenId))
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.hoodKrakenId))
         .build();
   }
 

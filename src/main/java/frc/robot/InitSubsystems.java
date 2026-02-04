@@ -1,6 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
@@ -8,7 +7,6 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import frc.robot.constants.JsonConstants;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -39,10 +37,10 @@ public class InitSubsystems {
         // a CANcoder
         return new Drive(
             new GyroIOPigeon2(),
-            new ModuleIOTalonFX(TunerConstants.FrontLeft),
-            new ModuleIOTalonFX(TunerConstants.FrontRight),
-            new ModuleIOTalonFX(TunerConstants.BackLeft),
-            new ModuleIOTalonFX(TunerConstants.BackRight));
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.FrontLeft),
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.FrontRight),
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.BackLeft),
+            new ModuleIOTalonFX(JsonConstants.physicalDriveConstants.BackRight));
 
       // The ModuleIOTalonFXS implementation provides an example implementation for
       // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -66,10 +64,10 @@ public class InitSubsystems {
         // Sim robot, instantiate physics sim IO implementations
         return new Drive(
             new GyroIO() {},
-            new ModuleIOSim(TunerConstants.FrontLeft),
-            new ModuleIOSim(TunerConstants.FrontRight),
-            new ModuleIOSim(TunerConstants.BackLeft),
-            new ModuleIOSim(TunerConstants.BackRight));
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.FrontLeft),
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.FrontRight),
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.BackLeft),
+            new ModuleIOSim(JsonConstants.physicalDriveConstants.BackRight));
 
       default:
         // Replayed robot, disable IO implementations
@@ -188,7 +186,7 @@ public class InitSubsystems {
             dependencyOrderedExecutor,
             new DigitalInputIOCANdi(
                 new CANDeviceID(
-                    new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                    JsonConstants.robotInfo.CANBus,
                     JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
                 JsonConstants.robotInfo.homingSwitchSignal));
@@ -198,7 +196,7 @@ public class InitSubsystems {
             dependencyOrderedExecutor,
             new DigitalInputIOCANdiSimNT(
                 new CANDeviceID(
-                    new CANBus(JsonConstants.robotInfo.canivoreBusName),
+                    JsonConstants.robotInfo.CANBus,
                     JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
                 JsonConstants.robotInfo.homingSwitchSignal,
