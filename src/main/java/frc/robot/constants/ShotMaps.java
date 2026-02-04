@@ -58,7 +58,7 @@ public class ShotMaps {
 
     private void initializeFromDataPoints(ShotMapDataPoint[] dataPoints) {
       rpmByDistanceMeters.clear();
-      ;
+
       hoodAngleRadiansByDistanceMeters.clear();
       flightTimeSecondsByDistanceMeters.clear();
       for (var dataPoint : dataPoints) {
@@ -85,6 +85,9 @@ public class ShotMaps {
         // Placeholder datapoint to test
         new ShotMapDataPoint(Meters.of(4.0), 2500, Degrees.of(40.0), Seconds.of(3.0))
       };
+  
+  /** The "extra" delay to add to shot time to compensate for mechanisms reaching their target position. */
+  public Time mechanismCompensationDelay = Seconds.of(0.1);
 
   // Initialized fields (instantiated after json load based on loaded constants)
   /** Initializes the maps and then publishes tuning values for adding values to the map */
@@ -113,6 +116,8 @@ public class ShotMaps {
         new LoggedTunableNumber("ShotMapTuning/hoodAngleDegrees", 0.0);
     LoggedTunableNumber flightTimeSeconds =
         new LoggedTunableNumber("ShotMapTuning/flightTimeSeconds", 0.0);
+    LoggedTunableNumber mechanismCompensationTimeSeconds =
+        new LoggedTunableNumber("ShotMapTuning/compensationTimeSeconds", mechanismCompensationDelay.in(Seconds));
 
     Command addPointToHubMapCommand =
         new InstantCommand(
@@ -129,7 +134,7 @@ public class ShotMaps {
               hubDataPoints = hubList.toArray(new ShotMapDataPoint[0]);
               initializeMaps();
               System.out.println("Updated map");
-            });
+            }).ignoringDisable(true);
 
     Command addPointToPassingMapCommand =
         new InstantCommand(
@@ -145,10 +150,18 @@ public class ShotMaps {
                   Comparator.comparingDouble(dataPoint -> dataPoint.distance().in(Meters)));
               passDataPoints = passList.toArray(new ShotMapDataPoint[0]);
               initializeMaps();
-            });
+            }).ignoringDisable(true);
+    
+    Command updateMechanismDelayCommand =
+        new InstantCommand(
+          () -> {
+            mechanismCompensationDelay = Seconds.of(mechanismCompensationTimeSeconds.getAsDouble());
+          }
+        ).ignoringDisable(true);
 
     SmartDashboard.putData("ShotMapTuning/addHubDataPoint", addPointToHubMapCommand);
     SmartDashboard.putData("ShotMapTuning/addPassDataPoint", addPointToPassingMapCommand);
+    SmartDashboard.putData("ShotMapTuning/updateMechanismDelay", updateMechanismDelayCommand);
   }
 
   /** ShotMap for shooting at the hub */

@@ -215,13 +215,9 @@ public class CoordinationLayer {
         ChassisSpeeds.fromRobotRelativeSpeeds(
             driveInstance.getChassisSpeeds(), robotPose.getRotation());
 
-    Translation2d goalXYPlane = new Translation2d(goalTranslation.getX(), goalTranslation.getY());
+    Translation2d goalXYPlane = goalTranslation.toTranslation2d();
     double shotDistanceXYMeters = robotPose.getTranslation().getDistance(goalXYPlane);
-    Logger.recordOutput("CoordinationLayer/ShotXYDistanceMeters", shotDistanceXYMeters);
-
-    double viMetersPerSecond =
-        JsonConstants.shooterConstants.getViFromDistance(shotDistanceXYMeters);
-    Logger.recordOutput("CoordinationLayer/viMetersPerSecond", viMetersPerSecond);
+    Logger.recordOutput("CoordinationLayer/ShotDistanceMeters", shotDistanceXYMeters);
 
     Optional<ShotInfo> maybeShot =
         ShotCalculations.calculateMovingShot(
