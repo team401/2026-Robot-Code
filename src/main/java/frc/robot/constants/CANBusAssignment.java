@@ -20,17 +20,16 @@ public class CANBusAssignment {
   public final Integer backRightSteerKrakenId = 4; // TODO: Verify this ID
   public final Integer backRightEncoderId = 11; // TODO: Verify this ID
 
-  // The rest of the CAN IDs Should start from _GET_VALUE__ and go up from there
+  public final Integer kPigeonId = 13; // TODO: Verify this ID
 
-  public final Integer turretKrakenId = 9; // TODO: Verify this ID
+  // The rest of the CAN IDs Should start from 14 and go up from there
 
-  public final Integer indexerKrakenId = 10; // TODO: Verify this ID
+  public final Integer turretKrakenId = 14; // TODO: Verify this ID
 
-  public final Integer hopperKrakenId = 11; // TODO: Verify this ID
+  public final Integer indexerKrakenId = 15; // TODO: Verify this ID
 
-  public final Integer hoodKrakenId = 13; // TODO: Real ID
+  public final Integer hopperKrakenId = 16; // TODO: Verify this ID
+  public final Integer hoodKrakenId = 17; // TODO: Real ID
 
-  public final Integer homingSwitchCANdiID = 14; // TODO: Real id
-
-  
+  public final Integer homingSwitchCANdiID = 18; // TODO: Real id
 }

@@ -84,7 +84,7 @@ public class CoordinationLayer {
   public void setDriveCoordinator(DriveCoordinator driveCoordinator) {
     checkForDuplicateSubsystem(this.driveCoordinator, "DriveCoordinator");
     this.driveCoordinator = Optional.of(driveCoordinator);
-  } 
+  }
 
   public void setHopper(HopperSubsystem hopper) {
     checkForDuplicateSubsystem(this.hopper, "Hopper");

@@ -129,8 +129,6 @@ public class PhysicalDriveConstants {
   private final Boolean kInvertLeftSide = true;
   private final Boolean kInvertRightSide = false;
 
-  private final Integer kPigeonId = 13;
-
   private record DrivetrainMotorConfig(
       ClosedLoopOutputType closedLoopOutputType,
       Double gearRatio,
@@ -190,14 +188,12 @@ public class PhysicalDriveConstants {
         .withDriveMotorId(JsonConstants.canBusAssignment.backLeftDriveKrakenId)
         .withSteerMotorId(JsonConstants.canBusAssignment.backLeftSteerKrakenId)
         .withEncoderId(JsonConstants.canBusAssignment.backLeftEncoderId);
-    
-    
+
     backRightModule
         .withDriveMotorId(JsonConstants.canBusAssignment.backRightDriveKrakenId)
         .withSteerMotorId(JsonConstants.canBusAssignment.backRightSteerKrakenId)
         .withEncoderId(JsonConstants.canBusAssignment.backRightEncoderId);
-    
-    
+
     driveGains =
         JsonConstants.driveConstants
             .driveGains
@@ -213,7 +209,7 @@ public class PhysicalDriveConstants {
     DrivetrainConstants =
         new SwerveDrivetrainConstants()
             .withCANBusName(JsonConstants.robotInfo.CANBus.getName())
-            .withPigeon2Id(kPigeonId)
+            .withPigeon2Id(JsonConstants.canBusAssignment.kPigeonId)
             .withPigeon2Configs(pigeonConfigs);
     var constantCreator =
         new SwerveModuleConstantsFactory<
