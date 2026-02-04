@@ -1,0 +1,36 @@
+{
+  "hubDataPoints": [
+    {
+      "distance": {
+        "value": 2.0,
+        "unit": "Meter"
+      },
+      "shooterRPM": 1900.0,
+      "hoodAngle": {
+        "value": 15.0,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 2.0,
+        "unit": "Second"
+      }
+    }
+  ],
+  "passDataPoints": [
+    {
+      "distance": {
+        "value": 4.0,
+        "unit": "Meter"
+      },
+      "shooterRPM": 2500.0,
+      "hoodAngle": {
+        "value": 40.0,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 3.0,
+        "unit": "Second"
+      }
+    }
+  ]
+}

@@ -36,6 +36,7 @@ public class JsonConstants {
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
+    shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -45,6 +46,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/turret", turretConstants);
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
+        jsonHandler.addRoute("/shotmaps", shotMaps);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
@@ -64,6 +66,7 @@ public class JsonConstants {
   public static TurretConstants turretConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
+  public static ShotMaps shotMaps;
 
   public static Controllers controllers;
 }
