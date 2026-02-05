@@ -102,24 +102,23 @@ public class IntakeState {
         case PivotVoltageTuning:
           LoggedTunableNumber.ifChanged(
               hashCode(),
-              (voltage) -> world.pivotMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
+              voltage -> world.pivotMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
               pivotTuningVoltage);
           break;
         case PivotCurrentTuning:
           LoggedTunableNumber.ifChanged(
               hashCode(),
-              (current) -> world.pivotMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
+              current -> world.pivotMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
               pivotTuningCurrent);
           break;
         case PivotClosedLoopTuning:
           pivotTuningGains.ifChanged(
               hashCode(),
-              pivotTuningGains.getMotorIOApplier(
-                  world.pivotMotorIO,
-                  (PIDGains gains) -> JsonConstants.intakeConstants.pivotPIDGains = gains));
+              pivotTuningGains.getMotorIOApplier(world.pivotMotorIO)
+                .chain(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
           LoggedTunableNumber.ifChanged(
               hashCode(),
-              (setpoint) -> world.setTargetPivotAngle(Degrees.of(setpoint[0])),
+              setpoint -> world.setTargetPivotAngle(Degrees.of(setpoint[0])),
               pivotTuningSetpointDegrees);
           break;
         default:
@@ -132,23 +131,22 @@ public class IntakeState {
         case RollerVoltageTuning:
           LoggedTunableNumber.ifChanged(
               hashCode(),
-              (voltage) -> world.rollersLeadMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
+              voltage -> world.rollersLeadMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
               rollerTuningVoltage);
           break;
         case RollerCurrentTuning:
           LoggedTunableNumber.ifChanged(
               hashCode(),
-              (current) -> world.rollersLeadMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
+              current -> world.rollersLeadMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
               rollerTuningCurrent);
           break;
         case RollerClosedLoopTuning:
           rollerTuningGains.ifChanged(
               hashCode(),
-              rollerTuningGains.getMotorIOApplier(
-                  world.rollersLeadMotorIO,
-                  (PIDGains gains) -> JsonConstants.intakeConstants.rollersPIDGains = gains));
+              rollerTuningGains.getMotorIOsApplier(world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
+                  .chain(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains));
           LoggedTunableNumber.ifChanged(
-              hashCode(), (rpm) -> world.runRollers(RPM.of(rpm[0])), rollerTuningSetpointRPM);
+              hashCode(), rpm -> world.runRollers(RPM.of(rpm[0])), rollerTuningSetpointRPM);
           break;
         default:
           break;
