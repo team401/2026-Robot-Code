@@ -71,7 +71,7 @@ public class InitSubsystems {
             new ModuleIOSim(JsonConstants.physicalDriveConstants.BackLeft),
             new ModuleIOSim(JsonConstants.physicalDriveConstants.BackRight));
 
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new Drive(
             new GyroIO() {},
@@ -79,6 +79,8 @@ public class InitSubsystems {
             new ModuleIO() {},
             new ModuleIO() {},
             new ModuleIO() {});
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -99,9 +101,11 @@ public class InitSubsystems {
                 JsonConstants.hopperConstants.buildTalonFXConfigs(),
                 JsonConstants.hopperConstants.buildHopperSim()));
 
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new HopperSubsystem(new MotorIOReplay() {});
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -122,9 +126,11 @@ public class InitSubsystems {
                     JsonConstants.indexerConstants.buildTalonFXConfigs(),
                     JsonConstants.indexerConstants.buildIndexerSim())
                 .withMotorType(MotorType.KrakenX44));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new IndexerSubsystem(new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -148,9 +154,11 @@ public class InitSubsystems {
                     JsonConstants.turretConstants.buildTalonFXConfigs(),
                     JsonConstants.turretConstants.buildTurretSim())
                 .withMotorType(MotorType.KrakenX44));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new TurretSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -174,9 +182,11 @@ public class InitSubsystems {
                     JsonConstants.hoodConstants.buildTalonFXConfigs(),
                     JsonConstants.hoodConstants.buildHoodSim())
                 .withMotorType(MotorType.KrakenX44));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new HoodSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -201,13 +211,15 @@ public class InitSubsystems {
                 mechanismConfig, talonFXConfigs, JsonConstants.shooterConstants.buildShooterSim()),
             MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs),
             MotorIOTalonFXSim.newFollower(mechanismConfig, 1, talonFXConfigs));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new ShooterSubsystem(
             dependencyOrderedExecutor,
             new MotorIOReplay(),
             new MotorIOReplay(),
             new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -235,9 +247,11 @@ public class InitSubsystems {
                 JsonConstants.robotInfo.homingSwitchSignal,
                 "HomingSwitchSim/isOpen",
                 false));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new HomingSwitch(dependencyOrderedExecutor, new DigitalInputIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 }
