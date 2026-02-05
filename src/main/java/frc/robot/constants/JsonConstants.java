@@ -5,6 +5,8 @@ import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.constants.drive.DriveConstants;
+import frc.robot.constants.drive.PhysicalDriveConstants;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -28,8 +30,10 @@ public class JsonConstants {
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
-    drivetrainConstants =
-        jsonHandler.getObject(new DrivetrainConstants(), "DrivetrainConstants.json");
+    canBusAssignment = jsonHandler.getObject(new CANBusAssignment(), "CANBusAssignment.json");
+    driveConstants = jsonHandler.getObject(new DriveConstants(), "DriveConstants.json");
+    physicalDriveConstants =
+        jsonHandler.getObject(new PhysicalDriveConstants(), "PhysicalDriveConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
     hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
@@ -45,6 +49,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/indexer", indexerConstants);
         jsonHandler.addRoute("/turret", turretConstants);
         jsonHandler.addRoute("/shooter", shooterConstants);
+        jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
         jsonHandler.addRoute("/shotmaps", shotMaps);
       } catch (Exception ex) {
@@ -58,8 +63,10 @@ public class JsonConstants {
 
   public static RobotInfo robotInfo;
   public static AprilTagConstants aprilTagConstants;
+  public static CANBusAssignment canBusAssignment;
   public static FeatureFlags featureFlags;
-  public static DrivetrainConstants drivetrainConstants;
+  public static DriveConstants driveConstants;
+  public static PhysicalDriveConstants physicalDriveConstants;
   public static OperatorConstants operatorConstants;
   public static HopperConstants hopperConstants;
   public static IndexerConstants indexerConstants;

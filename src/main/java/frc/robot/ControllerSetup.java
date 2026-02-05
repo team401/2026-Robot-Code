@@ -4,6 +4,7 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
@@ -24,20 +25,17 @@ public class ControllerSetup {
    *
    * @param drive A Drive object, the drive subsystem to set the command for
    */
-  public static void initDriveBindings(Drive drive) {
+  public static void initDriveBindings(DriveCoordinator driveCoordinator, Drive drive) {
     var controllers = getControllers();
-    /* By making DriveWithJoysticks the default command for the drive subsystem,
-     * we ensure that it is run iff no other Command that uses the drive subsystem
-     * is activated. */
-    drive.setDefaultCommand(
+    driveCoordinator.createStateMachine(
         new DriveWithJoysticks(
             drive,
             controllers.getAxis("driveX").getSupplier(),
             controllers.getAxis("driveY").getSupplier(),
             controllers.getAxis("driveRotation").getSupplier(),
-            JsonConstants.drivetrainConstants.maxLinearSpeed, // type: double (m/s)
-            JsonConstants.drivetrainConstants.maxAngularSpeed, // type: double (rad/s)
-            JsonConstants.drivetrainConstants.joystickDeadband, // type: double
-            JsonConstants.drivetrainConstants.joystickMagnitudeExponent));
+            JsonConstants.driveConstants.maxLinearSpeed, // type: double (m/s)
+            JsonConstants.driveConstants.maxAngularSpeed, // type: double (rad/s)
+            JsonConstants.driveConstants.joystickDeadband, // type: double
+            JsonConstants.driveConstants.joystickMagnitudeExponent));
   }
 }

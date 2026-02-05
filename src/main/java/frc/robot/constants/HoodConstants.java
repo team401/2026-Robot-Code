@@ -10,7 +10,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -73,15 +72,14 @@ public class HoodConstants {
 
   public final Double hoodReduction = 20.0; // TODO: Get real value once design finalizes it
 
-  public final Integer hoodKrakenId = 13; // TODO: Real ID
-
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
         .withName("Hood")
         .withEncoderToMechanismRatio(hoodReduction)
         .withGravityFeedforwardType(GravityFeedforwardType.COSINE_ARM)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), hoodKrakenId))
+            new CANDeviceID(
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.hoodKrakenId))
         .build();
   }
 

@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -47,8 +46,6 @@ public class TurretConstants {
    */
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
 
-  public final Integer turretKrakenId = 9; // TODO: Verify this ID
-
   // TODO: Root cause why turret sim requires such ridiculous gains to function properly
   // These gains are CRAZY. MAKE SURE that you change these gains before deploying to a robot, or it
   // will definitely break.
@@ -73,7 +70,8 @@ public class TurretConstants {
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), turretKrakenId))
+            new CANDeviceID(
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.turretKrakenId))
         .build();
   }
 
