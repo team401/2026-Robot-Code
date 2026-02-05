@@ -1,6 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;

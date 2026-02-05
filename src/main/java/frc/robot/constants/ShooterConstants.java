@@ -135,7 +135,7 @@ public class ShooterConstants {
   }
 
   public MechanismConfig buildMechanismConfig() {
-    CANBus bus = new CANBus(JsonConstants.robotInfo.canivoreBusName);
+    CANBus bus = JsonConstants.robotInfo.CANBus;
     return MechanismConfig.builder()
         .withName("Shooter")
         .withEncoderToMechanismRatio(shooterReduction)
