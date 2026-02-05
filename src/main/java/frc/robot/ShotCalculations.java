@@ -1,6 +1,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -236,6 +237,11 @@ class ShotCalculations {
 
     double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
     Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
+
+    // Account for the time it will take to actually command the mechanism to its goal setpoint.
+    flightTimeSeconds += JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
+    Logger.recordOutput(
+        "ShotCalculations/MapBased/CompensatedFlightTimeSeconds", flightTimeSeconds);
 
     Translation2d offsetXY = fieldRelativeShooterVelocity.times(flightTimeSeconds);
     Translation3d offset = new Translation3d(offsetXY.getX(), offsetXY.getY(), 0.0);

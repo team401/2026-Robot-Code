@@ -223,7 +223,7 @@ public class CoordinationLayer {
 
       In terms of vectors, this is represented by v_rot = omega x r_vec, where r_vec is the radius vector from the center of the robot to the turret.
 
-      Let r_vec = <x, y z>. The cross product becomes:
+      Let r_vec = <x, y, z>. The cross product becomes:
 
                 i j k
       omega_vec 0 0 omega
@@ -245,6 +245,12 @@ public class CoordinationLayer {
     double vRotX = -omega * fieldRelativeRobotToShooter.getY();
     double vRotY = omega * fieldRelativeRobotToShooter.getX();
 
+    // Shooter velocity is the instantaneous velocity of the shooter at the moment of release.
+    // This means that it must include the translation of the drivetrain, plus the circular motion
+    // of the shooter as the drivetrain rotates.
+    // This explicitly does not model the curved motion caused by the rotation of the drivetrain
+    // over time, which would be represented using Twist2d. This is because the ball will not curve
+    // in the air in the same way as the shooter curves on the ground.
     Translation2d shooterVelocity =
         new Translation2d(
             fieldCentricSpeeds.vxMetersPerSecond + vRotX,
