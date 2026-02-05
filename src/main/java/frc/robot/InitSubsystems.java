@@ -1,7 +1,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-import coppercore.vision.VisionGainConstants;
 import coppercore.vision.VisionIO;
 import coppercore.vision.VisionIOPhotonReal;
 import coppercore.vision.VisionIOPhotonSim;
@@ -13,7 +12,6 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
@@ -90,8 +88,8 @@ public class InitSubsystems {
   }
 
   public static VisionLocalizer initVisionSubsystem(Drive drive) {
-    VisionGainConstants gainConstants = new VisionGainConstants();
-    AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    var gainConstants = JsonConstants.visionConstants.gainConstants;
+    AprilTagFieldLayout tagLayout = JsonConstants.aprilTagConstants.getTagLayout();
     switch (Constants.currentMode) {
       case REAL:
         return new VisionLocalizer(
@@ -124,15 +122,9 @@ public class InitSubsystems {
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(
-              new VisionIO() {}, new Transform3d()
-            ),
-            CameraConfig.fixed(
-              new VisionIO() {}, new Transform3d()
-            ),
-            CameraConfig.fixed(
-              new VisionIO() {}, new Transform3d()
-            ));
+            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
+            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
+            CameraConfig.fixed(new VisionIO() {}, new Transform3d()));
     }
   }
 

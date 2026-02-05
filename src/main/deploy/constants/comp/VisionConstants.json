@@ -1,4 +1,12 @@
 {
+  "gainConstants": {
+    "maxAcceptedDistanceMeters": 10.0,
+    "linearStdDevFactor": 0.02,
+    "angularStdDevFactor": 0.06,
+    "maxZCutoff": 0.75,
+    "maxSingleTagAmbiguity": 0.3,
+    "maxAmbiguity": 0.3
+  },
   "camera1Index": 0,
   "camera1Transform": {
     "m_translation": {

@@ -9,7 +9,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import coppercore.metadata.CopperCoreMetadata;
-import coppercore.vision.VisionLocalizer;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,9 +74,7 @@ public class RobotContainer {
       coordinationLayer.setDrive(drive);
       coordinationLayer.setDriveCoordinator(driveCoordinator);
       if (JsonConstants.featureFlags.runVision) {
-        // TODO: find out if vision needs to be stored in coordination layer
-        VisionLocalizer vision = InitSubsystems.initVisionSubsystem(drive);
-        // coordinationLayer.setVision(vision);
+        InitSubsystems.initVisionSubsystem(drive);
       }
     } else {
       drive = Optional.empty();

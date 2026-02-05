@@ -1,11 +1,13 @@
 package frc.robot.constants;
 
+import coppercore.vision.VisionGainConstants;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
   // Placeholder values for camera configs
+  public final VisionGainConstants gainConstants = new VisionGainConstants();
   public final Integer camera1Index = 0;
   public final Transform3d camera1Transform =
       new Transform3d(
