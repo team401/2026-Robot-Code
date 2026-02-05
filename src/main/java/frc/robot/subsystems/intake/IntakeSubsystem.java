@@ -1,19 +1,18 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.Logger;
-
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.TestModeManager;
+import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
-  
+
   TestModeManager<PivotTestMode> pivotTestModeManager =
       new TestModeManager<PivotTestMode>("IntakePivot", PivotTestMode.class);
 
@@ -37,7 +36,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   protected PivotPosition targetPivotPosition = PivotPosition.STOWED;
 
-  public IntakeSubsystem(MotorIO pivotMotorIO, MotorIO rollersLeadMotorIO, MotorIO rollersFollowerMotorIO) {
+  public IntakeSubsystem(
+      MotorIO pivotMotorIO, MotorIO rollersLeadMotorIO, MotorIO rollersFollowerMotorIO) {
     this.pivotMotorIO = pivotMotorIO;
     this.rollersLeadMotorIO = rollersLeadMotorIO;
     this.rollersFollowerMotorIO = rollersFollowerMotorIO;
@@ -57,44 +57,63 @@ public class IntakeSubsystem extends SubsystemBase {
     this.intakeStateMachine.registerState(IntakeState.homingDoneState);
 
     IntakeState.homingWaitForMovementState
-      .whenFinished().transitionTo(IntakeState.homingWaitForMovementState);
+        .whenFinished()
+        .transitionTo(IntakeState.homingWaitForMovementState);
     IntakeState.homingWaitForMovementState
-      .whenTimeout(JsonConstants.intakeConstants.homingTimeoutSeconds).transitionTo(IntakeState.homingDoneState);
-    
+        .whenTimeout(JsonConstants.intakeConstants.homingTimeoutSeconds)
+        .transitionTo(IntakeState.homingDoneState);
+
     IntakeState.homingWaitForStopMovingState
-      .whenFinished().transitionTo(IntakeState.homingDoneState);
-    
-    
+        .whenFinished()
+        .transitionTo(IntakeState.homingDoneState);
+
     IntakeState.homingDoneState
-      .when(IntakeState::shouldBeInTestMode, "If should be in test mode").transitionTo(IntakeState.testModeState);
+        .when(IntakeState::shouldBeInTestMode, "If should be in test mode")
+        .transitionTo(IntakeState.testModeState);
     IntakeState.homingDoneState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed").transitionTo(IntakeState.stowedState);
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed")
+        .transitionTo(IntakeState.stowedState);
     IntakeState.homingDoneState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed").transitionTo(IntakeState.deployedState);
-    
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed")
+        .transitionTo(IntakeState.deployedState);
+
     IntakeState.testModeState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed").transitionTo(IntakeState.stowedState);
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed")
+        .transitionTo(IntakeState.stowedState);
     IntakeState.testModeState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed").transitionTo(IntakeState.deployedState);
-    
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed")
+        .transitionTo(IntakeState.deployedState);
+
     IntakeState.waitForButtonState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed").transitionTo(IntakeState.stowedState);
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed")
+        .transitionTo(IntakeState.stowedState);
     IntakeState.waitForButtonState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed").transitionTo(IntakeState.deployedState);
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed")
+        .transitionTo(IntakeState.deployedState);
     IntakeState.waitForButtonState
-      .when(DriverStation::isEnabled, "When robot is enabled").transitionTo(IntakeState.homingDoneState);
+        .when(DriverStation::isEnabled, "When robot is enabled")
+        .transitionTo(IntakeState.homingDoneState);
 
     IntakeState.deployedState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed").transitionTo(IntakeState.stowedState);
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed")
+        .transitionTo(IntakeState.stowedState);
     IntakeState.stowedState
-      .whenFinished().andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed").transitionTo(IntakeState.deployedState);
-    
+        .whenFinished()
+        .andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed")
+        .transitionTo(IntakeState.deployedState);
 
     this.intakeStateMachine.setState(IntakeState.stowedState);
   }
 
-  public void runRollers(double speedRPM) {
-    rollersLeadMotorIO.controlToVelocityUnprofiled(Units.RPM.of(speedRPM));
+  public void runRollers(AngularVelocity rollerSpeed) {
+    rollersLeadMotorIO.controlToVelocityUnprofiled(rollerSpeed);
   }
 
   public void stopRollers() {
@@ -125,8 +144,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeStateMachine.periodic();
   }
 
-  public void  rollerSpeedTuningPeriodic() {
+  public void rollerSpeedTuningPeriodic() {
     //  TODO: implement roller speed tuning periodic
   }
-
 }

@@ -23,6 +23,7 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -39,6 +40,7 @@ public class CoordinationLayer {
   private Optional<IndexerSubsystem> indexer = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
+  private Optional<IntakeSubsystem> intake = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
   private Optional<HomingSwitch> homingSwitch = Optional.empty();
 
@@ -94,6 +96,11 @@ public class CoordinationLayer {
   public void setIndexer(IndexerSubsystem indexer) {
     checkForDuplicateSubsystem(this.indexer, "Indexer");
     this.indexer = Optional.of(indexer);
+  }
+
+  public void setIntake(IntakeSubsystem intake) {
+    checkForDuplicateSubsystem(this.intake, "Intake");
+    this.intake = Optional.of(intake);
   }
 
   /**

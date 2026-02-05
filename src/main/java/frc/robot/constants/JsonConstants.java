@@ -54,6 +54,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/turret", turretConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
+        jsonHandler.addRoute("/intake", intakeConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }

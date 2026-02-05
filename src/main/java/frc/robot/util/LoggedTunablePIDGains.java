@@ -1,6 +1,7 @@
 package frc.robot.util;
 
 import coppercore.parameter_tools.LoggedTunableNumber;
+import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 
 public class LoggedTunablePIDGains {
   LoggedTunableNumber kP;
@@ -64,6 +65,17 @@ public class LoggedTunablePIDGains {
 
   public void getValues(GainsConsumer callback) {
     callback.accept(getCurrentGains());
+  }
+
+  public GainsConsumer getMotorIOApplier(MotorIO motorIO) {
+    return pidGains -> pidGains.applyToMotorIO(motorIO);
+  }
+
+  public GainsConsumer getMotorIOApplier(MotorIO motorIO, GainsConsumer passThroughConsumer) {
+    return pidGains -> {
+      pidGains.applyToMotorIO(motorIO);
+      passThroughConsumer.accept(pidGains);
+    };
   }
 
   @FunctionalInterface

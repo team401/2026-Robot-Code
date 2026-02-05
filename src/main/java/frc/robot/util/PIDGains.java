@@ -3,6 +3,7 @@ package frc.robot.util;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
+import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 
 public record PIDGains(
     double kP, double kI, double kD, double kS, double kG, double kV, double kA) {
@@ -50,5 +51,10 @@ public record PIDGains(
     Slot2Configs slot2Configs = new Slot2Configs();
     applyToSlot2Config(slot2Configs);
     return slot2Configs;
+  }
+
+  public MotorIO applyToMotorIO(MotorIO motorIO) {
+    motorIO.setGains(kP, kI, kD, kS, kG, kV, kA);
+    return motorIO;
   }
 }

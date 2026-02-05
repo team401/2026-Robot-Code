@@ -40,7 +40,6 @@ public class RobotContainer {
 
   // Subsystems
   private final Optional<Drive> drive;
-  private final Optional<IntakeSubsystem> intake;
   private final Optional<DriveCoordinator> driveCoordinator;
   // Since the RobotContainer doesn't really need a reference to any subsystem except for drive,
   // their references are stored in the CoordinationLayer instead
@@ -120,9 +119,8 @@ public class RobotContainer {
     }
 
     if (JsonConstants.featureFlags.runIntake) {
-      intake = Optional.of(InitSubsystems.initIntakeSubsystem());
-    } else {
-      intake = Optional.empty();
+      IntakeSubsystem intakeSubsystem = InitSubsystems.initIntakeSubsystem();
+      coordinationLayer.setIntake(intakeSubsystem);
     }
 
     drive.ifPresentOrElse(

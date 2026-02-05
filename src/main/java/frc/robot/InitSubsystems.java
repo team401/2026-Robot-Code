@@ -268,8 +268,9 @@ public class InitSubsystems {
             MotorIOTalonFX.newLeader(
                 JsonConstants.intakeConstants.buildRollersMechanismConfig(),
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()),
-            MotorIOTalonFX.newFollower(JsonConstants.intakeConstants.buildRollersMechanismConfig(),
-            0,
+            MotorIOTalonFX.newFollower(
+                JsonConstants.intakeConstants.buildRollersMechanismConfig(),
+                0,
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -277,18 +278,16 @@ public class InitSubsystems {
         MechanismConfig rollersConfig = JsonConstants.intakeConstants.buildRollersMechanismConfig();
         return new IntakeSubsystem(
             MotorIOTalonFXSim.newLeader(
-                    pivotConfig,
-                    JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig(),
-                    JsonConstants.intakeConstants.buildPivotSim()),
+                pivotConfig,
+                JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig(),
+                JsonConstants.intakeConstants.buildPivotSim()),
             MotorIOTalonFXSim.newLeader(
-                    rollersConfig,
-                    JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
-                    JsonConstants.intakeConstants.buildRollersSim()),
+                rollersConfig,
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                JsonConstants.intakeConstants.buildRollersSim()),
             MotorIOTalonFXSim.newFollower(
-                    rollersConfig,
-                    0,
-                    JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
-              
+                rollersConfig, 0, JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
+
       default:
         // Replayed robot, disable IO implementations
         return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
