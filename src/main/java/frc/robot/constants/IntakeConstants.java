@@ -2,6 +2,7 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -44,17 +45,12 @@ public class IntakeConstants {
   public final Angle stowPositionAngle = Radians.of(Math.PI / 2);
 
   // Roller speeds
-  public final Double intakeRollerSpeedRPM = 1500.0;
+  public AngularVelocity intakeRollerSpeed = RPM.of(1500.0);
 
   // Homing parameters
   public final AngularVelocity homingMovementThreshold = RadiansPerSecond.of(0.1);
   public final Time homingTimeoutSeconds = Seconds.of(0.5);
   public final Voltage homingVoltage = Volts.of(2.0);
-
-  // CAN IDs
-  public final Integer intakePivotMotorId = 30;
-  public final Integer intakeRollersLeadMotorId = 31;
-  public final Integer intakeRollersFollowerMotorId = 32;
 
   // PID GAINS
   public PIDGains pivotPIDGains = new PIDGains(0.5, 0.0, 0.1); // These values are placeholders
@@ -64,7 +60,9 @@ public class IntakeConstants {
     return MechanismConfig.builder()
         .withName("Intake Pivot Mechanism")
         .withGravityFeedforwardType(GravityFeedforwardType.COSINE_ARM)
-        .withLeadMotorId(new CANDeviceID(JsonConstants.robotInfo.CANBus, intakePivotMotorId))
+        .withLeadMotorId(
+            new CANDeviceID(
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.intakePivotMotorId))
         .build();
   }
 
@@ -112,9 +110,15 @@ public class IntakeConstants {
     return MechanismConfig.builder()
         .withName("Intake Rollers Mechanism")
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
-        .withLeadMotorId(new CANDeviceID(JsonConstants.robotInfo.CANBus, intakeRollersLeadMotorId))
+        .withLeadMotorId(
+            new CANDeviceID(
+                JsonConstants.robotInfo.CANBus,
+                JsonConstants.canBusAssignment.intakeRollersLeadMotorId))
         .addFollower(
-            new CANDeviceID(JsonConstants.robotInfo.CANBus, intakeRollersFollowerMotorId), false)
+            new CANDeviceID(
+                JsonConstants.robotInfo.CANBus,
+                JsonConstants.canBusAssignment.intakeRollersFollowerMotorId),
+            false)
         .build();
   }
 

@@ -32,4 +32,8 @@ public class CANBusAssignment {
   public final Integer hoodKrakenId = 17; // TODO: Real ID
 
   public final Integer homingSwitchCANdiID = 18; // TODO: Real id
+
+  public final Integer intakePivotMotorId = 19;
+  public final Integer intakeRollersLeadMotorId = 20;
+  public final Integer intakeRollersFollowerMotorId = 21;
 }

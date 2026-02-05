@@ -1,6 +1,9 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.measure.Angle;
@@ -36,6 +39,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   protected PivotPosition targetPivotPosition = PivotPosition.STOWED;
 
+  private LoggedTunableNumber rollersTargetSpeedTunable;
+
   public IntakeSubsystem(
       MotorIO pivotMotorIO, MotorIO rollersLeadMotorIO, MotorIO rollersFollowerMotorIO) {
     this.pivotMotorIO = pivotMotorIO;
@@ -45,6 +50,12 @@ public class IntakeSubsystem extends SubsystemBase {
     this.pivotInputs = new MotorInputsAutoLogged();
     this.rollerLeadMotorInputs = new MotorInputsAutoLogged();
     this.rollerFollowerMotorInputs = new MotorInputsAutoLogged();
+
+    this.rollersTargetSpeedTunable =
+        new LoggedTunableNumber(
+            "IntakeRollersTargetSpeedRPM",
+            JsonConstants.intakeConstants.intakeRollerSpeed.in(
+                RPM)); // Default to the intake roller speed defined in constants
 
     this.intakeStateMachine = new StateMachine<IntakeSubsystem>(this);
 
@@ -145,6 +156,11 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void rollerSpeedTuningPeriodic() {
-    //  TODO: implement roller speed tuning periodic
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        (rollerSpeed) -> {
+          JsonConstants.intakeConstants.intakeRollerSpeed = RPM.of(rollerSpeed[0]);
+        },
+        rollersTargetSpeedTunable);
   }
 }
