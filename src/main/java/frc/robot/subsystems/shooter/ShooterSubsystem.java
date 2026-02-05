@@ -227,4 +227,15 @@ public class ShooterSubsystem extends MonitoredSubsystem {
       default -> false;
     };
   }
+
+  /**
+   * Sets the shooter's target velocity, in RPM
+   *
+   * <p>This method should only be called by the coordination layer
+   *
+   * @param velocityRPM A double containing target velocity, in RPM
+   */
+  public void setTargetVelocityRPM(double velocityRPM) {
+    targetVelocity.mut_replace(velocityRPM, RPM);
+  }
 }

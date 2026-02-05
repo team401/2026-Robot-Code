@@ -1,7 +1,6 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
@@ -13,8 +12,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
+import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
-import frc.robot.ShotCalculations.ShotType;
+import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
@@ -26,7 +26,6 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
@@ -207,63 +206,70 @@ public class CoordinationLayer {
    * @param drive A Drive instance
    */
   private void runShotCalculatorWithDrive(Drive driveInstance) {
-    Translation3d hubTranslation = FieldConstants.Hub.innerCenterPoint();
-    // Placeholder passing "example" translation
-    Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
-
     Pose2d robotPose = driveInstance.getPose();
     Translation3d shooterPosition =
         new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
 
     // Pick either passing target or hub here.
-    Translation3d goalTranslation = hubTranslation;
+    ShotTarget target = ShotTarget.Hub;
 
     ChassisSpeeds fieldCentricSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
             driveInstance.getChassisSpeeds(), robotPose.getRotation());
 
-    Translation2d goalXYPlane = goalTranslation.toTranslation2d();
-    double shotDistanceXYMeters = robotPose.getTranslation().getDistance(goalXYPlane);
-    Logger.recordOutput("CoordinationLayer/ShotDistanceMeters", shotDistanceXYMeters);
+    /*
+      Calculate the additional velocity caused by the rotation of the robot
+      The shooter is basically a point a certain radius away from the center of the robot.
 
-    Optional<ShotInfo> maybeShot =
-        ShotCalculations.calculateMovingShot(
-            shooterPosition,
-            goalTranslation,
-            fieldCentricSpeeds,
-            MetersPerSecond.of(viMetersPerSecond),
-            ShotType.HIGH,
-            Optional.empty());
+      In terms of vectors, this is represented by v_rot = omega x r_vec, where r_vec is the radius vector from the center of the robot to the turret.
+
+      Let r_vec = <x, y z>. The cross product becomes:
+
+                i j k
+      omega_vec 0 0 omega
+      r_vec     x y z
+
+      = i(0*z - omega * y) - j(0*z - omega * x) + (0*y - 0*x)
+      Which, after simplification equals:
+      = - i *omega * y + j * omega * x
+      = < - omega * y, omega * x >
+    */
+    double omega = fieldCentricSpeeds.omegaRadiansPerSecond;
+
+    // z cancels out of the equation, so convert everything to 2D
+    Translation2d robotToShooterTranslationXY =
+        JsonConstants.robotInfo.robotToShooter.getTranslation().toTranslation2d();
+    Translation2d fieldRelativeRobotToShooter =
+        robotToShooterTranslationXY.rotateBy(robotPose.getRotation());
+
+    double vRotX = -omega * fieldRelativeRobotToShooter.getY();
+    double vRotY = omega * fieldRelativeRobotToShooter.getX();
+
+    Translation2d shooterVelocity =
+        new Translation2d(
+            fieldCentricSpeeds.vxMetersPerSecond + vRotX,
+            fieldCentricSpeeds.vyMetersPerSecond + vRotY);
+
+    Optional<MapBasedShotInfo> maybeShot =
+        ShotCalculations.calculateShotFromMap(shooterPosition, shooterVelocity, target);
 
     maybeShot.ifPresent(
-        idealShot -> {
-          sendIdealShotToSubsystems(idealShot);
+        shot -> {
+          turret.ifPresent(
+              turret -> {
+                turret.targetGoalHeading(new Rotation2d(shot.yawRadians()));
+              });
 
-          final int trajectoryPointsPerMeter = 4;
+          hood.ifPresent(
+              hood -> {
+                hood.targetAngleRadians(shot.hoodAngleRadians());
+                ;
+              });
 
-          ShotInfo currentShot = getCurrentShot(idealShot);
-
-          Translation3d[] idealShotTrajectory =
-              idealShot.projectMotion(
-                  viMetersPerSecond, shooterPosition, fieldCentricSpeeds, trajectoryPointsPerMeter);
-          Translation3d[] shotTrajectory =
-              currentShot.projectMotion(
-                  viMetersPerSecond, shooterPosition, fieldCentricSpeeds, trajectoryPointsPerMeter);
-          Logger.recordOutput("CoordinationLayer/IdealShot", idealShot);
-          Logger.recordOutput("CoordinationLayer/Shot", currentShot);
-
-          // Logger.recordOutput(
-          //     "CoordinationLayer/EffectiveTrajectory",
-          //     idealShot.projectMotion(
-          //         viMetersPerSecond,
-          //         shooterPosition,
-          //         new ChassisSpeeds(),
-          //         trajectoryPointsPerMeter));
-          Logger.recordOutput("CoordinationLayer/ShotTrajectory", shotTrajectory);
-          Logger.recordOutput("CoordinationLayer/IdealShotTrajectory", idealShotTrajectory);
-          Logger.recordOutput(
-              "CoordinationLayer/ShotErrorMeters",
-              shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
+          shooter.ifPresent(
+              shooter -> {
+                shooter.setTargetVelocityRPM(shot.shooterRPM());
+              });
         });
   }
 

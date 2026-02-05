@@ -41,6 +41,10 @@ public class JsonConstants {
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
+    jsonHandler.saveObject(new RedFieldLocations(), "RedFieldLocations.json");
+    redFieldLocations = jsonHandler.getObject(new RedFieldLocations(), "RedFieldLocations.json");
+    jsonHandler.saveObject(new BlueFieldLocations(), "BlueFieldLocations.json");
+    blueFieldLocations = jsonHandler.getObject(new BlueFieldLocations(), "BlueFieldLocations.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -74,6 +78,8 @@ public class JsonConstants {
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
   public static ShotMaps shotMaps;
+  public static RedFieldLocations redFieldLocations;
+  public static BlueFieldLocations blueFieldLocations;
 
   public static Controllers controllers;
 }

@@ -49,6 +49,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
     Idle,
     /** Targets a certain pitch, commanded by the supervisor layer */
     TargetPitch,
+    /** Targets a certain angle, commanded by the supervisor layer */
+    TargetAngle,
   }
 
   private final MotorIO motor;
@@ -107,6 +109,9 @@ public class HoodSubsystem extends MonitoredSubsystem {
           .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle)
           .mutableCopy();
 
+  @AutoLogOutput(key = "Hood/goalAngle")
+  private MutAngle goalAngle = JsonConstants.hoodConstants.minHoodAngle.mutableCopy();
+
   public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
 
@@ -158,6 +163,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
     targetPitchState
         .when(hood -> hood.requestedAction != HoodAction.TargetPitch, "Action != TargetPitch")
         .transitionTo(idleState);
+
+    // TODO: Add targetAngleState to target an angle from the shot map
 
     testModeState
         .when(hood -> !hood.isHoodTestMode(), "Isn't hood test mode")
@@ -401,5 +408,20 @@ public class HoodSubsystem extends MonitoredSubsystem {
   public void targetPitch(Angle goalPitch) {
     this.requestedAction = HoodAction.TargetPitch;
     this.goalPitch.mut_replace(goalPitch);
+  }
+
+  /**
+   * Sets the goal angle of the hood. Note that this is a hood angle, NOT an exit angle for the
+   * projectile.
+   *
+   * <p>This method updates the hood's current action, so that as soon as homing is completed, it
+   * will target the angle requested. This means that it can safely be called at any time,
+   * regardless of homing status.
+   *
+   * @param angleRadians A double containing the desired hood angle in radians.
+   */
+  public void targetAngleRadians(double angleRadians) {
+    this.requestedAction = HoodAction.TargetAngle;
+    this.goalAngle.mut_replace(angleRadians, Radians);
   }
 }

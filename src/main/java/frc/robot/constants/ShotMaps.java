@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * The ShotMaps class contains constants for our "shooter map", which maps disatnce to shooter RPM,
@@ -85,8 +87,11 @@ public class ShotMaps {
         // Placeholder datapoint to test
         new ShotMapDataPoint(Meters.of(4.0), 2500, Degrees.of(40.0), Seconds.of(3.0))
       };
-  
-  /** The "extra" delay to add to shot time to compensate for mechanisms reaching their target position. */
+
+  /**
+   * The "extra" delay to add to shot time to compensate for mechanisms reaching their target
+   * position.
+   */
   public Time mechanismCompensationDelay = Seconds.of(0.1);
 
   // Initialized fields (instantiated after json load based on loaded constants)
@@ -106,6 +111,36 @@ public class ShotMaps {
   public void initializeMaps() {
     hubMap.initializeFromDataPoints(hubDataPoints);
     passingMap.initializeFromDataPoints(passDataPoints);
+
+    Function<ShotMapDataPoint, Double> dataPointToDistanceMeters =
+        dataPoint -> dataPoint.distance().in(Meters);
+    minHubDistanceMeters =
+        Arrays.stream(hubDataPoints)
+            .map(dataPointToDistanceMeters)
+            .min(Comparator.naturalOrder())
+            .orElse(Double.MAX_VALUE);
+    maxHubDistanceMeters =
+        Arrays.stream(hubDataPoints)
+            .map(dataPointToDistanceMeters)
+            .max(Comparator.naturalOrder())
+            .orElse(Double.MIN_VALUE);
+
+    Logger.recordOutput("ShotMaps/minHubDistanceMeters", minHubDistanceMeters);
+    Logger.recordOutput("ShotMaps/maxHubDistanceMeters", maxHubDistanceMeters);
+
+    minPassDistanceMeters =
+        Arrays.stream(passDataPoints)
+            .map(dataPointToDistanceMeters)
+            .min(Comparator.naturalOrder())
+            .orElse(Double.MAX_VALUE);
+    maxPassDistanceMeters =
+        Arrays.stream(passDataPoints)
+            .map(dataPointToDistanceMeters)
+            .max(Comparator.naturalOrder())
+            .orElse(Double.MIN_VALUE);
+
+    Logger.recordOutput("ShotMaps/minPassDistanceMeters", minPassDistanceMeters);
+    Logger.recordOutput("ShotMaps/maxPassDistanceMeters", maxPassDistanceMeters);
   }
 
   public void publishTuningValues() {
@@ -117,47 +152,51 @@ public class ShotMaps {
     LoggedTunableNumber flightTimeSeconds =
         new LoggedTunableNumber("ShotMapTuning/flightTimeSeconds", 0.0);
     LoggedTunableNumber mechanismCompensationTimeSeconds =
-        new LoggedTunableNumber("ShotMapTuning/compensationTimeSeconds", mechanismCompensationDelay.in(Seconds));
+        new LoggedTunableNumber(
+            "ShotMapTuning/compensationTimeSeconds", mechanismCompensationDelay.in(Seconds));
 
     Command addPointToHubMapCommand =
         new InstantCommand(
-            () -> {
-              List<ShotMapDataPoint> hubList = new ArrayList<>(Arrays.asList(hubDataPoints));
-              hubList.add(
-                  new ShotMapDataPoint(
-                      Meters.of(distanceMeters.getAsDouble()),
-                      shooterRPM.getAsDouble(),
-                      Degrees.of(hoodAngleDegrees.getAsDouble()),
-                      Seconds.of(flightTimeSeconds.getAsDouble())));
-              hubList.sort(
-                  Comparator.comparingDouble(dataPoint -> dataPoint.distance().in(Meters)));
-              hubDataPoints = hubList.toArray(new ShotMapDataPoint[0]);
-              initializeMaps();
-              System.out.println("Updated map");
-            }).ignoringDisable(true);
+                () -> {
+                  List<ShotMapDataPoint> hubList = new ArrayList<>(Arrays.asList(hubDataPoints));
+                  hubList.add(
+                      new ShotMapDataPoint(
+                          Meters.of(distanceMeters.getAsDouble()),
+                          shooterRPM.getAsDouble(),
+                          Degrees.of(hoodAngleDegrees.getAsDouble()),
+                          Seconds.of(flightTimeSeconds.getAsDouble())));
+                  hubList.sort(
+                      Comparator.comparingDouble(dataPoint -> dataPoint.distance().in(Meters)));
+                  hubDataPoints = hubList.toArray(new ShotMapDataPoint[0]);
+                  initializeMaps();
+                  System.out.println("Updated map");
+                })
+            .ignoringDisable(true);
 
     Command addPointToPassingMapCommand =
         new InstantCommand(
-            () -> {
-              List<ShotMapDataPoint> passList = new ArrayList<>(Arrays.asList(passDataPoints));
-              passList.add(
-                  new ShotMapDataPoint(
-                      Meters.of(distanceMeters.getAsDouble()),
-                      shooterRPM.getAsDouble(),
-                      Degrees.of(hoodAngleDegrees.getAsDouble()),
-                      Seconds.of(flightTimeSeconds.getAsDouble())));
-              passList.sort(
-                  Comparator.comparingDouble(dataPoint -> dataPoint.distance().in(Meters)));
-              passDataPoints = passList.toArray(new ShotMapDataPoint[0]);
-              initializeMaps();
-            }).ignoringDisable(true);
-    
+                () -> {
+                  List<ShotMapDataPoint> passList = new ArrayList<>(Arrays.asList(passDataPoints));
+                  passList.add(
+                      new ShotMapDataPoint(
+                          Meters.of(distanceMeters.getAsDouble()),
+                          shooterRPM.getAsDouble(),
+                          Degrees.of(hoodAngleDegrees.getAsDouble()),
+                          Seconds.of(flightTimeSeconds.getAsDouble())));
+                  passList.sort(
+                      Comparator.comparingDouble(dataPoint -> dataPoint.distance().in(Meters)));
+                  passDataPoints = passList.toArray(new ShotMapDataPoint[0]);
+                  initializeMaps();
+                })
+            .ignoringDisable(true);
+
     Command updateMechanismDelayCommand =
         new InstantCommand(
-          () -> {
-            mechanismCompensationDelay = Seconds.of(mechanismCompensationTimeSeconds.getAsDouble());
-          }
-        ).ignoringDisable(true);
+                () -> {
+                  mechanismCompensationDelay =
+                      Seconds.of(mechanismCompensationTimeSeconds.getAsDouble());
+                })
+            .ignoringDisable(true);
 
     SmartDashboard.putData("ShotMapTuning/addHubDataPoint", addPointToHubMapCommand);
     SmartDashboard.putData("ShotMapTuning/addPassDataPoint", addPointToPassingMapCommand);
@@ -169,4 +208,16 @@ public class ShotMaps {
 
   /** ShotMap for passing to the alliance zone */
   @JSONExclude public final ShotMap passingMap = ShotMap.empty();
+
+  /** The minimum distance when shooting at the hub. Updated automatically by initializeMaps() */
+  @JSONExclude public double minHubDistanceMeters;
+
+  /** The maximum distance when shooting at the hub. Updated automatically by initializeMaps() */
+  @JSONExclude public double maxHubDistanceMeters;
+
+  /** The minimum distance when passing. Updated automatically by initializeMaps() */
+  @JSONExclude public double minPassDistanceMeters;
+
+  /** The maximum distance when passing. Updated automatically by initializeMaps() */
+  @JSONExclude public double maxPassDistanceMeters;
 }
