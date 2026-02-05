@@ -10,9 +10,6 @@
     7.5
   ],
   "defaultViMetersPerSecond": 9.0,
-  "shooterLeadMotorId": 14,
-  "shooterTopFollowerMotorId": 15,
-  "shooterBottomFollowerMotorId": 16,
   "shooterKP": 48.0,
   "shooterKI": 0.0,
   "shooterKD": 0.0,

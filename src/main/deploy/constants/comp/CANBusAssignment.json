@@ -3,5 +3,8 @@
   "indexerKrakenId": 10,
   "hopperKrakenId": 11,
   "hoodKrakenId": 13,
-  "homingSwitchCANdiID": 14
+  "homingSwitchCANdiID": 14,
+  "shooterLeaderId": 19,
+  "shooterTopFollowerId": 20,
+  "shooterBottomFollowerId": 21
 }

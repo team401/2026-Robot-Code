@@ -67,10 +67,6 @@ public class ShooterConstants {
     return distanceToVi.get(distanceMeters);
   }
 
-  public final Integer shooterLeadMotorId = 14;
-  public final Integer shooterTopFollowerMotorId = 15;
-  public final Integer shooterBottomFollowerMotorId = 16;
-
   public Double shooterKP = 48.0;
   public Double shooterKI = 0.0;
   public Double shooterKD = 0.0;
@@ -141,9 +137,13 @@ public class ShooterConstants {
         .withEncoderToMechanismRatio(shooterReduction)
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
-        .withLeadMotorId(new CANDeviceID(bus, shooterLeadMotorId))
-        .addFollower(new CANDeviceID(bus, shooterTopFollowerMotorId), invertTopFollower)
-        .addFollower(new CANDeviceID(bus, shooterBottomFollowerMotorId), invertBottomFollower)
+        .withLeadMotorId(new CANDeviceID(bus, JsonConstants.canBusAssignment.shooterLeaderId))
+        .addFollower(
+            new CANDeviceID(bus, JsonConstants.canBusAssignment.shooterTopFollowerId),
+            invertTopFollower)
+        .addFollower(
+            new CANDeviceID(bus, JsonConstants.canBusAssignment.shooterBottomFollowerId),
+            invertBottomFollower)
         .build();
   }
 
