@@ -49,7 +49,7 @@ public class IntakeConstants {
   public final MomentOfInertia rollersInertia = Units.KilogramSquareMeters.of(0.02);
   public final MomentOfInertia pivotInertia = Units.KilogramSquareMeters.of(0.05);
 
-  // Setpoints for various positions
+  // Setpoint for various positions
   public final Angle intakePositionAngle = Radians.of(0.0);
   public final Angle stowPositionAngle = Radians.of(Math.PI / 2);
 

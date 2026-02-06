@@ -40,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   protected Angle targetPivotAngle = Degrees.zero();
 
-  private LoggedTunableNumber rollersTargetSpeedTunable;
+  private LoggedTunableMeasure.LoggedAngularVelocity rollersTargetSpeedTunable;
 
   public IntakeSubsystem(
       MotorIO pivotMotorIO, MotorIO rollersLeadMotorIO, MotorIO rollersFollowerMotorIO) {
@@ -52,11 +52,10 @@ public class IntakeSubsystem extends SubsystemBase {
     this.rollerLeadMotorInputs = new MotorInputsAutoLogged();
     this.rollerFollowerMotorInputs = new MotorInputsAutoLogged();
 
-    this.rollersTargetSpeedTunable =
-        new LoggedTunableNumber(
-            "IntakeRollersTargetSpeedRPM",
-            JsonConstants.intakeConstants.intakeRollerSpeed.in(
-                RPM)); // Default to the intake roller speed defined in constants
+    this.rollersTargetSpeedTunable = LoggedTunableMeasure.ANGULAR_VELOCITY.of(
+        "IntakeRollersTargetSpeedRPM",
+        JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM),
+        RPM);
 
     this.intakeStateMachine = new StateMachine<IntakeSubsystem>(this);
 
@@ -154,6 +153,16 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotMotorIO.controlToPositionUnprofiled(this.targetPivotAngle);
   }
 
+  // Should these be blocked from executing if we are in test mode?
+
+  public void setTargetPositionStowed() {
+    setTargetPivotAngle(JsonConstants.intakeConstants.stowPositionAngle);
+  }
+
+  public void setTargetPositionIntaking() {
+    setTargetPivotAngle(JsonConstants.intakeConstants.intakePositionAngle);
+  }
+
   public void periodic() {
     pivotMotorIO.updateInputs(pivotInputs);
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
@@ -163,26 +172,14 @@ public class IntakeSubsystem extends SubsystemBase {
     Logger.processInputs("intake/rollerLead/inputs", rollerLeadMotorInputs);
     Logger.processInputs("intake/rollerFollower/inputs", rollerFollowerMotorInputs);
 
+    // This is run outside of the test mode because we want to be able to tune the roller speed
+    // in test mode and be able to control the pivot as if we were operating the robot normally
     if (rollerTestModeManager.getTestMode() == RollerTestMode.RollerSpeedTuning) {
-      rollerSpeedTuningPeriodic();
+      rollersTargetSpeedTunable
+        .ifChanged(rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed);
     }
 
     intakeStateMachine.periodic();
-  }
-
-  public void rollerSpeedTuningPeriodic() {
-    var speed = LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-        "IntakeRollerSpeedRPM",
-        JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM),
-        RPM);
-
-
-    speed.ifChanged(rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed);
-
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = RPM.of(rollerSpeed[0]),
-        rollersTargetSpeedTunable);
   }
 
 }

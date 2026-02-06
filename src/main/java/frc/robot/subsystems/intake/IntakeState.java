@@ -10,6 +10,8 @@ import frc.robot.util.TuningModeHelper;
 
 public class IntakeState {
 
+  // ### Test Mode State
+
   public static boolean shouldBeInTestMode(IntakeSubsystem world) {
     // If the pivot is in test mode, we should be in test mode
     // because every pivot test mode directly controls the pivot motor
@@ -80,13 +82,7 @@ public class IntakeState {
     }
   }
 
-  public static State<IntakeSubsystem> controlToPositionState =
-      new State<IntakeSubsystem>("ControlToPosition") {
-        @Override
-        protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          world.controlToTargetPivotAngle();
-        }
-      };
+  // ### Homing States
 
   public static State<IntakeSubsystem> homingWaitForMovementState =
       new State<IntakeSubsystem>("HomingWaitForMovement") {
@@ -124,6 +120,8 @@ public class IntakeState {
         }
       };
 
+  // ### Manual Homing State
+  
   public static State<IntakeSubsystem> waitForButtonState =
       new State<IntakeSubsystem>("WaitForButton") {
         @Override
@@ -135,4 +133,13 @@ public class IntakeState {
           }
         }
       };
+
+  // ### Normal Operation States
+  public static State<IntakeSubsystem> controlToPositionState =
+    new State<IntakeSubsystem>("ControlToPosition") {
+      @Override
+      protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
+        world.controlToTargetPivotAngle();
+      }
+    };
 }
