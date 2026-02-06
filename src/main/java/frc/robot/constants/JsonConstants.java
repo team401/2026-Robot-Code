@@ -32,6 +32,10 @@ public class JsonConstants {
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");
     canBusAssignment = jsonHandler.getObject(new CANBusAssignment(), "CANBusAssignment.json");
     driveConstants = jsonHandler.getObject(new DriveConstants(), "DriveConstants.json");
+
+    // jsonHandler.saveObject(new VisionConstants(), "VisionConstants.json");
+    visionConstants = jsonHandler.getObject(new VisionConstants(), "VisionConstants.json");
+
     physicalDriveConstants =
         jsonHandler.getObject(new PhysicalDriveConstants(), "PhysicalDriveConstants.json");
     operatorConstants = jsonHandler.getObject(new OperatorConstants(), "OperatorConstants.json");
@@ -70,6 +74,7 @@ public class JsonConstants {
   public static CANBusAssignment canBusAssignment;
   public static FeatureFlags featureFlags;
   public static DriveConstants driveConstants;
+  public static VisionConstants visionConstants;
   public static PhysicalDriveConstants physicalDriveConstants;
   public static OperatorConstants operatorConstants;
   public static HopperConstants hopperConstants;
