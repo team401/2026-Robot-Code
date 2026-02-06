@@ -1,16 +1,11 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
-import coppercore.parameter_tools.LoggedTunableNumber;
 import edu.wpi.first.units.Units;
 import frc.robot.constants.JsonConstants;
-import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.TuningModeHelper;
 
 public class IntakeState {
@@ -61,11 +56,11 @@ public class IntakeState {
       rollerTuningModeHelper = new TuningModeHelper<>(RollerTestMode.class)
         .addStandardTuningModesForMotor(
           RollerTestMode.RollerPhoenixTuning, RollerTestMode.RollerVoltageTuning, RollerTestMode.RollerCurrentTuning,
-         "Intake/Pivot/", world.pivotMotorIO)
+         "Intake/Rollers/", world.pivotMotorIO)
         .addTuningMode(RollerTestMode.RollerClosedLoopTuning,
             TuningModeHelper.addClosedLoopVelocityUnprofiledTuning(
                 TuningModeHelper.builder(),
-                "Intake/Pivot/",
+                "Intake/Rollers/",
                 JsonConstants.intakeConstants.rollersPIDGains,
                 RPM.of(0),
                 gains -> JsonConstants.intakeConstants.rollersPIDGains = gains,
@@ -85,19 +80,11 @@ public class IntakeState {
     }
   }
 
-  public static State<IntakeSubsystem> deployedState =
-      new State<IntakeSubsystem>("Deployed") {
+  public static State<IntakeSubsystem> controlToPositionState =
+      new State<IntakeSubsystem>("ControlToPosition") {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          world.setTargetPivotAngle(JsonConstants.intakeConstants.intakePositionAngle);
-        }
-      };
-
-  public static State<IntakeSubsystem> stowedState =
-      new State<IntakeSubsystem>("Stowed") {
-        @Override
-        protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          world.setTargetPivotAngle(JsonConstants.intakeConstants.stowPositionAngle);
+          world.controlToTargetPivotAngle();
         }
       };
 
@@ -141,7 +128,11 @@ public class IntakeState {
       new State<IntakeSubsystem>("WaitForButton") {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          // Do nothing, just wait for the robot to be enabled
+          // Need to replace this with the actual button that we want to use to trigger the homing process
+          if (false) {
+            world.pivotMotorIO.setCurrentPositionAsZero();
+            finish();
+          }
         }
       };
 }
