@@ -250,8 +250,7 @@ public class InitSubsystems {
         return new ShooterSubsystem(
             dependencyOrderedExecutor,
             MotorIOTalonFX.newLeader(mechanismConfig, talonFXConfigs),
-            MotorIOTalonFX.newFollower(mechanismConfig, 0, talonFXConfigs),
-            MotorIOTalonFX.newFollower(mechanismConfig, 1, talonFXConfigs));
+            MotorIOTalonFX.newFollower(mechanismConfig, 0, talonFXConfigs));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         CoppercoreSimAdapter shooterSim = JsonConstants.shooterConstants.buildShooterSim();
@@ -259,15 +258,11 @@ public class InitSubsystems {
         return new ShooterSubsystem(
             dependencyOrderedExecutor,
             MotorIOTalonFXSim.newLeader(mechanismConfig, talonFXConfigs, shooterSim),
-            MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs, shooterSim),
-            MotorIOTalonFXSim.newFollower(mechanismConfig, 1, talonFXConfigs, shooterSim));
+            MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs, shooterSim));
       case REPLAY:
         // Replayed robot, disable IO implementations
         return new ShooterSubsystem(
-            dependencyOrderedExecutor,
-            new MotorIOReplay(),
-            new MotorIOReplay(),
-            new MotorIOReplay());
+            dependencyOrderedExecutor, new MotorIOReplay(), new MotorIOReplay());
       default:
         throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }

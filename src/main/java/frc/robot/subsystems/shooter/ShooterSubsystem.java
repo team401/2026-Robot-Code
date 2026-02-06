@@ -36,12 +36,10 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   // Motors and inputs
   private final MotorInputsAutoLogged leadMotorInputs = new MotorInputsAutoLogged();
-  private final MotorInputsAutoLogged topFollowerMotorInputs = new MotorInputsAutoLogged();
-  private final MotorInputsAutoLogged bottomFollowerMotorInputs = new MotorInputsAutoLogged();
+  private final MotorInputsAutoLogged followerMotorInputs = new MotorInputsAutoLogged();
 
   private final MotorIO leadMotor;
-  private final MotorIO topFollowerMotor;
-  private final MotorIO bottomFollowerMotor;
+  private final MotorIO followerMotor;
 
   // State machine and states
   private final StateMachine<ShooterSubsystem> stateMachine;
@@ -71,11 +69,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   public ShooterSubsystem(
       DependencyOrderedExecutor dependencyOrderedExecutor,
       MotorIO leadMotor,
-      MotorIO topFollowerMotor,
-      MotorIO bottomFollowerMotor) {
+      MotorIO followerMotor) {
     this.leadMotor = leadMotor;
-    this.topFollowerMotor = topFollowerMotor;
-    this.bottomFollowerMotor = bottomFollowerMotor;
+    this.followerMotor = followerMotor;
 
     stateMachine = new StateMachine<>(this);
 
@@ -83,11 +79,11 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     testModeState = stateMachine.registerState(new TestModeState());
 
     velocityControlState
-        .when(shooter -> shooter.isShooterTestMode(), "Is shooter test mode")
+        .when(() -> testModeManager.isInTestMode(), "Is shooter test mode")
         .transitionTo(testModeState);
 
     testModeState
-        .when(shooter -> !shooter.isShooterTestMode(), "Is not shooter test mode")
+        .when(() -> !testModeManager.isInTestMode(), "Is not shooter test mode")
         .transitionTo(velocityControlState);
 
     stateMachine.setState(velocityControlState);
@@ -133,12 +129,10 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   private void updateInputs() {
     leadMotor.updateInputs(leadMotorInputs);
-    topFollowerMotor.updateInputs(topFollowerMotorInputs);
-    bottomFollowerMotor.updateInputs(bottomFollowerMotorInputs);
+    followerMotor.updateInputs(followerMotorInputs);
 
     Logger.processInputs("Shooter/LeadMotorInputs", leadMotorInputs);
-    Logger.processInputs("Shooter/TopFollowerMotorInputs", topFollowerMotorInputs);
-    Logger.processInputs("Shooter/BottomFollowerInputs", bottomFollowerMotorInputs);
+    Logger.processInputs("Shooter/FollowerMotorInputs", followerMotorInputs);
 
     Logger.recordOutput(
         "Shooter/ClosedLoopReferenceRadiansPerSecond", leadMotorInputs.closedLoopReference);
@@ -215,17 +209,6 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   protected void controlToTargetVelocity() {
     leadMotor.controlToVelocityProfiled(targetVelocity);
-  }
-
-  public boolean isShooterTestMode() {
-    return switch (testModeManager.getTestMode()) {
-      case ShooterClosedLoopTuning,
-          ShooterCurrentTuning,
-          ShooterPhoenixTuning,
-          ShooterVoltageTuning ->
-          true;
-      default -> false;
-    };
   }
 
   /**

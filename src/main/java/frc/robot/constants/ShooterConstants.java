@@ -89,9 +89,8 @@ public class ShooterConstants {
 
   public final InvertedValue shooterMotorDirection =
       InvertedValue.CounterClockwise_Positive; // TODO: Actual value
-  // TODO: Actual invert values for the followers
-  public final Boolean invertTopFollower = true;
-  public final Boolean invertBottomFollower = true;
+  // TODO: Actual invert values for the follower
+  public final Boolean invertFollower = true;
 
   // Perhaps regenerative braking can improve our battery performance?
   public final NeutralModeValue defaultShooterNeutralMode = NeutralModeValue.Brake;
@@ -139,11 +138,7 @@ public class ShooterConstants {
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(new CANDeviceID(bus, JsonConstants.canBusAssignment.shooterLeaderId))
         .addFollower(
-            new CANDeviceID(bus, JsonConstants.canBusAssignment.shooterTopFollowerId),
-            invertTopFollower)
-        .addFollower(
-            new CANDeviceID(bus, JsonConstants.canBusAssignment.shooterBottomFollowerId),
-            invertBottomFollower)
+            new CANDeviceID(bus, JsonConstants.canBusAssignment.shooterFollowerId), invertFollower)
         .build();
   }
 

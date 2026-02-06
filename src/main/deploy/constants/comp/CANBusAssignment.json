@@ -5,6 +5,5 @@
   "hoodKrakenId": 13,
   "homingSwitchCANdiID": 14,
   "shooterLeaderId": 19,
-  "shooterTopFollowerId": 20,
-  "shooterBottomFollowerId": 21
+  "shooterFollowerId": 20
 }
