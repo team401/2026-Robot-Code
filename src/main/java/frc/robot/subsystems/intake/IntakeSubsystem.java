@@ -26,8 +26,9 @@ public class IntakeSubsystem extends SubsystemBase {
   StateMachine<IntakeSubsystem> intakeStateMachine;
 
   public enum PivotPosition {
-    STOWED,
-    DEPLOYED
+    STOWED, // Defined stowed position
+    DEPLOYED, // Defined deployed position
+    IDLE // No specific position, just hold current
   }
 
   protected MotorIO pivotMotorIO;

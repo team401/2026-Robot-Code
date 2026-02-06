@@ -133,6 +133,7 @@ public class IntakeState {
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
           world.pivotMotorIO.controlNeutral();
           world.pivotMotorIO.setCurrentPositionAsZero();
+          finish();
         }
       };
 

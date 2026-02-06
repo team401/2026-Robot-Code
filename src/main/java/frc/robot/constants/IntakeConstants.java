@@ -24,6 +24,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -32,13 +33,21 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.util.PIDGains;
 
 public class IntakeConstants {
-  public final MomentOfInertia pivotInertia = Units.KilogramSquareMeters.of(0.05);
-  public final Double pivotGearing = 1.0 / 100.0;
+    
+  // Gearing constants
+  public final Double pivotGearing = 42.5;
+  public final Double rollersGearing = 2.0;
+  
+
+  // Pivot mechanism constants
   public final Double armLengthMeters = 0.3;
   public final Double minPivotAngleRadians = -Math.PI / 2;
   public final Double maxPivotAngleRadians = Math.PI / 2;
   public final Double pivotStartingAngleRadians = 0.0;
+
+  // Sim Constants
   public final MomentOfInertia rollersInertia = Units.KilogramSquareMeters.of(0.02);
+  public final MomentOfInertia pivotInertia = Units.KilogramSquareMeters.of(0.05);
 
   // Setpoints for various positions
   public final Angle intakePositionAngle = Radians.of(0.0);
@@ -56,9 +65,15 @@ public class IntakeConstants {
   public PIDGains pivotPIDGains = new PIDGains(0.5, 0.0, 0.1); // These values are placeholders
   public PIDGains rollersPIDGains = new PIDGains(20.0, 10.0, 10.0); // These values are placeholders
 
+  // Current Limits (These current limits are placeholders and were picked randomly)
+  public final Current pivotSupplyCurrentLimit = Amps.of(20.0);
+  public final Current pivotStatorCurrentLimit = Amps.of(20.0);
+  public final Current rollersStatorCurrentLimit = Amps.of(40.0);
+  public final Current rollersSupplyCurrentLimit = Amps.of(40.0);
+
   public MechanismConfig buildPivotMechanismConfig() {
     return MechanismConfig.builder()
-        .withName("Intake Pivot Mechanism")
+        .withName("Intake/Pivot")
         .withGravityFeedforwardType(GravityFeedforwardType.COSINE_ARM)
         .withLeadMotorId(
             new CANDeviceID(
@@ -72,8 +87,10 @@ public class IntakeConstants {
             .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimitEnable(true)
-                    .withStatorCurrentLimit(Amps.of(80.0)))
+                    .withSupplyCurrentLimit(pivotSupplyCurrentLimit)
+                    .withSupplyCurrentLimitEnable(true)
+                    .withStatorCurrentLimit(pivotStatorCurrentLimit)
+                    .withStatorCurrentLimitEnable(true))
             .withSlot0(pivotPIDGains.toSlot0Config().withGravityType(GravityTypeValue.Arm_Cosine));
     // Configure motor settings here
     return config;
@@ -84,7 +101,7 @@ public class IntakeConstants {
         buildPivotMechanismConfig(),
         new SingleJointedArmSim(
             DCMotor.getKrakenX60Foc(1),
-            1.0,
+            pivotGearing,
             JsonConstants.intakeConstants.pivotInertia.in(Units.KilogramSquareMeters),
             JsonConstants.intakeConstants.armLengthMeters,
             JsonConstants.intakeConstants.minPivotAngleRadians,
@@ -99,8 +116,10 @@ public class IntakeConstants {
             .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimitEnable(true)
-                    .withStatorCurrentLimit(Amps.of(80.0)))
+                    .withSupplyCurrentLimit(rollersSupplyCurrentLimit)
+                    .withSupplyCurrentLimitEnable(true)
+                    .withStatorCurrentLimit(rollersStatorCurrentLimit)
+                    .withStatorCurrentLimitEnable(true))
             .withSlot0(rollersPIDGains.toSlot0Config());
     // Configure motor settings here
     return config;
@@ -108,7 +127,7 @@ public class IntakeConstants {
 
   public MechanismConfig buildRollersMechanismConfig() {
     return MechanismConfig.builder()
-        .withName("Intake Rollers Mechanism")
+        .withName("Intake/Rollers")
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(
@@ -123,13 +142,12 @@ public class IntakeConstants {
   }
 
   public CoppercoreSimAdapter buildRollersSim() {
+    DCMotor motor = DCMotor.getKrakenX60Foc(2).withReduction(rollersGearing);
     return new DCMotorSimAdapter(
         buildRollersMechanismConfig(),
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60Foc(2), rollersInertia.in(KilogramSquareMeters), 1.0),
-            DCMotor.getKrakenX60Foc(2),
-            0.0,
-            0.0));
+                motor, rollersInertia.in(KilogramSquareMeters), 1.0),
+            motor));
   }
 }
