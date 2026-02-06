@@ -62,23 +62,23 @@ public class LoggedTunableMotionProfile {
 
   private boolean updateProfile(int id) {
     boolean hasChanged = false;
-    if (maxVelocity.hasChanged()) {
+    if (maxVelocity.hasChanged(id)) {
       currentMotionProfile.withMaxVelocity(maxVelocity.get());
       hasChanged = true;
     }
-    if (maxAcceleration.hasChanged()) {
+    if (maxAcceleration.hasChanged(id)) {
       currentMotionProfile.withMaxAcceleration(maxAcceleration.get());
       hasChanged = true;
     }
-    if (maxJerk.hasChanged()) {
+    if (maxJerk.hasChanged(id)) {
       currentMotionProfile.withMaxJerk(maxJerk.get());
       hasChanged = true;
     }
-    if (kV.hasChanged()) {
+    if (kV.hasChanged(id)) {
       currentMotionProfile.withExpoKv(kV.get());
       hasChanged = true;
     }
-    if (kA.hasChanged()) {
+    if (kA.hasChanged(id)) {
       currentMotionProfile.withExpoKa(kA.get());
       hasChanged = true;
     }

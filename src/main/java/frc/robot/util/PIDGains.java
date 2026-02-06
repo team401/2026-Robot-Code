@@ -53,8 +53,7 @@ public record PIDGains(
     return slot2Configs;
   }
 
-  public MotorIO applyToMotorIO(MotorIO motorIO) {
+  public void applyToMotorIO(MotorIO motorIO) {
     motorIO.setGains(kP, kI, kD, kS, kG, kV, kA);
-    return motorIO;
   }
 }

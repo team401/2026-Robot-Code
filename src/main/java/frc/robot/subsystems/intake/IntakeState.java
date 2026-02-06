@@ -140,12 +140,11 @@ public class IntakeState {
       new State<IntakeSubsystem>("WaitForButton") {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          // Need to replace this with the actual button that we want to use to trigger the homing
-          // process
-          if (false) {
-            world.pivotMotorIO.setCurrentPositionAsZero();
-            finish();
-          }
+          // TODO: Need to replace this with the actual button
+          // if (false) {
+          //   world.pivotMotorIO.setCurrentPositionAsZero();
+          //   finish();
+          // }
         }
       };
 

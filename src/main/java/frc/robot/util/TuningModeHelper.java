@@ -274,7 +274,7 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
   public static final TuningMode EMPTY = new TuningModeBuilder().build();
 
-  public static final TuningMode phoenixTuning() {
+  public static TuningMode phoenixTuning() {
     return EMPTY;
   }
 

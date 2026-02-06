@@ -108,12 +108,12 @@ public class IntakeConstants {
         new SingleJointedArmSim(
             DCMotor.getKrakenX60Foc(1),
             pivotReduction,
-            JsonConstants.intakeConstants.pivotInertia.in(Units.KilogramSquareMeters),
-            JsonConstants.intakeConstants.armLengthMeters,
-            JsonConstants.intakeConstants.minPivotAngleRadians,
-            JsonConstants.intakeConstants.maxPivotAngleRadians,
+            pivotInertia.in(Units.KilogramSquareMeters),
+            armLengthMeters,
+            minPivotAngleRadians,
+            maxPivotAngleRadians,
             false,
-            JsonConstants.intakeConstants.pivotStartingAngleRadians));
+            pivotStartingAngleRadians));
   }
 
   public TalonFXConfiguration buildRollersTalonFXMotorConfig() {
