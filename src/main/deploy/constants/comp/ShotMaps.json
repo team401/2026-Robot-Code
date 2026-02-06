@@ -2,16 +2,16 @@
   "hubDataPoints": [
     {
       "distance": {
-        "value": 2.0,
+        "value": 1.799,
         "unit": "Meter"
       },
-      "shooterRPM": 1900.0,
+      "shooterRPM": 2500.0,
       "hoodAngle": {
-        "value": 15.0,
+        "value": 10.0,
         "unit": "Degree"
       },
       "flightTime": {
-        "value": 2.0,
+        "value": 0.81,
         "unit": "Second"
       }
     }
@@ -32,5 +32,9 @@
         "unit": "Second"
       }
     }
-  ]
+  ],
+  "mechanismCompensationDelay": {
+    "value": 0.1,
+    "unit": "Second"
+  }
 }

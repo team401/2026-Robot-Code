@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
@@ -284,7 +286,7 @@ public class CoordinationLayer {
               });
         });
 
-    if (Constants.currentMode == Mode.SIM) {
+    if (Constants.currentMode == Mode.SIM && (int) (Timer.getTimestamp() * 50) % 50 == 0) {
       turret.ifPresent(
           turret -> {
             hood.ifPresent(
@@ -293,6 +295,9 @@ public class CoordinationLayer {
                       shooter -> {
                         robotContainer.fuelSim.ifPresent(
                             fuelSim -> {
+                              if (!DriverStation.isEnabled()) {
+                                fuelSim.clearFuel();
+                              }
                               var heading = turret.getFieldCentricTurretHeading();
                               var pitch = hood.getCurrentExitAngle();
                               var rpm = shooter.getCurrentSpeed();
