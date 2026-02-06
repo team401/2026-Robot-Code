@@ -2,7 +2,6 @@ package frc.robot.util;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -43,7 +42,7 @@ public class LoggedTunableMotionProfile {
             namePrefix + "MaxAcceleration", defaultProfile.getMaxAcceleration(), RotationsPerSecondPerSecond);
     this.maxJerk =
         LoggedTunableMeasure.ANGULAR_JERK.of(
-            namePrefix + "MaxJerk", defaultProfile.getMaxJerk(), RotationsPerSecondPerSecond.per(Second));
+            namePrefix + "MaxJerk", defaultProfile.getMaxJerk(), RotationsPerSecondPerSecond.per(Seconds));
     this.kV =
         LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_VELOCITY.of(
             namePrefix + "kV", defaultProfile.getExpoKv(), Volts.per(RotationsPerSecond));
@@ -57,11 +56,11 @@ public class LoggedTunableMotionProfile {
   }
 
   public MotionProfileConfig getCurrentMotionProfile() {
-    updateProfile();
+    updateProfile(hashCode());
     return currentMotionProfile;
   }
 
-  private boolean updateProfile() {
+  private boolean updateProfile(int id) {
     boolean hasChanged = false;
     if (maxVelocity.hasChanged()) {
       currentMotionProfile.withMaxVelocity(maxVelocity.get());
@@ -87,7 +86,7 @@ public class LoggedTunableMotionProfile {
   }
 
   public void ifChanged(int id, MotionProfileConsumer callback) {
-    boolean hasChanged = updateProfile();
+    boolean hasChanged = updateProfile(id);
     if (hasChanged) {
       callback.accept(currentMotionProfile);
     }

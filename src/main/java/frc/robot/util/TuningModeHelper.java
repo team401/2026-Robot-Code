@@ -119,7 +119,7 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     }
   }
 
-  // TODO: Figure out what and how to name the prefixs and locations for the logged tunables
+  // TODO: Figure out what and how to name the prefixes and locations for the logged tunables
 
   public static TuningModeBuilder builder() {
     return new TuningModeBuilder();
