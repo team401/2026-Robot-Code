@@ -7,6 +7,7 @@ import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
+import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -205,12 +206,13 @@ public class InitSubsystems {
             MotorIOTalonFX.newFollower(mechanismConfig, 1, talonFXConfigs));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
+        CoppercoreSimAdapter shooterSim = JsonConstants.shooterConstants.buildShooterSim();
+
         return new ShooterSubsystem(
             dependencyOrderedExecutor,
-            MotorIOTalonFXSim.newLeader(
-                mechanismConfig, talonFXConfigs, JsonConstants.shooterConstants.buildShooterSim()),
-            MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs),
-            MotorIOTalonFXSim.newFollower(mechanismConfig, 1, talonFXConfigs));
+            MotorIOTalonFXSim.newLeader(mechanismConfig, talonFXConfigs, shooterSim),
+            MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs, shooterSim),
+            MotorIOTalonFXSim.newFollower(mechanismConfig, 1, talonFXConfigs, shooterSim));
       case REPLAY:
         // Replayed robot, disable IO implementations
         return new ShooterSubsystem(
