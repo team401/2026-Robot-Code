@@ -21,6 +21,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,6 +46,9 @@ import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.PIDGains;
+import frc.robot.util.littletonUtil.PoseEstimator;
+import frc.robot.util.littletonUtil.PoseEstimator.TimestampedVisionUpdate;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -82,6 +86,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Rotation2d rawGyroRotation = Rotation2d.kZero;
+  private Rotation2d lastGyroYaw = new Rotation2d();
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
         new SwerveModulePosition(),
@@ -91,6 +96,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+  private PoseEstimator maPoseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
 
   public Drive(
       GyroIO gyroIO,
@@ -197,10 +204,36 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
 
-      // Apply update
-      poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
-    }
+      // The following code was added for the support of ma pose estimator
+      Rotation2d deltaYaw;
+      if (i == 0) {
+        deltaYaw = rawGyroRotation.minus(lastGyroYaw);
+      } else {
+        deltaYaw = rawGyroRotation.minus(gyroInputs.odometryYawPositions[i - 1]);
+      }
+      var twist = kinematics.toTwist2d(moduleDeltas);
+      twist = new Twist2d(twist.dx, twist.dy, deltaYaw.getRadians());
 
+      Twist2d totalTwist = new Twist2d();
+      totalTwist =
+          new Twist2d(
+              totalTwist.dx + twist.dx, totalTwist.dy + twist.dy, totalTwist.dtheta + twist.dtheta);
+
+      if (gyroInputs.connected) {
+        totalTwist.dtheta = gyroInputs.yawPosition.minus(lastGyroYaw).getRadians();
+        lastGyroYaw = gyroInputs.yawPosition;
+      } else {
+        totalTwist.dtheta = rawGyroRotation.minus(lastGyroYaw).getRadians();
+        lastGyroYaw = rawGyroRotation;
+      }
+
+      // Apply update
+      if (JsonConstants.featureFlags.useMAPoseEstimator) {
+        maPoseEstimator.addDriveData(sampleTimestamps[i], totalTwist);
+      } else {
+        poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+      }
+    }
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }
@@ -341,7 +374,11 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   /** Returns the current odometry pose. */
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
+    if (JsonConstants.featureFlags.useMAPoseEstimator) {
+      return maPoseEstimator.getLatestPose();
+    } else {
+      return poseEstimator.getEstimatedPosition();
+    }
   }
 
   /** Returns the current odometry rotation. */
@@ -351,7 +388,11 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
-    poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+    if (JsonConstants.featureFlags.useMAPoseEstimator) {
+      maPoseEstimator.resetPose(pose);
+    } else {
+      poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+    }
   }
 
   /** Adds a new timestamped vision measurement. */
@@ -359,8 +400,15 @@ public class Drive extends SubsystemBase implements DriveTemplate {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    poseEstimator.addVisionMeasurement(
-        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    if (JsonConstants.featureFlags.useMAPoseEstimator) {
+      maPoseEstimator.addVisionData(
+          List.of(
+              new TimestampedVisionUpdate(
+                  timestampSeconds, visionRobotPoseMeters, visionMeasurementStdDevs)));
+    } else {
+      poseEstimator.addVisionMeasurement(
+          visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    }
   }
 
   /** Returns the maximum linear speed in meters per sec. */
