@@ -5,12 +5,15 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N3;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
@@ -233,17 +236,18 @@ public class CoordinationLayer {
       Which, after simplification equals:
       = - i *omega * y + j * omega * x
       = < - omega * y, omega * x >
+
+      However, we can accomplish this math using Translation3d.cross instead:
     */
     double omega = fieldCentricSpeeds.omegaRadiansPerSecond;
+    Translation3d omega_vec = new Translation3d(0, 0, omega);
 
-    // z cancels out of the equation, so convert everything to 2D
-    Translation2d robotToShooterTranslationXY =
-        JsonConstants.robotInfo.robotToShooter.getTranslation().toTranslation2d();
-    Translation2d fieldRelativeRobotToShooter =
-        robotToShooterTranslationXY.rotateBy(robotPose.getRotation());
+    Translation3d robotToShooterTranslation =
+        JsonConstants.robotInfo.robotToShooter.getTranslation();
+    Translation3d fieldRelativeRobotToShooter =
+        robotToShooterTranslation.rotateBy(new Rotation3d(robotPose.getRotation()));
 
-    double vRotX = -omega * fieldRelativeRobotToShooter.getY();
-    double vRotY = omega * fieldRelativeRobotToShooter.getX();
+    Vector<N3> vRot = omega_vec.cross(fieldRelativeRobotToShooter);
 
     // Shooter velocity is the instantaneous velocity of the shooter at the moment of release.
     // This means that it must include the translation of the drivetrain, plus the circular motion
@@ -253,8 +257,8 @@ public class CoordinationLayer {
     // in the air in the same way as the shooter curves on the ground.
     Translation2d shooterVelocity =
         new Translation2d(
-            fieldCentricSpeeds.vxMetersPerSecond + vRotX,
-            fieldCentricSpeeds.vyMetersPerSecond + vRotY);
+            fieldCentricSpeeds.vxMetersPerSecond + vRot.get(0),
+            fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
 
     Optional<MapBasedShotInfo> maybeShot =
         ShotCalculations.calculateShotFromMap(shooterPosition, shooterVelocity, target);
