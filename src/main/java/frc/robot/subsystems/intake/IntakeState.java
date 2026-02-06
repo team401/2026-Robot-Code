@@ -91,6 +91,11 @@ public class IntakeState {
       rollerTuningModeHelper.runTestMode(world.rollerTestModeManager.getTestMode());
 
       if (!shouldBeInTestMode(world)) {
+
+        // Ensure motors are neutral when exiting test mode
+        world.pivotMotorIO.controlNeutral();
+        world.rollersLeadMotorIO.controlNeutral();
+        world.rollersFollowerMotorIO.controlNeutral();
         finish();
       }
     }

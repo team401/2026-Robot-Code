@@ -8,7 +8,6 @@ import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -201,9 +200,9 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
     rollersFollowerMotorIO.updateInputs(rollerFollowerMotorInputs);
 
-    Logger.processInputs("intake/pivot/inputs", pivotInputs);
-    Logger.processInputs("intake/rollerLead/inputs", rollerLeadMotorInputs);
-    Logger.processInputs("intake/rollerFollower/inputs", rollerFollowerMotorInputs);
+    Logger.processInputs("Intake/Pivot/Inputs", pivotInputs);
+    Logger.processInputs("Intake/RollerLead/Inputs", rollerLeadMotorInputs);
+    Logger.processInputs("Intake/RollerFollower/Inputs", rollerFollowerMotorInputs);
 
     // This is run outside of the test mode because we want to be able to tune the roller speed
     // in test mode and be able to control the pivot as if we were operating the robot normally
@@ -211,6 +210,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
       rollersTargetSpeedTunable.ifChanged(
           rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed);
     }
+
+    Logger.recordOutput("Intake/State", intakeStateMachine.getCurrentState().getName());
 
     intakeStateMachine.periodic();
   }
