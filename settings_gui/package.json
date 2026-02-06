@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-types": "npx tsx scripts/generate-types.ts"
+    "generate-types": "npx tsx scripts/generate-types.ts ../src/main/deploy/constants/comp/ShotMaps.json -o src/types"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

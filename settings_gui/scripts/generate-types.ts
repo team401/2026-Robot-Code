@@ -1,6 +1,26 @@
 import * as fs from "fs";
 import * as path from "path";
 
+const USAGE = `
+Usage: npx tsx scripts/generate-types.ts <json-file> [-o <output-dir>]
+
+Reads a JSON constants file and generates TypeScript interface definitions.
+Objects with exactly {value, unit} fields are inferred as a shared UnitValue type.
+
+Arguments:
+  <json-file>           Path to the JSON file to generate types from (required)
+  -o, --output <dir>    Write a .d.ts file to this directory (created if needed).
+                        If omitted, output is printed to stdout.
+  -h, --help            Show this help message
+
+Examples:
+  # Print generated types to stdout
+  npx tsx scripts/generate-types.ts ../src/main/deploy/constants/comp/ShotMaps.json
+
+  # Write to src/types/ShotMaps.d.ts
+  npx tsx scripts/generate-types.ts ../src/main/deploy/constants/comp/ShotMaps.json -o src/types
+`.trim();
+
 const UNIT_VALUE_KEYS = new Set(["value", "unit"]);
 
 function isUnitValue(obj: unknown): boolean {
@@ -56,7 +76,7 @@ function inferType(
   return "unknown";
 }
 
-function generateTypes(jsonPath: string, outputDir: string): void {
+function generateTypes(jsonPath: string): string {
   const raw = fs.readFileSync(jsonPath, "utf-8");
   const data = JSON.parse(raw) as Record<string, unknown>;
   const baseName = path.basename(jsonPath, ".json");
@@ -95,14 +115,52 @@ function generateTypes(jsonPath: string, outputDir: string): void {
     lines.push(``);
   }
 
-  const outPath = path.join(outputDir, `${baseName}.d.ts`);
-  fs.mkdirSync(outputDir, { recursive: true });
-  fs.writeFileSync(outPath, lines.join("\n"));
-  console.log(`Generated ${outPath}`);
+  return lines.join("\n");
 }
 
-// CLI: npx tsx scripts/generate-types.ts <json-file> [output-dir]
-const jsonFile = process.argv[2] || "../src/main/deploy/constants/comp/ShotMaps.json";
-const outputDir = process.argv[3] || "src/types";
+// --- CLI ---
+const args = process.argv.slice(2);
 
-generateTypes(path.resolve(jsonFile), path.resolve(outputDir));
+if (args.includes("-h") || args.includes("--help")) {
+  console.log(USAGE);
+  process.exit(0);
+}
+
+// Parse arguments
+let jsonFile: string | undefined;
+let outputDir: string | undefined;
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "-o" || args[i] === "--output") {
+    outputDir = args[++i];
+    if (!outputDir) {
+      console.error("Error: -o/--output requires a directory argument");
+      process.exit(1);
+    }
+  } else if (args[i].startsWith("-")) {
+    console.error(`Error: unknown option '${args[i]}'`);
+    console.error(USAGE);
+    process.exit(1);
+  } else {
+    jsonFile = args[i];
+  }
+}
+
+if (!jsonFile) {
+  console.error("Error: no JSON file specified\n");
+  console.error(USAGE);
+  process.exit(1);
+}
+
+const output = generateTypes(path.resolve(jsonFile));
+
+if (outputDir) {
+  const baseName = path.basename(jsonFile, ".json");
+  const resolvedDir = path.resolve(outputDir);
+  const outPath = path.join(resolvedDir, `${baseName}.d.ts`);
+  fs.mkdirSync(resolvedDir, { recursive: true });
+  fs.writeFileSync(outPath, output);
+  console.error(`Generated ${outPath}`);
+} else {
+  process.stdout.write(output);
+}
