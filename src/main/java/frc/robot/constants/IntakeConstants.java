@@ -9,8 +9,10 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
@@ -35,8 +37,8 @@ import frc.robot.util.PIDGains;
 public class IntakeConstants {
     
   // Gearing constants
-  public final Double pivotGearing = 42.5;
-  public final Double rollersGearing = 2.0;
+  public final Double pivotReduction = 42.5;
+  public final Double rollersReduction = 2.0;
   
 
   // Pivot mechanism constants
@@ -75,6 +77,7 @@ public class IntakeConstants {
     return MechanismConfig.builder()
         .withName("Intake/Pivot")
         .withGravityFeedforwardType(GravityFeedforwardType.COSINE_ARM)
+        .withEncoderToMechanismRatio(pivotReduction)
         .withLeadMotorId(
             new CANDeviceID(
                 JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.intakePivotMotorId))
@@ -91,7 +94,11 @@ public class IntakeConstants {
                     .withSupplyCurrentLimitEnable(true)
                     .withStatorCurrentLimit(pivotStatorCurrentLimit)
                     .withStatorCurrentLimitEnable(true))
-            .withSlot0(pivotPIDGains.toSlot0Config().withGravityType(GravityTypeValue.Arm_Cosine));
+            .withSlot0(pivotPIDGains.toSlot0Config().withGravityType(GravityTypeValue.Arm_Cosine))
+            .withFeedback(
+                new FeedbackConfigs()
+                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                    .withSensorToMechanismRatio(pivotReduction));
     // Configure motor settings here
     return config;
   }
@@ -101,7 +108,7 @@ public class IntakeConstants {
         buildPivotMechanismConfig(),
         new SingleJointedArmSim(
             DCMotor.getKrakenX60Foc(1),
-            pivotGearing,
+            pivotReduction,
             JsonConstants.intakeConstants.pivotInertia.in(Units.KilogramSquareMeters),
             JsonConstants.intakeConstants.armLengthMeters,
             JsonConstants.intakeConstants.minPivotAngleRadians,
@@ -120,7 +127,11 @@ public class IntakeConstants {
                     .withSupplyCurrentLimitEnable(true)
                     .withStatorCurrentLimit(rollersStatorCurrentLimit)
                     .withStatorCurrentLimitEnable(true))
-            .withSlot0(rollersPIDGains.toSlot0Config());
+            .withSlot0(rollersPIDGains.toSlot0Config())
+            .withFeedback(
+                new FeedbackConfigs()
+                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                    .withSensorToMechanismRatio(rollersReduction));
     // Configure motor settings here
     return config;
   }
@@ -128,6 +139,7 @@ public class IntakeConstants {
   public MechanismConfig buildRollersMechanismConfig() {
     return MechanismConfig.builder()
         .withName("Intake/Rollers")
+        .withEncoderToMechanismRatio(rollersReduction)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(
@@ -142,7 +154,7 @@ public class IntakeConstants {
   }
 
   public CoppercoreSimAdapter buildRollersSim() {
-    DCMotor motor = DCMotor.getKrakenX60Foc(2).withReduction(rollersGearing);
+    DCMotor motor = DCMotor.getKrakenX60Foc(2).withReduction(rollersReduction);
     return new DCMotorSimAdapter(
         buildRollersMechanismConfig(),
         new DCMotorSim(

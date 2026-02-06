@@ -94,7 +94,15 @@ public class IntakeSubsystem extends SubsystemBase {
         .when(DriverStation::isEnabled, "When robot is enabled and button has not been pressed")
         .transitionTo(IntakeState.homingWaitForMovementState);
 
+
+
     // ### Wait for movement transitions
+    // If the robot gets disabled during the homing process, we transition back to 
+    // the wait for button state to wait for the operator to re-enable the robot
+    //  and restart the homing process.
+    IntakeState.homingWaitForMovementState
+        .when(DriverStation::isDisabled, "When robot is disabled during homing")
+        .transitionTo(IntakeState.waitForButtonState);
     // If the mechanism starts moving, we assume that it is has started the homing
     // process properly and we transition to the homing wait for stop moving state
     // to wait for it stop moving to finish the homing process
@@ -108,8 +116,12 @@ public class IntakeSubsystem extends SubsystemBase {
         .whenTimeout(JsonConstants.intakeConstants.homingTimeoutSeconds)
         .transitionTo(IntakeState.homingDoneState);
 
-
-    
+    // If the robot gets disabled during the homing process, we transition back to 
+    // the wait for button state to wait for the operator to re-enable the robot
+    //  and restart the homing process.
+    IntakeState.homingWaitForStopMovingState
+        .when(DriverStation::isDisabled, "When robot is disabled during homing")
+        .transitionTo(IntakeState.waitForButtonState);
     // If the mechanism starts moving, we assume that we have started the homing
     // process properly and so we wait for it to stop moving by hitting a hard 
     // stop. Once it stops moving, we assume that we are in the homed position 
@@ -118,6 +130,8 @@ public class IntakeSubsystem extends SubsystemBase {
         .whenFinished()
         .transitionTo(IntakeState.homingDoneState);
   
+
+    
     // ### Exiting homing process transition
     // Once the mechanism has stopped moving, we consider the homing process to be
     // done and we set the current position as zero and transition to the control
