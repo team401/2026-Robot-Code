@@ -140,11 +140,10 @@ public class IntakeState {
       new State<IntakeSubsystem>("WaitForButton") {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          // TODO: Need to replace this with the actual button
-          // if (false) {
-          //   world.pivotMotorIO.setCurrentPositionAsZero();
-          //   finish();
-          // }
+          if (world.getDependencies().isHomingSwitchPressed()) {
+            world.pivotMotorIO.setCurrentPositionAsZero();
+            finish();
+          }
         }
       };
 

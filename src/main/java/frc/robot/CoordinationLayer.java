@@ -51,6 +51,8 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::updateTurretDependencies");
   public static final ActionKey UPDATE_HOOD_DEPENDENCIES =
       new ActionKey("CoordinationLayer::updateHoodDependencies");
+  public static final ActionKey UPDATE_INTAKE_DEPENDENCIES =
+      new ActionKey("CoordinationLayer::updateIntakeDependencies");
   public static final ActionKey RUN_SHOT_CALCULATOR =
       new ActionKey("CoordinationLayer::runShotCalculator");
   public static final ActionKey RUN_DEMO_MODES =
@@ -101,6 +103,9 @@ public class CoordinationLayer {
   public void setIntake(IntakeSubsystem intake) {
     checkForDuplicateSubsystem(this.intake, "Intake");
     this.intake = Optional.of(intake);
+
+    dependencyOrderedExecutor.registerAction(
+        UPDATE_INTAKE_DEPENDENCIES, () -> updateIntakeDependencies(intake));
   }
 
   /**
@@ -178,6 +183,11 @@ public class CoordinationLayer {
   /** Update the hood subsystem on the state of the homing switch. */
   private void updateHoodDependencies(HoodSubsystem hood) {
     hood.setIsHomingSwitchPressed(isHomingSwitchPressed());
+  }
+
+  /** Update the intake subsystem on the state of the homing switch. */
+  private void updateIntakeDependencies(IntakeSubsystem intake) {
+    intake.setIsHomingSwitchPressed(isHomingSwitchPressed());
   }
 
   // Coordination and processing

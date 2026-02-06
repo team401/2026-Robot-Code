@@ -8,6 +8,7 @@ import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -38,6 +39,30 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   protected Angle targetPivotAngle = Degrees.zero();
 
   private LoggedTunableMeasure.LoggedAngularVelocity rollersTargetSpeedTunable;
+
+  private IntakeDependencies dependencies = new IntakeDependencies();
+
+  // Dependencies (these are what we would have fetched using extensive supplier networks in 2025
+  // and before)
+  public static class IntakeDependencies {
+    /**
+     * Whether or not the homing switch is currently pressed. This value should default to false
+     * when a homing limit switch is not present.
+     */
+    private boolean isHomingSwitchPressed = false;
+
+    public boolean isHomingSwitchPressed() {
+      return isHomingSwitchPressed;
+    }
+  }
+
+  public IntakeDependencies getDependencies() {
+    return this.dependencies;
+  }
+
+  public void setIsHomingSwitchPressed(boolean isHomingSwitchPressed) {
+    dependencies.isHomingSwitchPressed = isHomingSwitchPressed;
+  }
 
   public IntakeSubsystem(
       MotorIO pivotMotorIO, MotorIO rollersLeadMotorIO, MotorIO rollersFollowerMotorIO) {
