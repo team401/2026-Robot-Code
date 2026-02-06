@@ -1,6 +1,8 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
@@ -11,12 +13,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
@@ -32,6 +36,7 @@ import java.util.Optional;
  * calculator, and distributing commands to subsystems based on the action layer.
  */
 public class CoordinationLayer {
+  private final RobotContainer robotContainer;
   // Subsystems
   private Optional<Drive> drive = Optional.empty();
   private Optional<DriveCoordinator> driveCoordinator = Optional.empty();
@@ -57,7 +62,9 @@ public class CoordinationLayer {
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
-  public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
+  public CoordinationLayer(
+      RobotContainer robotContainer, DependencyOrderedExecutor dependencyOrderedExecutor) {
+    this.robotContainer = robotContainer;
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
@@ -269,7 +276,6 @@ public class CoordinationLayer {
           hood.ifPresent(
               hood -> {
                 hood.targetAngleRadians(shot.hoodAngleRadians());
-                ;
               });
 
           shooter.ifPresent(
@@ -277,6 +283,42 @@ public class CoordinationLayer {
                 shooter.setTargetVelocityRPM(shot.shooterRPM());
               });
         });
+
+    if (Constants.currentMode == Mode.SIM) {
+      turret.ifPresent(
+          turret -> {
+            hood.ifPresent(
+                hood -> {
+                  shooter.ifPresent(
+                      shooter -> {
+                        robotContainer.fuelSim.ifPresent(
+                            fuelSim -> {
+                              var heading = turret.getFieldCentricTurretHeading();
+                              var pitch = hood.getCurrentExitAngle();
+                              var rpm = shooter.getCurrentSpeed();
+
+                              double ballVelocityMps =
+                                  rpm.in(RPM)
+                                      * ShooterConstants.SHOOTER_SPEED_TO_EXIT_VELOCITY.in(
+                                          MetersPerSecond.per(RPM));
+                              double vertShooterVelocity =
+                                  ballVelocityMps * new Rotation2d(pitch).getSin();
+                              double horizShooterVelocity =
+                                  ballVelocityMps * new Rotation2d(pitch).getCos();
+
+                              double xShooterVelocity = horizShooterVelocity * heading.getCos();
+                              double yShooterVelocity = horizShooterVelocity * heading.getSin();
+
+                              var ballVelocity =
+                                  new Translation3d(
+                                      xShooterVelocity, yShooterVelocity, vertShooterVelocity);
+
+                              fuelSim.spawnFuel(shooterPosition, ballVelocity);
+                            });
+                      });
+                });
+          });
+    }
   }
 
   private void runSubsystemDemoModes() {

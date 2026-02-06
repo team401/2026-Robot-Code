@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
@@ -24,10 +25,13 @@ import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.util.sim.FlywheelSimAdapter;
 
@@ -158,4 +162,12 @@ public class ShooterConstants {
                 DCMotor.getKrakenX60Foc(3), shooterMOI.in(KilogramSquareMeters), 1.0),
             DCMotor.getKrakenX60Foc(3)));
   }
+
+  /**
+   * A magic number taken from KLib, the design calculations google sheet, which I'm using to get an
+   * estimate of exit velocity to test tuning with the tuning modes in sim.
+   */
+  @JSONExclude
+  public static final Per<LinearVelocityUnit, AngularVelocityUnit> SHOOTER_SPEED_TO_EXIT_VELOCITY =
+      FeetPerSecond.of(20.13).div(RPM.of(2500));
 }

@@ -14,6 +14,7 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -237,5 +238,14 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    */
   public void setTargetVelocityRPM(double velocityRPM) {
     targetVelocity.mut_replace(velocityRPM, RPM);
+  }
+
+  /**
+   * Gets the current speed of the shooters as a Measure
+   *
+   * @return An AngularVelocity containing the current angular velocity of the shooter flywheels
+   */
+  public AngularVelocity getCurrentSpeed() {
+    return RadiansPerSecond.of(leadMotorInputs.velocityRadiansPerSecond);
   }
 }

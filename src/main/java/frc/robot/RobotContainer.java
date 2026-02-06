@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
@@ -25,6 +26,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.util.external.hammerheads5000.FuelSim;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -37,6 +39,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 // i helped copilot autocomplete write this
 public class RobotContainer {
   private final DependencyOrderedExecutor dependencyOrderedExecutor;
+
+  protected final Optional<FuelSim> fuelSim;
 
   // Subsystems
   private final Optional<Drive> drive;
@@ -65,7 +69,15 @@ public class RobotContainer {
     dependencyOrderedExecutor.addDependencies(
         RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_SHOT_CALCULATOR);
 
-    coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
+    if (Constants.currentMode == Mode.SIM) {
+      var fuelSimInstance = new FuelSim("FuelSim");
+      fuelSim = Optional.of(fuelSimInstance);
+      fuelSimInstance.start();
+    } else {
+      fuelSim = Optional.empty();
+    }
+
+    coordinationLayer = new CoordinationLayer(this, dependencyOrderedExecutor);
 
     if (JsonConstants.featureFlags.runDrive) {
       Drive drive = InitSubsystems.initDriveSubsystem();
