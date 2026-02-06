@@ -15,11 +15,10 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -143,6 +142,29 @@ public class ShotMaps {
     Logger.recordOutput("ShotMaps/maxPassDistanceMeters", maxPassDistanceMeters);
   }
 
+  /**
+   * Create a new array with a length increased by 1, copy all contents from the given array, add
+   * the new data point, sort the new array, and return the new array.
+   *
+   * <p>This method exists to easily update the shot maps during tuning.
+   *
+   * <p>While sorting isn't technically necessary for generating the InterpolatingDoubleTreeMaps, it
+   * does make the JSON file produced much easier to use, as all points will be ordered by distance.
+   *
+   * @param newDataPoint The new datapoint to add to the array
+   * @param dataPoints The array of old datapoints
+   * @return An array with all datapoints from dataPoints plus newDataPoint, sorted by distance
+   */
+  private ShotMapDataPoint[] addDataPointToArray(
+      ShotMapDataPoint newDataPoint, ShotMapDataPoint[] dataPoints) {
+    int n = dataPoints.length;
+    ShotMapDataPoint[] newDataPoints = new ShotMapDataPoint[n];
+    System.arraycopy(hubDataPoints, 0, newDataPoints, 0, n);
+    newDataPoints[n] = newDataPoint;
+    Arrays.sort(newDataPoints, Comparator.comparing(dataPoint -> dataPoint.distance().in(Meters)));
+    return newDataPoints;
+  }
+
   public void publishTuningValues() {
     LoggedTunableNumber distanceMeters =
         new LoggedTunableNumber("ShotMapTuning/distanceMeters", 0.0);
@@ -155,37 +177,26 @@ public class ShotMaps {
         new LoggedTunableNumber(
             "ShotMapTuning/compensationTimeSeconds", mechanismCompensationDelay.in(Seconds));
 
+    Supplier<ShotMapDataPoint> tunedDataPoint =
+        () ->
+            new ShotMapDataPoint(
+                Meters.of(distanceMeters.getAsDouble()),
+                shooterRPM.getAsDouble(),
+                Degrees.of(hoodAngleDegrees.getAsDouble()),
+                Seconds.of(flightTimeSeconds.getAsDouble()));
+
     Command addPointToHubMapCommand =
         new InstantCommand(
                 () -> {
-                  List<ShotMapDataPoint> hubList = new ArrayList<>(Arrays.asList(hubDataPoints));
-                  hubList.add(
-                      new ShotMapDataPoint(
-                          Meters.of(distanceMeters.getAsDouble()),
-                          shooterRPM.getAsDouble(),
-                          Degrees.of(hoodAngleDegrees.getAsDouble()),
-                          Seconds.of(flightTimeSeconds.getAsDouble())));
-                  hubList.sort(
-                      Comparator.comparingDouble(dataPoint -> dataPoint.distance().in(Meters)));
-                  hubDataPoints = hubList.toArray(new ShotMapDataPoint[0]);
+                  hubDataPoints = addDataPointToArray(tunedDataPoint.get(), hubDataPoints);
                   initializeMaps();
-                  System.out.println("Updated map");
                 })
             .ignoringDisable(true);
 
     Command addPointToPassingMapCommand =
         new InstantCommand(
                 () -> {
-                  List<ShotMapDataPoint> passList = new ArrayList<>(Arrays.asList(passDataPoints));
-                  passList.add(
-                      new ShotMapDataPoint(
-                          Meters.of(distanceMeters.getAsDouble()),
-                          shooterRPM.getAsDouble(),
-                          Degrees.of(hoodAngleDegrees.getAsDouble()),
-                          Seconds.of(flightTimeSeconds.getAsDouble())));
-                  passList.sort(
-                      Comparator.comparingDouble(dataPoint -> dataPoint.distance().in(Meters)));
-                  passDataPoints = passList.toArray(new ShotMapDataPoint[0]);
+                  passDataPoints = addDataPointToArray(tunedDataPoint.get(), passDataPoints);
                   initializeMaps();
                 })
             .ignoringDisable(true);
