@@ -14,7 +14,6 @@ import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -280,7 +279,7 @@ public class InitSubsystems {
         MechanismConfig rollersConfig = JsonConstants.intakeConstants.buildRollersMechanismConfig();
 
         CoppercoreSimAdapter rollerSim = JsonConstants.intakeConstants.buildRollersSim();
-        
+
         return new IntakeSubsystem(
             MotorIOTalonFXSim.newLeader(
                 pivotConfig,
@@ -291,7 +290,10 @@ public class InitSubsystems {
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
                 rollerSim),
             MotorIOTalonFXSim.newFollower(
-                rollersConfig, 0, JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(), rollerSim));
+                rollersConfig,
+                0,
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                rollerSim));
 
       default:
         // Replayed robot, disable IO implementations

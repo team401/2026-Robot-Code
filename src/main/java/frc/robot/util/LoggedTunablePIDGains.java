@@ -79,7 +79,6 @@ public class LoggedTunablePIDGains {
     };
   }
 
-
   @FunctionalInterface
   public interface GainsConsumer {
     GainsConsumer noOp = pidGains -> {};

@@ -35,11 +35,10 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.util.PIDGains;
 
 public class IntakeConstants {
-    
+
   // Gearing constants
   public final Double pivotReduction = 42.5;
   public final Double rollersReduction = 2.0;
-  
 
   // Pivot mechanism constants
   public final Double armLengthMeters = 0.3;
@@ -158,8 +157,7 @@ public class IntakeConstants {
     return new DCMotorSimAdapter(
         buildRollersMechanismConfig(),
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                motor, rollersInertia.in(KilogramSquareMeters), 1.0),
+            LinearSystemId.createDCMotorSystem(motor, rollersInertia.in(KilogramSquareMeters), 1.0),
             motor));
   }
 }

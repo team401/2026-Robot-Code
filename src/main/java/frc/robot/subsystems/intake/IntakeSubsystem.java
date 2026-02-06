@@ -3,24 +3,21 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
-import java.util.List;
 
 import coppercore.controls.state_machine.StateMachine;
-import coppercore.parameter_tools.LoggedTunableNumber;
+import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.TestModeManager;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends MonitoredSubsystem {
 
   TestModeManager<PivotTestMode> pivotTestModeManager =
       new TestModeManager<PivotTestMode>("IntakePivot", PivotTestMode.class);
@@ -52,52 +49,52 @@ public class IntakeSubsystem extends SubsystemBase {
     this.rollerLeadMotorInputs = new MotorInputsAutoLogged();
     this.rollerFollowerMotorInputs = new MotorInputsAutoLogged();
 
-    this.rollersTargetSpeedTunable = LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-        "IntakeRollersTargetSpeedRPM",
-        JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM),
-        RPM);
+    this.rollersTargetSpeedTunable =
+        LoggedTunableMeasure.ANGULAR_VELOCITY.of(
+            "IntakeRollersTargetSpeedRPM",
+            JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM),
+            RPM);
 
     this.intakeStateMachine = new StateMachine<IntakeSubsystem>(this);
 
-    IntakeState.testModeState = this.intakeStateMachine.registerState(new IntakeState.TestModeState(this));
+    IntakeState.testModeState =
+        this.intakeStateMachine.registerState(new IntakeState.TestModeState(this));
     List.of(
-      IntakeState.controlToPositionState,      IntakeState.waitForButtonState, 
-      IntakeState.homingWaitForMovementState,  IntakeState.homingWaitForStopMovingState,
-      IntakeState.homingDoneState)
+            IntakeState.controlToPositionState,
+            IntakeState.waitForButtonState,
+            IntakeState.homingWaitForMovementState,
+            IntakeState.homingWaitForStopMovingState,
+            IntakeState.homingDoneState)
         .forEach(this.intakeStateMachine::registerState);
 
-
-
     // ### Test Mode Transitions
-    // Any time we finish any state and we should be in test mode, we transition to the test mode state at
-    // the soonest time we can without disrupting the the homing process. So that when we are in test mode,
-    // we can be sure that it has been properly homed and that the setpoints we get in test mode are accurate.
+    // Any time we finish any state and we should be in test mode, we transition to the test mode
+    // state at
+    // the soonest time we can without disrupting the the homing process. So that when we are in
+    // test mode,
+    // we can be sure that it has been properly homed and that the setpoints we get in test mode are
+    // accurate.
     IntakeState.waitForButtonState
-        .whenFinished().andWhen(IntakeState::shouldBeInTestMode, "Should be in test mode")
+        .whenFinished()
+        .andWhen(IntakeState::shouldBeInTestMode, "Should be in test mode")
         .transitionTo(IntakeState.testModeState);
     IntakeState.homingDoneState
-        .whenFinished().andWhen(IntakeState::shouldBeInTestMode, "Should be in test mode")
+        .whenFinished()
+        .andWhen(IntakeState::shouldBeInTestMode, "Should be in test mode")
         .transitionTo(IntakeState.testModeState);
     IntakeState.controlToPositionState
         .when(IntakeState::shouldBeInTestMode, "Should be in test mode")
         .transitionTo(IntakeState.testModeState);
-    IntakeState.testModeState
-        .whenFinished()
-        .transitionTo(IntakeState.controlToPositionState);
-
+    IntakeState.testModeState.whenFinished().transitionTo(IntakeState.controlToPositionState);
 
     // ### Homing Button Transitions
-    IntakeState.waitForButtonState
-        .whenFinished()
-        .transitionTo(IntakeState.controlToPositionState);
+    IntakeState.waitForButtonState.whenFinished().transitionTo(IntakeState.controlToPositionState);
     IntakeState.waitForButtonState
         .when(DriverStation::isEnabled, "When robot is enabled and button has not been pressed")
         .transitionTo(IntakeState.homingWaitForMovementState);
 
-
-
     // ### Wait for movement transitions
-    // If the robot gets disabled during the homing process, we transition back to 
+    // If the robot gets disabled during the homing process, we transition back to
     // the wait for button state to wait for the operator to re-enable the robot
     //  and restart the homing process.
     IntakeState.homingWaitForMovementState
@@ -116,29 +113,25 @@ public class IntakeSubsystem extends SubsystemBase {
         .whenTimeout(JsonConstants.intakeConstants.homingTimeoutSeconds)
         .transitionTo(IntakeState.homingDoneState);
 
-    // If the robot gets disabled during the homing process, we transition back to 
+    // If the robot gets disabled during the homing process, we transition back to
     // the wait for button state to wait for the operator to re-enable the robot
     //  and restart the homing process.
     IntakeState.homingWaitForStopMovingState
         .when(DriverStation::isDisabled, "When robot is disabled during homing")
         .transitionTo(IntakeState.waitForButtonState);
     // If the mechanism starts moving, we assume that we have started the homing
-    // process properly and so we wait for it to stop moving by hitting a hard 
-    // stop. Once it stops moving, we assume that we are in the homed position 
+    // process properly and so we wait for it to stop moving by hitting a hard
+    // stop. Once it stops moving, we assume that we are in the homed position
     // and we finish the homing process by transitioning to the homing done state
     IntakeState.homingWaitForStopMovingState
         .whenFinished()
         .transitionTo(IntakeState.homingDoneState);
-  
 
-    
     // ### Exiting homing process transition
     // Once the mechanism has stopped moving, we consider the homing process to be
     // done and we set the current position as zero and transition to the control
     // to position state
-    IntakeState.homingDoneState
-        .whenFinished()
-        .transitionTo(IntakeState.controlToPositionState);
+    IntakeState.homingDoneState.whenFinished().transitionTo(IntakeState.controlToPositionState);
 
     this.intakeStateMachine.setState(IntakeState.waitForButtonState);
   }
@@ -177,7 +170,8 @@ public class IntakeSubsystem extends SubsystemBase {
     setTargetPivotAngle(JsonConstants.intakeConstants.intakePositionAngle);
   }
 
-  public void periodic() {
+  @Override
+  public void monitoredPeriodic() {
     pivotMotorIO.updateInputs(pivotInputs);
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
     rollersFollowerMotorIO.updateInputs(rollerFollowerMotorInputs);
@@ -189,11 +183,10 @@ public class IntakeSubsystem extends SubsystemBase {
     // This is run outside of the test mode because we want to be able to tune the roller speed
     // in test mode and be able to control the pivot as if we were operating the robot normally
     if (rollerTestModeManager.getTestMode() == RollerTestMode.RollerSpeedTuning) {
-      rollersTargetSpeedTunable
-        .ifChanged(rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed);
+      rollersTargetSpeedTunable.ifChanged(
+          rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed);
     }
 
     intakeStateMachine.periodic();
   }
-
 }

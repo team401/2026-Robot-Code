@@ -41,33 +41,47 @@ public class IntakeState {
     public TestModeState(IntakeSubsystem world) {
       super("TestMode");
 
-      pivotTuningModeHelper = new TuningModeHelper<>(PivotTestMode.class)
-        .addStandardTuningModesForMotor(
-          PivotTestMode.PivotPhoenixTuning, PivotTestMode.PivotVoltageTuning, PivotTestMode.PivotCurrentTuning,
-         "Intake/Pivot/", world.pivotMotorIO)
-        .addTuningMode(PivotTestMode.PivotClosedLoopTuning,
-            TuningModeHelper.addClosedLoopPositionUnprofiledTuning(
-                TuningModeHelper.builder(),
-                "Intake/Pivot/",
-                JsonConstants.intakeConstants.pivotPIDGains,
-                JsonConstants.intakeConstants.stowPositionAngle,
-                gains -> JsonConstants.intakeConstants.pivotPIDGains = gains,
-                setpoint -> world.setTargetPivotAngle(setpoint),
-                world.pivotMotorIO).build());
+      pivotTuningModeHelper =
+          new TuningModeHelper<>(PivotTestMode.class)
+              .addStandardTuningModesForMotor(
+                  PivotTestMode.PivotPhoenixTuning,
+                  PivotTestMode.PivotVoltageTuning,
+                  PivotTestMode.PivotCurrentTuning,
+                  "Intake/Pivot/",
+                  world.pivotMotorIO)
+              .addTuningMode(
+                  PivotTestMode.PivotClosedLoopTuning,
+                  TuningModeHelper.addClosedLoopPositionUnprofiledTuning(
+                          TuningModeHelper.builder(),
+                          "Intake/Pivot/",
+                          JsonConstants.intakeConstants.pivotPIDGains,
+                          JsonConstants.intakeConstants.stowPositionAngle,
+                          gains -> JsonConstants.intakeConstants.pivotPIDGains = gains,
+                          setpoint -> world.setTargetPivotAngle(setpoint),
+                          world.pivotMotorIO)
+                      .build());
 
-      rollerTuningModeHelper = new TuningModeHelper<>(RollerTestMode.class)
-        .addStandardTuningModesForMotor(
-          RollerTestMode.RollerPhoenixTuning, RollerTestMode.RollerVoltageTuning, RollerTestMode.RollerCurrentTuning,
-         "Intake/Rollers/", world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
-        .addTuningMode(RollerTestMode.RollerClosedLoopTuning,
-            TuningModeHelper.addClosedLoopVelocityUnprofiledTuning(
-                TuningModeHelper.builder(),
-                "Intake/Rollers/",
-                JsonConstants.intakeConstants.rollersPIDGains,
-                RPM.of(0),
-                gains -> JsonConstants.intakeConstants.rollersPIDGains = gains,
-                s -> {},
-                world.rollersLeadMotorIO, world.rollersFollowerMotorIO).build());
+      rollerTuningModeHelper =
+          new TuningModeHelper<>(RollerTestMode.class)
+              .addStandardTuningModesForMotor(
+                  RollerTestMode.RollerPhoenixTuning,
+                  RollerTestMode.RollerVoltageTuning,
+                  RollerTestMode.RollerCurrentTuning,
+                  "Intake/Rollers/",
+                  world.rollersLeadMotorIO,
+                  world.rollersFollowerMotorIO)
+              .addTuningMode(
+                  RollerTestMode.RollerClosedLoopTuning,
+                  TuningModeHelper.addClosedLoopVelocityUnprofiledTuning(
+                          TuningModeHelper.builder(),
+                          "Intake/Rollers/",
+                          JsonConstants.intakeConstants.rollersPIDGains,
+                          RPM.of(0),
+                          gains -> JsonConstants.intakeConstants.rollersPIDGains = gains,
+                          s -> {},
+                          world.rollersLeadMotorIO,
+                          world.rollersFollowerMotorIO)
+                      .build());
     }
 
     @Override
@@ -121,12 +135,13 @@ public class IntakeState {
       };
 
   // ### Manual Homing State
-  
+
   public static State<IntakeSubsystem> waitForButtonState =
       new State<IntakeSubsystem>("WaitForButton") {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          // Need to replace this with the actual button that we want to use to trigger the homing process
+          // Need to replace this with the actual button that we want to use to trigger the homing
+          // process
           if (false) {
             world.pivotMotorIO.setCurrentPositionAsZero();
             finish();
@@ -136,10 +151,10 @@ public class IntakeState {
 
   // ### Normal Operation States
   public static State<IntakeSubsystem> controlToPositionState =
-    new State<IntakeSubsystem>("ControlToPosition") {
-      @Override
-      protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-        world.controlToTargetPivotAngle();
-      }
-    };
+      new State<IntakeSubsystem>("ControlToPosition") {
+        @Override
+        protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
+          world.controlToTargetPivotAngle();
+        }
+      };
 }
