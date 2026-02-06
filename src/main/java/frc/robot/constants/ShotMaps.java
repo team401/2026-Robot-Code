@@ -97,6 +97,7 @@ public class ShotMaps {
   /** Initializes the maps and then publishes tuning values for adding values to the map */
   @AfterJsonLoad
   public void afterJsonLoad() {
+    System.err.println("ShotMaps::afterJsonLoad called");
     initializeMaps();
     publishTuningValues();
   }

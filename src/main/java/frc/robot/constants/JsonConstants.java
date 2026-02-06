@@ -60,6 +60,12 @@ public class JsonConstants {
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
         jsonHandler.addRoute("/shotmaps", shotMaps);
+        jsonHandler.registerPostCallback(
+            "/shotmaps",
+            (shotMap) -> {
+              shotMaps.afterJsonLoad();
+              return true;
+            });
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
