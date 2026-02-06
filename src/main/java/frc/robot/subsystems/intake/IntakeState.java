@@ -58,7 +58,7 @@ public class IntakeState {
       rollerTuningModeHelper = new TuningModeHelper<>(RollerTestMode.class)
         .addStandardTuningModesForMotor(
           RollerTestMode.RollerPhoenixTuning, RollerTestMode.RollerVoltageTuning, RollerTestMode.RollerCurrentTuning,
-         "Intake/Rollers/", world.pivotMotorIO)
+         "Intake/Rollers/", world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
         .addTuningMode(RollerTestMode.RollerClosedLoopTuning,
             TuningModeHelper.addClosedLoopVelocityUnprofiledTuning(
                 TuningModeHelper.builder(),

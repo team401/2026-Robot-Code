@@ -44,10 +44,10 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         }
     }
 
-    public TuningModeHelper<TestModeEnum> addStandardTuningModesForMotor(TestModeEnum phoenixTuningMode, TestModeEnum voltageTuningMode, TestModeEnum currentTuningMode, String prefix, MotorIO motorIO) {
+    public TuningModeHelper<TestModeEnum> addStandardTuningModesForMotor(TestModeEnum phoenixTuningMode, TestModeEnum voltageTuningMode, TestModeEnum currentTuningMode, String prefix, MotorIO... motorIOs) {
         addTuningMode(phoenixTuningMode, EMPTY);
-        addTuningMode(voltageTuningMode, addOpenLoopVoltageTuning(builder(), prefix, motorIO, v -> {}).build());
-        addTuningMode(currentTuningMode, addOpenLoopCurrentTuning(builder(), prefix, motorIO, c -> {}).build());
+        addTuningMode(voltageTuningMode, addOpenLoopVoltageTuning(builder(), prefix, v -> {}, motorIOs).build());
+        addTuningMode(currentTuningMode, addOpenLoopCurrentTuning(builder(), prefix, c -> {}, motorIOs).build());
         return this;
     }
 
@@ -113,7 +113,7 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         return new TuningModeBuilder();
     }
 
-    public static TuningModeBuilder addOpenLoopVoltageTuning(TuningModeBuilder builder, String prefix, MotorIO motorIO, Consumer<Voltage> onChangeCallback) {
+    public static TuningModeBuilder addOpenLoopVoltageTuning(TuningModeBuilder builder, String prefix, Consumer<Voltage> onChangeCallback, MotorIO... motorIOs) {
         return builder
             .addLoggedTunableMeasure(
                 LoggedTunableMeasure.VOLTAGE.of(
@@ -122,12 +122,14 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
                 ),
                 voltage -> {
                     onChangeCallback.accept(voltage);
-                    motorIO.controlOpenLoopVoltage(voltage);
+                    for (var motorIO : motorIOs) {
+                        motorIO.controlOpenLoopVoltage(voltage);
+                    }
                 }
             );
     }
 
-    public static TuningModeBuilder addOpenLoopCurrentTuning(TuningModeBuilder builder, String prefix, MotorIO motorIO, Consumer<Current> onChangeCallback) {
+    public static TuningModeBuilder addOpenLoopCurrentTuning(TuningModeBuilder builder, String prefix, Consumer<Current> onChangeCallback, MotorIO... motorIOs) {
         return builder
             .addLoggedTunableMeasure(
                 LoggedTunableMeasure.CURRENT.of(
@@ -136,7 +138,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
                 ),
                 current -> {
                     onChangeCallback.accept(current);
-                    motorIO.controlOpenLoopCurrent(current);
+                    for (var motorIO : motorIOs) {
+                        motorIO.controlOpenLoopCurrent(current);
+                    }
                 }
             );
     }

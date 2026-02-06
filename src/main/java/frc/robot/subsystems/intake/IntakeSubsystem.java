@@ -108,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // to wait for it stop moving to finish the homing process
     IntakeState.homingWaitForMovementState
         .whenFinished()
-        .transitionTo(IntakeState.homingWaitForMovementState);
+        .transitionTo(IntakeState.homingWaitForStopMovingState);
     // If the mechanism doesn't start moving within the timeout, we assume that it
     // is already in the homed position and we finish the homing process by
     // transitioning to the homing done state
