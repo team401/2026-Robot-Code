@@ -71,7 +71,7 @@ public class LoggedTunablePIDGains {
     return pidGains -> pidGains.applyToMotorIO(motorIO);
   }
 
-  public GainsConsumer getMotorIOsApplier(MotorIO... motorIOs) {
+  public GainsConsumer getMotorIOAppliers(MotorIO... motorIOs) {
     return pidGains -> {
       for (MotorIO motorIO : motorIOs) {
         pidGains.applyToMotorIO(motorIO);
@@ -79,8 +79,11 @@ public class LoggedTunablePIDGains {
     };
   }
 
+
   @FunctionalInterface
   public interface GainsConsumer {
+    GainsConsumer noOp = pidGains -> {};
+
     void accept(PIDGains pidGains);
 
     default GainsConsumer chain(GainsConsumer after) {
@@ -88,6 +91,10 @@ public class LoggedTunablePIDGains {
         accept(pidGains);
         after.accept(pidGains);
       };
+    }
+
+    static GainsConsumer noOp() {
+      return noOp;
     }
   }
 }

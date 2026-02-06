@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.JsonConstants;
+import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -59,13 +60,21 @@ public class IntakeSubsystem extends SubsystemBase {
 
     this.intakeStateMachine = new StateMachine<IntakeSubsystem>(this);
 
-    this.intakeStateMachine.registerState(IntakeState.testModeState);
+    IntakeState.testModeState = this.intakeStateMachine.registerState(new IntakeState.TestModeState(this));
     this.intakeStateMachine.registerState(IntakeState.deployedState);
     this.intakeStateMachine.registerState(IntakeState.stowedState);
     this.intakeStateMachine.registerState(IntakeState.waitForButtonState);
     this.intakeStateMachine.registerState(IntakeState.homingWaitForMovementState);
     this.intakeStateMachine.registerState(IntakeState.homingWaitForStopMovingState);
     this.intakeStateMachine.registerState(IntakeState.homingDoneState);
+
+
+    IntakeState.waitForButtonState
+        .whenFinished()
+        .transitionTo(IntakeState.homingDoneState);
+    IntakeState.waitForButtonState
+        .when(DriverStation::isEnabled, "When robot is enabled")
+        .transitionTo(IntakeState.homingWaitForMovementState);
 
     IntakeState.homingWaitForMovementState
         .whenFinished()
@@ -99,18 +108,6 @@ public class IntakeSubsystem extends SubsystemBase {
         .andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed")
         .transitionTo(IntakeState.deployedState);
 
-    IntakeState.waitForButtonState
-        .whenFinished()
-        .andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed")
-        .transitionTo(IntakeState.stowedState);
-    IntakeState.waitForButtonState
-        .whenFinished()
-        .andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed")
-        .transitionTo(IntakeState.deployedState);
-    IntakeState.waitForButtonState
-        .when(DriverStation::isEnabled, "When robot is enabled")
-        .transitionTo(IntakeState.homingDoneState);
-
     IntakeState.deployedState
         .whenFinished()
         .andWhen(() -> this.targetPivotPosition == PivotPosition.STOWED, "Target Stowed")
@@ -120,7 +117,7 @@ public class IntakeSubsystem extends SubsystemBase {
         .andWhen(() -> this.targetPivotPosition == PivotPosition.DEPLOYED, "Target Deployed")
         .transitionTo(IntakeState.deployedState);
 
-    this.intakeStateMachine.setState(IntakeState.stowedState);
+    this.intakeStateMachine.setState(IntakeState.waitForButtonState);
   }
 
   public void runRollers(AngularVelocity rollerSpeed) {
@@ -156,11 +153,17 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void rollerSpeedTuningPeriodic() {
+    var speed = LoggedTunableMeasure.ANGULAR_VELOCITY.of(
+        "IntakeRollerSpeedRPM",
+        JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM),
+        RPM);
+
+
+    speed.ifChanged(rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed);
+
     LoggedTunableNumber.ifChanged(
         hashCode(),
-        (rollerSpeed) -> {
-          JsonConstants.intakeConstants.intakeRollerSpeed = RPM.of(rollerSpeed[0]);
-        },
+        rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = RPM.of(rollerSpeed[0]),
         rollersTargetSpeedTunable);
   }
 }
