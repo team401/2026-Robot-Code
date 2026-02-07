@@ -5,14 +5,12 @@ import coppercore.vision.VisionIO;
 import coppercore.vision.VisionIOPhotonReal;
 import coppercore.vision.VisionIOPhotonSim;
 import coppercore.vision.VisionLocalizer;
-import coppercore.vision.VisionLocalizer.CameraConfig;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -96,35 +94,41 @@ public class InitSubsystems {
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera1"), JsonConstants.visionConstants.camera1Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera2"), JsonConstants.visionConstants.camera2Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera3"), JsonConstants.visionConstants.camera3Transform));
+            new double[0],
+            new VisionIOPhotonReal("Camera1", JsonConstants.visionConstants.camera1Transform),
+            new VisionIOPhotonReal("Camera2", JsonConstants.visionConstants.camera2Transform),
+            new VisionIOPhotonReal("Camera3", JsonConstants.visionConstants.camera3Transform));
 
       case SIM:
         return new VisionLocalizer(
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera1", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera1Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera2", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera2Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera3", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera3Transform));
+            new double[0],
+            new VisionIOPhotonSim(
+                "Camera1",
+                JsonConstants.visionConstants.camera1Transform,
+                drive::getPose,
+                tagLayout),
+            new VisionIOPhotonSim(
+                "Camera2",
+                JsonConstants.visionConstants.camera2Transform,
+                drive::getPose,
+                tagLayout),
+            new VisionIOPhotonSim(
+                "Camera3",
+                JsonConstants.visionConstants.camera3Transform,
+                drive::getPose,
+                tagLayout));
       default:
         return new VisionLocalizer(
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()));
+            new double[0],
+            new VisionIO() {},
+            new VisionIO() {},
+            new VisionIO() {});
     }
   }
 
