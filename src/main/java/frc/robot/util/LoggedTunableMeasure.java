@@ -126,9 +126,9 @@ public class LoggedTunableMeasure<
     return hasChanged(hashCode());
   }
 
-  public MutMeasureType get() {
+  public BaseMeasureType get() {
     checkForUpdate();
-    return value;
+    return value.copy();
   }
 
   public void set(BaseMeasureType newValue) {
