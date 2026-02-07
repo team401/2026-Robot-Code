@@ -47,33 +47,41 @@ public class IntakeState {
           TunableMotorConfiguration.defaultConfiguration()
               .withPositionTuning()
               .withDefaultPIDGains(JsonConstants.intakeConstants.pivotPIDGains)
+              .onPIDGainsChanged(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains)
               .build("Intake/Pivot", world.pivotMotorIO);
       TunableMotor rollerMotors =
           TunableMotorConfiguration.defaultConfiguration()
               .withVelocityTuning()
               .withDefaultPIDGains(JsonConstants.intakeConstants.rollersPIDGains)
+              .onPIDGainsChanged(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains)
               .build("Intake/Rollers", world.rollersLeadMotorIO, world.rollersFollowerMotorIO);
 
       pivotTuningModeHelper =
           new TuningModeHelper<>(PivotTestMode.class)
-              .addMotorTuningModes(pivotMotor, 
+              .addMotorTuningModes(
+                  pivotMotor,
                   MotorTuningMode.of(PivotTestMode.None, ControlMode.NONE),
                   MotorTuningMode.of(PivotTestMode.PivotPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                  MotorTuningMode.of(PivotTestMode.PivotVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-                  MotorTuningMode.of(PivotTestMode.PivotCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                  MotorTuningMode.of(PivotTestMode.PivotClosedLoopTuning, ControlMode.CLOSED_LOOP)
-              );
+                  MotorTuningMode.of(
+                      PivotTestMode.PivotVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+                  MotorTuningMode.of(
+                      PivotTestMode.PivotCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+                  MotorTuningMode.of(PivotTestMode.PivotClosedLoopTuning, ControlMode.CLOSED_LOOP));
 
       rollerTuningModeHelper =
           new TuningModeHelper<>(RollerTestMode.class)
-              .addMotorTuningModes(rollerMotors, 
+              .addMotorTuningModes(
+                  rollerMotors,
                   MotorTuningMode.of(RollerTestMode.None, ControlMode.NONE),
-                  MotorTuningMode.of(RollerTestMode.RollerPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                  MotorTuningMode.of(RollerTestMode.RollerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-                  MotorTuningMode.of(RollerTestMode.RollerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                  MotorTuningMode.of(RollerTestMode.RollerClosedLoopTuning, ControlMode.CLOSED_LOOP),
-                  MotorTuningMode.of(RollerTestMode.RollerSpeedTuning, ControlMode.NEUTRAL_MODE)
-              );
+                  MotorTuningMode.of(
+                      RollerTestMode.RollerPhoenixTuning, ControlMode.PHOENIX_TUNING),
+                  MotorTuningMode.of(
+                      RollerTestMode.RollerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+                  MotorTuningMode.of(
+                      RollerTestMode.RollerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+                  MotorTuningMode.of(
+                      RollerTestMode.RollerClosedLoopTuning, ControlMode.CLOSED_LOOP),
+                  MotorTuningMode.of(RollerTestMode.RollerSpeedTuning, ControlMode.NEUTRAL_MODE));
     }
 
     @Override

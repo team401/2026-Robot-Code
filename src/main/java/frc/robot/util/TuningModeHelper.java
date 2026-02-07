@@ -18,6 +18,7 @@ import frc.robot.util.LoggedTunableMeasure.LoggedVoltage;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestModeDescription> {
 
@@ -57,21 +58,15 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
   @SafeVarargs
   public final TuningModeHelper<TestModeEnum> addMotorTuningModes(
-    TunableMotor motor, MotorTuningMode<TestModeEnum>... motorTuningModes) {
+      TunableMotor motor, MotorTuningMode<TestModeEnum>... motorTuningModes) {
     for (MotorTuningMode<TestModeEnum> motorTuningMode : motorTuningModes) {
       addTuningMode(motorTuningMode.testMode, motor.createTuningMode(motorTuningMode.controlMode));
     }
     return this;
   }
 
-  public record MotorTuningMode<T extends Enum<T>>(
-    T testMode,
-    ControlMode controlMode
-) {
-    public static <T extends Enum<T>> MotorTuningMode<T> of(
-      T testMode,
-      ControlMode controlMode
-    ) {
+  public record MotorTuningMode<T extends Enum<T>>(T testMode, ControlMode controlMode) {
+    public static <T extends Enum<T>> MotorTuningMode<T> of(T testMode, ControlMode controlMode) {
       return new MotorTuningMode<>(testMode, controlMode);
     }
   }
@@ -149,11 +144,14 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       }
 
       if (configuration.hasClosedLoopTuning) {
-        closedLoopPIDGains = new LoggedTunablePIDGains(prefix + "/ClosedLoopPIDGains", configuration.defaultPIDGains);
+        closedLoopPIDGains =
+            new LoggedTunablePIDGains(
+                prefix + "/ClosedLoopPIDGains", configuration.defaultPIDGains);
 
         if (configuration.profileType != ProfileType.UNPROFILED) {
           closedLoopMotionProfile =
-              new LoggedTunableMotionProfile(prefix + "/ClosedLoopMotionProfile", configuration.defaultMotionProfileConfig);
+              new LoggedTunableMotionProfile(
+                  prefix + "/ClosedLoopMotionProfile", configuration.defaultMotionProfileConfig);
         }
 
         if (configuration.closedLoopType == ClosedLoopType.POSITION) {
@@ -337,6 +335,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     protected MotionProfileConfig defaultMotionProfileConfig =
         LoggedTunableMotionProfile.defaultMotionProfileConfig;
 
+    protected Consumer<PIDGains> onPIDGainsChanged = pidGains -> {};
+    protected Consumer<MotionProfileConfig> onMotionProfileConfigChanged = profileConfig -> {};
+
     private TunableMotorConfiguration() {}
 
     public static TunableMotorConfiguration builder() {
@@ -416,6 +417,17 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return this;
     }
 
+    public TunableMotorConfiguration onPIDGainsChanged(Consumer<PIDGains> onPIDGainsChanged) {
+      this.onPIDGainsChanged = onPIDGainsChanged;
+      return this;
+    }
+
+    public TunableMotorConfiguration onMotionProfileConfigChanged(
+        Consumer<MotionProfileConfig> onMotionProfileConfigChanged) {
+      this.onMotionProfileConfigChanged = onMotionProfileConfigChanged;
+      return this;
+    }
+
     private void validate() {
       if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED) {
         throw new IllegalArgumentException(
@@ -423,9 +435,24 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       }
     }
 
+    public TunableMotorConfiguration copy() {
+      TunableMotorConfiguration copy = new TunableMotorConfiguration();
+      copy.voltageTuning = this.voltageTuning;
+      copy.currentTuning = this.currentTuning;
+      copy.hasClosedLoopTuning = this.hasClosedLoopTuning;
+      copy.closedLoopType = this.closedLoopType;
+      copy.profileType = this.profileType;
+      copy.phoenixTuning = this.phoenixTuning;
+      copy.initialPositionSetpoint = this.initialPositionSetpoint;
+      copy.initialVelocitySetpoint = this.initialVelocitySetpoint;
+      copy.defaultPIDGains = this.defaultPIDGains;
+      copy.defaultMotionProfileConfig = this.defaultMotionProfileConfig;
+      return copy;
+    }
+
     public TunableMotor build(String prefix, MotorIO... motorIOs) {
       validate();
-      return new TunableMotor(this, prefix, motorIOs);
+      return new TunableMotor(this.copy(), prefix, motorIOs);
     }
   }
 }
