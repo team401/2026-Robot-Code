@@ -20,7 +20,6 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -93,16 +92,19 @@ public class InitSubsystems {
       case REAL:
         return new Vision(
             drive::addVisionMeasurement,
-            new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
-            new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1));
+            new VisionIOPhotonVision("Camera1", JsonConstants.visionConstants.camera1Transform),
+            new VisionIOPhotonVision("Camera2", JsonConstants.visionConstants.camera2Transform),
+            new VisionIOPhotonVision("Camera3", JsonConstants.visionConstants.camera3Transform));
 
       case SIM:
         return new Vision(
             drive::addVisionMeasurement,
             new VisionIOPhotonVisionSim(
-                VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose),
+                "Camera1", JsonConstants.visionConstants.camera1Transform, drive::getPose),
             new VisionIOPhotonVisionSim(
-                VisionConstants.camera1Name, VisionConstants.robotToCamera1, drive::getPose));
+                "Camera2", JsonConstants.visionConstants.camera2Transform, drive::getPose),
+            new VisionIOPhotonVisionSim(
+                "Camera3", JsonConstants.visionConstants.camera3Transform, drive::getPose));
       default:
         return new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
     }
