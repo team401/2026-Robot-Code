@@ -17,6 +17,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.LoggedTunableMotionProfile.MotionProfileConsumer;
 import frc.robot.util.LoggedTunablePIDGains.GainsConsumer;
+import junit.framework.Test;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -44,12 +46,16 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
   }
 
   public TuningModeHelper<TestModeEnum> addStandardTuningModesForMotor(
+      TestModeEnum neutralMode,
       TestModeEnum phoenixTuningMode,
       TestModeEnum voltageTuningMode,
       TestModeEnum currentTuningMode,
       String prefix,
       MotorIO... motorIOs) {
     addTuningMode(phoenixTuningMode, EMPTY);
+    // This is a safe guard for safety so that if we somehow run while not
+    // in a tuning mode, we at least set the motors to neutral so they don't do anything unexpected
+    addTuningMode(neutralMode, addMotorNeutral(builder(), motorIOs).build());
     addTuningMode(
         voltageTuningMode, addOpenLoopVoltageTuning(builder(), prefix, v -> {}, motorIOs).build());
     addTuningMode(
@@ -272,11 +278,40 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         });
   }
 
+  public static TuningModeBuilder addMotorNeutral(TuningModeBuilder builder, MotorIO... motorIOs) {
+    return builder
+        .addTunableValueUpdates(id -> {
+          for (var motorIO : motorIOs) {
+            motorIO.controlNeutral();
+          }
+        });
+  }
+
+  public static TuningModeBuilder addMotorCoast(TuningModeBuilder builder, MotorIO... motorIOs) {
+    return builder
+        .addTunableValueUpdates(id -> {
+          for (var motorIO : motorIOs) {
+            motorIO.controlCoast();
+          }
+        });
+  }
+
+  public static TuningModeBuilder addMotorBrake(TuningModeBuilder builder, MotorIO... motorIOs) {
+    return builder
+        .addTunableValueUpdates(id -> {
+          for (var motorIO : motorIOs) {
+            motorIO.controlBrake();
+          }
+        });
+  }
+
   public static final TuningMode EMPTY = new TuningModeBuilder().build();
 
   public static TuningMode phoenixTuning() {
     return EMPTY;
   }
+
+  
 
   @FunctionalInterface
   public static interface TunableValueUpdate {

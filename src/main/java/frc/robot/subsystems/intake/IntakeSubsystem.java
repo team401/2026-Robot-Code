@@ -94,7 +94,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // ### Test Mode Transitions
     // Any time we finish any state and we should be in test mode, we transition to the test mode
     // state at
-    // the soonest time we can without disrupting the the homing process. So that when we are in
+    // the soonest time we can without disrupting the homing process. So that when we are in
     // test mode,
     // we can be sure that it has been properly homed and that the setpoints we get in test mode are
     // accurate.
@@ -166,6 +166,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   public void stopRollers() {
     rollersLeadMotorIO.controlNeutral();
+    rollersFollowerMotorIO.controlNeutral();
   }
 
   public void setTargetPivotAngle(Angle angle) {
@@ -208,7 +209,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // in test mode and be able to control the pivot as if we were operating the robot normally
     if (rollerTestModeManager.getTestMode() == RollerTestMode.RollerSpeedTuning) {
       rollersTargetSpeedTunable.ifChanged(
-          rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed);
+          rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed.copy());
     }
 
     Logger.recordOutput("Intake/State", intakeStateMachine.getCurrentState().getName());

@@ -30,7 +30,7 @@ public class IntakeState {
 
   public static State<IntakeSubsystem> testModeState = null;
 
-  // The test mode need to be a defined class because we need to be able to
+  // The test mode needs to be a defined class because we need to be able to
   // easily control when it is created to ensure that the JsonConstants are
   // loaded before we try to create any LoggedTunableNumbers for the test mode
   public static class TestModeState extends State<IntakeSubsystem> {
@@ -44,6 +44,7 @@ public class IntakeState {
       pivotTuningModeHelper =
           new TuningModeHelper<>(PivotTestMode.class)
               .addStandardTuningModesForMotor(
+                  PivotTestMode.None,
                   PivotTestMode.PivotPhoenixTuning,
                   PivotTestMode.PivotVoltageTuning,
                   PivotTestMode.PivotCurrentTuning,
@@ -64,12 +65,20 @@ public class IntakeState {
       rollerTuningModeHelper =
           new TuningModeHelper<>(RollerTestMode.class)
               .addStandardTuningModesForMotor(
+                  RollerTestMode.None,
                   RollerTestMode.RollerPhoenixTuning,
                   RollerTestMode.RollerVoltageTuning,
                   RollerTestMode.RollerCurrentTuning,
                   "Intake/Rollers/",
                   world.rollersLeadMotorIO,
                   world.rollersFollowerMotorIO)
+              .addTuningMode(
+                  RollerTestMode.RollerSpeedTuning,
+                  TuningModeHelper.addMotorNeutral(
+                          TuningModeHelper.builder(),
+                          world.rollersLeadMotorIO,
+                          world.rollersFollowerMotorIO)
+                      .build())
               .addTuningMode(
                   RollerTestMode.RollerClosedLoopTuning,
                   TuningModeHelper.addClosedLoopVelocityUnprofiledTuning(
