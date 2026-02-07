@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import coppercore.vision.VisionIO;
 import coppercore.vision.VisionIOPhotonReal;
@@ -11,6 +12,7 @@ import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
+import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.JsonConstants;
@@ -24,6 +26,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
@@ -76,7 +79,7 @@ public class InitSubsystems {
             new ModuleIOSim(JsonConstants.physicalDriveConstants.BackLeft),
             new ModuleIOSim(JsonConstants.physicalDriveConstants.BackRight));
 
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new Drive(
             new GyroIO() {},
@@ -84,6 +87,8 @@ public class InitSubsystems {
             new ModuleIO() {},
             new ModuleIO() {},
             new ModuleIO() {});
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -145,9 +150,11 @@ public class InitSubsystems {
                 JsonConstants.hopperConstants.buildTalonFXConfigs(),
                 JsonConstants.hopperConstants.buildHopperSim()));
 
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new HopperSubsystem(new MotorIOReplay() {});
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -168,9 +175,11 @@ public class InitSubsystems {
                     JsonConstants.indexerConstants.buildTalonFXConfigs(),
                     JsonConstants.indexerConstants.buildIndexerSim())
                 .withMotorType(MotorType.KrakenX44));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new IndexerSubsystem(new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -194,9 +203,11 @@ public class InitSubsystems {
                     JsonConstants.turretConstants.buildTalonFXConfigs(),
                     JsonConstants.turretConstants.buildTurretSim())
                 .withMotorType(MotorType.KrakenX44));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new TurretSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -220,9 +231,40 @@ public class InitSubsystems {
                     JsonConstants.hoodConstants.buildTalonFXConfigs(),
                     JsonConstants.hoodConstants.buildHoodSim())
                 .withMotorType(MotorType.KrakenX44));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new HoodSubsystem(dependencyOrderedExecutor, new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
+    }
+  }
+
+  public static ShooterSubsystem initShooterSubsystem(
+      DependencyOrderedExecutor dependencyOrderedExecutor) {
+    MechanismConfig mechanismConfig = JsonConstants.shooterConstants.buildMechanismConfig();
+    TalonFXConfiguration talonFXConfigs = JsonConstants.shooterConstants.buildTalonFXConfigs();
+
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new ShooterSubsystem(
+            dependencyOrderedExecutor,
+            MotorIOTalonFX.newLeader(mechanismConfig, talonFXConfigs),
+            MotorIOTalonFX.newFollower(mechanismConfig, 0, talonFXConfigs));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        CoppercoreSimAdapter shooterSim = JsonConstants.shooterConstants.buildShooterSim();
+
+        return new ShooterSubsystem(
+            dependencyOrderedExecutor,
+            MotorIOTalonFXSim.newLeader(mechanismConfig, talonFXConfigs, shooterSim),
+            MotorIOTalonFXSim.newFollower(mechanismConfig, 0, talonFXConfigs, shooterSim));
+      case REPLAY:
+        // Replayed robot, disable IO implementations
+        return new ShooterSubsystem(
+            dependencyOrderedExecutor, new MotorIOReplay(), new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 
@@ -250,9 +292,11 @@ public class InitSubsystems {
                 JsonConstants.robotInfo.homingSwitchSignal,
                 "HomingSwitchSim/isOpen",
                 false));
-      default:
+      case REPLAY:
         // Replayed robot, disable IO implementations
         return new HomingSwitch(dependencyOrderedExecutor, new DigitalInputIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
   }
 }

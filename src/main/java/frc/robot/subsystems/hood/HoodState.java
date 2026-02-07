@@ -81,6 +81,17 @@ public abstract class HoodState extends State<HoodSubsystem> {
     }
   }
 
+  /**
+   * The TargetAngleState continually commands the hood to target its goal angle, as commanded by
+   * the coordination layer.
+   */
+  public static class TargetAngleState extends HoodState {
+    @Override
+    public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
+      hood.controlToGoalAngle();
+    }
+  }
+
   public static class TestModeState extends HoodState {
     @Override
     public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {

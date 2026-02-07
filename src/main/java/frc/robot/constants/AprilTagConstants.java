@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.IOException;
@@ -27,14 +28,20 @@ public class AprilTagConstants {
 
   public final FieldType fieldType = FieldType.ANDYMARK;
 
+  @JSONExclude AprilTagFieldLayout tagLayout = null;
+
   public AprilTagFieldLayout getTagLayout() {
+    if (tagLayout != null) {
+      return tagLayout;
+    }
+
     try {
       Path p =
           Path.of(
               Filesystem.getDeployDirectory().getPath(), "apriltags", fieldType.getJsonFilename());
-      AprilTagFieldLayout layout = new AprilTagFieldLayout(p);
+      tagLayout = new AprilTagFieldLayout(p);
 
-      return layout;
+      return tagLayout;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
