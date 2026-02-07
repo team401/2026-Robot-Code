@@ -1,12 +1,13 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.RPM;
-
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
 import edu.wpi.first.units.Units;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.TuningModeHelper;
+import frc.robot.util.TuningModeHelper.ControlMode;
+import frc.robot.util.TuningModeHelper.TunableMotor;
+import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
 
 public class IntakeState {
 
@@ -41,56 +42,51 @@ public class IntakeState {
     public TestModeState(IntakeSubsystem world) {
       super("TestMode");
 
+      TunableMotor pivotMotor =
+          TunableMotorConfiguration.defaultConfiguration()
+              .withPositionTuning()
+              .withDefaultPIDGains(JsonConstants.intakeConstants.pivotPIDGains)
+              .build("Intake/Pivot", world.pivotMotorIO);
+      TunableMotor rollerMotors =
+          TunableMotorConfiguration.defaultConfiguration()
+              .withVelocityTuning()
+              .withDefaultPIDGains(JsonConstants.intakeConstants.rollersPIDGains)
+              .build("Intake/Rollers", world.rollersLeadMotorIO, world.rollersFollowerMotorIO);
+
       pivotTuningModeHelper =
           new TuningModeHelper<>(PivotTestMode.class)
-              .addStandardTuningModesForMotor(
-                  PivotTestMode.None,
+              .addTuningMode(PivotTestMode.None, pivotMotor.createTuningMode(ControlMode.NONE))
+              .addTuningMode(
                   PivotTestMode.PivotPhoenixTuning,
+                  pivotMotor.createTuningMode(ControlMode.PHOENIX_TUNING))
+              .addTuningMode(
                   PivotTestMode.PivotVoltageTuning,
+                  pivotMotor.createTuningMode(ControlMode.OPEN_LOOP_VOLTAGE))
+              .addTuningMode(
                   PivotTestMode.PivotCurrentTuning,
-                  "Intake/Pivot/",
-                  world.pivotMotorIO)
+                  pivotMotor.createTuningMode(ControlMode.OPEN_LOOP_CURRENT))
               .addTuningMode(
                   PivotTestMode.PivotClosedLoopTuning,
-                  TuningModeHelper.addClosedLoopPositionUnprofiledTuning(
-                          TuningModeHelper.builder(),
-                          "Intake/Pivot/",
-                          JsonConstants.intakeConstants.pivotPIDGains,
-                          JsonConstants.intakeConstants.stowPositionAngle,
-                          gains -> JsonConstants.intakeConstants.pivotPIDGains = gains,
-                          setpoint -> world.setTargetPivotAngle(setpoint),
-                          world.pivotMotorIO)
-                      .build());
+                  pivotMotor.createTuningMode(ControlMode.CLOSED_LOOP));
 
       rollerTuningModeHelper =
           new TuningModeHelper<>(RollerTestMode.class)
-              .addStandardTuningModesForMotor(
-                  RollerTestMode.None,
-                  RollerTestMode.RollerPhoenixTuning,
-                  RollerTestMode.RollerVoltageTuning,
-                  RollerTestMode.RollerCurrentTuning,
-                  "Intake/Rollers/",
-                  world.rollersLeadMotorIO,
-                  world.rollersFollowerMotorIO)
+              .addTuningMode(RollerTestMode.None, rollerMotors.createTuningMode(ControlMode.NONE))
               .addTuningMode(
-                  RollerTestMode.RollerSpeedTuning,
-                  TuningModeHelper.addMotorNeutral(
-                          TuningModeHelper.builder(),
-                          world.rollersLeadMotorIO,
-                          world.rollersFollowerMotorIO)
-                      .build())
+                  RollerTestMode.RollerPhoenixTuning,
+                  rollerMotors.createTuningMode(ControlMode.PHOENIX_TUNING))
+              .addTuningMode(
+                  RollerTestMode.RollerVoltageTuning,
+                  rollerMotors.createTuningMode(ControlMode.OPEN_LOOP_VOLTAGE))
+              .addTuningMode(
+                  RollerTestMode.RollerCurrentTuning,
+                  rollerMotors.createTuningMode(ControlMode.OPEN_LOOP_CURRENT))
               .addTuningMode(
                   RollerTestMode.RollerClosedLoopTuning,
-                  TuningModeHelper.addClosedLoopVelocityUnprofiledTuning(
-                          TuningModeHelper.builder(),
-                          "Intake/Rollers/",
-                          JsonConstants.intakeConstants.rollersPIDGains,
-                          RPM.of(0),
-                          gains -> JsonConstants.intakeConstants.rollersPIDGains = gains,
-                          s -> {},
-                          world.rollersLeadMotorIO,
-                          world.rollersFollowerMotorIO)
-                      .build());
+                  rollerMotors.createTuningMode(ControlMode.CLOSED_LOOP))
+              .addTuningMode(
+                  RollerTestMode.RollerSpeedTuning,
+                  rollerMotors.createTuningMode(ControlMode.NEUTRAL_MODE));
     }
 
     @Override

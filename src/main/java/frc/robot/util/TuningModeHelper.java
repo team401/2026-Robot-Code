@@ -1,32 +1,28 @@
 package frc.robot.util;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.util.LoggedTunableMotionProfile.MotionProfileConsumer;
-import frc.robot.util.LoggedTunablePIDGains.GainsConsumer;
-import junit.framework.Test;
-
-import java.util.ArrayList;
+import frc.robot.util.LoggedTunableMeasure.LoggedAngle;
+import frc.robot.util.LoggedTunableMeasure.LoggedAngularVelocity;
+import frc.robot.util.LoggedTunableMeasure.LoggedCurrent;
+import frc.robot.util.LoggedTunableMeasure.LoggedVoltage;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestModeDescription> {
 
   private EnumMap<TestModeEnum, TuningMode> tuningModes;
+  private TuningMode currentTestMode = null;
 
   public TuningModeHelper(Class<TestModeEnum> testModeEnumClass) {
     tuningModes = new EnumMap<>(testModeEnumClass);
@@ -39,282 +35,371 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
   }
 
   public void runTestMode(TestModeEnum testMode) {
+
     var tuningMode = tuningModes.get(testMode);
+
+    if (tuningMode != currentTestMode) {
+      // Exit the current mode
+      if (currentTestMode != null) {
+        currentTestMode.exit();
+      }
+      // Enter the new mode
+      if (tuningMode != null) {
+        tuningMode.enter();
+      }
+      currentTestMode = tuningMode;
+    }
+
     if (tuningMode != null) {
-      tuningMode.tuningPeriodic();
+      tuningMode.periodic();
     }
   }
 
-  public TuningModeHelper<TestModeEnum> addStandardTuningModesForMotor(
-      TestModeEnum neutralMode,
-      TestModeEnum phoenixTuningMode,
-      TestModeEnum voltageTuningMode,
-      TestModeEnum currentTuningMode,
-      String prefix,
-      MotorIO... motorIOs) {
-    addTuningMode(phoenixTuningMode, EMPTY);
-    // This is a safe guard for safety so that if we somehow run while not
-    // in a tuning mode, we at least set the motors to neutral so they don't do anything unexpected
-    addTuningMode(neutralMode, addMotorNeutral(builder(), motorIOs).build());
-    addTuningMode(
-        voltageTuningMode, addOpenLoopVoltageTuning(builder(), prefix, v -> {}, motorIOs).build());
-    addTuningMode(
-        currentTuningMode, addOpenLoopCurrentTuning(builder(), prefix, c -> {}, motorIOs).build());
-    return this;
-  }
+  public record TuningMode(Runnable enterAction, Runnable periodicAction, Runnable exitAction) {
 
-  public static class TuningMode {
-
-    private List<TunableValueUpdate> loggedTunableValues;
-
-    protected TuningMode(List<TunableValueUpdate> loggedTunableValues) {
-      this.loggedTunableValues = loggedTunableValues;
+    public void enter() {
+      if (enterAction != null) {
+        enterAction.run();
+      }
     }
 
-    public void tuningPeriodic() {
-      for (var tunableValue : loggedTunableValues) {
-        tunableValue.runIfChanged(hashCode());
+    public void periodic() {
+      if (periodicAction != null) {
+        periodicAction.run();
+      }
+    }
+
+    public void exit() {
+      if (exitAction != null) {
+        exitAction.run();
+      }
+    }
+
+    public static TuningMode of(
+        Runnable enterAction, Runnable periodicAction, Runnable exitAction) {
+      return new TuningMode(enterAction, periodicAction, exitAction);
+    }
+
+    public static TuningMode simple(Runnable periodicAction) {
+      return new TuningMode(() -> {}, periodicAction, () -> {});
+    }
+
+    public static TuningMode empty() {
+      return new TuningMode(() -> {}, () -> {}, () -> {});
+    }
+  }
+
+  public enum ControlMode {
+    OPEN_LOOP_VOLTAGE,
+    OPEN_LOOP_CURRENT,
+    CLOSED_LOOP,
+    BRAKE_MODE,
+    COAST_MODE,
+    NEUTRAL_MODE,
+    PHOENIX_TUNING,
+    NONE
+  }
+
+  // TODO: Figure out what we want to do when and invalid tuning mode is run
+  public static class TunableMotor {
+
+    private List<MotorIO> motorIOs;
+    private TunableMotorConfiguration configuration;
+
+    private LoggedVoltage openLoopVoltage = null;
+    private LoggedCurrent openLoopCurrent = null;
+    private LoggedTunablePIDGains closedLoopPIDGains = null;
+    private LoggedTunableMotionProfile closedLoopMotionProfile = null;
+    private LoggedAngle closedLoopPositionTarget = null;
+    private LoggedAngularVelocity closedLoopVelocityTarget = null;
+
+    public TunableMotor(
+        TunableMotorConfiguration configuration, String prefix, MotorIO... motorIOs) {
+      this.motorIOs = Arrays.asList(motorIOs);
+      this.configuration = configuration;
+
+      if (configuration.voltageTuning) {
+        openLoopVoltage =
+            LoggedTunableMeasure.VOLTAGE.of(prefix + "/OpenLoopVoltageTuning", Volts.zero(), Volts);
+      }
+
+      if (configuration.currentTuning) {
+        openLoopCurrent =
+            LoggedTunableMeasure.CURRENT.of(prefix + "/OpenLoopCurrentTuning", Amps.zero(), Amps);
+      }
+
+      if (configuration.hasClosedLoopTuning) {
+        closedLoopPIDGains = new LoggedTunablePIDGains(prefix + "/ClosedLoopPIDGains");
+
+        if (configuration.profileType != ProfileType.UNPROFILED) {
+          closedLoopMotionProfile =
+              new LoggedTunableMotionProfile(prefix + "/ClosedLoopMotionProfile");
+        }
+
+        if (configuration.closedLoopType == ClosedLoopType.POSITION) {
+          closedLoopPositionTarget =
+              LoggedTunableMeasure.ANGLE.of(
+                  prefix + "/ClosedLoopPositionTarget", configuration.initialPositionSetpoint);
+        } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
+          closedLoopVelocityTarget =
+              LoggedTunableMeasure.ANGULAR_VELOCITY.of(
+                  prefix + "/ClosedLoopVelocityTarget", configuration.initialVelocitySetpoint);
+        }
+      }
+    }
+
+    public void runBrakeMode() {
+      motorIOs.forEach(motorIO -> motorIO.controlBrake());
+    }
+
+    public void runCoastMode() {
+      motorIOs.forEach(motorIO -> motorIO.controlCoast());
+    }
+
+    public void runNeutralMode() {
+      motorIOs.forEach(motorIO -> motorIO.controlNeutral());
+    }
+
+    public void runOpenLoopVoltageTuning() {
+      if (!configuration.voltageTuning) {
+        return;
+      }
+
+      if (openLoopVoltage != null) {
+        Voltage voltage = openLoopVoltage.get();
+        motorIOs.forEach(motorIO -> motorIO.controlOpenLoopVoltage(voltage));
+      }
+    }
+
+    public void runOpenLoopCurrentTuning() {
+      if (!configuration.currentTuning) {
+        return;
+      }
+
+      if (openLoopCurrent != null) {
+        Current current = openLoopCurrent.get();
+        motorIOs.forEach(motorIO -> motorIO.controlOpenLoopCurrent(current));
+      }
+    }
+
+    public void runClosedLoopTuning() {
+
+      if (!configuration.hasClosedLoopTuning) {
+        return;
+      }
+
+      // Closed Loop Tuning
+      if (closedLoopPIDGains != null) {
+        PIDGains pidGains = closedLoopPIDGains.getCurrentGains();
+        motorIOs.forEach(motorIO -> pidGains.applyToMotorIO(motorIO));
+      }
+
+      if (configuration.profileType != ProfileType.UNPROFILED) {
+        if (closedLoopMotionProfile != null) {
+          MotionProfileConfig profileConfig = closedLoopMotionProfile.getCurrentMotionProfile();
+          motorIOs.forEach(motorIO -> motorIO.setProfileConstraints(profileConfig));
+        }
+      }
+
+      if (configuration.closedLoopType == ClosedLoopType.POSITION) {
+        runClosedLoopPositionTuning();
+      } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
+        runClosedLoopVelocityTuning();
+      }
+    }
+
+    private void runClosedLoopPositionTuning() {
+      Angle targetAngle = closedLoopPositionTarget.get();
+
+      if (configuration.profileType == ProfileType.UNPROFILED) {
+        motorIOs.forEach(motorIO -> motorIO.controlToPositionUnprofiled(targetAngle));
+      } else if (configuration.profileType == ProfileType.PROFILED) {
+        motorIOs.forEach(motorIO -> motorIO.controlToPositionProfiled(targetAngle));
+      } else if (configuration.profileType == ProfileType.EXPO_PROFILED) {
+        motorIOs.forEach(motorIO -> motorIO.controlToPositionExpoProfiled(targetAngle));
+      }
+    }
+
+    private void runClosedLoopVelocityTuning() {
+      AngularVelocity targetVelocity = closedLoopVelocityTarget.get();
+
+      if (configuration.profileType == ProfileType.UNPROFILED) {
+        motorIOs.forEach(motorIO -> motorIO.controlToVelocityUnprofiled(targetVelocity));
+      } else if (configuration.profileType == ProfileType.PROFILED) {
+        motorIOs.forEach(motorIO -> motorIO.controlToVelocityProfiled(targetVelocity));
+      }
+    }
+
+    private boolean canRunControlMode(ControlMode controlMode) {
+      switch (controlMode) {
+        case OPEN_LOOP_VOLTAGE:
+          return configuration.voltageTuning;
+        case OPEN_LOOP_CURRENT:
+          return configuration.currentTuning;
+        case CLOSED_LOOP:
+          return configuration.hasClosedLoopTuning;
+        case BRAKE_MODE:
+        case COAST_MODE:
+        case NEUTRAL_MODE:
+          return true;
+        case PHOENIX_TUNING:
+          return configuration.phoenixTuning;
+        case NONE:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    public TuningMode createTuningMode(ControlMode controlMode) {
+
+      if (controlMode == null) {
+        throw new IllegalArgumentException("Control mode cannot be null for tuning mode.");
+      }
+
+      if (!canRunControlMode(controlMode)) {
+        throw new IllegalStateException(
+            "Control mode " + controlMode + " is not enabled in the configuration.");
+      }
+
+      switch (controlMode) {
+        case OPEN_LOOP_VOLTAGE:
+          return TuningMode.of(() -> {}, () -> runOpenLoopVoltageTuning(), () -> runNeutralMode());
+        case OPEN_LOOP_CURRENT:
+          return TuningMode.of(() -> {}, () -> runOpenLoopCurrentTuning(), () -> runNeutralMode());
+        case CLOSED_LOOP:
+          return TuningMode.of(() -> {}, () -> runClosedLoopTuning(), () -> runNeutralMode());
+        case BRAKE_MODE:
+          return TuningMode.simple(() -> runBrakeMode());
+        case COAST_MODE:
+          return TuningMode.simple(() -> runCoastMode());
+        case NEUTRAL_MODE:
+          return TuningMode.simple(() -> runNeutralMode());
+        case PHOENIX_TUNING:
+          return TuningMode.empty();
+        case NONE:
+          return TuningMode.empty();
+        default:
+          throw new IllegalArgumentException("Unsupported control mode for tuning mode.");
       }
     }
   }
 
-  public static class TuningModeBuilder {
-    private List<TunableValueUpdate> loggedTunableValues;
+  protected enum ClosedLoopType {
+    POSITION,
+    VELOCITY
+  }
 
-    public TuningModeBuilder() {
-      this.loggedTunableValues = new ArrayList<>();
+  protected enum ProfileType {
+    UNPROFILED,
+    PROFILED,
+    EXPO_PROFILED
+  }
+
+  public static class TunableMotorConfiguration {
+    protected boolean voltageTuning = false;
+    protected boolean currentTuning = false;
+    protected boolean hasClosedLoopTuning = false;
+    protected ClosedLoopType closedLoopType = ClosedLoopType.POSITION;
+    protected ProfileType profileType = ProfileType.UNPROFILED;
+    protected boolean phoenixTuning = false;
+
+    // Default Values
+    protected Angle initialPositionSetpoint = Radians.zero();
+    protected AngularVelocity initialVelocitySetpoint = RadiansPerSecond.zero();
+    protected PIDGains defaultPIDGains = new PIDGains(0, 0, 0, 0, 0, 0, 0);
+    protected MotionProfileConfig defaultMotionProfileConfig =
+        LoggedTunableMotionProfile.defaultMotionProfileConfig;
+
+    private TunableMotorConfiguration() {}
+
+    public static TunableMotorConfiguration builder() {
+      return new TunableMotorConfiguration();
     }
 
-    public TuningModeBuilder addTunableValueUpdates(TunableValueUpdate... tunableValueUpdate) {
-      for (var tunableValue : tunableValueUpdate) {
-        this.loggedTunableValues.add(tunableValue);
+    public static TunableMotorConfiguration defaultConfiguration() {
+      return builder().withVoltageTuning(true).withCurrentTuning(true).withPhoenixTuning(true);
+    }
+
+    public TunableMotorConfiguration withVoltageTuning(boolean voltageTuning) {
+      this.voltageTuning = voltageTuning;
+      return this;
+    }
+
+    public TunableMotorConfiguration withCurrentTuning(boolean currentTuning) {
+      this.currentTuning = currentTuning;
+      return this;
+    }
+
+    public TunableMotorConfiguration withoutClosedLoopTuning() {
+      this.hasClosedLoopTuning = false;
+      return this;
+    }
+
+    public TunableMotorConfiguration withPositionTuning() {
+      this.closedLoopType = ClosedLoopType.POSITION;
+      this.hasClosedLoopTuning = true;
+      return this;
+    }
+
+    public TunableMotorConfiguration withVelocityTuning() {
+      this.closedLoopType = ClosedLoopType.VELOCITY;
+      this.hasClosedLoopTuning = true;
+      return this;
+    }
+
+    public TunableMotorConfiguration unprofiled() {
+      this.profileType = ProfileType.UNPROFILED;
+      return this;
+    }
+
+    public TunableMotorConfiguration profiled() {
+      this.profileType = ProfileType.PROFILED;
+      return this;
+    }
+
+    public TunableMotorConfiguration expoProfiled() {
+      this.profileType = ProfileType.EXPO_PROFILED;
+      return this;
+    }
+
+    public TunableMotorConfiguration withPhoenixTuning(boolean phoenixTuning) {
+      this.phoenixTuning = phoenixTuning;
+      return this;
+    }
+
+    public TunableMotorConfiguration withInitialPositionSetpoint(Angle initialPositionSetpoint) {
+      this.initialPositionSetpoint = initialPositionSetpoint;
+      return this;
+    }
+
+    public TunableMotorConfiguration withInitialVelocitySetpoint(
+        AngularVelocity initialVelocitySetpoint) {
+      this.initialVelocitySetpoint = initialVelocitySetpoint;
+      return this;
+    }
+
+    public TunableMotorConfiguration withDefaultPIDGains(PIDGains defaultPIDGains) {
+      this.defaultPIDGains = defaultPIDGains;
+      return this;
+    }
+
+    public TunableMotorConfiguration withDefaultMotionProfileConfig(
+        MotionProfileConfig defaultMotionProfileConfig) {
+      this.defaultMotionProfileConfig = defaultMotionProfileConfig;
+      return this;
+    }
+
+    private void validate() {
+      if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED) {
+        throw new IllegalArgumentException(
+            "Exponential profiling is not supported for velocity control.");
       }
-      return this;
     }
 
-    public TuningModeBuilder addLoggedTunableNumbers(
-        Consumer<double[]> consumer, LoggedTunableNumber... tunableNumbers) {
-      this.loggedTunableValues.add(
-          id -> LoggedTunableNumber.ifChanged(id, consumer, tunableNumbers));
-      return this;
+    public TunableMotor build(String prefix, MotorIO... motorIOs) {
+      validate();
+      return new TunableMotor(this, prefix, motorIOs);
     }
-
-    public TuningModeBuilder addLoggedTunablePIDGains(
-        LoggedTunablePIDGains tunableGains, LoggedTunablePIDGains.GainsConsumer consumer) {
-      this.loggedTunableValues.add(id -> tunableGains.ifChanged(id, consumer));
-      return this;
-    }
-
-    public TuningModeBuilder addLoggedTunableMotionProfile(
-        LoggedTunableMotionProfile tunableMotionProfile,
-        LoggedTunableMotionProfile.MotionProfileConsumer consumer) {
-      this.loggedTunableValues.add(id -> tunableMotionProfile.ifChanged(id, consumer));
-      return this;
-    }
-
-    public <M extends MutableMeasure<U, B, M>, B extends Measure<U>, U extends Unit>
-        TuningModeBuilder addLoggedTunableMeasure(
-            LoggedTunableMeasure<M, B, U> tunableMeasure,
-            LoggedTunableMeasure.MeasureConsumer<M, B, U> consumer) {
-      this.loggedTunableValues.add(id -> tunableMeasure.ifChanged(id, consumer));
-      return this;
-    }
-
-    public TuningMode build() {
-      return new TuningMode(loggedTunableValues);
-    }
-  }
-
-  // TODO: Figure out what and how to name the prefixes and locations for the logged tunables
-
-  public static TuningModeBuilder builder() {
-    return new TuningModeBuilder();
-  }
-
-  public static TuningModeBuilder addOpenLoopVoltageTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      Consumer<Voltage> onChangeCallback,
-      MotorIO... motorIOs) {
-    return builder.addLoggedTunableMeasure(
-        LoggedTunableMeasure.VOLTAGE.of(prefix + "OpenLoopVoltageTuningVolts", Volts.mutable(0.0)),
-        voltage -> {
-          onChangeCallback.accept(voltage);
-          for (var motorIO : motorIOs) {
-            motorIO.controlOpenLoopVoltage(voltage);
-          }
-        });
-  }
-
-  public static TuningModeBuilder addOpenLoopCurrentTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      Consumer<Current> onChangeCallback,
-      MotorIO... motorIOs) {
-    return builder.addLoggedTunableMeasure(
-        LoggedTunableMeasure.CURRENT.of(prefix + "OpenLoopCurrentTuningAmps", Amps.mutable(0.0)),
-        current -> {
-          onChangeCallback.accept(current);
-          for (var motorIO : motorIOs) {
-            motorIO.controlOpenLoopCurrent(current);
-          }
-        });
-  }
-
-  public static TuningModeBuilder addClosedLoopPIDGainsTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      PIDGains defaultGains,
-      GainsConsumer onChangeCallback,
-      MotorIO... motorIOs) {
-    var tunableGains = new LoggedTunablePIDGains(prefix + "ClosedLoopPIDGains", defaultGains);
-    return builder.addLoggedTunablePIDGains(
-        tunableGains, onChangeCallback.chain(tunableGains.getMotorIOAppliers(motorIOs)));
-  }
-
-  public static TuningModeBuilder addClosedLoopProfileTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      MotionProfileConfig defaultConfig,
-      MotionProfileConsumer onChangeCallback,
-      MotorIO... motorIOs) {
-    LoggedTunableMotionProfile tunableMotionProfile =
-        new LoggedTunableMotionProfile(prefix + "ClosedLoopMotionProfile", defaultConfig);
-    return builder.addLoggedTunableMotionProfile(
-        tunableMotionProfile,
-        onChangeCallback.chain(tunableMotionProfile.getMotorIOAppliers(motorIOs)));
-  }
-
-  public static TuningModeBuilder addClosedLoopPositionUnprofiledTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      PIDGains defaultGains,
-      Angle defaultTargetPosition,
-      GainsConsumer gainsOnChangeCallback,
-      Consumer<Angle> targetPositionOnChangeCallback,
-      MotorIO... motorIOs) {
-    return addClosedLoopPIDGainsTuning(
-            builder, prefix, defaultGains, gainsOnChangeCallback, motorIOs)
-        .addLoggedTunableMeasure(
-            LoggedTunableMeasure.ANGLE.of(
-                prefix + "ClosedLoopPositionUnprofiledTargetAngleRadians",
-                defaultTargetPosition,
-                Radians),
-            targetAngle -> {
-              targetPositionOnChangeCallback.accept(targetAngle);
-              for (var motorIO : motorIOs) {
-                motorIO.controlToPositionUnprofiled(targetAngle);
-              }
-            });
-  }
-
-  public static TuningModeBuilder addClosedLoopVelocityUnprofiledTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      PIDGains defaultGains,
-      AngularVelocity defaultTargetVelocity,
-      GainsConsumer gainsOnChangeCallback,
-      Consumer<AngularVelocity> targetVelocityOnChangeCallback,
-      MotorIO... motorIOs) {
-    return addClosedLoopPIDGainsTuning(
-            builder, prefix, defaultGains, gainsOnChangeCallback, motorIOs)
-        .addLoggedTunableMeasure(
-            LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-                prefix + "ClosedLoopVelocityUnprofiledTargetVelocityRPM",
-                defaultTargetVelocity,
-                RPM),
-            targetVelocity -> {
-              targetVelocityOnChangeCallback.accept(targetVelocity);
-              for (var motorIO : motorIOs) {
-                motorIO.controlToVelocityUnprofiled(targetVelocity);
-              }
-            });
-  }
-
-  public static TuningModeBuilder addClosedLoopPositionProfiledTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      PIDGains defaultGains,
-      MotionProfileConfig defaultMotionProfileConfig,
-      Angle defaultTargetPosition,
-      GainsConsumer gainsOnChangeCallback,
-      MotionProfileConsumer profileOnChangeCallback,
-      MotorIO... motorIOs) {
-
-    addClosedLoopPIDGainsTuning(builder, prefix, defaultGains, gainsOnChangeCallback, motorIOs);
-    addClosedLoopProfileTuning(
-        builder, prefix, defaultMotionProfileConfig, profileOnChangeCallback, motorIOs);
-    return builder.addLoggedTunableMeasure(
-        LoggedTunableMeasure.ANGLE.of(
-            prefix + "ClosedLoopPositionProfiledTargetAngleRadians",
-            defaultTargetPosition,
-            Radians),
-        targetAngle -> {
-          for (var motorIO : motorIOs) {
-            motorIO.controlToPositionProfiled(targetAngle);
-          }
-        });
-  }
-
-  public static TuningModeBuilder addClosedLoopVelocityProfiledTuning(
-      TuningModeBuilder builder,
-      String prefix,
-      PIDGains defaultGains,
-      MotionProfileConfig defaultMotionProfileConfig,
-      AngularVelocity defaultTargetVelocity,
-      GainsConsumer gainsOnChangeCallback,
-      MotionProfileConsumer profileOnChangeCallback,
-      MotorIO... motorIOs) {
-    addClosedLoopPIDGainsTuning(builder, prefix, defaultGains, gainsOnChangeCallback, motorIOs);
-    addClosedLoopProfileTuning(
-        builder, prefix, defaultMotionProfileConfig, profileOnChangeCallback, motorIOs);
-    return builder.addLoggedTunableMeasure(
-        LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-            prefix + "ClosedLoopVelocityProfiledTargetVelocityRPM", defaultTargetVelocity, RPM),
-        targetVelocity -> {
-          for (var motorIO : motorIOs) {
-            motorIO.controlToVelocityProfiled(targetVelocity);
-          }
-        });
-  }
-
-  public static TuningModeBuilder addMotorNeutral(TuningModeBuilder builder, MotorIO... motorIOs) {
-    return builder
-        .addTunableValueUpdates(id -> {
-          for (var motorIO : motorIOs) {
-            motorIO.controlNeutral();
-          }
-        });
-  }
-
-  public static TuningModeBuilder addMotorCoast(TuningModeBuilder builder, MotorIO... motorIOs) {
-    return builder
-        .addTunableValueUpdates(id -> {
-          for (var motorIO : motorIOs) {
-            motorIO.controlCoast();
-          }
-        });
-  }
-
-  public static TuningModeBuilder addMotorBrake(TuningModeBuilder builder, MotorIO... motorIOs) {
-    return builder
-        .addTunableValueUpdates(id -> {
-          for (var motorIO : motorIOs) {
-            motorIO.controlBrake();
-          }
-        });
-  }
-
-  public static final TuningMode EMPTY = new TuningModeBuilder().build();
-
-  public static TuningMode phoenixTuning() {
-    return EMPTY;
-  }
-
-  
-
-  @FunctionalInterface
-  public static interface TunableValueUpdate {
-    void runIfChanged(int id);
   }
 }
