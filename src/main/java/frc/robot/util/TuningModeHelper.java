@@ -201,10 +201,12 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     }
 
     private void applyPIDGainsToMotors(PIDGains pidGains) {
+      configuration.onPIDGainsChanged.accept(pidGains);
       motorIOs.forEach(motorIO -> pidGains.applyToMotorIO(motorIO));
     }
 
     private void applyMotionProfileToMotors(MotionProfileConfig profileConfig) {
+      configuration.onMotionProfileConfigChanged.accept(profileConfig);
       motorIOs.forEach(motorIO -> motorIO.setProfileConstraints(profileConfig));
     }
 
@@ -447,6 +449,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       copy.initialVelocitySetpoint = this.initialVelocitySetpoint;
       copy.defaultPIDGains = this.defaultPIDGains;
       copy.defaultMotionProfileConfig = this.defaultMotionProfileConfig;
+      copy.onPIDGainsChanged = this.onPIDGainsChanged;
+      copy.onMotionProfileConfigChanged = this.onMotionProfileConfigChanged;
       return copy;
     }
 
