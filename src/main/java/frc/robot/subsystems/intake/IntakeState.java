@@ -56,7 +56,7 @@ public class IntakeState {
 
       pivotTuningModeHelper =
           new TuningModeHelper<>(PivotTestMode.class)
-              .addMotorTuningModes(rollerMotors, 
+              .addMotorTuningModes(pivotMotor, 
                   MotorTuningMode.of(PivotTestMode.None, ControlMode.NONE),
                   MotorTuningMode.of(PivotTestMode.PivotPhoenixTuning, ControlMode.PHOENIX_TUNING),
                   MotorTuningMode.of(PivotTestMode.PivotVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
@@ -71,7 +71,8 @@ public class IntakeState {
                   MotorTuningMode.of(RollerTestMode.RollerPhoenixTuning, ControlMode.PHOENIX_TUNING),
                   MotorTuningMode.of(RollerTestMode.RollerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
                   MotorTuningMode.of(RollerTestMode.RollerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                  MotorTuningMode.of(RollerTestMode.RollerClosedLoopTuning, ControlMode.CLOSED_LOOP)
+                  MotorTuningMode.of(RollerTestMode.RollerClosedLoopTuning, ControlMode.CLOSED_LOOP),
+                  MotorTuningMode.of(RollerTestMode.RollerSpeedTuning, ControlMode.NEUTRAL_MODE)
               );
     }
 

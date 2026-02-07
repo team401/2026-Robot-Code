@@ -55,7 +55,6 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     }
   }
 
-  // Maybe Remove
   @SafeVarargs
   public final TuningModeHelper<TestModeEnum> addMotorTuningModes(
     TunableMotor motor, MotorTuningMode<TestModeEnum>... motorTuningModes) {
@@ -65,7 +64,6 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     return this;
   }
 
-  // Maybe Remove
   public record MotorTuningMode<T extends Enum<T>>(
     T testMode,
     ControlMode controlMode
