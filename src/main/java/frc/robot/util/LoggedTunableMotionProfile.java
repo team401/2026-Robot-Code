@@ -36,23 +36,23 @@ public class LoggedTunableMotionProfile {
 
     this.maxVelocity =
         LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-            namePrefix + "MaxVelocity", defaultProfile.getMaxVelocity(), RotationsPerSecond);
+            namePrefix + "/MaxVelocity", defaultProfile.getMaxVelocity(), RotationsPerSecond);
     this.maxAcceleration =
         LoggedTunableMeasure.ANGULAR_ACCELERATION.of(
-            namePrefix + "MaxAcceleration",
+            namePrefix + "/MaxAcceleration",
             defaultProfile.getMaxAcceleration(),
             RotationsPerSecondPerSecond);
     this.maxJerk =
         LoggedTunableMeasure.ANGULAR_JERK.of(
-            namePrefix + "MaxJerk",
+            namePrefix + "/MaxJerk",
             defaultProfile.getMaxJerk(),
             RotationsPerSecondPerSecond.per(Seconds));
     this.kV =
         LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_VELOCITY.of(
-            namePrefix + "kV", defaultProfile.getExpoKv(), Volts.per(RotationsPerSecond));
+            namePrefix + "/kV", defaultProfile.getExpoKv(), Volts.per(RotationsPerSecond));
     this.kA =
         LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_ACCELERATION.of(
-            namePrefix + "kA", defaultProfile.getExpoKa(), Volts.per(RotationsPerSecondPerSecond));
+            namePrefix + "/kA", defaultProfile.getExpoKa(), Volts.per(RotationsPerSecondPerSecond));
   }
 
   public LoggedTunableMotionProfile(String namePrefix) {

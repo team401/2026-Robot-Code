@@ -75,7 +75,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
     this.rollersTargetSpeedTunable =
         LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-            "IntakeRollersTargetSpeedRPM",
+            "IntakeTunables/RollersTargetSpeedRPM",
             JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM),
             RPM);
 

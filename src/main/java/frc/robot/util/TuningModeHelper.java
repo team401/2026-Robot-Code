@@ -55,6 +55,29 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     }
   }
 
+  // Maybe Remove
+  @SafeVarargs
+  public final TuningModeHelper<TestModeEnum> addMotorTuningModes(
+    TunableMotor motor, MotorTuningMode<TestModeEnum>... motorTuningModes) {
+    for (MotorTuningMode<TestModeEnum> motorTuningMode : motorTuningModes) {
+      addTuningMode(motorTuningMode.testMode, motor.createTuningMode(motorTuningMode.controlMode));
+    }
+    return this;
+  }
+
+  // Maybe Remove
+  public record MotorTuningMode<T extends Enum<T>>(
+    T testMode,
+    ControlMode controlMode
+) {
+    public static <T extends Enum<T>> MotorTuningMode<T> of(
+      T testMode,
+      ControlMode controlMode
+    ) {
+      return new MotorTuningMode<>(testMode, controlMode);
+    }
+  }
+
   public record TuningMode(Runnable enterAction, Runnable periodicAction, Runnable exitAction) {
 
     public void enter() {
@@ -100,7 +123,6 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     NONE
   }
 
-  // TODO: Figure out what we want to do when and invalid tuning mode is run
   public static class TunableMotor {
 
     private List<MotorIO> motorIOs;
@@ -129,11 +151,11 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       }
 
       if (configuration.hasClosedLoopTuning) {
-        closedLoopPIDGains = new LoggedTunablePIDGains(prefix + "/ClosedLoopPIDGains");
+        closedLoopPIDGains = new LoggedTunablePIDGains(prefix + "/ClosedLoopPIDGains", configuration.defaultPIDGains);
 
         if (configuration.profileType != ProfileType.UNPROFILED) {
           closedLoopMotionProfile =
-              new LoggedTunableMotionProfile(prefix + "/ClosedLoopMotionProfile");
+              new LoggedTunableMotionProfile(prefix + "/ClosedLoopMotionProfile", configuration.defaultMotionProfileConfig);
         }
 
         if (configuration.closedLoopType == ClosedLoopType.POSITION) {
@@ -182,6 +204,14 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       }
     }
 
+    private void applyPIDGainsToMotors(PIDGains pidGains) {
+      motorIOs.forEach(motorIO -> pidGains.applyToMotorIO(motorIO));
+    }
+
+    private void applyMotionProfileToMotors(MotionProfileConfig profileConfig) {
+      motorIOs.forEach(motorIO -> motorIO.setProfileConstraints(profileConfig));
+    }
+
     public void runClosedLoopTuning() {
 
       if (!configuration.hasClosedLoopTuning) {
@@ -190,14 +220,12 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       // Closed Loop Tuning
       if (closedLoopPIDGains != null) {
-        PIDGains pidGains = closedLoopPIDGains.getCurrentGains();
-        motorIOs.forEach(motorIO -> pidGains.applyToMotorIO(motorIO));
+        closedLoopPIDGains.ifChanged(hashCode(), this::applyPIDGainsToMotors);
       }
 
       if (configuration.profileType != ProfileType.UNPROFILED) {
         if (closedLoopMotionProfile != null) {
-          MotionProfileConfig profileConfig = closedLoopMotionProfile.getCurrentMotionProfile();
-          motorIOs.forEach(motorIO -> motorIO.setProfileConstraints(profileConfig));
+          closedLoopMotionProfile.ifChanged(hashCode(), this::applyMotionProfileToMotors);
         }
       }
 
