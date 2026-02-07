@@ -165,7 +165,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   public void stopRollers() {
     rollersLeadMotorIO.controlNeutral();
-    rollersFollowerMotorIO.controlNeutral();
+    // We don't need to command the follower motor to stop because
+    // it is always following the lead motor
   }
 
   public void setTargetPivotAngle(Angle angle) {
@@ -178,10 +179,6 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   public Angle getCurrentPivotAngle() {
     return Radians.of(this.pivotInputs.positionRadians);
-  }
-
-  protected void controlToTargetPivotAngle() {
-    pivotMotorIO.controlToPositionUnprofiled(this.targetPivotAngle);
   }
 
   // Should these be blocked from executing if we are in test mode?
@@ -216,5 +213,20 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Intake/State", intakeStateMachine.getCurrentState().getName());
 
     intakeStateMachine.periodic();
+
+    // Ensure that even if we accidentally command the follower motor to do something
+    // it won't cause any issues because we always command it to follow the lead motor
+    // at the end of the periodic
+    rollersFollowerMotorIO.follow(0, false);
+  }
+
+  protected void controlToTargetPivotAngle() {
+    pivotMotorIO.controlToPositionUnprofiled(this.targetPivotAngle);
+  }
+
+  protected void zeroPositionIfBelowZero() {
+    if (pivotInputs.positionRadians < 0) {
+      pivotMotorIO.setCurrentPositionAsZero();
+    }
   }
 }

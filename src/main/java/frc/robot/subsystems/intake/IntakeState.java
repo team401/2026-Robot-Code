@@ -89,17 +89,24 @@ public class IntakeState {
     }
 
     @Override
+    public void onEntry(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
+      // When we enter test mode, we want to make sure that all motors are neutral
+      world.pivotMotorIO.controlNeutral();
+      world.stopRollers();
+    }
+
+    @Override
     protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
+
+      world.zeroPositionIfBelowZero();
 
       pivotTestPeriodic(world.pivotTestModeManager.getTestMode(), world);
       rollerTestPeriodic(world.rollerTestModeManager.getTestMode(), world);
 
       if (!shouldBeInTestMode(world)) {
-
         // Ensure motors are neutral when exiting test mode
         world.pivotMotorIO.controlNeutral();
-        world.rollersLeadMotorIO.controlNeutral();
-        world.rollersFollowerMotorIO.controlNeutral();
+        world.stopRollers();
         finish();
       }
     }
@@ -107,16 +114,10 @@ public class IntakeState {
     public void pivotTestPeriodic(PivotTestMode testMode, IntakeSubsystem world) {
       switch (testMode) {
         case PivotVoltageTuning:
-          LoggedTunableNumber.ifChanged(
-              hashCode(),
-              voltage -> world.pivotMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
-              pivotTuningVoltage);
+          world.pivotMotorIO.controlOpenLoopVoltage(Volts.of(pivotTuningVoltage.getAsDouble()));
           break;
         case PivotCurrentTuning:
-          LoggedTunableNumber.ifChanged(
-              hashCode(),
-              current -> world.pivotMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
-              pivotTuningCurrent);
+          world.pivotMotorIO.controlOpenLoopCurrent(Amps.of(pivotTuningCurrent.getAsDouble()));
           break;
         case PivotClosedLoopTuning:
           pivotTuningGains.ifChanged(
@@ -124,12 +125,12 @@ public class IntakeState {
               pivotTuningGains
                   .getMotorIOApplier(world.pivotMotorIO)
                   .chain(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
-          LoggedTunableNumber.ifChanged(
-              hashCode(),
-              setpoint -> world.setTargetPivotAngle(Degrees.of(setpoint[0])),
-              pivotTuningSetpointDegrees);
+
+
+          world.pivotMotorIO.controlToPositionUnprofiled(Degrees.of(pivotTuningSetpointDegrees.getAsDouble()));
           break;
         default:
+          world.pivotMotorIO.controlNeutral();
           break;
       }
     }
@@ -137,16 +138,10 @@ public class IntakeState {
     public void rollerTestPeriodic(RollerTestMode testMode, IntakeSubsystem world) {
       switch (testMode) {
         case RollerVoltageTuning:
-          LoggedTunableNumber.ifChanged(
-              hashCode(),
-              voltage -> world.rollersLeadMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
-              rollerTuningVoltage);
+          world.rollersFollowerMotorIO.controlOpenLoopVoltage(Volts.of(rollerTuningVoltage.getAsDouble()));
           break;
         case RollerCurrentTuning:
-          LoggedTunableNumber.ifChanged(
-              hashCode(),
-              current -> world.rollersLeadMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
-              rollerTuningCurrent);
+          world.rollersFollowerMotorIO.controlOpenLoopCurrent(Amps.of(rollerTuningCurrent.getAsDouble()));
           break;
         case RollerClosedLoopTuning:
           rollerTuningGains.ifChanged(
@@ -154,8 +149,12 @@ public class IntakeState {
               rollerTuningGains
                   .getMotorIOAppliers(world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
                   .chain(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains));
-          LoggedTunableNumber.ifChanged(
-              hashCode(), rpm -> world.runRollers(RPM.of(rpm[0])), rollerTuningSetpointRPM);
+          
+          world.runRollers(RPM.of(rollerTuningSetpointRPM.getAsDouble()));
+          break;
+        case None:
+          // Ensure rollers are stopped when not in a roller test mode, just in case
+          world.stopRollers();
           break;
         default:
           break;
@@ -189,13 +188,20 @@ public class IntakeState {
             finish();
           }
         }
+
       };
 
   public static State<IntakeSubsystem> homingDoneState =
       new State<IntakeSubsystem>("HomingDone") {
+
+        @Override
+        public void onEntry(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
+          // Ensure the motor is stopped when we enter the done state, just in case
+          world.pivotMotorIO.controlNeutral();
+        }
+
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          world.pivotMotorIO.controlNeutral();
           world.pivotMotorIO.setCurrentPositionAsZero();
           finish();
         }
@@ -219,6 +225,7 @@ public class IntakeState {
       new State<IntakeSubsystem>("ControlToPosition") {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
+          world.zeroPositionIfBelowZero();
           world.controlToTargetPivotAngle();
         }
       };

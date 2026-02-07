@@ -180,6 +180,10 @@ public class CoordinationLayer {
       dependencyOrderedExecutor.addDependencies(
           UPDATE_HOOD_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
     }
+    if (JsonConstants.featureFlags.runIntake) {
+      dependencyOrderedExecutor.addDependencies(
+          UPDATE_INTAKE_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
+    }
   }
 
   private boolean isHomingSwitchPressed() {
