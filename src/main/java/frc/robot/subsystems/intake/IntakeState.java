@@ -1,14 +1,16 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Volts;
+
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.parameter_tools.LoggedTunableNumber;
 import edu.wpi.first.units.Units;
 import frc.robot.constants.JsonConstants;
-import frc.robot.util.TuningModeHelper;
-import frc.robot.util.TuningModeHelper.ControlMode;
-import frc.robot.util.TuningModeHelper.MotorTuningMode;
-import frc.robot.util.TuningModeHelper.TunableMotor;
-import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
+import frc.robot.util.LoggedTunablePIDGains;
 
 public class IntakeState {
 
@@ -37,58 +39,60 @@ public class IntakeState {
   // loaded before we try to create any LoggedTunableNumbers for the test mode
   public static class TestModeState extends State<IntakeSubsystem> {
 
-    private TuningModeHelper<PivotTestMode> pivotTuningModeHelper;
-    private TuningModeHelper<RollerTestMode> rollerTuningModeHelper;
+    private LoggedTunableNumber pivotTuningVoltage;
+    private LoggedTunableNumber rollerTuningVoltage;
+    private LoggedTunableNumber pivotTuningCurrent;
+    private LoggedTunableNumber rollerTuningCurrent;
+    private LoggedTunableNumber pivotTuningSetpointDegrees;
+    private LoggedTunableNumber rollerTuningSetpointRPM;
+
+    private LoggedTunablePIDGains pivotTuningGains;
+    private LoggedTunablePIDGains rollerTuningGains;
 
     public TestModeState(IntakeSubsystem world) {
       super("TestMode");
 
-      TunableMotor pivotMotor =
-          TunableMotorConfiguration.defaultConfiguration()
-              .withPositionTuning()
-              .withDefaultPIDGains(JsonConstants.intakeConstants.pivotPIDGains)
-              .onPIDGainsChanged(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains)
-              .build("Intake/Pivot", world.pivotMotorIO);
-      TunableMotor rollerMotors =
-          TunableMotorConfiguration.defaultConfiguration()
-              .withVelocityTuning()
-              .withDefaultPIDGains(JsonConstants.intakeConstants.rollersPIDGains)
-              .onPIDGainsChanged(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains)
-              .build("Intake/Rollers", world.rollersLeadMotorIO, world.rollersFollowerMotorIO);
+      pivotTuningVoltage =
+          new LoggedTunableNumber(
+              "IntakePivotVoltageTuning",
+              0.0); // Default to 0 volts for safety, since this directly controls the motor
+      rollerTuningVoltage =
+          new LoggedTunableNumber(
+              "IntakeRollerVoltageTuning",
+              0.0); // Default to 0 volts for safety, since this directly controls the motor
+      pivotTuningCurrent =
+          new LoggedTunableNumber(
+              "IntakePivotCurrentTuning",
+              0.0); // Default to 0 amps for safety, since this directly controls the motor
+      rollerTuningCurrent =
+          new LoggedTunableNumber(
+              "IntakeRollerCurrentTuning",
+              0.0); // Default to 0 amps for safety, since this directly controls the motor
+      pivotTuningSetpointDegrees =
+          new LoggedTunableNumber(
+              "IntakePivotSetpointDegrees",
+              JsonConstants.intakeConstants.stowPositionAngle.in(
+                  Units
+                      .Degrees)); // Assumes the stow position is the safest default position, since
+      // this directly controls the motor
+      rollerTuningSetpointRPM =
+          new LoggedTunableNumber(
+              "IntakeRollerSetpointRPM",
+              0.0); // Default to 0 RPM for safety, since this directly controls the motor
 
-      pivotTuningModeHelper =
-          new TuningModeHelper<>(PivotTestMode.class)
-              .addMotorTuningModes(
-                  pivotMotor,
-                  MotorTuningMode.of(PivotTestMode.None, ControlMode.NONE),
-                  MotorTuningMode.of(PivotTestMode.PivotPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                  MotorTuningMode.of(
-                      PivotTestMode.PivotVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-                  MotorTuningMode.of(
-                      PivotTestMode.PivotCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                  MotorTuningMode.of(PivotTestMode.PivotClosedLoopTuning, ControlMode.CLOSED_LOOP));
-
-      rollerTuningModeHelper =
-          new TuningModeHelper<>(RollerTestMode.class)
-              .addMotorTuningModes(
-                  rollerMotors,
-                  MotorTuningMode.of(RollerTestMode.None, ControlMode.NONE),
-                  MotorTuningMode.of(
-                      RollerTestMode.RollerPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                  MotorTuningMode.of(
-                      RollerTestMode.RollerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-                  MotorTuningMode.of(
-                      RollerTestMode.RollerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                  MotorTuningMode.of(
-                      RollerTestMode.RollerClosedLoopTuning, ControlMode.CLOSED_LOOP),
-                  MotorTuningMode.of(RollerTestMode.RollerSpeedTuning, ControlMode.NEUTRAL_MODE));
+      pivotTuningGains =
+          new LoggedTunablePIDGains(
+              "IntakePivotPIDGains", JsonConstants.intakeConstants.pivotPIDGains);
+      rollerTuningGains =
+          new LoggedTunablePIDGains(
+              "IntakeRollerPIDGains", JsonConstants.intakeConstants.rollersPIDGains);
     }
 
     @Override
     protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
 
-      pivotTuningModeHelper.runTestMode(world.pivotTestModeManager.getTestMode());
-      rollerTuningModeHelper.runTestMode(world.rollerTestModeManager.getTestMode());
+      pivotTestPeriodic(world.pivotTestModeManager.getTestMode(), world);
+      rollerTestPeriodic(world.rollerTestModeManager.getTestMode(), world);
 
       if (!shouldBeInTestMode(world)) {
 
@@ -97,6 +101,62 @@ public class IntakeState {
         world.rollersLeadMotorIO.controlNeutral();
         world.rollersFollowerMotorIO.controlNeutral();
         finish();
+      }
+    }
+
+    public void pivotTestPeriodic(PivotTestMode testMode, IntakeSubsystem world) {
+      switch (testMode) {
+        case PivotVoltageTuning:
+          LoggedTunableNumber.ifChanged(
+              hashCode(),
+              voltage -> world.pivotMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
+              pivotTuningVoltage);
+          break;
+        case PivotCurrentTuning:
+          LoggedTunableNumber.ifChanged(
+              hashCode(),
+              current -> world.pivotMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
+              pivotTuningCurrent);
+          break;
+        case PivotClosedLoopTuning:
+          pivotTuningGains.ifChanged(
+              hashCode(),
+              pivotTuningGains.getMotorIOApplier(world.pivotMotorIO)
+                .chain(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
+          LoggedTunableNumber.ifChanged(
+              hashCode(),
+              setpoint -> world.setTargetPivotAngle(Degrees.of(setpoint[0])),
+              pivotTuningSetpointDegrees);
+          break;
+        default:
+          break;
+      }
+    }
+
+    public void rollerTestPeriodic(RollerTestMode testMode, IntakeSubsystem world) {
+      switch (testMode) {
+        case RollerVoltageTuning:
+          LoggedTunableNumber.ifChanged(
+              hashCode(),
+              voltage -> world.rollersLeadMotorIO.controlOpenLoopVoltage(Volts.of(voltage[0])),
+              rollerTuningVoltage);
+          break;
+        case RollerCurrentTuning:
+          LoggedTunableNumber.ifChanged(
+              hashCode(),
+              current -> world.rollersLeadMotorIO.controlOpenLoopCurrent(Amps.of(current[0])),
+              rollerTuningCurrent);
+          break;
+        case RollerClosedLoopTuning:
+          rollerTuningGains.ifChanged(
+              hashCode(),
+              rollerTuningGains.getMotorIOAppliers(world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
+                  .chain(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains));
+          LoggedTunableNumber.ifChanged(
+              hashCode(), rpm -> world.runRollers(RPM.of(rpm[0])), rollerTuningSetpointRPM);
+          break;
+        default:
+          break;
       }
     }
   }

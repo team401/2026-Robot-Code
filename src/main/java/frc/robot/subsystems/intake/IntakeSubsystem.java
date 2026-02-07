@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
@@ -12,7 +13,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
-import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.TestModeManager;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -37,7 +37,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   protected Angle targetPivotAngle = Degrees.zero();
 
-  private LoggedTunableMeasure.LoggedAngularVelocity rollersTargetSpeedTunable;
+  private LoggedTunableNumber rollersTargetSpeedTunable;
 
   private IntakeDependencies dependencies = new IntakeDependencies();
 
@@ -73,11 +73,9 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     this.rollerLeadMotorInputs = new MotorInputsAutoLogged();
     this.rollerFollowerMotorInputs = new MotorInputsAutoLogged();
 
-    this.rollersTargetSpeedTunable =
-        LoggedTunableMeasure.ANGULAR_VELOCITY.of(
+      this.rollersTargetSpeedTunable = new LoggedTunableNumber(
             "IntakeTunables/RollersTargetSpeedRPM",
-            JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM),
-            RPM);
+            JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM));
 
     this.intakeStateMachine = new StateMachine<IntakeSubsystem>(this);
 
@@ -208,8 +206,10 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // This is run outside of the test mode because we want to be able to tune the roller speed
     // in test mode and be able to control the pivot as if we were operating the robot normally
     if (rollerTestModeManager.getTestMode() == RollerTestMode.RollerSpeedTuning) {
-      rollersTargetSpeedTunable.ifChanged(
-          rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = rollerSpeed.copy());
+      LoggedTunableNumber.ifChanged(
+          hashCode(),
+          rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = RPM.of(rollerSpeed[0]),
+          rollersTargetSpeedTunable);
     }
 
     Logger.recordOutput("Intake/State", intakeStateMachine.getCurrentState().getName());
