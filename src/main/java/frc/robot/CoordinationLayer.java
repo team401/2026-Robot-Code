@@ -1,20 +1,23 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N3;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
+import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
-import frc.robot.ShotCalculations.ShotType;
+import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
@@ -24,9 +27,9 @@ import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
@@ -39,6 +42,7 @@ public class CoordinationLayer {
   private Optional<HopperSubsystem> hopper = Optional.empty();
   private Optional<IndexerSubsystem> indexer = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
+  private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
   private Optional<IntakeSubsystem> intake = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
@@ -128,6 +132,22 @@ public class CoordinationLayer {
   }
 
   /**
+   * Sets the shooter instance for the CoordinationLayer to use.
+   *
+   * <p>This method must run before the DependencyOrderedExecutor's schedule is finalized, as it
+   * adds dependencies. However, if the shooter subsystem is disabled in FeatureFlags, it does not
+   * need to be called at all.
+   *
+   * @param shooter The ShooterSubsystem instance to use
+   */
+  public void setShooter(ShooterSubsystem shooter) {
+    checkForDuplicateSubsystem(this.shooter, "Shooter");
+
+    this.shooter = Optional.of(shooter);
+    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, ShooterSubsystem.UPDATE_INPUTS);
+  }
+
+  /**
    * Sets the hood instance for the CoordinationLayer to use.
    *
    * <p>This method must run before the DependencyOrderedExecutor's schedule is finalized, as it
@@ -137,9 +157,7 @@ public class CoordinationLayer {
    * @param hood The HoodSubsystem instance to use
    */
   public void setHood(HoodSubsystem hood) {
-    if (this.hood.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setHood was called twice!");
-    }
+    checkForDuplicateSubsystem(this.hood, "Hood");
 
     this.hood = Optional.of(hood);
 
@@ -150,9 +168,7 @@ public class CoordinationLayer {
   }
 
   public void setHomingSwitch(HomingSwitch homingSwitch) {
-    if (this.homingSwitch.isPresent()) {
-      throw new IllegalStateException("CoordinationLayer setHomingSwitch was called twice!");
-    }
+    checkForDuplicateSubsystem(this.homingSwitch, "HomingSwitch");
 
     this.homingSwitch = Optional.of(homingSwitch);
 
@@ -210,67 +226,77 @@ public class CoordinationLayer {
    * @param drive A Drive instance
    */
   private void runShotCalculatorWithDrive(Drive driveInstance) {
-    Translation3d hubTranslation = FieldConstants.Hub.innerCenterPoint();
-    // Placeholder passing "example" translation
-    Translation3d passingTargetTranslation = new Translation3d(2.0, 1.0, 0.0);
-
     Pose2d robotPose = driveInstance.getPose();
     Translation3d shooterPosition =
         new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
 
     // Pick either passing target or hub here.
-    Translation3d goalTranslation = hubTranslation;
+    ShotTarget target = ShotTarget.Hub;
 
     ChassisSpeeds fieldCentricSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
             driveInstance.getChassisSpeeds(), robotPose.getRotation());
 
-    Translation2d goalXYPlane = new Translation2d(goalTranslation.getX(), goalTranslation.getY());
-    double shotDistanceXYMeters = robotPose.getTranslation().getDistance(goalXYPlane);
-    Logger.recordOutput("CoordinationLayer/ShotXYDistanceMeters", shotDistanceXYMeters);
+    /*
+      Calculate the additional velocity caused by the rotation of the robot
+      The shooter is basically a point a certain radius away from the center of the robot.
 
-    double viMetersPerSecond =
-        JsonConstants.shooterConstants.getViFromDistance(shotDistanceXYMeters);
-    Logger.recordOutput("CoordinationLayer/viMetersPerSecond", viMetersPerSecond);
+      In terms of vectors, this is represented by v_rot = omega x r_vec, where r_vec is the radius vector from the center of the robot to the turret.
 
-    Optional<ShotInfo> maybeShot =
-        ShotCalculations.calculateMovingShot(
-            shooterPosition,
-            goalTranslation,
-            fieldCentricSpeeds,
-            MetersPerSecond.of(viMetersPerSecond),
-            ShotType.HIGH,
-            Optional.empty());
+      Let r_vec = <x, y, z>. The cross product becomes:
+
+                i j k
+      omega_vec 0 0 omega
+      r_vec     x y z
+
+      = i(0*z - omega * y) - j(0*z - omega * x) + (0*y - 0*x)
+      Which, after simplification equals:
+      = - i *omega * y + j * omega * x
+      = < - omega * y, omega * x >
+
+      However, we can accomplish this math using Translation3d.cross instead:
+    */
+    double omega = fieldCentricSpeeds.omegaRadiansPerSecond;
+    Translation3d omega_vec = new Translation3d(0, 0, omega);
+
+    Translation3d robotToShooterTranslation =
+        JsonConstants.robotInfo.robotToShooter.getTranslation();
+    Translation3d fieldRelativeRobotToShooter =
+        robotToShooterTranslation.rotateBy(new Rotation3d(robotPose.getRotation()));
+
+    Vector<N3> vRot = omega_vec.cross(fieldRelativeRobotToShooter);
+
+    // Shooter velocity is the instantaneous velocity of the shooter at the moment of release.
+    // This means that it must include the translation of the drivetrain, plus the circular motion
+    // of the shooter as the drivetrain rotates.
+    // This explicitly does not model the curved motion caused by the rotation of the drivetrain
+    // over time, which would be represented using Twist2d. This is because the ball will not curve
+    // in the air in the same way as the shooter curves on the ground.
+    Translation2d shooterVelocity =
+        new Translation2d(
+            fieldCentricSpeeds.vxMetersPerSecond + vRot.get(0),
+            fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
+
+    Optional<MapBasedShotInfo> maybeShot =
+        ShotCalculations.calculateShotFromMap(shooterPosition, shooterVelocity, target);
 
     maybeShot.ifPresent(
-        idealShot -> {
-          sendIdealShotToSubsystems(idealShot);
+        shot -> {
+          turret.ifPresent(
+              turret -> {
+                turret.targetGoalHeading(new Rotation2d(shot.yawRadians()));
+              });
 
-          final int trajectoryPointsPerMeter = 4;
+          hood.ifPresent(
+              hood -> {
+                hood.targetAngleRadians(shot.hoodAngleRadians());
+                ;
+              });
 
-          ShotInfo currentShot = getCurrentShot(idealShot);
-
-          Translation3d[] idealShotTrajectory =
-              idealShot.projectMotion(
-                  viMetersPerSecond, shooterPosition, fieldCentricSpeeds, trajectoryPointsPerMeter);
-          Translation3d[] shotTrajectory =
-              currentShot.projectMotion(
-                  viMetersPerSecond, shooterPosition, fieldCentricSpeeds, trajectoryPointsPerMeter);
-          Logger.recordOutput("CoordinationLayer/IdealShot", idealShot);
-          Logger.recordOutput("CoordinationLayer/Shot", currentShot);
-
-          // Logger.recordOutput(
-          //     "CoordinationLayer/EffectiveTrajectory",
-          //     idealShot.projectMotion(
-          //         viMetersPerSecond,
-          //         shooterPosition,
-          //         new ChassisSpeeds(),
-          //         trajectoryPointsPerMeter));
-          Logger.recordOutput("CoordinationLayer/ShotTrajectory", shotTrajectory);
-          Logger.recordOutput("CoordinationLayer/IdealShotTrajectory", idealShotTrajectory);
-          Logger.recordOutput(
-              "CoordinationLayer/ShotErrorMeters",
-              shotTrajectory[shotTrajectory.length - 1].getDistance(goalTranslation));
+          shooter.ifPresent(
+              shooter -> {
+                shooter.setTargetVelocityRPM(shot.shooterRPM());
+              });
         });
   }
 

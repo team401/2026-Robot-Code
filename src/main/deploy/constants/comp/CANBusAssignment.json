@@ -20,4 +20,6 @@
   "intakePivotMotorId": 19,
   "intakeRollersLeadMotorId": 20,
   "intakeRollersFollowerMotorId": 21
+  "shooterLeaderId": 22,
+  "shooterFollowerId": 23
 }

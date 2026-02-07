@@ -36,4 +36,7 @@ public class CANBusAssignment {
   public final Integer intakePivotMotorId = 19;
   public final Integer intakeRollersLeadMotorId = 20;
   public final Integer intakeRollersFollowerMotorId = 21;
+
+  public final Integer shooterLeaderId = 22; // TODO: Real ids
+  public final Integer shooterFollowerId = 23;
 }
