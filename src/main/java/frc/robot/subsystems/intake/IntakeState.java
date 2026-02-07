@@ -121,8 +121,9 @@ public class IntakeState {
         case PivotClosedLoopTuning:
           pivotTuningGains.ifChanged(
               hashCode(),
-              pivotTuningGains.getMotorIOApplier(world.pivotMotorIO)
-                .chain(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
+              pivotTuningGains
+                  .getMotorIOApplier(world.pivotMotorIO)
+                  .chain(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
           LoggedTunableNumber.ifChanged(
               hashCode(),
               setpoint -> world.setTargetPivotAngle(Degrees.of(setpoint[0])),
@@ -150,7 +151,8 @@ public class IntakeState {
         case RollerClosedLoopTuning:
           rollerTuningGains.ifChanged(
               hashCode(),
-              rollerTuningGains.getMotorIOAppliers(world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
+              rollerTuningGains
+                  .getMotorIOAppliers(world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
                   .chain(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains));
           LoggedTunableNumber.ifChanged(
               hashCode(), rpm -> world.runRollers(RPM.of(rpm[0])), rollerTuningSetpointRPM);

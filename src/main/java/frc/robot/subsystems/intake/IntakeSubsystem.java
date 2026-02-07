@@ -73,7 +73,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     this.rollerLeadMotorInputs = new MotorInputsAutoLogged();
     this.rollerFollowerMotorInputs = new MotorInputsAutoLogged();
 
-      this.rollersTargetSpeedTunable = new LoggedTunableNumber(
+    this.rollersTargetSpeedTunable =
+        new LoggedTunableNumber(
             "IntakeTunables/RollersTargetSpeedRPM",
             JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM));
 
