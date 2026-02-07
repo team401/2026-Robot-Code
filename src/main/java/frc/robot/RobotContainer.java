@@ -92,6 +92,13 @@ public class RobotContainer {
       coordinationLayer.setIndexer(indexer);
     }
 
+    if (JsonConstants.featureFlags.runIntake) {
+      IntakeSubsystem intakeSubsystem = InitSubsystems.initIntakeSubsystem();
+      coordinationLayer.setIntake(intakeSubsystem);
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_INTAKE_DEPENDENCIES);
+    }
+
     if (JsonConstants.featureFlags.runHood) {
       HoodSubsystem hood = InitSubsystems.initHoodSubsystem(dependencyOrderedExecutor);
       coordinationLayer.setHood(hood);
@@ -116,11 +123,6 @@ public class RobotContainer {
       // that have demo modes are active
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_DEMO_MODES);
-    }
-
-    if (JsonConstants.featureFlags.runIntake) {
-      IntakeSubsystem intakeSubsystem = InitSubsystems.initIntakeSubsystem();
-      coordinationLayer.setIntake(intakeSubsystem);
     }
 
     drive.ifPresentOrElse(
