@@ -1,0 +1,49 @@
+{
+  "gainConstants": {
+    "maxAcceptedDistanceMeters": 10.0,
+    "linearStdDevFactor": 0.02,
+    "angularStdDevFactor": 0.06,
+    "maxZCutoff": 0.75,
+    "maxSingleTagAmbiguity": 0.3,
+    "maxAmbiguity": 0.3
+  },
+  "camera1Index": 0,
+  "camera1Transform": {
+    "m_translation": {
+      "x": 0.0254,
+      "y": 0.0254,
+      "z": 0.0254
+    },
+    "m_rotation": {
+      "roll": 0.0,
+      "pitch": 0.0,
+      "yaw": 0.0
+    }
+  },
+  "camera2Index": 1,
+  "camera2Transform": {
+    "m_translation": {
+      "x": 0.0508,
+      "y": 0.0508,
+      "z": 0.0508
+    },
+    "m_rotation": {
+      "roll": 0.0,
+      "pitch": 0.0,
+      "yaw": 0.0
+    }
+  },
+  "camera3Index": 2,
+  "camera3Transform": {
+    "m_translation": {
+      "x": 0.07619999999999999,
+      "y": 0.07619999999999999,
+      "z": 0.07619999999999999
+    },
+    "m_rotation": {
+      "roll": 0.0,
+      "pitch": 0.0,
+      "yaw": 0.0
+    }
+  }
+}

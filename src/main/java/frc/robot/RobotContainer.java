@@ -73,6 +73,9 @@ public class RobotContainer {
       this.driveCoordinator = Optional.of(driveCoordinator);
       coordinationLayer.setDrive(drive);
       coordinationLayer.setDriveCoordinator(driveCoordinator);
+      if (JsonConstants.featureFlags.runVision) {
+        InitSubsystems.initVisionSubsystem(drive);
+      }
     } else {
       drive = Optional.empty();
       driveCoordinator = Optional.empty();
