@@ -37,8 +37,8 @@ public class DriveCoordinator extends SubsystemBase {
 
   public DriveCoordinator(Drive drive) {
     this.drive = drive;
-    drive.setDriveGains(JsonConstants.driveConstants.driveGains);
-    drive.setSteerGains(JsonConstants.driveConstants.steerGains);
+    // drive.setDriveGains(JsonConstants.driveConstants.driveGains);
+    // drive.setSteerGains(JsonConstants.driveConstants.steerGains);
   }
 
   public void createStateMachine(DriveWithJoysticks command) {

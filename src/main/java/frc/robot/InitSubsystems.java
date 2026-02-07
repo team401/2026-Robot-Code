@@ -1,10 +1,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-import coppercore.vision.VisionIO;
-import coppercore.vision.VisionIOPhotonReal;
-import coppercore.vision.VisionIOPhotonSim;
-import coppercore.vision.VisionLocalizer;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
@@ -23,6 +19,11 @@ import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
 import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
@@ -85,50 +86,25 @@ public class InitSubsystems {
     }
   }
 
-  public static VisionLocalizer initVisionSubsystem(Drive drive) {
+  public static Vision initVisionSubsystem(Drive drive) {
     var gainConstants = JsonConstants.visionConstants.gainConstants;
     AprilTagFieldLayout tagLayout = JsonConstants.aprilTagConstants.getTagLayout();
     switch (Constants.currentMode) {
       case REAL:
-        return new VisionLocalizer(
+        return new Vision(
             drive::addVisionMeasurement,
-            tagLayout,
-            gainConstants,
-            new double[0],
-            new VisionIOPhotonReal("Camera1", JsonConstants.visionConstants.camera1Transform),
-            new VisionIOPhotonReal("Camera2", JsonConstants.visionConstants.camera2Transform),
-            new VisionIOPhotonReal("Camera3", JsonConstants.visionConstants.camera3Transform));
+            new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
+            new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1));
 
       case SIM:
-        return new VisionLocalizer(
+        return new Vision(
             drive::addVisionMeasurement,
-            tagLayout,
-            gainConstants,
-            new double[0],
-            new VisionIOPhotonSim(
-                "Camera1",
-                JsonConstants.visionConstants.camera1Transform,
-                drive::getPose,
-                tagLayout),
-            new VisionIOPhotonSim(
-                "Camera2",
-                JsonConstants.visionConstants.camera2Transform,
-                drive::getPose,
-                tagLayout),
-            new VisionIOPhotonSim(
-                "Camera3",
-                JsonConstants.visionConstants.camera3Transform,
-                drive::getPose,
-                tagLayout));
+            new VisionIOPhotonVisionSim(
+                VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose),
+            new VisionIOPhotonVisionSim(
+                VisionConstants.camera1Name, VisionConstants.robotToCamera1, drive::getPose));
       default:
-        return new VisionLocalizer(
-            drive::addVisionMeasurement,
-            tagLayout,
-            gainConstants,
-            new double[0],
-            new VisionIO() {},
-            new VisionIO() {},
-            new VisionIO() {});
+        return new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
     }
   }
 
