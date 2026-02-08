@@ -138,10 +138,10 @@ public class IntakeState {
     public void rollerTestPeriodic(RollerTestMode testMode, IntakeSubsystem world) {
       switch (testMode) {
         case RollerVoltageTuning:
-          world.rollersFollowerMotorIO.controlOpenLoopVoltage(Volts.of(rollerTuningVoltage.getAsDouble()));
+          world.rollersLeadMotorIO.controlOpenLoopVoltage(Volts.of(rollerTuningVoltage.getAsDouble()));
           break;
         case RollerCurrentTuning:
-          world.rollersFollowerMotorIO.controlOpenLoopCurrent(Amps.of(rollerTuningCurrent.getAsDouble()));
+          world.rollersLeadMotorIO.controlOpenLoopCurrent(Amps.of(rollerTuningCurrent.getAsDouble()));
           break;
         case RollerClosedLoopTuning:
           rollerTuningGains.ifChanged(
