@@ -29,6 +29,30 @@
             "elementType": "axis",
             "id": "rightX"
           }
+        },
+        {
+          "command": "intakePivotUp",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "intakePivotDown",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "leftBumper"
+          }
+        },
+        {
+          "command": "runIntakeRollers",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "axis",
+            "id": "rightTrigger"
+          }
         }
       ]
     }

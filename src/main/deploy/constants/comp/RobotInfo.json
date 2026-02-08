@@ -1,5 +1,19 @@
 {
   "canivoreBusName": "canivore",
+  "logFilePath": "./logs/robot_log.hoot",
+  "robotMass": {
+    "value": 74.088,
+    "unit": "Kilogram"
+  },
+  "robotMOI": {
+    "value": 6.883,
+    "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+  },
+  "wheelCof": 1.2,
+  "robotPeriod": {
+    "value": 0.02,
+    "unit": "Second"
+  },
   "robotToShooter": {
     "m_translation": {
       "x": 0.10604499999999999,
