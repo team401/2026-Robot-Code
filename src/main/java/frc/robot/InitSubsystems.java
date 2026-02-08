@@ -338,6 +338,11 @@ public class InitSubsystems {
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
                 rollerSim));
 
+      case REPLAY:
+
+        return new IntakeSubsystem(
+            new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
+
       default:
         // Replayed robot, disable IO implementations
         return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());

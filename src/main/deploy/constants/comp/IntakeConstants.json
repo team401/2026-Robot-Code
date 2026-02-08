@@ -1,10 +1,22 @@
 {
   "pivotReduction": 42.5,
   "rollersReduction": 2.0,
-  "armLengthMeters": 0.3,
-  "minPivotAngleRadians": 0.0,
-  "maxPivotAngleRadians": 3.141592653589793,
-  "pivotStartingAngleRadians": 1.5707963267948966,
+  "armLength": {
+    "value": 0.5,
+    "unit": "Meter"
+  },
+  "minPivotAngle": {
+    "value": 0.0,
+    "unit": "Degree"
+  },
+  "maxPivotAngle": {
+    "value": 90.0,
+    "unit": "Degree"
+  },
+  "pivotStartingAngle": {
+    "value": 90.0,
+    "unit": "Degree"
+  },
   "rollersInertia": {
     "value": 0.001,
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
@@ -18,8 +30,8 @@
     "unit": "Radian"
   },
   "stowPositionAngle": {
-    "value": 1.5707963267948966,
-    "unit": "Radian"
+    "value": 90.0,
+    "unit": "Degree"
   },
   "intakeRollerSpeed": {
     "value": 1500.0,

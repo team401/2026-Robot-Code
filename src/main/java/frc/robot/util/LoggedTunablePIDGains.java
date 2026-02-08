@@ -85,7 +85,7 @@ public class LoggedTunablePIDGains {
 
     void accept(PIDGains pidGains);
 
-    default GainsConsumer chain(GainsConsumer after) {
+    default GainsConsumer andThen(GainsConsumer after) {
       return pidGains -> {
         accept(pidGains);
         after.accept(pidGains);

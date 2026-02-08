@@ -124,7 +124,7 @@ public class IntakeState {
               hashCode(),
               pivotTuningGains
                   .getMotorIOApplier(world.pivotMotorIO)
-                  .chain(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
+                  .andThen(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
 
           world.pivotMotorIO.controlToPositionUnprofiled(
               Degrees.of(pivotTuningSetpointDegrees.getAsDouble()));
@@ -150,7 +150,7 @@ public class IntakeState {
               hashCode(),
               rollerTuningGains
                   .getMotorIOAppliers(world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
-                  .chain(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains));
+                  .andThen(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains));
 
           world.runRollers(RPM.of(rollerTuningSetpointRPM.getAsDouble()));
           break;

@@ -1,7 +1,9 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -28,6 +30,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -43,18 +46,18 @@ public class IntakeConstants {
 
   // Pivot mechanism constants
   // These values are placeholders and should be updated with real values
-  public final Double armLengthMeters = 0.3;
-  public final Double minPivotAngleRadians = 0.0;
-  public final Double maxPivotAngleRadians = Math.PI;
-  public final Double pivotStartingAngleRadians = 0.0;
+  public final Distance armLength = Meters.of(0.3);
+  public final Angle minPivotAngle = Degrees.of(0.0);
+  public final Angle maxPivotAngle = Degrees.of(90.0);
+  public final Angle pivotStartingAngle = Degrees.of(90.0);
 
   // Sim Constants
   public final MomentOfInertia rollersInertia = Units.KilogramSquareMeters.of(0.02);
   public final MomentOfInertia pivotInertia = Units.KilogramSquareMeters.of(0.05);
 
   // Setpoint for various positions
-  public final Angle intakePositionAngle = Radians.of(0.0);
-  public final Angle stowPositionAngle = Radians.of(Math.PI / 2);
+  public final Angle intakePositionAngle = Degrees.of(0.0);
+  public final Angle stowPositionAngle = Degrees.of(90.0);
 
   // Roller speeds
   public AngularVelocity intakeRollerSpeed = RPM.of(1500.0);
@@ -115,11 +118,11 @@ public class IntakeConstants {
             DCMotor.getKrakenX60Foc(1),
             pivotReduction,
             pivotInertia.in(Units.KilogramSquareMeters),
-            armLengthMeters,
-            minPivotAngleRadians,
-            maxPivotAngleRadians,
+            armLength.in(Meters),
+            minPivotAngle.in(Radians),
+            maxPivotAngle.in(Radians),
             true,
-            pivotStartingAngleRadians));
+            pivotStartingAngle.in(Radians)));
   }
 
   public TalonFXConfiguration buildRollersTalonFXMotorConfig() {
