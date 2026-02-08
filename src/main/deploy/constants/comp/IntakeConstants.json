@@ -2,11 +2,11 @@
   "pivotReduction": 42.5,
   "rollersReduction": 2.0,
   "armLengthMeters": 0.3,
-  "minPivotAngleRadians": -1.5707963267948966,
-  "maxPivotAngleRadians": 1.5707963267948966,
-  "pivotStartingAngleRadians": 0.0,
+  "minPivotAngleRadians": 0.0,
+  "maxPivotAngleRadians": 3.141592653589793,
+  "pivotStartingAngleRadians": 1.5707963267948966,
   "rollersInertia": {
-    "value": 0.02,
+    "value": 0.001,
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
   },
   "pivotInertia": {
@@ -34,33 +34,33 @@
     "unit": "Second"
   },
   "homingVoltage": {
-    "value": 2.0,
+    "value": -2.0,
     "unit": "Volt"
   },
   "pivotPIDGains": {
-    "kP": 0.5,
+    "kP": 60.0,
     "kI": 0.0,
-    "kD": 0.1,
+    "kD": 30.0,
     "kS": 0.0,
-    "kG": 0.0,
+    "kG": 3.00,
     "kV": 0.0,
     "kA": 0.0
   },
   "rollersPIDGains": {
-    "kP": 20.0,
-    "kI": 10.0,
-    "kD": 10.0,
+    "kP": 10.0,
+    "kI": 0.0,
+    "kD": 0.0,
     "kS": 0.0,
     "kG": 0.0,
     "kV": 0.0,
     "kA": 0.0
   },
   "pivotSupplyCurrentLimit": {
-    "value": 20.0,
+    "value": 40.0,
     "unit": "Amp"
   },
   "pivotStatorCurrentLimit": {
-    "value": 20.0,
+    "value": 40.0,
     "unit": "Amp"
   },
   "rollersStatorCurrentLimit": {

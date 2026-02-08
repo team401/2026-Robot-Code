@@ -54,38 +54,38 @@ public class IntakeState {
 
       pivotTuningVoltage =
           new LoggedTunableNumber(
-              "IntakePivotVoltageTuning",
+              "Intake/PivotVoltageTuning",
               0.0); // Default to 0 volts for safety, since this directly controls the motor
       rollerTuningVoltage =
           new LoggedTunableNumber(
-              "IntakeRollerVoltageTuning",
+              "Intake/RollerVoltageTuning",
               0.0); // Default to 0 volts for safety, since this directly controls the motor
       pivotTuningCurrent =
           new LoggedTunableNumber(
-              "IntakePivotCurrentTuning",
+              "Intake/PivotCurrentTuning",
               0.0); // Default to 0 amps for safety, since this directly controls the motor
       rollerTuningCurrent =
           new LoggedTunableNumber(
-              "IntakeRollerCurrentTuning",
+              "Intake/RollerCurrentTuning",
               0.0); // Default to 0 amps for safety, since this directly controls the motor
       pivotTuningSetpointDegrees =
           new LoggedTunableNumber(
-              "IntakePivotSetpointDegrees",
+              "Intake/PivotSetpointDegrees",
               JsonConstants.intakeConstants.stowPositionAngle.in(
                   Units
                       .Degrees)); // Assumes the stow position is the safest default position, since
       // this directly controls the motor
       rollerTuningSetpointRPM =
           new LoggedTunableNumber(
-              "IntakeRollerSetpointRPM",
+              "Intake/RollerSetpointRPM",
               0.0); // Default to 0 RPM for safety, since this directly controls the motor
 
       pivotTuningGains =
           new LoggedTunablePIDGains(
-              "IntakePivotPIDGains", JsonConstants.intakeConstants.pivotPIDGains);
+              "Intake/PivotPIDGains", JsonConstants.intakeConstants.pivotPIDGains);
       rollerTuningGains =
           new LoggedTunablePIDGains(
-              "IntakeRollerPIDGains", JsonConstants.intakeConstants.rollersPIDGains);
+              "Intake/RollerPIDGains", JsonConstants.intakeConstants.rollersPIDGains);
     }
 
     @Override
@@ -126,8 +126,8 @@ public class IntakeState {
                   .getMotorIOApplier(world.pivotMotorIO)
                   .chain(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains));
 
-
-          world.pivotMotorIO.controlToPositionUnprofiled(Degrees.of(pivotTuningSetpointDegrees.getAsDouble()));
+          world.pivotMotorIO.controlToPositionUnprofiled(
+              Degrees.of(pivotTuningSetpointDegrees.getAsDouble()));
           break;
         default:
           world.pivotMotorIO.controlNeutral();
@@ -138,10 +138,16 @@ public class IntakeState {
     public void rollerTestPeriodic(RollerTestMode testMode, IntakeSubsystem world) {
       switch (testMode) {
         case RollerVoltageTuning:
-          world.rollersLeadMotorIO.controlOpenLoopVoltage(Volts.of(rollerTuningVoltage.getAsDouble()));
+          System.out.println(
+              "Running roller voltage tuning With voltage: " + rollerTuningVoltage.getAsDouble());
+          world.rollersLeadMotorIO.controlOpenLoopVoltage(
+              Volts.of(rollerTuningVoltage.getAsDouble()));
           break;
         case RollerCurrentTuning:
-          world.rollersLeadMotorIO.controlOpenLoopCurrent(Amps.of(rollerTuningCurrent.getAsDouble()));
+          System.out.println(
+              "Running roller current tuning With current: " + rollerTuningCurrent.getAsDouble());
+          world.rollersLeadMotorIO.controlOpenLoopCurrent(
+              Amps.of(rollerTuningCurrent.getAsDouble()));
           break;
         case RollerClosedLoopTuning:
           rollerTuningGains.ifChanged(
@@ -149,7 +155,7 @@ public class IntakeState {
               rollerTuningGains
                   .getMotorIOAppliers(world.rollersLeadMotorIO, world.rollersFollowerMotorIO)
                   .chain(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains));
-          
+
           world.runRollers(RPM.of(rollerTuningSetpointRPM.getAsDouble()));
           break;
         case None:
@@ -188,7 +194,6 @@ public class IntakeState {
             finish();
           }
         }
-
       };
 
   public static State<IntakeSubsystem> homingDoneState =
