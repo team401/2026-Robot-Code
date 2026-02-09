@@ -191,6 +191,12 @@ public class CoordinationLayer {
 
   // Coordination and processing
   /**
+   * Coordinates subsystem actions based on the desired action and subsystem inputs
+   */
+  public void coordinateSubsystemActions() {
+  }
+
+  /**
    * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
    * method should also command the subsystems to take their actinos.
    *
