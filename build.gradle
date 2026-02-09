@@ -11,6 +11,7 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -200,7 +201,7 @@ spotless {
     java {
         target fileTree(".") {
             include "**/*.java"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", "settings_gui/**"
         }
         toggleOffOn()
         googleJavaFormat()
@@ -211,7 +212,7 @@ spotless {
     groovyGradle {
         target fileTree(".") {
             include "**/*.gradle"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", "settings_gui/**"
         }
         greclipse()
         leadingTabsToSpaces(4)
@@ -221,14 +222,14 @@ spotless {
     json {
         target fileTree(".") {
             include "**/*.json"
-            exclude "**/build/**", "**/build-*/**", "elastic_layouts/*.json"
+            exclude "**/build/**", "**/build-*/**", "elastic_layouts/*.json", "settings_gui/**"
         }
         gson().indentWithSpaces(2)
     }
     format "misc", {
         target fileTree(".") {
             include "**/*.md", "**/.gitignore"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", "settings_gui/**"
         }
         trimTrailingWhitespace()
         leadingTabsToSpaces(2)
