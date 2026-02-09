@@ -1,12 +1,19 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
+import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
+import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.JSONMotionProfileConfig;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -14,6 +21,14 @@ import frc.robot.constants.drive.PhysicalDriveConstants;
  */
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
+
+  // TODO: Figure out a better way to serialize the MotionProfileConfig
+  static {
+    JSONMeasure.registerUnit(RotationsPerSecondPerSecond.per(Second));
+    // This should be replaced with a polymorphic adapter in the future
+    // But that requires changes to the coppercore library
+    JSONConverter.addConversion(MotionProfileConfig.class, JSONMotionProfileConfig.class);
+  }
 
   public static void loadConstants() {
     environmentHandler =
@@ -26,6 +41,8 @@ public class JsonConstants {
 
     var jsonHandler =
         new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
+
+    jsonHandler.saveObject(new IndexerConstants(), "IndexerConstants.json");
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");

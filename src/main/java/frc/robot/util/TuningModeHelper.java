@@ -119,7 +119,7 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
   public static class TunableMotor {
 
     private MotorIO leadMotorIO;
-    private List<MotorIO> followerMotorIOs  ;
+    private List<MotorIO> followerMotorIOs;
     private TunableMotorConfiguration configuration;
 
     private LoggedVoltage openLoopVoltage = null;
@@ -130,7 +130,10 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     private LoggedAngularVelocity closedLoopVelocityTarget = null;
 
     public TunableMotor(
-        TunableMotorConfiguration configuration, String prefix, MotorIO leadMotor, MotorIO... followerMotorIOs) {
+        TunableMotorConfiguration configuration,
+        String prefix,
+        MotorIO leadMotor,
+        MotorIO... followerMotorIOs) {
       this.leadMotorIO = leadMotor;
       this.followerMotorIOs = Arrays.asList(followerMotorIOs);
       this.configuration = configuration;

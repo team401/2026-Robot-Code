@@ -1,18 +1,11 @@
 package frc.robot.subsystems.indexer;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
-import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
-import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
@@ -20,6 +13,12 @@ import frc.robot.subsystems.indexer.IndexerState.ShootingState;
 import frc.robot.subsystems.indexer.IndexerState.TestModeState;
 import frc.robot.subsystems.indexer.IndexerState.WarmupState;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TuningModeHelper;
+import frc.robot.util.TuningModeHelper.ControlMode;
+import frc.robot.util.TuningModeHelper.MotorTuningMode;
+import frc.robot.util.TuningModeHelper.TunableMotor;
+import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
+
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.Logger;
 
@@ -39,24 +38,11 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   private final IndexerState warmupState;
   private final IndexerState shootingState;
 
-  // Tunable numbers
-  LoggedTunableNumber indexerKP;
-  LoggedTunableNumber indexerKI;
-  LoggedTunableNumber indexerKD;
-
-  LoggedTunableNumber indexerKS;
-  LoggedTunableNumber indexerKV;
-  LoggedTunableNumber indexerKA;
-
-  LoggedTunableNumber indexerMaxAccelerationRotationsPerSecondSquared;
-  LoggedTunableNumber indexerMaxJerkRotationsPerSecondCubed;
-
-  LoggedTunableNumber indexerTuningAmps;
-  LoggedTunableNumber indexerTuningVolts;
-  LoggedTunableNumber indexerTuningSetpointVelocityRPM;
-
+  // Tuning Helper and Test Mode Manager
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Indexer", TestMode.class);
+
+  TuningModeHelper<TestMode> tuningModeHelper;
 
   public IndexerSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -98,40 +84,30 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     stateMachine.setState(idleState);
     stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
 
-    // Initialize tunable numbers for test modes
-    indexerKP =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerKP", JsonConstants.indexerConstants.indexerKP);
-    indexerKI =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerKI", JsonConstants.indexerConstants.indexerKI);
-    indexerKD =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerKD", JsonConstants.indexerConstants.indexerKD);
+    // Initialize tuning mode helper
+    TunableMotor tunableMotor =
+        TunableMotorConfiguration.defaultConfiguration()
+            .withVelocityTuning()
+            .profiled()
+            .withDefaultMotionProfileConfig(
+                JsonConstants.indexerConstants.indexerMotionProfileConfig)
+            .withDefaultPIDGains(JsonConstants.indexerConstants.indexerGains)
+            .onPIDGainsChanged(newGains -> JsonConstants.indexerConstants.indexerGains = newGains)
+            .onMotionProfileConfigChanged(
+                newProfile ->
+                    JsonConstants.indexerConstants.indexerMotionProfileConfig = newProfile)
+            .build("Indexer", motor);
+    
+    tuningModeHelper =
+        new TuningModeHelper<TestMode>(TestMode.class)
+            .addMotorTuningModes(tunableMotor, 
+                MotorTuningMode.of(TestMode.IndexerClosedLoopTuning, ControlMode.CLOSED_LOOP),
+                MotorTuningMode.of(TestMode.IndexerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+                MotorTuningMode.of(TestMode.IndexerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+                MotorTuningMode.of(TestMode.IndexerPhoenixTuning, ControlMode.PHOENIX_TUNING),
+                MotorTuningMode.of(TestMode.None, ControlMode.NONE)
+            );
 
-    indexerKS =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerKS", JsonConstants.indexerConstants.indexerKS);
-    indexerKV =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerKV", JsonConstants.indexerConstants.indexerKV);
-    indexerKA =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerKA", JsonConstants.indexerConstants.indexerKA);
-
-    indexerMaxAccelerationRotationsPerSecondSquared =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerMaxAccelerationRotationsPerSecond",
-            JsonConstants.indexerConstants.indexerMaxAccelerationRotationsPerSecondSquared);
-    indexerMaxJerkRotationsPerSecondCubed =
-        new LoggedTunableNumber(
-            "IndexerTunables/indexerMaxJerkRotationsPerSecond",
-            JsonConstants.indexerConstants.indexerMaxJerkRotationsPerSecondCubed);
-
-    indexerTuningSetpointVelocityRPM =
-        new LoggedTunableNumber("IndexerTunables/indexerTuningSetpointVelocityRPM", 0.0);
-    indexerTuningAmps = new LoggedTunableNumber("IndexerTunables/indexerTuningAmps", 0.0);
-    indexerTuningVolts = new LoggedTunableNumber("IndexerTunables/indexerTuningVolts", 0.0);
   }
 
   @Override
@@ -145,54 +121,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    switch (testModeManager.getTestMode()) {
-      case IndexerClosedLoopTuning -> {
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            (pid_sva) -> {
-              JsonConstants.indexerConstants.indexerKP = pid_sva[0];
-              JsonConstants.indexerConstants.indexerKI = pid_sva[1];
-              JsonConstants.indexerConstants.indexerKD = pid_sva[2];
-              JsonConstants.indexerConstants.indexerKS = pid_sva[3];
-              JsonConstants.indexerConstants.indexerKV = pid_sva[4];
-              JsonConstants.indexerConstants.indexerKA = pid_sva[5];
-              motor.setGains(
-                  pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
-            },
-            indexerKP,
-            indexerKI,
-            indexerKD,
-            indexerKS,
-            indexerKV,
-            indexerKA);
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            (acc_jerk) -> {
-              JsonConstants.indexerConstants.indexerMaxAccelerationRotationsPerSecondSquared =
-                  acc_jerk[0];
-              JsonConstants.indexerConstants.indexerMaxJerkRotationsPerSecondCubed = acc_jerk[1];
-              motor.setProfileConstraints(
-                  MotionProfileConfig.immutable(
-                      RotationsPerSecond.zero(),
-                      RotationsPerSecondPerSecond.of(acc_jerk[0]),
-                      RotationsPerSecondPerSecond.of(acc_jerk[1]).div(Seconds.of(1.0)),
-                      Volts.zero().div(RotationsPerSecond.of(1)),
-                      Volts.zero().div(RotationsPerSecondPerSecond.of(1))));
-            },
-            indexerMaxAccelerationRotationsPerSecondSquared,
-            indexerMaxJerkRotationsPerSecondCubed);
-
-        motor.controlToVelocityProfiled(
-            RadiansPerSecond.of(indexerTuningSetpointVelocityRPM.getAsDouble()));
-      }
-      case IndexerCurrentTuning -> {
-        motor.controlOpenLoopCurrent(Amps.of(indexerTuningAmps.getAsDouble()));
-      }
-      case IndexerVoltageTuning -> {
-        motor.controlOpenLoopVoltage(Volts.of(indexerTuningVolts.getAsDouble()));
-      }
-      default -> {}
-    }
+    tuningModeHelper.runTestMode(testModeManager.getTestMode());
   }
 
   /**
