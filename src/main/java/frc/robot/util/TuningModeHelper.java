@@ -35,7 +35,7 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     return this;
   }
 
-  public void runTestMode(TestModeEnum testMode) {
+  public void testPeriodic(TestModeEnum testMode) {
 
     var tuningMode = tuningModes.get(testMode);
 

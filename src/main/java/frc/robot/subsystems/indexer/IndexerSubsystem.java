@@ -119,7 +119,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    tuningModeHelper.runTestMode(testModeManager.getTestMode());
+    tuningModeHelper.testPeriodic(testModeManager.getTestMode());
   }
 
   /**

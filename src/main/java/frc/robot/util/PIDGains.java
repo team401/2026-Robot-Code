@@ -8,9 +8,20 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 public record PIDGains(
     double kP, double kI, double kD, double kS, double kG, double kV, double kA) {
 
-  public PIDGains(double kP, double kI, double kD) {
-    this(kP, kI, kD, 0.0, 0.0, 0.0, 0.0);
+  public static PIDGains kPID(double kP, double kI, double kD) {
+    return new PIDGains(kP, kI, kD, 0.0, 0.0, 0.0, 0.0);
   }
+
+  public static PIDGains kPIDSGVA(
+      double kP, double kI, double kD, double kS, double kG, double kV, double kA) {
+    return new PIDGains(kP, kI, kD, kS, kG, kV, kA);
+  }
+
+  public static PIDGains kPIDSVA(
+      double kP, double kI, double kD, double kS, double kV, double kA) {
+    return new PIDGains(kP, kI, kD, kS, 0.0, kV, kA);
+  }
+
 
   public double[] asArrayWithoutFeedForward() {
     return new double[] {kP, kI, kD};

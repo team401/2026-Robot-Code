@@ -34,8 +34,9 @@ public class IndexerConstants {
 
   public final Boolean indexerDemoMode = false;
 
-  public PIDGains indexerGains = new PIDGains(10.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  public PIDGains indexerGains = PIDGains.kPID(10.0, 5.0, 0.0);
 
+  // The important values here are maxAcceleration and maxJerk
   public MotionProfileConfig indexerMotionProfileConfig =
       MotionProfileConfig.immutable(
           RotationsPerSecond.zero(),
