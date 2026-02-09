@@ -18,11 +18,11 @@
       "unit": "Rotation per Second"
     },
     "maxAcceleration": {
-      "value": 0.0,
+      "value": 3000.0,
       "unit": "Rotation per Second per Second"
     },
     "maxJerk": {
-      "value": 0.0,
+      "value": 999.9999999999999,
       "unit": "Rotation per Second per Second per Second"
     },
     "voltsPerVelocity": {
@@ -46,8 +46,6 @@
       }
     }
   },
-  "indexerMaxAccelerationRotationsPerSecondSquared": 3000.0,
-  "indexerMaxJerkRotationsPerSecondCubed": 1000.0,
   "indexerSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"

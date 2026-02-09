@@ -18,7 +18,6 @@ import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
-
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.Logger;
 
@@ -97,17 +96,16 @@ public class IndexerSubsystem extends MonitoredSubsystem {
                 newProfile ->
                     JsonConstants.indexerConstants.indexerMotionProfileConfig = newProfile)
             .build("Indexer", motor);
-    
+
     tuningModeHelper =
         new TuningModeHelper<TestMode>(TestMode.class)
-            .addMotorTuningModes(tunableMotor, 
+            .addMotorTuningModes(
+                tunableMotor,
                 MotorTuningMode.of(TestMode.IndexerClosedLoopTuning, ControlMode.CLOSED_LOOP),
                 MotorTuningMode.of(TestMode.IndexerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
                 MotorTuningMode.of(TestMode.IndexerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
                 MotorTuningMode.of(TestMode.IndexerPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                MotorTuningMode.of(TestMode.None, ControlMode.NONE)
-            );
-
+                MotorTuningMode.of(TestMode.None, ControlMode.NONE));
   }
 
   @Override

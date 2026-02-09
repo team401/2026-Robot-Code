@@ -42,8 +42,6 @@ public class JsonConstants {
     var jsonHandler =
         new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
 
-    jsonHandler.saveObject(new IndexerConstants(), "IndexerConstants.json");
-
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
     featureFlags = jsonHandler.getObject(new FeatureFlags(), "FeatureFlags.json");

@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -40,14 +39,10 @@ public class IndexerConstants {
   public MotionProfileConfig indexerMotionProfileConfig =
       MotionProfileConfig.immutable(
           RotationsPerSecond.zero(),
-          RotationsPerSecondPerSecond.of(0.0),
-          RotationsPerSecondPerSecond.of(0.0).div(Seconds.of(1.0)),
+          RotationsPerSecondPerSecond.of(3000.0),
+          RotationsPerSecondPerSecond.of(1000.0).div(Seconds.of(1.0)),
           Volts.zero().div(RotationsPerSecond.of(1)),
           Volts.zero().div(RotationsPerSecondPerSecond.of(1)));
-
-  public Double indexerMaxAccelerationRotationsPerSecondSquared =
-      3000.0; // TODO: Find actual values
-  public Double indexerMaxJerkRotationsPerSecondCubed = 1000.0;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -79,10 +74,7 @@ public class IndexerConstants {
                 .withStatorCurrentLimit(indexerStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs().withInverted(indexerMotorDirection))
-        .withMotionMagic(
-            new MotionMagicConfigs()
-                .withMotionMagicAcceleration(indexerMaxAccelerationRotationsPerSecondSquared)
-                .withMotionMagicJerk(indexerMaxJerkRotationsPerSecondCubed));
+        .withMotionMagic(indexerMotionProfileConfig.asMotionMagicConfigs());
   }
 
   public CoppercoreSimAdapter buildIndexerSim() {
