@@ -11,11 +11,19 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
+
 import java.util.Optional;
 
 public class LED extends SubsystemBase {
   private Optional<Drive> driveSubsystem;
-  // private Optional<Shooter> shooterSubsystem;
+  private Optional<HoodSubsystem> hoodSubsystem;
+  private Optional<HopperSubsystem> hopperSubsystem;
+  private Optional<ShooterSubsystem> shooterSubsystem;
+  private Optional<TurretSubsystem> turretSubsystem;
 
   public static ConnectorXAnimate led = new ConnectorXAnimate();
   private boolean ledConnected = led.Connect(USBPort.kUSB1);
@@ -60,11 +68,15 @@ public class LED extends SubsystemBase {
         .endGroup()
         .build();
   }
+  
 
-  public LED(Optional<Drive> drive) {
+  public LED(Optional<Drive> drive, Optional<HoodSubsystem> hood, Optional<HopperSubsystem> hopper, Optional<ShooterSubsystem> shooter, Optional<TurretSubsystem> turret) {
     this.driveSubsystem = drive;
-    // this.shooterSubsystem = shooter
-    // Put other subsystems here!!
+    this.hoodSubsystem = hood;
+    this.hopperSubsystem = hopper;
+    this.shooterSubsystem = shooter;
+    this.turretSubsystem = turret;
+    
     led.Connect(USBPort.kUSB1);
     led.ApplyConfiguration(buildConfig());
   }
