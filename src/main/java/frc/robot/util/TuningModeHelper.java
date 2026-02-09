@@ -118,7 +118,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
   public static class TunableMotor {
 
-    private List<MotorIO> motorIOs;
+    private MotorIO leadMotorIO;
+    private List<MotorIO> followerMotorIOs  ;
     private TunableMotorConfiguration configuration;
 
     private LoggedVoltage openLoopVoltage = null;
@@ -129,8 +130,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     private LoggedAngularVelocity closedLoopVelocityTarget = null;
 
     public TunableMotor(
-        TunableMotorConfiguration configuration, String prefix, MotorIO... motorIOs) {
-      this.motorIOs = Arrays.asList(motorIOs);
+        TunableMotorConfiguration configuration, String prefix, MotorIO leadMotor, MotorIO... followerMotorIOs) {
+      this.leadMotorIO = leadMotor;
+      this.followerMotorIOs = Arrays.asList(followerMotorIOs);
       this.configuration = configuration;
 
       if (configuration.voltageTuning) {
@@ -167,15 +169,15 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     }
 
     public void runBrakeMode() {
-      motorIOs.forEach(motorIO -> motorIO.controlBrake());
+      leadMotorIO.controlBrake();
     }
 
     public void runCoastMode() {
-      motorIOs.forEach(motorIO -> motorIO.controlCoast());
+      leadMotorIO.controlCoast();
     }
 
     public void runNeutralMode() {
-      motorIOs.forEach(motorIO -> motorIO.controlNeutral());
+      leadMotorIO.controlNeutral();
     }
 
     public void runOpenLoopVoltageTuning() {
@@ -185,7 +187,7 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       if (openLoopVoltage != null) {
         Voltage voltage = openLoopVoltage.get();
-        motorIOs.forEach(motorIO -> motorIO.controlOpenLoopVoltage(voltage));
+        leadMotorIO.controlOpenLoopVoltage(voltage);
       }
     }
 
@@ -196,18 +198,20 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       if (openLoopCurrent != null) {
         Current current = openLoopCurrent.get();
-        motorIOs.forEach(motorIO -> motorIO.controlOpenLoopCurrent(current));
+        leadMotorIO.controlOpenLoopCurrent(current);
       }
     }
 
     private void applyPIDGainsToMotors(PIDGains pidGains) {
       configuration.onPIDGainsChanged.accept(pidGains);
-      motorIOs.forEach(motorIO -> pidGains.applyToMotorIO(motorIO));
+      pidGains.applyToMotorIO(leadMotorIO);
+      followerMotorIOs.forEach(motorIO -> pidGains.applyToMotorIO(motorIO));
     }
 
     private void applyMotionProfileToMotors(MotionProfileConfig profileConfig) {
       configuration.onMotionProfileConfigChanged.accept(profileConfig);
-      motorIOs.forEach(motorIO -> motorIO.setProfileConstraints(profileConfig));
+      leadMotorIO.setProfileConstraints(profileConfig);
+      followerMotorIOs.forEach(motorIO -> motorIO.setProfileConstraints(profileConfig));
     }
 
     public void runClosedLoopTuning() {
@@ -238,11 +242,11 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       Angle targetAngle = closedLoopPositionTarget.get();
 
       if (configuration.profileType == ProfileType.UNPROFILED) {
-        motorIOs.forEach(motorIO -> motorIO.controlToPositionUnprofiled(targetAngle));
+        leadMotorIO.controlToPositionUnprofiled(targetAngle);
       } else if (configuration.profileType == ProfileType.PROFILED) {
-        motorIOs.forEach(motorIO -> motorIO.controlToPositionProfiled(targetAngle));
+        leadMotorIO.controlToPositionProfiled(targetAngle);
       } else if (configuration.profileType == ProfileType.EXPO_PROFILED) {
-        motorIOs.forEach(motorIO -> motorIO.controlToPositionExpoProfiled(targetAngle));
+        leadMotorIO.controlToPositionExpoProfiled(targetAngle);
       }
     }
 
@@ -250,9 +254,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       AngularVelocity targetVelocity = closedLoopVelocityTarget.get();
 
       if (configuration.profileType == ProfileType.UNPROFILED) {
-        motorIOs.forEach(motorIO -> motorIO.controlToVelocityUnprofiled(targetVelocity));
+        leadMotorIO.controlToVelocityUnprofiled(targetVelocity);
       } else if (configuration.profileType == ProfileType.PROFILED) {
-        motorIOs.forEach(motorIO -> motorIO.controlToVelocityProfiled(targetVelocity));
+        leadMotorIO.controlToVelocityProfiled(targetVelocity);
       }
     }
 
@@ -454,9 +458,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return copy;
     }
 
-    public TunableMotor build(String prefix, MotorIO... motorIOs) {
+    public TunableMotor build(String prefix, MotorIO leadMotorIO, MotorIO... followerMotorIOs) {
       validate();
-      return new TunableMotor(this.copy(), prefix, motorIOs);
+      return new TunableMotor(this.copy(), prefix, leadMotorIO, followerMotorIOs);
     }
   }
 }
