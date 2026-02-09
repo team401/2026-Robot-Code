@@ -8,6 +8,13 @@ package frc.robot.constants;
  */
 public class FeatureFlags {
   public final Boolean runDrive = true;
+  public final Boolean runVision = true;
+  public final Boolean runHopper = true;
+  public final Boolean runIndexer = true;
+  public final Boolean runShooter = true;
   public final Boolean runTurret = true;
   public final Boolean runLEDs = true;
+  public final Boolean runHood = true;
+  public final Boolean useHomingSwitch = true;
+  public final Boolean useTuningServer = true;
 }

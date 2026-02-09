@@ -1,13 +1,10 @@
 package frc.robot;
 
-import coppercore.wpilib_interface.Controllers;
-import coppercore.wpilib_interface.Controllers.Controller;
 import coppercore.wpilib_interface.DriveWithJoysticks;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import coppercore.wpilib_interface.controllers.Controllers;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
-import java.util.List;
-import java.util.function.Supplier;
+import frc.robot.subsystems.drive.DriveCoordinator;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
@@ -19,52 +16,8 @@ import java.util.function.Supplier;
 public class ControllerSetup {
   private ControllerSetup() {}
 
-  private static List<Controller> controllers;
-
-  /** Initialize operator interfae/controllers by loading their configurations from JSON. */
-  public static void setupControllers() {
-    Controllers.synced.setFile(
-        JsonConstants.environmentHandler
-            .getEnvironmentPathProvider()
-            .resolvePath(JsonConstants.operatorConstants.controllerBindingsFile));
-    Controllers.loadControllers();
-
-    controllers = Controllers.getControllers();
-  }
-
-  /**
-   * Given the name of an axis, return a double supplier for that axis's value
-   *
-   * @param axisName The name of the axis, e.g. driveX
-   * @return A double supplier for that axis, or a supplier that supplies 0.0 in the case of an
-   *     unknown axis.
-   */
-  private static Supplier<Double> getAxis(String axisName) {
-    for (Controllers.Controller controller : controllers) {
-      if (controller.hasAxis(axisName)) {
-        return () -> controller.getAxis(axisName).getAsDouble();
-      }
-    }
-
-    System.out.println("Could not find Axis with command: " + axisName);
-    return () -> 0.0;
-  }
-
-  /**
-   * Gets a Trigger object for a button based on that button's name in the JSON controller config.
-   *
-   * @param buttonName The name of the button, as seen in the JSON file.
-   * @return A Trigger that wraps the state of that button.
-   */
-  private static Trigger getTriggerForButton(String buttonName) {
-    for (Controllers.Controller controller : controllers) {
-      if (controller.hasButton(buttonName)) {
-        return controller.getButton(buttonName);
-      }
-    }
-
-    System.out.println("Could not find button with name/command: " + buttonName);
-    return new Trigger(() -> false);
+  private static Controllers getControllers() {
+    return JsonConstants.controllers;
   }
 
   /**
@@ -72,22 +25,17 @@ public class ControllerSetup {
    *
    * @param drive A Drive object, the drive subsystem to set the command for
    */
-  public static void initDriveBindings(Drive drive) {
-    Supplier<Double> xAxis = () -> -getAxis("driveX").get();
-    Supplier<Double> yAxis = () -> -getAxis("driveY").get();
-    var rotationAxis = getAxis("driveRotation");
-    /* By making DriveWithJoysticks the default command for the drive subsystem,
-     * we ensure that it is run iff no other Command that uses the drive subsystem
-     * is activated. */
-    drive.setDefaultCommand(
+  public static void initDriveBindings(DriveCoordinator driveCoordinator, Drive drive) {
+    var controllers = getControllers();
+    driveCoordinator.createStateMachine(
         new DriveWithJoysticks(
             drive,
-            xAxis,
-            yAxis,
-            rotationAxis,
-            JsonConstants.drivetrainConstants.maxLinearSpeed, // type: double (m/s)
-            JsonConstants.drivetrainConstants.maxAngularSpeed, // type: double (rad/s)
-            JsonConstants.drivetrainConstants.joystickDeadband, // type: double
-            JsonConstants.drivetrainConstants.joystickMagnitudeExponent));
+            controllers.getAxis("driveX").getSupplier(),
+            controllers.getAxis("driveY").getSupplier(),
+            controllers.getAxis("driveRotation").getSupplier(),
+            JsonConstants.driveConstants.maxLinearSpeed, // type: double (m/s)
+            JsonConstants.driveConstants.maxAngularSpeed, // type: double (rad/s)
+            JsonConstants.driveConstants.joystickDeadband, // type: double
+            JsonConstants.driveConstants.joystickMagnitudeExponent));
   }
 }

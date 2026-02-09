@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -40,7 +39,6 @@ public class TurretConstants {
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
-  public final Time homingMaxOverallTime = Seconds.of(10.0);
 
   /**
    * The robot-relative angle that the turret is at once it has homed. This should be determined
@@ -48,24 +46,22 @@ public class TurretConstants {
    */
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
 
-  public final Integer turretKrakenId = 9; // TODO: Verify this ID
-
   // TODO: Root cause why turret sim requires such ridiculous gains to function properly
   // These gains are CRAZY. MAKE SURE that you change these gains before deploying to a robot, or it
   // will definitely break.
   // The current gains are by no means perfect, but they do make the turret track a goal position
   // decently in sim. Once we get a physical turret mechanism, the sim can be modified to closely
   // follow the behavior of the real life mechanism and then all will be more accurate.
-  public final Double turretKP = 5000.0; // 40
-  public final Double turretKI = 0.0;
-  public final Double turretKD = 800.0; // 600
-  public final Double turretKS = 0.0;
-  public final Double turretKV = 0.0;
-  public final Double turretKG = 0.0;
-  public final Double turretKA = 80.0; // 55
+  public Double turretKP = 5000.0; // 40
+  public Double turretKI = 0.0;
+  public Double turretKD = 800.0; // 600
+  public Double turretKS = 0.0;
+  public Double turretKV = 0.0;
+  public Double turretKG = 0.0;
+  public Double turretKA = 80.0; // 55
 
-  public final Double turretExpoKV = 2.0;
-  public final Double turretExpoKA = 37.5;
+  public Double turretExpoKV = 2.0;
+  public Double turretExpoKA = 37.5;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -74,7 +70,8 @@ public class TurretConstants {
         .withMotorToEncoderRatio(1.0)
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
-            new CANDeviceID(new CANBus(JsonConstants.robotInfo.canivoreBusName), turretKrakenId))
+            new CANDeviceID(
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.turretKrakenId))
         .build();
   }
 
@@ -93,7 +90,11 @@ public class TurretConstants {
   public final Angle minTurretAngle = Degrees.of(-5.0);
   public final Angle maxTurretAngle = Degrees.of(350);
 
-  // = this number
+  /**
+   * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
+   * headingToTurretAngle = turretRelativeAngle
+   */
+  public final Angle headingToTurretAngle = Degrees.of(-45.0); // TODO: Real value
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

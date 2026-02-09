@@ -1,11 +1,16 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldLocations;
+import frc.robot.constants.JsonConstants;
+import frc.robot.constants.ShotMaps.ShotMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +18,8 @@ import java.util.function.Function;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.littletonrobotics.junction.Logger;
 
-class ShooterCalculations {
-  private ShooterCalculations() {} // Utility class
+class ShotCalculations {
+  private ShotCalculations() {} // Utility class
 
   public enum ShotType {
     LOW,
@@ -24,7 +29,7 @@ class ShooterCalculations {
   public static record ShotInfo(double pitchRadians, double yawRadians, double timeSeconds) {
     public Translation3d[] projectMotion(
         double shooterVelocityMps,
-        Pose2d robotPose,
+        Translation3d initialPosition,
         ChassisSpeeds fieldRelativeRobotVel,
         double pointsPerMeter) {
       List<Translation3d> trajectory = new ArrayList<>();
@@ -35,7 +40,7 @@ class ShooterCalculations {
       double vy = vxy * Math.sin(yawRadians()) + fieldRelativeRobotVel.vyMetersPerSecond;
       double vz = shooterVelocityMps * Math.sin(pitchRadians());
 
-      Translation3d position = new Translation3d(robotPose.getTranslation());
+      Translation3d position = initialPosition;
 
       Function<Double, Translation3d> pointFromTime =
           t -> position.plus(new Translation3d(vx * t, vy * t, vz * t - 0.5 * G * t * t));
@@ -106,6 +111,9 @@ class ShooterCalculations {
       return Optional.empty();
     }
     double t = distanceMeters / (Math.cos(theta) * velocityMps);
+    // Here's an alternative calculation using height. It isn't quite right either.
+    // double viy = velocityMps * Math.sin(theta);
+    // double t = (viy + Math.sqrt(viy * viy - 2 * h * G)) / (G);
 
     double yaw = calculateYawRadians(shooterPosition, goalPosition);
 
@@ -113,7 +121,7 @@ class ShooterCalculations {
   }
 
   public static final int MAX_ITERATIONS = 6;
-  public static final double ACCEPTABLE_TIME_VARIATION = 0.005;
+  public static final double ACCEPTABLE_TIME_VARIATION = 0.025;
 
   public static Optional<ShotInfo> calculateMovingShot(
       Translation3d shooterPosition,
@@ -160,14 +168,102 @@ class ShooterCalculations {
 
       ShotInfo newSolution = effectiveShot.get();
 
-      solution = newSolution;
-
       if (Math.abs(newSolution.timeSeconds - solution.timeSeconds) < ACCEPTABLE_TIME_VARIATION) {
         Logger.recordOutput("ShotCalculations/succeeded", true);
-        return Optional.of(solution);
+        return Optional.of(newSolution);
       }
+
+      solution = newSolution;
     }
 
     return Optional.empty();
+  }
+
+  public static enum ShotTarget {
+    Hub,
+    PassLeft,
+    PassRight
+  }
+
+  /**
+   * The MapBasedShotInfo record provides information about a shot based on a shooter map. This is
+   * different from ShotInfo in that MapBasedShotInfo has fields that relate to physical control of
+   * the mechanism (e.g. hood angle and shooter RPM) rather than physics-based attributes of the
+   * goal shot (e.g. shot pitch and initial velocity).
+   *
+   * @param hoodAngleRadians The angle of the hood (NOT the pitch) in radians.
+   * @param shooterRPM The desired angular velocity of the shooter, in RPM.
+   * @param yawRadians The desired field-relative yaw (NOT the angle setpoint) of the turret, in
+   *     radians.
+   */
+  public record MapBasedShotInfo(double hoodAngleRadians, double shooterRPM, double yawRadians) {}
+
+  public static Optional<MapBasedShotInfo> calculateShotFromMap(
+      Translation3d shooterPosition,
+      Translation2d fieldRelativeShooterVelocity,
+      ShotTarget target) {
+    Translation3d targetPose =
+        switch (target) {
+          case Hub -> FieldConstants.Hub.innerCenterPoint();
+          case PassLeft -> FieldLocations.leftPassingTarget();
+          case PassRight -> FieldLocations.rightPassingTarget();
+        };
+
+    Logger.recordOutput("ShotCalculations/MapBased/succeeded", false);
+
+    double distanceXYMeters =
+        shooterPosition.toTranslation2d().getDistance(targetPose.toTranslation2d());
+    Logger.recordOutput("ShotCalculations/MapBased/ShotDistanceMeters", distanceXYMeters);
+
+    double minDistanceMeters =
+        target == ShotTarget.Hub
+            ? JsonConstants.shotMaps.minHubDistanceMeters
+            : JsonConstants.shotMaps.minPassDistanceMeters;
+    double maxDistanceMeters =
+        target == ShotTarget.Hub
+            ? JsonConstants.shotMaps.maxHubDistanceMeters
+            : JsonConstants.shotMaps.maxPassDistanceMeters;
+    Logger.recordOutput("ShotCalculations/MapBased/MinDistanceMeters", minDistanceMeters);
+    Logger.recordOutput("ShotCalculations/MapBased/MaxDistanceMeters", maxDistanceMeters);
+
+    if (distanceXYMeters < minDistanceMeters || distanceXYMeters > maxDistanceMeters) {
+      return Optional.empty();
+    }
+
+    ShotMap map =
+        target == ShotTarget.Hub
+            ? JsonConstants.shotMaps.hubMap
+            : JsonConstants.shotMaps.passingMap;
+
+    double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
+    Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
+
+    // Account for the time it will take to actually command the mechanism to its goal setpoint.
+    flightTimeSeconds += JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
+    Logger.recordOutput(
+        "ShotCalculations/MapBased/CompensatedFlightTimeSeconds", flightTimeSeconds);
+
+    Translation2d offsetXY = fieldRelativeShooterVelocity.times(flightTimeSeconds);
+    Translation3d offset = new Translation3d(offsetXY.getX(), offsetXY.getY(), 0.0);
+    Translation3d virtualTarget = targetPose.minus(offset);
+    Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
+
+    double virtualDistanceXYMeters =
+        shooterPosition.toTranslation2d().getDistance(virtualTarget.toTranslation2d());
+    Logger.recordOutput("ShotCalculations/MapBased/VirtualDistanceMeters", virtualDistanceXYMeters);
+
+    if (virtualDistanceXYMeters < minDistanceMeters
+        || virtualDistanceXYMeters > maxDistanceMeters) {
+      return Optional.empty();
+    }
+
+    double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
+    double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
+    double yawRadians = calculateYawRadians(shooterPosition, virtualTarget);
+
+    MapBasedShotInfo shot = new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yawRadians);
+    Logger.recordOutput("ShotCalculations/MapBased/succeeded", true);
+    Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);
+    return Optional.of(shot);
   }
 }

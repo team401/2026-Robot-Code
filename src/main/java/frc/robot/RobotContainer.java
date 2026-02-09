@@ -7,28 +7,26 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
+import coppercore.metadata.CopperCoreMetadata;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.ShooterCalculations.ShotInfo;
-import frc.robot.ShooterCalculations.ShotType;
+import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.LED;
+import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.hood.HoodSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretDependencies;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -37,31 +35,95 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
+// i helped copilot autocomplete write this
 public class RobotContainer {
+  private final DependencyOrderedExecutor dependencyOrderedExecutor;
+
   // Subsystems
   private final Optional<Drive> drive;
   private final Optional<LED> led;
-  private final Optional<TurretSubsystem> turret;
+  private final Optional<DriveCoordinator> driveCoordinator;
+  // Since the RobotContainer doesn't really need a reference to any subsystem except for drive,
+  // their references are stored in the CoordinationLayer instead
+
+  private final CoordinationLayer coordinationLayer;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
 
+  public static final ActionKey RUN_COMMAND_SCHEDULER = new ActionKey("CommandScheduler::run");
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    CopperCoreMetadata.printInfo();
+
     JsonConstants.loadConstants();
 
-    TestModeManager.init();
+    dependencyOrderedExecutor = new DependencyOrderedExecutor();
+    dependencyOrderedExecutor.registerAction(
+        RUN_COMMAND_SCHEDULER, CommandScheduler.getInstance()::run);
+    // Homing switch must be updated before running subsystem periodics because certain state
+    // machines will take action during periodic based on its state.
+    dependencyOrderedExecutor.addDependencies(
+        RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_SHOT_CALCULATOR);
+
+    coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
     if (JsonConstants.featureFlags.runDrive) {
-      drive = Optional.of(InitSubsystems.initDriveSubsystem());
+      Drive drive = InitSubsystems.initDriveSubsystem();
+      DriveCoordinator driveCoordinator = new DriveCoordinator(drive);
+      this.drive = Optional.of(drive);
+      this.driveCoordinator = Optional.of(driveCoordinator);
+      coordinationLayer.setDrive(drive);
+      coordinationLayer.setDriveCoordinator(driveCoordinator);
+      if (JsonConstants.featureFlags.runVision) {
+        InitSubsystems.initVisionSubsystem(drive);
+      }
     } else {
       drive = Optional.empty();
+      driveCoordinator = Optional.empty();
+    }
+
+    if (JsonConstants.featureFlags.runHopper) {
+      HopperSubsystem hopper = InitSubsystems.initHopperSubsystem();
+      coordinationLayer.setHopper(hopper);
+    }
+
+    if (JsonConstants.featureFlags.runIndexer) {
+      IndexerSubsystem indexer = InitSubsystems.initIndexerSubsystem();
+      coordinationLayer.setIndexer(indexer);
+    }
+
+    if (JsonConstants.featureFlags.runHood) {
+      HoodSubsystem hood = InitSubsystems.initHoodSubsystem(dependencyOrderedExecutor);
+      coordinationLayer.setHood(hood);
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_HOOD_DEPENDENCIES);
     }
 
     if (JsonConstants.featureFlags.runTurret) {
-      turret = Optional.of(InitSubsystems.initTurretSubsystem());
-    } else {
-      turret = Optional.empty();
+      TurretSubsystem turret = InitSubsystems.initTurretSubsystem(dependencyOrderedExecutor);
+      coordinationLayer.setTurret(turret);
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
+    }
+
+    if (JsonConstants.featureFlags.runShooter) {
+      ShooterSubsystem shooter = InitSubsystems.initShooterSubsystem(dependencyOrderedExecutor);
+
+      coordinationLayer.setShooter(shooter);
+    }
+
+    if (JsonConstants.featureFlags.useHomingSwitch) {
+      HomingSwitch homingSwitch = InitSubsystems.initHomingSwitch(dependencyOrderedExecutor);
+      coordinationLayer.setHomingSwitch(homingSwitch);
+    }
+
+    if (JsonConstants.featureFlags.runIndexer || JsonConstants.featureFlags.runHopper) {
+      // Ensure that demo modes are run before subsystem periodics if either of the 2 subsystems
+      // that have demo modes are active
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_DEMO_MODES);
     }
     if (JsonConstants.featureFlags.runLEDs) {
       led = Optional.of(InitSubsystems.initLEDs(drive));
@@ -70,35 +132,42 @@ public class RobotContainer {
     }
 
     drive.ifPresentOrElse(
-        drive -> {
-          // TODO: Stop using pathplanner AutoBuilder
-          // Set up auto routines
-          autoChooser =
-              new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-          // Set up SysId routines
-          autoChooser.addOption(
-              "Drive Wheel Radius Characterization",
-              DriveCommands.wheelRadiusCharacterization(drive));
-          autoChooser.addOption(
-              "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-          autoChooser.addOption(
-              "Drive SysId (Quasistatic Forward)",
-              drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-          autoChooser.addOption(
-              "Drive SysId (Quasistatic Reverse)",
-              drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-          autoChooser.addOption(
-              "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-          autoChooser.addOption(
-              "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        },
+        this::createAutoChooser,
         () -> {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
     // Configure the button bindings
     configureButtonBindings();
+
+    dependencyOrderedExecutor.finalizeSchedule();
+  }
+
+  /**
+   * Create the auto chooser and publish it to network tables
+   *
+   * @param drive The Drive instance to use for the auto chooser
+   */
+  private void createAutoChooser(Drive drive) {
+    // TODO: Stop using pathplanner AutoBuilder
+    // Set up auto routines
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    // Set up SysId routines
+    autoChooser.addOption(
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /**
@@ -109,10 +178,15 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // TODO: Create a robust and clean input/action layer.
-    ControllerSetup.setupControllers();
 
     // Default command, normal field-relative drive
-    drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));
+    driveCoordinator.ifPresent(
+        driveCoordinator -> {
+          drive.ifPresent(
+              (drive) -> {
+                ControllerSetup.initDriveBindings(driveCoordinator, drive);
+              });
+        });
   }
 
   /**
@@ -125,84 +199,13 @@ public class RobotContainer {
   }
 
   /**
-   * Refreshes subsystem dependencies
+   * Get the DependencyOrderedExecutor instance used by the RobotContainer and all subsystems
    *
-   * <p>This method will not run automatically and must be called by Robot periodic.
-   */
-  public void periodic() {
-    turret.ifPresent(turret -> updateTurretDependencies(turret.getDependenciesObject()));
-
-    drive.ifPresent(
-        driveInstance -> {
-          Translation3d hubTranslation =
-              new Translation3d(
-                  Units.inchesToMeters(182.11),
-                  Units.inchesToMeters(158.84),
-                  Units.inchesToMeters(72 - 8));
-          Pose2d robotPose = driveInstance.getPose();
-          ChassisSpeeds fieldCentricSpeeds =
-              ChassisSpeeds.fromRobotRelativeSpeeds(
-                  driveInstance.getChassisSpeeds(), robotPose.getRotation());
-
-          Optional<ShotInfo> maybeShot =
-              ShooterCalculations.calculateMovingShot(
-                  new Pose3d(robotPose).getTranslation(),
-                  hubTranslation,
-                  fieldCentricSpeeds,
-                  MetersPerSecond.of(10.64),
-                  ShotType.HIGH,
-                  Optional.empty());
-
-          Optional<ShotInfo> maybeStaticShot =
-              ShooterCalculations.calculateStationaryShot(
-                  new Pose3d(robotPose).getTranslation(),
-                  hubTranslation,
-                  MetersPerSecond.of(10.64),
-                  ShotType.HIGH);
-
-          final int trajectoryPointsPerMeter = 4;
-          maybeShot.ifPresent(
-              shot -> {
-                Logger.recordOutput("Superstructure/Shot", shot);
-                Logger.recordOutput(
-                    "Superstructure/EffectiveTrajectory",
-                    shot.projectMotion(
-                        10.64,
-                        driveInstance.getPose(),
-                        new ChassisSpeeds(),
-                        trajectoryPointsPerMeter));
-                Logger.recordOutput(
-                    "Superstructure/ShotTrajectory",
-                    shot.projectMotion(
-                        10.64,
-                        driveInstance.getPose(),
-                        fieldCentricSpeeds,
-                        trajectoryPointsPerMeter));
-              });
-
-          maybeStaticShot.ifPresent(
-              shot -> {
-                Logger.recordOutput(
-                    "Superstructure/StaticTrajectory",
-                    shot.projectMotion(
-                        10.64, robotPose, fieldCentricSpeeds, trajectoryPointsPerMeter));
-              });
-        });
-  }
-
-  // Subsystem dependency updates
-  /**
-   * Given a TurretDependenncies object, update its fields to reflect the current state of the
-   * robot.
+   * <p>This method exists so that Robot can access the DOE in its periodic method
    *
-   * @param dependencies The TurretDependencies object to update with the latest data
+   * @return The DependencyOrderedExecutor instance
    */
-  private void updateTurretDependencies(TurretDependencies dependencies) {
-    // TODO: Add actual check for whether homing switch is present once it is designed
-    if (false) {
-      // TODO: Use hardware homing switch
-    } else {
-      dependencies.isHomingSwitchPressed = false;
-    }
+  public DependencyOrderedExecutor getDependencyOrderedExecutor() {
+    return dependencyOrderedExecutor;
   }
 }

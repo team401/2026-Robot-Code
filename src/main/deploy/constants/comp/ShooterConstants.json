@@ -1,0 +1,44 @@
+{
+  "distanceToViDistancesMeters": [
+    1.8,
+    2.0,
+    3.5
+  ],
+  "distanceToViVisMetersPerSecond": [
+    6.4,
+    6.8,
+    7.5
+  ],
+  "defaultViMetersPerSecond": 9.0,
+  "shooterKP": 48.0,
+  "shooterKI": 0.0,
+  "shooterKD": 0.0,
+  "shooterKS": 0.0,
+  "shooterKV": 1.85,
+  "shooterKA": 0.0,
+  "shooterReduction": 0.625,
+  "shooterSupplyCurrentLimit": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
+  "shooterStatorCurrentLimit": {
+    "value": 80.0,
+    "unit": "Amp"
+  },
+  "shooterMotorDirection": "CounterClockwise_Positive",
+  "invertTopFollower": true,
+  "invertBottomFollower": true,
+  "defaultShooterNeutralMode": "Brake",
+  "shooterMaxVelocity": {
+    "value": 2900.0,
+    "unit": "Rotation per Minute"
+  },
+  "shooterMaxAcceleration": {
+    "value": 314.1592653589793,
+    "unit": "Radian per Second per Second"
+  },
+  "shooterMOI": {
+    "value": 0.0049163462,
+    "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+  }
+}

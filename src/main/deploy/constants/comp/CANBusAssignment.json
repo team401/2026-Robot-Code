@@ -1,0 +1,9 @@
+{
+  "turretKrakenId": 9,
+  "indexerKrakenId": 10,
+  "hopperKrakenId": 11,
+  "hoodKrakenId": 13,
+  "homingSwitchCANdiID": 14,
+  "shooterLeaderId": 19,
+  "shooterFollowerId": 20
+}
