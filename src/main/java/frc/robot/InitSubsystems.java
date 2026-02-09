@@ -303,22 +303,6 @@ public class InitSubsystems {
     }
   }
 
-  public static LED initLEDs(Optional<Drive> drive) {
-
-    switch (Constants.currentMode) {
-      case REAL:
-        return new LED(drive);
-      case SIM:
-        return new LED(drive);
-      case REPLAY:
-        throw new UnsupportedOperationException("LED replay is not going to happen.");
-      default:
-        throw new UnsupportedOperationException(
-            "Non-exhaustive list of mode types supported in InitSubsystems (got "
-                + Constants.currentMode
-                + ")");
-    }
-  }
 
   public static LED initLEDs(Optional<Drive> drive) {
 
