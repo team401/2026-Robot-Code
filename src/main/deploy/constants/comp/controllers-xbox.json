@@ -3,6 +3,12 @@
     {
       "port": 0,
       "type": "xbox",
+      "buttonShorthands": {
+        "topLeftPaddle": 7,
+        "topRightPaddle": 8,
+        "bottomLeftPaddle": 9,
+        "bottomRightPaddle": 10
+      },
       "controlElements": [
         {
           "command": "driveX",
@@ -28,6 +34,74 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "rightX"
+          }
+        },
+        {
+          "command": "deployIntake",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomLeftPaddle"
+          }
+        },
+        {
+          "command": "stowIntake",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topLeftPaddle"
+          }
+        },
+        {
+          "command": "enterPassMode",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "leftBumper"
+          }
+        },
+        {
+          "command": "enterHubMode",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "startShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomRightPaddle"
+          }
+        },
+        {
+          "command": "stopShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topRightPaddle"
+          }
+        },
+        {
+          "command": "deployClimb",
+          "commandType": "button",
+          "threshold": 180,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "deployClimb",
+          "commandType": "button",
+          "threshold": 90,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
           }
         }
       ]
