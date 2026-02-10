@@ -1,25 +1,206 @@
 package frc.robot.subsystems.climber;
 
-import coppercore.wpilib_interface.MonitoredSubsystem;
-import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
-import coppercore.wpilib_interface.subsystems.motors.MotorIO;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
+import org.littletonrobotics.junction.AutoLogOutputManager;
+import org.littletonrobotics.junction.Logger;
+
+import coppercore.controls.state_machine.StateMachine;
+import coppercore.parameter_tools.LoggedTunableNumber;
+import coppercore.wpilib_interface.MonitoredSubsystem;
+import coppercore.wpilib_interface.subsystems.motors.MotorIO;
+import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
+import frc.robot.DependencyOrderedExecutor;
+import frc.robot.DependencyOrderedExecutor.ActionKey;
+import frc.robot.constants.JsonConstants;
+import frc.robot.util.TestModeManager;
+
+//Copilot autocomplete was used to help write this file
 public class ClimberSubsystem extends MonitoredSubsystem{
     private final MotorIO motor;
     private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
+
+    public static final ActionKey UPDATE_INPUTS = new ActionKey("ClimberSubsystem::updateInputs");
+
+
     public static class ClimberDependencies{
-        public boolean isHomingSwitchPressed = false;
+        private boolean isHomingSwitchPressed = false;
+        public boolean isHomingSwitchPressed(){
+            return isHomingSwitchPressed;
+        }
     }
-    private final ClimberDependencies dependencies = new ClimberDependencies();
+    public final ClimberDependencies dependencies = new ClimberDependencies();
 
     private final StateMachine<ClimberSubsystem> stateMachine;
 
-    private final ClimberState homingState;
-    @Override
-    public ClimberSubsystem(){
+    private final ClimberState homingWaitForButtonState;
+    private final ClimberState idleState;
+    private final ClimberState testModeState;
+    private final ClimberState climbLevelOneState;
+    private final ClimberState climbUpOneLevel;
+    private final ClimberState deClimbState;
 
-    }
+    LoggedTunableNumber climberKP;
+    LoggedTunableNumber climberKI;
+    LoggedTunableNumber climberKD;
+
+    LoggedTunableNumber climberKS;
+    LoggedTunableNumber climberKV;
+    LoggedTunableNumber climberKA;
+    LoggedTunableNumber climberKG;
+
+    LoggedTunableNumber climberExpoKV;
+    LoggedTunableNumber climberExpoKA;
+
+    LoggedTunableNumber climberTuningSetpointDegrees;
+    LoggedTunableNumber climberTuningAmps;
+    LoggedTunableNumber climberTuningVolts;
+
+    TestModeManager<TestMode> testModeManager =
+      new TestModeManager<TestMode>("Climber", TestMode.class);
+
+    public ClimberSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor){
+        this.motor = motor;
+        stateMachine = new StateMachine<>(this);
+
+        homingWaitForButtonState = stateMachine.registerState(new ClimberState.HomingWaitForButtonState());
+        idleState = stateMachine.registerState(new ClimberState.IdleState());
+        testModeState = stateMachine.registerState(new ClimberState.TestModeState());
+        climbLevelOneState = stateMachine.registerState(new ClimberState.ClimbLevelOneState());
+        climbUpOneLevel = stateMachine.registerState(new ClimberState.ClimbUpOneLevel());
+        deClimbState = stateMachine.registerState(new ClimberState.DeClimbState());
+        
+        
+        homingWaitForButtonState
+            .when(climber -> climber.isClimberTestMode(), "In climber test mode")
+            .transitionTo(testModeState);
+        idleState
+            .when(climber -> climber.isClimberTestMode(), "In climber test mode")
+            .transitionTo(testModeState);
+        testModeState
+            .when(climber -> !climber.isClimberTestMode(), "Not in climber test mode")
+            .transitionTo(idleState);
+
+        stateMachine.setState(homingWaitForButtonState);
+        // Initialize tunable numbers for test modes
+    climberKP =
+        new LoggedTunableNumber("ClimberTunables/climberKP", JsonConstants.climberConstants.climberKP);
+    climberKI =
+        new LoggedTunableNumber("ClimberTunables/climberKI", JsonConstants.climberConstants.climberKI);
+    climberKD =
+        new LoggedTunableNumber("ClimberTunables/climberKD", JsonConstants.climberConstants.climberKD);
+
+    climberKS =
+        new LoggedTunableNumber("ClimberTunables/climberKS", JsonConstants.climberConstants.climberKS);
+    climberKV =
+        new LoggedTunableNumber("ClimberTunables/climberKV", JsonConstants.climberConstants.climberKV);
+    climberKA =
+        new LoggedTunableNumber("ClimberTunables/climberKA", JsonConstants.climberConstants.climberKA);
+
+    climberExpoKV =
+        new LoggedTunableNumber(
+            "ClimberTunables/climberExpoKV", JsonConstants.climberConstants.climberExpoKV);
+    climberExpoKA =
+        new LoggedTunableNumber(
+            "ClimberTunables/climberExpoKA", JsonConstants.climberConstants.climberExpoKA);
+
+    climberTuningSetpointDegrees =
+        new LoggedTunableNumber("ClimberTunables/climberTuningSetpointDegrees", 0.0);
+    climberTuningAmps = new LoggedTunableNumber("ClimberTunables/climberTuningAmps", 0.0);
+    climberTuningVolts = new LoggedTunableNumber("ClimberTunables/climberTuningVolts", 0.0);
+    AutoLogOutputManager.addObject(this);
+
+    dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
+  }
+
     public void monitoredPeriodic() {
-        // TODO Auto-generated method stub
+        Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
+        stateMachine.periodic();
+        Logger.recordOutput("Climber/StateAfter", stateMachine.getCurrentState().getName());
+    }
+
+    protected void testPeriodic() {
+    switch (testModeManager.getTestMode()) {
+      case ClimberClosedLoopTuning -> {
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (pid_sva) -> {
+              JsonConstants.climberConstants.climberKP = pid_sva[0];
+              JsonConstants.climberConstants.climberKI = pid_sva[1];
+              JsonConstants.climberConstants.climberKD = pid_sva[2];
+              JsonConstants.climberConstants.climberKS = pid_sva[3];
+              JsonConstants.climberConstants.climberKV = pid_sva[4];
+              JsonConstants.climberConstants.climberKA = pid_sva[5];
+              motor.setGains(
+                  pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
+            },
+            climberKP,
+            climberKI,
+            climberKD,
+            climberKS,
+            climberKV,
+            climberKA);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (maxProfile) -> {
+              JsonConstants.climberConstants.climberExpoKV = maxProfile[0];
+              JsonConstants.climberConstants.climberExpoKA = maxProfile[1];
+              motor.setProfileConstraints(
+                  MotionProfileConfig.immutable(
+                      RotationsPerSecond.zero(),
+                      RotationsPerSecondPerSecond.zero(),
+                      RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
+                      Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
+                      Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
+            },
+            climberExpoKV,
+            climberExpoKA);
+
+        motor.controlToPositionExpoProfiled(Degrees.of(climberTuningSetpointDegrees.getAsDouble()));
+      }
+      case ClimberCurrentTuning -> {
+        motor.controlOpenLoopCurrent(Amps.of(climberTuningAmps.getAsDouble()));
+      }
+      case ClimberVoltageTuning -> {
+        motor.controlOpenLoopVoltage(Volts.of(climberTuningVolts.getAsDouble()));
+      }
+      default -> {}
+    }
+  }
+
+    private void updateInputs() {
+        motor.updateInputs(inputs);
+        Logger.processInputs("Climber/inputs", inputs);
+    }
+
+    protected void coast() {
+        motor.controlCoast();
+    }
+
+    private boolean isClimberTestMode() {
+        return testModeManager.isInTestMode();
+    }
+
+    public AngularVelocity getClimberVelocity() {
+        return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
+    }
+
+    public void setToHomedPosition(){
+        motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.homingAngle);
+    }
+
+    
+    public void setToUpperClimbPosition(){
+        motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.upperClimbAngle);
     }
 }

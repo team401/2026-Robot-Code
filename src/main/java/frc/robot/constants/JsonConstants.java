@@ -37,6 +37,7 @@ public class JsonConstants {
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
+    climberConstants = jsonHandler.getObject(new ClimberConstants(), "ClimberConstants.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -65,6 +66,7 @@ public class JsonConstants {
   public static TurretConstants turretConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
+  public static ClimberConstants climberConstants;
 
   public static Controllers controllers;
 }

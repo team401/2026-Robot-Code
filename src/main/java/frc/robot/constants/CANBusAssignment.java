@@ -11,4 +11,6 @@ public class CANBusAssignment {
 
   public final Integer homingSwitchCANdiID = 14; // TODO: Real id
 
+  public final Integer climberKrakenId = 19; //TODO: Verify this ID
+
 }
