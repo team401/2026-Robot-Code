@@ -28,22 +28,22 @@ public class AprilTagConstants {
 
   public final FieldType fieldType = FieldType.ANDYMARK;
 
-  @JSONExclude AprilTagFieldLayout tagLayout = null;
+  @JSONExclude private AprilTagFieldLayout cachedLayout;
 
   public AprilTagFieldLayout getTagLayout() {
-    if (tagLayout != null) {
-      return tagLayout;
+    if (cachedLayout == null) {
+      try {
+        Path p =
+            Path.of(
+                Filesystem.getDeployDirectory().getPath(),
+                "apriltags",
+                fieldType.getJsonFilename());
+        cachedLayout = new AprilTagFieldLayout(p);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
 
-    try {
-      Path p =
-          Path.of(
-              Filesystem.getDeployDirectory().getPath(), "apriltags", fieldType.getJsonFilename());
-      tagLayout = new AprilTagFieldLayout(p);
-
-      return tagLayout;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return cachedLayout;
   }
 }

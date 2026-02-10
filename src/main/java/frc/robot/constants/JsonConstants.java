@@ -2,11 +2,16 @@ package frc.robot.constants;
 
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
+import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.json.JSONTransform2d;
+import frc.robot.util.json.JSONTransform3d;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -14,6 +19,11 @@ import frc.robot.constants.drive.PhysicalDriveConstants;
  */
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
+
+  static {
+    JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
+    JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
+  }
 
   public static void loadConstants() {
     environmentHandler =
