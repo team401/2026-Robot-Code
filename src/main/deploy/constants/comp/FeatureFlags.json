@@ -1,8 +1,11 @@
 {
   "runDrive": true,
+  "useMAPoseEstimator": true,
+  "runVision": true,
   "runHopper": true,
   "runIndexer": true,
   "runTurret": true,
+  "runIntake": true,
   "runHood": true,
   "useHomingSwitch": true,
   "useTuningServer": true
