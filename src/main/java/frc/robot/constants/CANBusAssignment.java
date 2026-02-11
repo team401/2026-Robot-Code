@@ -33,6 +33,10 @@ public class CANBusAssignment {
 
   public final Integer homingSwitchCANdiID = 18; // TODO: Real id
 
-  public final Integer shooterLeaderId = 19; // TODO: Real ids
-  public final Integer shooterFollowerId = 20;
+  public final Integer intakePivotMotorId = 19;
+  public final Integer intakeRollersLeadMotorId = 20;
+  public final Integer intakeRollersFollowerMotorId = 21;
+
+  public final Integer shooterLeaderId = 22; // TODO: Real ids
+  public final Integer shooterFollowerId = 23;
 }

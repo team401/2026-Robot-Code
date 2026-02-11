@@ -52,6 +52,7 @@ public class JsonConstants {
     hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
@@ -69,6 +70,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
+        jsonHandler.addRoute("/intake", intakeConstants);
         jsonHandler.addRoute("/shotmaps", shotMaps);
         jsonHandler.registerPostCallback(
             "/shotmaps",
@@ -96,6 +98,7 @@ public class JsonConstants {
   public static HopperConstants hopperConstants;
   public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
+  public static IntakeConstants intakeConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
   public static ShotMaps shotMaps;
