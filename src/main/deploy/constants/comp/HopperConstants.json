@@ -3,7 +3,6 @@
     "value": 3.0,
     "unit": "Volt"
   },
-  "hopperDemoMode": true,
   "hopperReduction": 1.0,
   "sensorToMechanismRatio": 1.0,
   "hopperMotorInvertedValue": "Clockwise_Positive",

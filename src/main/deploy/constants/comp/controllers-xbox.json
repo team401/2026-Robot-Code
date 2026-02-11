@@ -117,6 +117,60 @@
           }
         }
       ]
+    },
+    {
+      "port": 1,
+      "type": "xbox",
+      "buttonShorthands": {
+        "topLeftPaddle": 7,
+        "topRightPaddle": 8,
+        "bottomLeftPaddle": 9,
+        "bottomRightPaddle": 10
+      },
+      "controlElements": [
+        {
+          "command": "operatorStowIntake",
+          "commandType": "button",
+          "threshold": 180,
+          "thresholdRange": 91,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "operatorRedWonAuto",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "leftBumper"
+          }
+        },
+        {
+          "command": "operatorBlueWonAuto",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "operatorDisableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
+        },
+        {
+          "command": "operatorEnableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "a"
+          }
+        }
+      ]
     }
   ]
 }

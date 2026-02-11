@@ -2,8 +2,9 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import coppercore.wpilib_interface.controllers.Controller.Button;
+import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,11 +15,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -30,12 +34,14 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
-
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
  * calculator, and distributing commands to subsystems based on the action layer.
+ *
+ * <p>It is also responsible for tracking the current robot action based on user inputs in teleop.
  */
 public class CoordinationLayer {
   // Subsystems
@@ -59,13 +65,18 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::updateHoodDependencies");
   public static final ActionKey UPDATE_INTAKE_DEPENDENCIES =
       new ActionKey("CoordinationLayer::updateIntakeDependencies");
-  public static final ActionKey RUN_SHOT_CALCULATOR =
-      new ActionKey("CoordinationLayer::runShotCalculator");
-  public static final ActionKey RUN_DEMO_MODES =
-      new ActionKey("CoordinationLayer::runSubsystemDemoModes");
+  public static final ActionKey COORDINATE_SUBSYSTEM_ACTIONS =
+      new ActionKey("CoordinationLayer::coordinateSubsystemActions");
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
+  /**
+   * This is the EventLoop that should be used for all buttons this season. This is necessary
+   * because the CommandScheduler button loop won't run before
+   * CoordinationLayer:coordinateRobotActions.
+   */
+  private final EventLoop buttonLoop = new EventLoop();
+
   public enum AutonomyLevel {
     Smart,
     Manual
@@ -73,35 +84,188 @@ public class CoordinationLayer {
 
   public enum ExtensionState {
     None,
-    Intake,
-    Climb
+    IntakeDeployed,
+    ClimbDeployed
   }
 
-  /** Tracks our current "autonomy level": either vision is enabled & used (smart), or manual driver alignment is used (manual) */
+  public enum ShotMode {
+    Pass,
+    Hub
+  }
+
+  /**
+   * Tracks our current "autonomy level": either vision is enabled & used (smart), or manual driver
+   * alignment is used (manual)
+   */
   @AutoLogOutput(key = "CoordinationLayer/autonomyLevel")
   private AutonomyLevel autonomyLevel = AutonomyLevel.Smart;
-  /** Tracks our target "extension state": either the intake, climber, or neither may deploy at once. */
+
+  /**
+   * Tracks our target "extension state": either the intake, climber, or neither may deploy at once.
+   */
   @AutoLogOutput(key = "CoordinationLayer/goalExtensionState")
   private ExtensionState goalExtensionState = ExtensionState.None;
+
   @AutoLogOutput(key = "CoordinationLayer/runningIntakeRollers")
   private boolean runningIntakeRollers = false;
+
+  @AutoLogOutput(key = "CoordinationLayer/shotMode")
+  private ShotMode shotMode = ShotMode.Hub;
+
   /**
    * Whether or not the robot should currently be shooting.
-   * 
-   * <p>In smart mode, this means the robot will shoot when ready. This means waiting for an achievable shot and waiting for mechanisms to achieve that shot.
-   * 
-   * <p>In manual mode, this means the robot shoot as soon as its mechanisms are in the right positions for manual shooting from the tower.
+   *
+   * <p>In smart mode, this means the robot will shoot when ready. This means waiting for an
+   * achievable shot and waiting for mechanisms to achieve that shot.
+   *
+   * <p>In manual mode, this means the robot shoot as soon as its mechanisms are in the right
+   * positions for manual shooting from the tower.
    */
   @AutoLogOutput(key = "CoordinationLayer/shootingEnabled")
   private boolean shootingEnabled = false;
 
-
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
-    dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
-    dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
+    dependencyOrderedExecutor.registerAction(
+        COORDINATE_SUBSYSTEM_ACTIONS, this::coordinateRobotActions);
   }
+
+  // Controller bindings
+  /** Initialize all bindings based on the controllers loaded from JSON */
+  public void initBindings() {
+    Controllers controllers = JsonConstants.controllers;
+
+    makeTriggerFromButton(controllers.getButton("toggleIntakeDeploy"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  goalExtensionState =
+                      switch (goalExtensionState) {
+                        case None -> ExtensionState.IntakeDeployed;
+                        case IntakeDeployed, ClimbDeployed -> ExtensionState.None;
+                      };
+                }));
+
+    makeTriggerFromButton(controllers.getButton("toggleIntakeRollers"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  runningIntakeRollers = !runningIntakeRollers;
+                }));
+
+    makeTriggerFromButton(controllers.getButton("enterPassMode"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  shotMode = ShotMode.Pass;
+                }));
+
+    makeTriggerFromButton(controllers.getButton("enterHubMode"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  shotMode = ShotMode.Hub;
+                }));
+
+    makeTriggerFromButton(controllers.getButton("startShooting"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  shootingEnabled = true;
+                }));
+
+    makeTriggerFromButton(controllers.getButton("stopShooting"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  shootingEnabled = false;
+                }));
+
+    // TODO: Add smart mode climb controls
+    Trigger climbPressed =
+        makeTriggerFromButton(controllers.getButton("climbLeft"))
+            .or(controllers.getButton("climbRight").getPrimitiveIsPressedSupplier());
+    climbPressed.onTrue(
+        new InstantCommand(
+            () -> {
+              // TODO: Add real climber controls once the climber exists
+              System.out.println("Climb going up!");
+            }));
+
+    climbPressed.onFalse(
+        new InstantCommand(
+            () -> {
+              System.out.println("Climb going down!");
+            }));
+
+    makeTriggerFromButton(controllers.getButton("disableAutonomy"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  autonomyLevel = AutonomyLevel.Manual;
+                }));
+
+    makeTriggerFromButton(controllers.getButton("enableAutonomy"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  autonomyLevel = AutonomyLevel.Smart;
+                }));
+    
+    // Operator controller:
+    makeTriggerFromButton(controllers.getButton("operatorStowIntake"))
+        .whileTrue(
+            new RunCommand(
+                () -> {
+                  if (goalExtensionState == ExtensionState.IntakeDeployed) {
+                    goalExtensionState = ExtensionState.None;
+                  }
+                }));
+  
+    // TODO: Add bindings for red/blue winning auto
+
+    makeTriggerFromButton(controllers.getButton("operatorDisableAutonomy"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  autonomyLevel = AutonomyLevel.Manual;
+                }));
+
+    makeTriggerFromButton(controllers.getButton("operatorEnableAutonomy"))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  autonomyLevel = AutonomyLevel.Smart;
+                }));
+    
+    // TODO: Discuss with operator to choose the rest of the binds
+  }
+
+  /**
+   * Create a Trigger from a condition supplier on the CoordinationLayer's custom button loop.
+   *
+   * @param condition A BooleanSupplier providing the condition (e.g.
+   *     Button.getPrimitiveIsPressedSupplier())
+   * @return A new Trigger on the custom button loop
+   */
+  private Trigger makeTriggerFromCondition(BooleanSupplier condition) {
+    return new Trigger(buttonLoop, condition);
+  }
+
+  /**
+   * Create a Trigger from a coppercore wpilib_interface Button.
+   *
+   * <p>Uses makeTriggerFromCondition on the primitive isPressed supplier provided by the button.
+   *
+   * @param button The Button from which to make the supplier
+   * @return A new Trigger on the CoordinationLayer's custom event loop
+   */
+  private Trigger makeTriggerFromButton(Button button) {
+    return makeTriggerFromCondition(button.getPrimitiveIsPressedSupplier());
+  }
+
+  // Subsystem initialization
 
   /**
    * Checks whether a subsystem has already been initialized and, if it has, throws an error.
@@ -160,7 +324,8 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.registerAction(
         UPDATE_TURRET_DEPENDENCIES, () -> updateTurretDependencies(turret));
 
-    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
+    dependencyOrderedExecutor.addDependencies(
+        COORDINATE_SUBSYSTEM_ACTIONS, TurretSubsystem.UPDATE_INPUTS);
   }
 
   /**
@@ -176,7 +341,8 @@ public class CoordinationLayer {
     checkForDuplicateSubsystem(this.shooter, "Shooter");
 
     this.shooter = Optional.of(shooter);
-    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, ShooterSubsystem.UPDATE_INPUTS);
+    dependencyOrderedExecutor.addDependencies(
+        COORDINATE_SUBSYSTEM_ACTIONS, ShooterSubsystem.UPDATE_INPUTS);
   }
 
   /**
@@ -196,7 +362,8 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.registerAction(
         UPDATE_HOOD_DEPENDENCIES, () -> updateHoodDependencies(hood));
 
-    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, HoodSubsystem.UPDATE_INPUTS);
+    dependencyOrderedExecutor.addDependencies(
+        COORDINATE_SUBSYSTEM_ACTIONS, HoodSubsystem.UPDATE_INPUTS);
   }
 
   public void setHomingSwitch(HomingSwitch homingSwitch) {
@@ -244,12 +411,17 @@ public class CoordinationLayer {
 
   // Coordination and processing
   /**
-   * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
-   * method should also command the subsystems to take their actinos.
-   *
-   * <p>This should likely go into some kind of coordination layer class.
+   * This method is like the "periodic" of the CoordinationLayer. It is run by the
+   * DependencyOrderedExecutor and is responsible for polling our custom button loop, reading robot
+   * goal actions, deciding the best subsystem actions based on the goal robot actions, and applying
+   * commands to subsystems. This method must run after subsystems update inputs but before
+   * CommandScheduler.run, as it will tell subsystems which commands to apply when their periodic
+   * methods run.
    */
-  public void runShotCalculator() {
+  public void coordinateRobotActions() {
+    // Poll buttons. This will modify state variables depending on the states of the buttons
+    buttonLoop.poll();
+
     drive.ifPresent(this::runShotCalculatorWithDrive);
   }
 
@@ -334,33 +506,6 @@ public class CoordinationLayer {
                 shooter.setTargetVelocityRPM(shot.shooterRPM());
               });
         });
-  }
-
-  private void runSubsystemDemoModes() {
-    if (JsonConstants.hopperConstants.hopperDemoMode) {
-      hopper.ifPresent(
-          hopper -> {
-            hopper.setTargetVelocity(RadiansPerSecond.of(500));
-          });
-    }
-
-    if (JsonConstants.indexerConstants.indexerDemoMode) {
-      indexer.ifPresent(
-          indexer -> {
-            drive.ifPresent(
-                driveInstance -> {
-                  Pose2d robotPose = driveInstance.getPose();
-                  Translation2d hubTranslation =
-                      FieldConstants.Hub.topCenterPoint().toTranslation2d();
-                  var distance = robotPose.getTranslation().minus(hubTranslation).getNorm();
-                  if (distance < 2.0) {
-                    indexer.setTargetVelocity(RadiansPerSecond.of(500));
-                  } else {
-                    indexer.setTargetVelocity(RadiansPerSecond.of(0));
-                  }
-                });
-          });
-    }
   }
 
   /**

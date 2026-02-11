@@ -28,8 +28,6 @@ public class IndexerConstants {
   // motor output
   public final Double indexerMaximumRelativeVelocityError = 0.01;
 
-  public final Boolean indexerDemoMode = false;
-
   public Double indexerKP = 10.0;
   public Double indexerKI = 5.0;
   public Double indexerKD = 0.0;
