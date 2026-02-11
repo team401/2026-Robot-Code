@@ -339,9 +339,7 @@ public class InitSubsystems {
                 rollerSim));
 
       case REPLAY:
-
-        return new IntakeSubsystem(
-            new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
+        return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
 
       default:
         // Replayed robot, disable IO implementations

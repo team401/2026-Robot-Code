@@ -3,6 +3,12 @@
     {
       "port": 0,
       "type": "xbox",
+      "buttonShorthands": {
+        "topLeftPaddle": 7,
+        "topRightPaddle": 8,
+        "bottomLeftPaddle": 9,
+        "bottomRightPaddle": 10
+      },
       "controlElements": [
         {
           "command": "driveX",
@@ -31,15 +37,23 @@
           }
         },
         {
-          "command": "intakePivotUp",
+          "command": "toggleIntakeDeploy",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
-            "id": "rightBumper"
+            "id": "bottomLeftPaddle"
           }
         },
         {
-          "command": "intakePivotDown",
+          "command": "toggleIntakeRollers",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topLeftPaddle"
+          }
+        },
+        {
+          "command": "enterPassMode",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -47,11 +61,113 @@
           }
         },
         {
-          "command": "runIntakeRollers",
+          "command": "enterHubMode",
           "commandType": "button",
           "hapticControlElement": {
-            "elementType": "axis",
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "startShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomRightPaddle"
+          }
+        },
+        {
+          "command": "stopShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topRightPaddle"
+          }
+        },
+        {
+          "command": "climbLeft",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "trigger",
+            "id": "leftTrigger"
+          }
+        },
+        {
+          "command": "climbRight",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "trigger",
             "id": "rightTrigger"
+          }
+        },
+        {
+          "command": "disableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
+        },
+        {
+          "command": "enableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "a"
+          }
+        }
+      ]
+    },
+    {
+      "port": 1,
+      "type": "xbox",
+      "buttonShorthands": {
+        "topLeftPaddle": 7,
+        "topRightPaddle": 8,
+        "bottomLeftPaddle": 9,
+        "bottomRightPaddle": 10
+      },
+      "controlElements": [
+        {
+          "command": "operatorStowIntake",
+          "commandType": "button",
+          "threshold": 180,
+          "thresholdRange": 91,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "operatorRedWonAuto",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "leftBumper"
+          }
+        },
+        {
+          "command": "operatorBlueWonAuto",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "operatorDisableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
+        },
+        {
+          "command": "operatorEnableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "a"
           }
         }
       ]
