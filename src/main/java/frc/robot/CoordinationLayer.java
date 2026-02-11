@@ -31,6 +31,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
  * calculator, and distributing commands to subsystems based on the action layer.
@@ -64,6 +66,36 @@ public class CoordinationLayer {
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
+  public enum AutonomyLevel {
+    Smart,
+    Manual
+  }
+
+  public enum ExtensionState {
+    None,
+    Intake,
+    Climb
+  }
+
+  /** Tracks our current "autonomy level": either vision is enabled & used (smart), or manual driver alignment is used (manual) */
+  @AutoLogOutput(key = "CoordinationLayer/autonomyLevel")
+  private AutonomyLevel autonomyLevel = AutonomyLevel.Smart;
+  /** Tracks our target "extension state": either the intake, climber, or neither may deploy at once. */
+  @AutoLogOutput(key = "CoordinationLayer/goalExtensionState")
+  private ExtensionState goalExtensionState = ExtensionState.None;
+  @AutoLogOutput(key = "CoordinationLayer/runningIntakeRollers")
+  private boolean runningIntakeRollers = false;
+  /**
+   * Whether or not the robot should currently be shooting.
+   * 
+   * <p>In smart mode, this means the robot will shoot when ready. This means waiting for an achievable shot and waiting for mechanisms to achieve that shot.
+   * 
+   * <p>In manual mode, this means the robot shoot as soon as its mechanisms are in the right positions for manual shooting from the tower.
+   */
+  @AutoLogOutput(key = "CoordinationLayer/shootingEnabled")
+  private boolean shootingEnabled = false;
+
+
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
