@@ -37,7 +37,7 @@
           }
         },
         {
-          "command": "deployIntake",
+          "command": "toggleIntakeDeploy",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -45,7 +45,7 @@
           }
         },
         {
-          "command": "stowIntake",
+          "command": "toggleIntakeRollers",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -85,23 +85,35 @@
           }
         },
         {
-          "command": "deployClimb",
+          "command": "climbLeft",
           "commandType": "button",
-          "threshold": 180,
-          "thresholdRange": 5,
           "hapticControlElement": {
-            "elementType": "pov",
-            "id": 0
+            "elementType": "trigger",
+            "id": "leftTrigger"
           }
         },
         {
-          "command": "deployClimb",
+          "command": "climbRight",
           "commandType": "button",
-          "threshold": 90,
-          "thresholdRange": 5,
           "hapticControlElement": {
-            "elementType": "pov",
-            "id": 0
+            "elementType": "trigger",
+            "id": "rightTrigger"
+          }
+        },
+        {
+          "command": "disableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
+        },
+        {
+          "command": "enableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "a"
           }
         }
       ]
