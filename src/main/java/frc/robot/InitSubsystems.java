@@ -103,11 +103,14 @@ public class InitSubsystems {
             tagLayout,
             gainConstants,
             CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera1"), JsonConstants.visionConstants.camera1Transform),
+                new VisionIOPhotonReal(JsonConstants.visionConstants.camera1Name),
+                JsonConstants.visionConstants.camera1Transform),
             CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera2"), JsonConstants.visionConstants.camera2Transform),
+                new VisionIOPhotonReal(JsonConstants.visionConstants.camera2Name),
+                JsonConstants.visionConstants.camera2Transform),
             CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera3"), JsonConstants.visionConstants.camera3Transform));
+                new VisionIOPhotonReal(JsonConstants.visionConstants.camera3Name),
+                JsonConstants.visionConstants.camera3Transform));
 
       case SIM:
         return new VisionLocalizer(
@@ -339,9 +342,7 @@ public class InitSubsystems {
                 rollerSim));
 
       case REPLAY:
-
-        return new IntakeSubsystem(
-            new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
+        return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
 
       default:
         // Replayed robot, disable IO implementations
