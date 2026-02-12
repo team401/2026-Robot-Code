@@ -50,8 +50,7 @@ public class JsonConstants {
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
     jsonHandler.saveObject(new StrategyConstants(), "StrategyConstants.json");
-    strategyConstants = 
-        jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
+    strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason

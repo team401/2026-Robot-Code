@@ -20,6 +20,7 @@ import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
+import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
@@ -29,6 +30,7 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
@@ -57,14 +59,22 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::runShotCalculator");
   public static final ActionKey RUN_DEMO_MODES =
       new ActionKey("CoordinationLayer::runSubsystemDemoModes");
+  public static final ActionKey UPDATE_MATCH_STATE =
+      new ActionKey("CoordinationLayer::updateMatchState");
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
+  private final MatchState matchState = new MatchState();
+
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
+    dependencyOrderedExecutor.registerAction(UPDATE_MATCH_STATE, this::updateMatchState);
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
     dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
+
+    // make sure match state is updated before running the shot calculator
+    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, UPDATE_MATCH_STATE);
   }
 
   /**
@@ -190,11 +200,8 @@ public class CoordinationLayer {
   }
 
   // Coordination and processing
-  /**
-   * Coordinates subsystem actions based on the desired action and subsystem inputs
-   */
-  public void coordinateSubsystemActions() {
-  }
+  /** Coordinates subsystem actions based on the desired action and subsystem inputs */
+  public void coordinateSubsystemActions() {}
 
   /**
    * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
@@ -314,6 +321,16 @@ public class CoordinationLayer {
                 });
           });
     }
+  }
+
+  /** Update the MatchState each periodic loop and publish an example time-left check. */
+  private void updateMatchState() {
+    matchState.enabledPeriodic(false, false);
+
+    java.util.function.DoublePredicate timeLeftPred = matchState.getTimeLeftInCurrentShift();
+
+    boolean hasFiveSecondsLeft = timeLeftPred.test(5.0);
+    Logger.recordOutput("MatchState/has5sLeft", hasFiveSecondsLeft);
   }
 
   /**
