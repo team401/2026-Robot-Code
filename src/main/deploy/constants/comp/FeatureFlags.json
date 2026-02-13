@@ -1,10 +1,10 @@
 {
-  "runDrive": true,
-  "runHopper": true,
-  "runIndexer": true,
-  "runTurret": true,
-  "runHood": true,
-  "useHomingSwitch": true,
-  "useTuningServer": true
+  "runDrive": false,
+  "runHopper": false,
+  "runIndexer": false,
+  "runTurret": false,
+  "runHood": false,
+  "useHomingSwitch": false,
+  "useTuningServer": false,
   "runLEDs": true
 }

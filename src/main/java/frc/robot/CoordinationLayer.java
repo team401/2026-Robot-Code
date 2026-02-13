@@ -21,6 +21,7 @@ import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
@@ -43,6 +44,7 @@ public class CoordinationLayer {
   private Optional<TurretSubsystem> turret = Optional.empty();
   private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
+  private Optional<LED> led = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
   private Optional<HomingSwitch> homingSwitch = Optional.empty();
 
@@ -78,6 +80,11 @@ public class CoordinationLayer {
     if (optionalSubsystem.isPresent()) {
       throw new IllegalStateException("CoordinationLayer set" + name + " was called twice!");
     }
+  }
+
+  public void makeLEDs() {
+    checkForDuplicateSubsystem(this.led, "LED");
+    led = Optional.of(InitSubsystems.initLEDs(drive, hood, hopper, shooter, turret));
   }
 
   public void setDrive(Drive drive) {

@@ -29,10 +29,10 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import java.util.Optional;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
 import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
+import java.util.Optional;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -303,14 +303,18 @@ public class InitSubsystems {
     }
   }
 
-
-  public static LED initLEDs(Optional<Drive> drive) {
+  public static LED initLEDs(
+      Optional<Drive> drive,
+      Optional<HoodSubsystem> hood,
+      Optional<HopperSubsystem> hopper,
+      Optional<ShooterSubsystem> shooter,
+      Optional<TurretSubsystem> turret) {
 
     switch (Constants.currentMode) {
       case REAL:
-        return new LED(drive);
+        return new LED(drive, hood, hopper, shooter, turret);
       case SIM:
-        return new LED(drive);
+        return new LED(drive, hood, hopper, shooter, turret);
       case REPLAY:
         throw new UnsupportedOperationException("LED replay is not going to happen.");
       default:

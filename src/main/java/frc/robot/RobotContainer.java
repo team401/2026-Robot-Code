@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
-import frc.robot.subsystems.LED;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
@@ -41,7 +40,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Optional<Drive> drive;
-  private final Optional<LED> led;
+
   private final Optional<DriveCoordinator> driveCoordinator;
   // Since the RobotContainer doesn't really need a reference to any subsystem except for drive,
   // their references are stored in the CoordinationLayer instead
@@ -126,9 +125,7 @@ public class RobotContainer {
           RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_DEMO_MODES);
     }
     if (JsonConstants.featureFlags.runLEDs) {
-      led = Optional.of(InitSubsystems.initLEDs(drive));
-    } else {
-      led = Optional.empty();
+      coordinationLayer.makeLEDs();
     }
 
     drive.ifPresentOrElse(
