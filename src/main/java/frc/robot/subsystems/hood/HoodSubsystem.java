@@ -30,6 +30,7 @@ import frc.robot.subsystems.hood.HoodState.HomingWaitForButtonState;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForMovementState;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForStoppingState;
 import frc.robot.subsystems.hood.HoodState.IdleState;
+import frc.robot.subsystems.hood.HoodState.TargetAngleState;
 import frc.robot.subsystems.hood.HoodState.TargetPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
 import frc.robot.util.TestModeManager;
@@ -49,6 +50,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
     Idle,
     /** Targets a certain pitch, commanded by the supervisor layer */
     TargetPitch,
+    /** Targets a certain angle, commanded by the supervisor layer */
+    TargetAngle,
   }
 
   private final MotorIO motor;
@@ -70,6 +73,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private final HoodState homingWaitForStoppingState;
   private final HoodState idleState;
   private final HoodState targetPitchState;
+  private final HoodState targetAngleState;
   private final HoodState testModeState;
 
   // Test mode
@@ -100,12 +104,13 @@ public class HoodSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Hood/action")
   private HoodAction requestedAction = HoodAction.Idle;
 
-  @AutoLogOutput(key = "Hood/goalPitch")
   private MutAngle goalPitch =
       JsonConstants.hoodConstants
           .minHoodAngle
           .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle)
           .mutableCopy();
+
+  private MutAngle goalAngle = JsonConstants.hoodConstants.minHoodAngle.mutableCopy();
 
   public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
@@ -130,6 +135,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
     homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
     idleState = stateMachine.registerState(new IdleState());
     targetPitchState = stateMachine.registerState(new TargetPitchState());
+    targetAngleState = stateMachine.registerState(new TargetAngleState());
     testModeState = stateMachine.registerState(new TestModeState());
 
     homingWaitForButtonState
@@ -154,9 +160,16 @@ public class HoodSubsystem extends MonitoredSubsystem {
     idleState
         .when(hood -> hood.requestedAction == HoodAction.TargetPitch, "Action == TargetPitch")
         .transitionTo(targetPitchState);
+    idleState
+        .when(hood -> hood.requestedAction == HoodAction.TargetAngle, "Action == TargetAngle")
+        .transitionTo(targetAngleState);
 
     targetPitchState
         .when(hood -> hood.requestedAction != HoodAction.TargetPitch, "Action != TargetPitch")
+        .transitionTo(idleState);
+
+    targetAngleState
+        .when(hood -> hood.requestedAction != HoodAction.TargetAngle, "Action != TargetAngle")
         .transitionTo(idleState);
 
     testModeState
@@ -347,10 +360,16 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   protected void controlToGoalPitch() {
+    Logger.recordOutput("Hood/goalPitchRadians", goalPitch.in(Radians));
     Angle goalAngle =
         Degrees.of(90)
             .minus(goalPitch)
             .minus(JsonConstants.hoodConstants.mechanismAngleToExitAngle);
+    Logger.recordOutput("Hood/goalAngleRadians", goalAngle.in(Radians));
+    clampAndControlToAngle(goalAngle);
+  }
+
+  protected void controlToGoalAngle() {
     Logger.recordOutput("Hood/goalAngleRadians", goalAngle.in(Radians));
     clampAndControlToAngle(goalAngle);
   }
@@ -401,5 +420,20 @@ public class HoodSubsystem extends MonitoredSubsystem {
   public void targetPitch(Angle goalPitch) {
     this.requestedAction = HoodAction.TargetPitch;
     this.goalPitch.mut_replace(goalPitch);
+  }
+
+  /**
+   * Sets the goal angle of the hood. Note that this is a hood angle, NOT an exit angle for the
+   * projectile.
+   *
+   * <p>This method updates the hood's current action, so that as soon as homing is completed, it
+   * will target the angle requested. This means that it can safely be called at any time,
+   * regardless of homing status.
+   *
+   * @param angleRadians A double containing the desired hood angle in radians.
+   */
+  public void targetAngleRadians(double angleRadians) {
+    this.requestedAction = HoodAction.TargetAngle;
+    this.goalAngle.mut_replace(angleRadians, Radians);
   }
 }

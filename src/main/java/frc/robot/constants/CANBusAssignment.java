@@ -1,16 +1,45 @@
 package frc.robot.constants;
 
 public class CANBusAssignment {
-  public final Integer turretKrakenId = 9; // TODO: Verify this ID
 
-  public final Integer indexerKrakenId = 10; // TODO: Verify this ID
+  // Drivetrain CAN IDs
 
-  public final Integer hopperKrakenId = 11; // TODO: Verify this ID
+  public final Integer frontLeftDriveKrakenId = 7; // TODO: Verify this ID
+  public final Integer frontLeftSteerKrakenId = 2; // TODO: Verify this ID
+  public final Integer frontLeftEncoderId = 9; // TODO: Verify this ID
 
-  public final Integer hoodKrakenId = 13; // TODO: Real ID
+  public final Integer frontRightDriveKrakenId = 1; // TODO: Verify this ID
+  public final Integer frontRightSteerKrakenId = 6; // TODO: Verify this ID
+  public final Integer frontRightEncoderId = 12; // TODO: Verify this ID
 
-  public final Integer homingSwitchCANdiID = 14; // TODO: Real id
+  public final Integer backLeftDriveKrakenId = 5; // TODO: Verify this ID
+  public final Integer backLeftSteerKrakenId = 8; // TODO: Verify this ID
+  public final Integer backLeftEncoderId = 10; // TODO: Verify this ID
 
-  public final Integer climberKrakenId = 19; //TODO: Verify this ID
+  public final Integer backRightDriveKrakenId = 3; // TODO: Verify this ID
+  public final Integer backRightSteerKrakenId = 4; // TODO: Verify this ID
+  public final Integer backRightEncoderId = 11; // TODO: Verify this ID
+
+  public final Integer kPigeonId = 13; // TODO: Verify this ID
+
+  // The rest of the CAN IDs Should start from 14 and go up from there
+
+  public final Integer turretKrakenId = 14; // TODO: Verify this ID
+
+  public final Integer indexerKrakenId = 15; // TODO: Verify this ID
+
+  public final Integer hopperKrakenId = 16; // TODO: Verify this ID
+  public final Integer hoodKrakenId = 17; // TODO: Real ID
+
+  public final Integer homingSwitchCANdiID = 18; // TODO: Real id
+
+  public final Integer intakePivotMotorId = 19;
+  public final Integer intakeRollersLeadMotorId = 20;
+  public final Integer intakeRollersFollowerMotorId = 21;
+
+  public final Integer shooterLeaderId = 22; // TODO: Real ids
+  public final Integer shooterFollowerId = 23;
+
+  public final Integer climberKrakenId = 24; //TODO: Verify this ID
 
 }

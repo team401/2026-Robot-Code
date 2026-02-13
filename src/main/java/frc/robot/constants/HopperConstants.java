@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -46,6 +45,7 @@ public class HopperConstants {
    * using CAD to find the angle of the "negative direction" hardstop.
    */
   public Double hopperKP = 16.0;
+
   public Double hopperKI = 0.0;
   public Double hopperKD = 0.0;
   public Double hopperKS = 0.0;
@@ -64,8 +64,7 @@ public class HopperConstants {
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(
-                new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                JsonConstants.canBusAssignment.hopperKrakenId))
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.hopperKrakenId))
         .build();
   }
 

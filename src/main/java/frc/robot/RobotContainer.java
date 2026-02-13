@@ -19,9 +19,12 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -38,6 +41,8 @@ public class RobotContainer {
 
   // Subsystems
   private final Optional<Drive> drive;
+  private final Optional<DriveCoordinator> driveCoordinator;
+  private final Optional<IntakeSubsystem> intakeSubsystem;
   // Since the RobotContainer doesn't really need a reference to any subsystem except for drive,
   // their references are stored in the CoordinationLayer instead
 
@@ -65,12 +70,18 @@ public class RobotContainer {
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
     if (JsonConstants.featureFlags.runDrive) {
-      Drive driveInstance = InitSubsystems.initDriveSubsystem();
-      drive = Optional.of(driveInstance);
-
-      coordinationLayer.setDrive(driveInstance);
+      Drive drive = InitSubsystems.initDriveSubsystem();
+      DriveCoordinator driveCoordinator = new DriveCoordinator(drive);
+      this.drive = Optional.of(drive);
+      this.driveCoordinator = Optional.of(driveCoordinator);
+      coordinationLayer.setDrive(drive);
+      coordinationLayer.setDriveCoordinator(driveCoordinator);
+      if (JsonConstants.featureFlags.runVision) {
+        InitSubsystems.initVisionSubsystem(drive);
+      }
     } else {
       drive = Optional.empty();
+      driveCoordinator = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runHopper) {
@@ -81,6 +92,16 @@ public class RobotContainer {
     if (JsonConstants.featureFlags.runIndexer) {
       IndexerSubsystem indexer = InitSubsystems.initIndexerSubsystem();
       coordinationLayer.setIndexer(indexer);
+    }
+
+    if (JsonConstants.featureFlags.runIntake) {
+      IntakeSubsystem intakeSubsystem = InitSubsystems.initIntakeSubsystem();
+      coordinationLayer.setIntake(intakeSubsystem);
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_INTAKE_DEPENDENCIES);
+      this.intakeSubsystem = Optional.of(intakeSubsystem);
+    } else {
+      this.intakeSubsystem = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runHood) {
@@ -95,6 +116,12 @@ public class RobotContainer {
       coordinationLayer.setTurret(turret);
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_TURRET_DEPENDENCIES);
+    }
+
+    if (JsonConstants.featureFlags.runShooter) {
+      ShooterSubsystem shooter = InitSubsystems.initShooterSubsystem(dependencyOrderedExecutor);
+
+      coordinationLayer.setShooter(shooter);
     }
 
     if (JsonConstants.featureFlags.useHomingSwitch) {
@@ -158,7 +185,18 @@ public class RobotContainer {
     // TODO: Create a robust and clean input/action layer.
 
     // Default command, normal field-relative drive
-    drive.ifPresent(drive -> ControllerSetup.initDriveBindings(drive));
+    driveCoordinator.ifPresent(
+        driveCoordinator -> {
+          drive.ifPresent(
+              (drive) -> {
+                ControllerSetup.initDriveBindings(driveCoordinator, drive);
+              });
+        });
+
+    intakeSubsystem.ifPresent(
+        (intake) -> {
+          ControllerSetup.initIntakeBindings(intake);
+        });
   }
 
   /**

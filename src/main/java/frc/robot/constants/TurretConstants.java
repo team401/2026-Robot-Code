@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -72,8 +71,7 @@ public class TurretConstants {
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(
-                new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                JsonConstants.canBusAssignment.turretKrakenId))
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.turretKrakenId))
         .build();
   }
 

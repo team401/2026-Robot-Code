@@ -3,7 +3,6 @@ package frc.robot.constants;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -50,8 +49,7 @@ public class IndexerConstants {
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(
-                new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                JsonConstants.canBusAssignment.indexerKrakenId))
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.indexerKrakenId))
         .build();
   }
 
