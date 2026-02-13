@@ -118,6 +118,5 @@
   },
   "kCoupleRatio": 3.5714285714285716,
   "kInvertLeftSide": false,
-  "kInvertRightSide": true,
-  "kPigeonId": 20
+  "kInvertRightSide": true
 }
