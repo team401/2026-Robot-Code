@@ -34,8 +34,10 @@ public class JsonConstants {
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
-    var jsonHandler =
-        new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
+    var pathProvider = environmentHandler.getEnvironmentPathProvider();
+
+    System.out.println("[JsonConstants] Environment name: " + pathProvider.getEnvironmentName());
+    var jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
