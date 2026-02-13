@@ -33,31 +33,51 @@ SKIP_FILES = {"config.json", "controllers-xbox.json"}
 
 BUILD_CLASSES_DIR = "build/classes/java/main"
 
-# Pattern matching instance variable declarations from javap -p output, e.g.:
+# Matches field declarations in javap -verbose output, e.g.:
 #   public double kP;
 #   private final int count;
+# But NOT method declarations (which have parentheses in the descriptor).
 FIELD_PATTERN = re.compile(
     r"^\s+(?:public|protected|private)\s+(?:static\s+)?(?:final\s+)?\S+\s+(\w+);$"
 )
 
+JSON_EXCLUDE_ANNOTATION = "coppercore.parameter_tools.json.annotations.JSONExclude"
+
 
 def get_class_fields(class_name):
-    """Get instance field names from a compiled .class file using javap."""
+    """Get field names and excluded field names from a .class file using javap -verbose.
+
+    Returns (all_fields, excluded_fields) where both are sets of field name strings,
+    or (None, None) if javap fails.
+    """
     result = subprocess.run(
-        ["javap", "-p", "-cp", BUILD_CLASSES_DIR, class_name],
+        ["javap", "-p", "-verbose", "-cp", BUILD_CLASSES_DIR, class_name],
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
         print(f"WARNING: javap failed for {class_name}: {result.stderr.strip()}", file=sys.stderr)
-        return None
+        return None, None
 
-    fields = set()
-    for line in result.stdout.splitlines():
-        m = FIELD_PATTERN.match(line)
+    all_fields = set()
+    excluded_fields = set()
+
+    lines = result.stdout.splitlines()
+    i = 0
+    while i < len(lines):
+        m = FIELD_PATTERN.match(lines[i])
         if m:
-            fields.add(m.group(1))
-    return fields
+            field_name = m.group(1)
+            all_fields.add(field_name)
+            # Scan the indented block following this field for annotations
+            j = i + 1
+            while j < len(lines) and lines[j].startswith("    "):
+                if JSON_EXCLUDE_ANNOTATION in lines[j]:
+                    excluded_fields.add(field_name)
+                j += 1
+        i += 1
+
+    return all_fields, excluded_fields
 
 
 def get_json_keys(json_path):
@@ -87,15 +107,22 @@ def main():
                 errors.append(f"ERROR: {json_path} has no class mapping")
                 continue
 
-            fields = get_class_fields(class_name)
-            if fields is None:
+            all_fields, excluded_fields = get_class_fields(class_name)
+            if all_fields is None:
                 continue
 
             json_keys = get_json_keys(json_path)
-            extra_keys = json_keys - fields
 
+            # JSON keys not in the class
+            extra_keys = json_keys - all_fields
             for key in sorted(extra_keys):
                 errors.append(f"ERROR: {json_path} has key '{key}' not found in {class_name}")
+
+            # Class fields (non-excluded) not in JSON
+            expected_fields = all_fields - excluded_fields
+            missing_keys = expected_fields - json_keys
+            for key in sorted(missing_keys):
+                errors.append(f"ERROR: {json_path} is missing key '{key}' expected by {class_name}")
 
     for error in errors:
         print(error)
