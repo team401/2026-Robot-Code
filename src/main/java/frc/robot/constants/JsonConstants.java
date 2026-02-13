@@ -55,15 +55,12 @@ public class JsonConstants {
     intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
-<<<<<<< HEAD
     climberConstants = jsonHandler.getObject(new ClimberConstants(), "ClimberConstants.json");
-=======
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
     redFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
->>>>>>> main
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason

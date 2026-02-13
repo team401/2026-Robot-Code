@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -18,11 +17,9 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.ElevatorMechanismConfig;
-import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.ElevatorSimAdapter;
-import coppercore.wpilib_interface.subsystems.sim.HardstoppedDCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -31,12 +28,10 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
-//Copilot was used to help write this file
+// Copilot was used to help write this file
 public class ClimberConstants {
-    
 
   public final Voltage homingVoltage = Volts.of(-3.0);
 
@@ -47,11 +42,12 @@ public class ClimberConstants {
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
 
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
-  public final Angle upperClimbAngle = homingAngle.plus(Degrees.of(90.0)); // TODO: Find actual value for this
+  public final Angle upperClimbAngle =
+      homingAngle.plus(Degrees.of(90.0)); // TODO: Find actual value for this
 
-  public Double climberKP = 0.0; //Tune these
+  public Double climberKP = 0.0; // Tune these
   public Double climberKI = 0.0;
-  public Double climberKD = 0.0; 
+  public Double climberKD = 0.0;
   public Double climberKS = 0.0;
   public Double climberKV = 0.0;
   public Double climberKG = 0.0;
@@ -68,8 +64,7 @@ public class ClimberConstants {
         .withGravityFeedforwardType(GravityFeedforwardType.STATIC_ELEVATOR)
         .withLeadMotorId(
             new CANDeviceID(
-                new CANBus(JsonConstants.robotInfo.canivoreBusName),
-                JsonConstants.canBusAssignment.climberKrakenId))
+                JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.climberKrakenId))
         .build();
   }
 
@@ -86,7 +81,7 @@ public class ClimberConstants {
   // 0.0508^2. These calculations seemed to create a VERY heavy object
 
   public final double minClimberHeightMeters = 0.0;
-  public final double maxClimberHeightMeters = 0.0; //TODO: Find actual value
+  public final double maxClimberHeightMeters = 0.0; // TODO: Find actual value
   public final double climberStartingHeightMeters = 0.0;
   public final double climberMeasurementStdDevs = 0.001;
 
