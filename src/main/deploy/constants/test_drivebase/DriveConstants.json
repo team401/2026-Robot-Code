@@ -1,0 +1,62 @@
+{
+  "maxLinearSpeed": {
+    "value": 4.0,
+    "unit": "Meter per Second"
+  },
+  "maxAngularSpeed": {
+    "value": 7.2,
+    "unit": "Radian per Second"
+  },
+  "joystickDeadband": 0.02,
+  "joystickMagnitudeExponent": 2.0,
+  "linearDriveProfileMaxLinearVelocity": {
+    "value": 4.0,
+    "unit": "Meter per Second"
+  },
+  "linearDriveProfileMaxAngularVelocity": {
+    "value": 6.2,
+    "unit": "Radian per Second"
+  },
+  "linearDriveProfileMaxLinearAcceleration": {
+    "value": 6.0,
+    "unit": "Meter per Second per Second"
+  },
+  "linearDriveProfileMaxAngularAcceleration": {
+    "value": 6.0,
+    "unit": "Radian per Second per Second"
+  },
+  "linearDriveMaxAngularError": {
+    "value": 5.0,
+    "unit": "Degree"
+  },
+  "linearDriveMaxPositionError": {
+    "value": 0.05,
+    "unit": "Meter"
+  },
+  "linearDriveMaxLinearVelocityError": {
+    "value": 0.05,
+    "unit": "Meter per Second"
+  },
+  "linearDriveMaxAngularVelocityError": {
+    "value": 0.05,
+    "unit": "Radian per Second"
+  },
+  "steerGains": {
+    "kP": 100.0,
+    "kI": 0.0,
+    "kD": 0.5,
+    "kS": 0.20845,
+    "kG": 0.0,
+    "kV": 0.75722,
+    "kA": 0.0
+  },
+  "driveGains": {
+    "kP": 1.0,
+    "kI": 0.0,
+    "kD": 0.0,
+    "kS": 0.20845,
+    "kG": 0.0,
+    "kV": 0.75722,
+    "kA": 0.0
+  }
+}
