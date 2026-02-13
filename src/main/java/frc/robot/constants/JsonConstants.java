@@ -60,8 +60,6 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
-    // comment out
-    jsonHandler.saveObject(new StrategyConstants(), "StrategyConstants.json");
     strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
     if (featureFlags.useTuningServer) {
