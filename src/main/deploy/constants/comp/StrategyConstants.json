@@ -6,5 +6,12 @@
   "shiftEndGracePeriod": {
     "value": 2.0,
     "unit": "Second"
-  }
+  },
+  "transitionStart": 140.0,
+  "shift1Start": 130.0,
+  "shift2Start": 105.0,
+  "shift3Start": 80.0,
+  "shift4Start": 55.0,
+  "endgameStart": 30.0,
+  "matchEnd": 0.0
 }

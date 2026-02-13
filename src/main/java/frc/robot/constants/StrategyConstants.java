@@ -32,23 +32,23 @@ public class StrategyConstants {
 
   // list of shift start times in seconds from the start of the match
   // 2:20
-  public static final double transitionStart = 2 * 60 + 20; // 140
+  public static final Double transitionStart = 2 * 60 + 20.0; // 140
 
   // 2:10
-  public static final double shift1Start = 2 * 60 + 10; // 130
+  public static final Double shift1Start = 2 * 60 + 10.0; // 130
 
   // 1:45
-  public static final double shift2Start = 60 + 45; // 105
+  public static final Double shift2Start = 60 + 45.0; // 105
 
   // 1:20
-  public static final double shift3Start = 60 + 20; // 80
+  public static final Double shift3Start = 60 + 20.0; // 80
 
   // 0:55
-  public static final double shift4Start = 55;
+  public static final Double shift4Start = 55.0;
 
   // 0:30
-  public static final double endgameStart = 30;
+  public static final Double endgameStart = 30.0;
 
   // 0:00
-  public static final double matchEnd = 0;
+  public static final Double matchEnd = 0.0;
 }
