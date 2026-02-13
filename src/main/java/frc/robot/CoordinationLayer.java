@@ -27,6 +27,7 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
@@ -45,6 +46,7 @@ public class CoordinationLayer {
   private Optional<TurretSubsystem> turret = Optional.empty();
   private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
+  private Optional<IntakeSubsystem> intake = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
   private Optional<HomingSwitch> homingSwitch = Optional.empty();
 
@@ -55,6 +57,8 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::updateTurretDependencies");
   public static final ActionKey UPDATE_HOOD_DEPENDENCIES =
       new ActionKey("CoordinationLayer::updateHoodDependencies");
+  public static final ActionKey UPDATE_INTAKE_DEPENDENCIES =
+      new ActionKey("CoordinationLayer::updateIntakeDependencies");
   public static final ActionKey RUN_SHOT_CALCULATOR =
       new ActionKey("CoordinationLayer::runShotCalculator");
   public static final ActionKey RUN_DEMO_MODES =
@@ -108,6 +112,14 @@ public class CoordinationLayer {
   public void setIndexer(IndexerSubsystem indexer) {
     checkForDuplicateSubsystem(this.indexer, "Indexer");
     this.indexer = Optional.of(indexer);
+  }
+
+  public void setIntake(IntakeSubsystem intake) {
+    checkForDuplicateSubsystem(this.intake, "Intake");
+    this.intake = Optional.of(intake);
+
+    dependencyOrderedExecutor.registerAction(
+        UPDATE_INTAKE_DEPENDENCIES, () -> updateIntakeDependencies(intake));
   }
 
   /**
@@ -178,6 +190,10 @@ public class CoordinationLayer {
       dependencyOrderedExecutor.addDependencies(
           UPDATE_HOOD_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
     }
+    if (JsonConstants.featureFlags.runIntake) {
+      dependencyOrderedExecutor.addDependencies(
+          UPDATE_INTAKE_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
+    }
   }
 
   private boolean isHomingSwitchPressed() {
@@ -197,6 +213,11 @@ public class CoordinationLayer {
   /** Update the hood subsystem on the state of the homing switch. */
   private void updateHoodDependencies(HoodSubsystem hood) {
     hood.setIsHomingSwitchPressed(isHomingSwitchPressed());
+  }
+
+  /** Update the intake subsystem on the state of the homing switch. */
+  private void updateIntakeDependencies(IntakeSubsystem intake) {
+    intake.setIsHomingSwitchPressed(isHomingSwitchPressed());
   }
 
   // Coordination and processing

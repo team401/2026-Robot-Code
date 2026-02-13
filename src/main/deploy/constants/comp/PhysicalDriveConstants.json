@@ -33,9 +33,6 @@
   "kDriveMotorType": "TalonFX_Integrated",
   "kSteerMotorType": "TalonFX_Integrated",
   "frontLeftModule": {
-    "driveMotorId": 7,
-    "steerMotorId": 2,
-    "encoderId": 9,
     "encoderOffset": {
       "value": 0.113525390625,
       "unit": "Rotation"
@@ -52,9 +49,6 @@
     }
   },
   "frontRightModule": {
-    "driveMotorId": 1,
-    "steerMotorId": 6,
-    "encoderId": 12,
     "encoderOffset": {
       "value": -0.136474609375,
       "unit": "Rotation"
@@ -71,9 +65,6 @@
     }
   },
   "backLeftModule": {
-    "driveMotorId": 5,
-    "steerMotorId": 8,
-    "encoderId": 10,
     "encoderOffset": {
       "value": 0.0986328125,
       "unit": "Rotation"
@@ -90,9 +81,6 @@
     }
   },
   "backRightModule": {
-    "driveMotorId": 3,
-    "steerMotorId": 4,
-    "encoderId": 11,
     "encoderOffset": {
       "value": -0.180908203125,
       "unit": "Rotation"
@@ -118,6 +106,5 @@
   },
   "kCoupleRatio": 3.857142857142857,
   "kInvertLeftSide": true,
-  "kInvertRightSide": false,
-  "kPigeonId": 13
+  "kInvertRightSide": false
 }
