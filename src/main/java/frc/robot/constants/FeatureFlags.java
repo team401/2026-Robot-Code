@@ -7,15 +7,15 @@ package frc.robot.constants;
  * enabled/disabled subsystems without crashes.
  */
 public class FeatureFlags {
-  public final Boolean runDrive = true;
-  public final Boolean useMAPoseEstimator = true;
-  public final Boolean runVision = true;
-  public final Boolean runHopper = true;
-  public final Boolean runIndexer = true;
-  public final Boolean runShooter = true;
-  public final Boolean runTurret = true;
-  public final Boolean runIntake = true;
-  public final Boolean runHood = true;
-  public final Boolean useHomingSwitch = true;
-  public final Boolean useTuningServer = true;
+  public final Boolean runDrive = false;
+  public final Boolean useMAPoseEstimator = false;
+  public final Boolean runVision = false;
+  public final Boolean runHopper = false;
+  public final Boolean runIndexer = false;
+  public final Boolean runShooter = false;
+  public final Boolean runTurret = false;
+  public final Boolean runIntake = false;
+  public final Boolean runHood = false;
+  public final Boolean useHomingSwitch = false;
+  public final Boolean useTuningServer = false;
 }

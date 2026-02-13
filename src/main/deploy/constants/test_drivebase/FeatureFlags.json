@@ -4,6 +4,7 @@
   "runVision": true,
   "runHopper": false,
   "runIndexer": false,
+  "runShooter": false,
   "runTurret": false,
   "runIntake": false,
   "runHood": false,
