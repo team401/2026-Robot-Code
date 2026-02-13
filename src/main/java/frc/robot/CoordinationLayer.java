@@ -344,13 +344,13 @@ public class CoordinationLayer {
     }
   }
 
-  /** Update the MatchState each periodic loop and publish an example time-left check. */
+  /** Update the MatchState each periodic loop */
   private void updateMatchState() {
     matchState.enabledPeriodic(false, false);
 
-    java.util.function.DoublePredicate timeLeftPred = matchState.getTimeLeftInCurrentShift();
+    double timeLeft = matchState.getTimeLeftInCurrentShift();
 
-    boolean hasFiveSecondsLeft = timeLeftPred.test(5.0);
+    boolean hasFiveSecondsLeft = timeLeft >= 5.0;
     Logger.recordOutput("MatchState/has5sLeft", hasFiveSecondsLeft);
   }
 

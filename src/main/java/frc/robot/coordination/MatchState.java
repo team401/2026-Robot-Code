@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
+import frc.robot.constants.StrategyConstants;
 import frc.robot.util.AllianceUtil;
-import java.util.function.DoublePredicate;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -24,6 +24,10 @@ public class MatchState {
   /** Track the last match time to determine when we are using practice mode */
   private double lastMatchTime = 0.0;
 
+  private boolean hasGameData =
+      DriverStation.getMatchType() == DriverStation.MatchType.Practice
+          || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
+          || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
   private MatchShift currentShift = MatchShift.Unknown;
   private boolean canScore = true;
 
@@ -164,7 +168,7 @@ public class MatchState {
     }
     Logger.recordOutput("MatchState/isInMatch", false);
 
-    if (currentMatchTime > lastMatchTime) {
+    if (currentMatchTime > lastMatchTime && hasGameData) {
       // If match time is counting up, we are not in practice mode and therefore we should be
       // allowed to shoot always
       return MatchShift.AtHome;
@@ -175,49 +179,52 @@ public class MatchState {
 
   private MatchShift getTeleopShiftFromMatchTime(double matchTime) {
     // see page 43 https://firstfrc.blob.core.windows.net/frc2026/Manual/2026GameManual.pdf
-    if (matchTime <= (2 * 60 + 20) && matchTime > (2 * 60 + 10)) {
-      // Transition shift, 2:20 - 2:10
+    if (matchTime <= StrategyConstants.transitionStart
+        && matchTime > StrategyConstants.shift1Start) {
+      // Transition period; both hubs active
       return MatchShift.Transition;
-    } else if (matchTime <= (2 * 60 + 10) && matchTime > (60 + 45)) {
-      // Shift 1, 2:10 - 1:45
+    } else if (matchTime <= StrategyConstants.shift1Start
+        && matchTime > StrategyConstants.shift2Start) {
+      // Shift 1; auto loser's hub active
       return MatchShift.Shift1;
-    } else if (matchTime <= (60 + 45) && matchTime > (60 + 20)) {
-      // Shift 2, 1:45 - 1:20
+    } else if (matchTime <= StrategyConstants.shift2Start
+        && matchTime > StrategyConstants.shift3Start) {
+      // Shift 2; auto winner's hub active
       return MatchShift.Shift2;
-    } else if (matchTime <= (60 + 20) && matchTime > 55) {
-      // Shift 3, 1:20 - 0:55
+    } else if (matchTime <= StrategyConstants.shift3Start
+        && matchTime > StrategyConstants.shift4Start) {
+      // Shift 3; auto loser's hub active
       return MatchShift.Shift3;
-    } else if (matchTime <= 55 && matchTime > 30) {
-      // Shift 4, 0:55 - 0:30
+    } else if (matchTime <= StrategyConstants.shift4Start
+        && matchTime > StrategyConstants.endgameStart) {
+      // Shift 4; auto winner's hub active
       return MatchShift.Shift4;
-    } else if (matchTime <= 30 && matchTime > 0) {
-      // Endgame, 0:30 - 0:00
+    } else if (matchTime <= StrategyConstants.endgameStart
+        && matchTime > StrategyConstants.matchEnd) {
+      // Endgame; both hubs active
       return MatchShift.Endgame;
     }
 
     return MatchShift.Unknown;
   }
 
-  public DoublePredicate getTimeLeftInCurrentShift() {
+  public double getTimeLeftInCurrentShift() {
     double matchTime = DriverStation.getMatchTime();
     double timeLeft;
 
     if (currentShift == MatchShift.Transition) {
-      // 2:10 remaining -> 130 seconds
-      timeLeft = Math.max(matchTime - 130, 0);
+      timeLeft = Math.max(matchTime - StrategyConstants.shift1Start, 0);
     } else if (currentShift == MatchShift.Shift1) {
-      // 1:45 remaining -> 105 seconds
-      timeLeft = Math.max(matchTime - 105, 0);
+      timeLeft = Math.max(matchTime - StrategyConstants.shift2Start, 0);
     } else if (currentShift == MatchShift.Shift2) {
-      timeLeft = Math.max(matchTime - 80, 0);
+      timeLeft = Math.max(matchTime - StrategyConstants.shift3Start, 0);
     } else if (currentShift == MatchShift.Shift3) {
-      timeLeft = Math.max(matchTime - 55, 0);
+      timeLeft = Math.max(matchTime - StrategyConstants.shift4Start, 0);
     } else if (currentShift == MatchShift.Shift4) {
-      timeLeft = Math.max(matchTime - 30, 0);
+      timeLeft = Math.max(matchTime - StrategyConstants.endgameStart, 0);
     } else if (currentShift == MatchShift.Endgame) {
-      timeLeft = Math.max(matchTime - 0, 0);
+      timeLeft = Math.max(matchTime - StrategyConstants.matchEnd, 0);
     } else {
-
       timeLeft = Double.POSITIVE_INFINITY;
     }
 
@@ -225,8 +232,7 @@ public class MatchState {
     Logger.recordOutput(
         "MatchState/alliance", DriverStation.getAlliance().map(Enum::name).orElse("Unknown"));
 
-    // Return a predicate that checks if a requested amount of time is available in this shift
-    return (requiredSeconds) -> requiredSeconds <= timeLeft;
+    return timeLeft;
   }
 
   /**

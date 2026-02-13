@@ -29,4 +29,26 @@ public class StrategyConstants {
    * so the match time is simply an estimate.
    */
   public final Time shiftEndGracePeriod = Seconds.of(2.0);
+
+  // list of shift start times in seconds from the start of the match
+  // 2:20
+  public static final double transitionStart = 2 * 60 + 20; // 140
+
+  // 2:10
+  public static final double shift1Start = 2 * 60 + 10; // 130
+
+  // 1:45
+  public static final double shift2Start = 60 + 45; // 105
+
+  // 1:20
+  public static final double shift3Start = 60 + 20; // 80
+
+  // 0:55
+  public static final double shift4Start = 55;
+
+  // 0:30
+  public static final double endgameStart = 30;
+
+  // 0:00
+  public static final double matchEnd = 0;
 }
