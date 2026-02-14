@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -89,12 +89,44 @@ interface SliderFieldProps {
   min: number;
   max: number;
   step: number;
+  inputStep?: number;
   unit: string;
   onChange: (v: number) => void;
 }
 
-function SliderField({ label, value, min, max, step, unit, onChange }: SliderFieldProps) {
+const METERS_PER_INCH = 0.0254;
+
+function InchesInput({ value, onChange }: { value: number; onChange: (meters: number) => void }) {
+  const [focused, setFocused] = useState(false);
+  const [localText, setLocalText] = useState('');
+
+  const inchesFromMeters = value / METERS_PER_INCH;
+
+  return (
+    <TextField
+      type="number"
+      size="small"
+      sx={{ width: 120 }}
+      label="in"
+      value={focused ? localText : inchesFromMeters}
+      onChange={(e) => {
+        setLocalText(e.target.value);
+        const parsed = parseFloat(e.target.value);
+        if (!isNaN(parsed)) onChange(parsed * METERS_PER_INCH);
+      }}
+      onFocus={() => {
+        setLocalText(String(Math.round(inchesFromMeters * 100) / 100));
+        setFocused(true);
+      }}
+      onBlur={() => setFocused(false)}
+      slotProps={{ htmlInput: { step: 0.1 } }}
+    />
+  );
+}
+
+function SliderField({ label, value, min, max, step, inputStep, unit, onChange }: SliderFieldProps) {
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
+  const clamped = (v: number) => onChange(clamp(v));
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
@@ -103,13 +135,17 @@ function SliderField({ label, value, min, max, step, unit, onChange }: SliderFie
         type="number"
         size="small"
         sx={{ width: 120 }}
-        inputProps={{ step, min, max }}
+        label={unit}
         value={value}
         onChange={(e) => {
           const parsed = parseFloat(e.target.value);
-          if (!isNaN(parsed)) onChange(clamp(parsed));
+          if (!isNaN(parsed)) clamped(parsed);
         }}
+        slotProps={{ htmlInput: { step: inputStep ?? step, min, max } }}
       />
+      {unit === 'm' && (
+        <InchesInput value={value} onChange={clamped} />
+      )}
       <Typography variant="caption" color="text.secondary">
         {min}
       </Typography>
@@ -124,9 +160,6 @@ function SliderField({ label, value, min, max, step, unit, onChange }: SliderFie
       />
       <Typography variant="caption" color="text.secondary">
         {max}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ minWidth: 30 }}>
-        {unit}
       </Typography>
     </Box>
   );
@@ -240,6 +273,7 @@ function CameraCard({ camera, index, onChange, onDelete }: CameraCardProps) {
             min={-0.5}
             max={0.5}
             step={0.001}
+            inputStep={0.01}
             unit="m"
             onChange={(v) => updateTranslation(axis, v)}
           />
