@@ -76,6 +76,13 @@ public class JsonConstants {
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
         jsonHandler.addRoute("/intake", intakeConstants);
+        jsonHandler.addRoute("/vision", visionConstants);
+        jsonHandler.registerPostCallback(
+            "/vision",
+            (visionConstants) -> {
+              System.out.println("Vision Constants were updated");
+              return true;
+            });
         jsonHandler.addRoute("/shotmaps", shotMaps);
         jsonHandler.registerPostCallback(
             "/shotmaps",

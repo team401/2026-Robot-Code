@@ -9,5 +9,6 @@
   "runIntake": false,
   "runHood": false,
   "useHomingSwitch": false,
-  "useTuningServer": true
+  "useTuningServer": true,
+  "pretendCamerasAreMobile": true
 }
