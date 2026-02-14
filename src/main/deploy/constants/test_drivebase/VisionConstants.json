@@ -1,8 +1,8 @@
 {
   "gainConstants": {
-    "maxAcceptedDistanceMeters": 10.0,
-    "linearStdDevFactor": 0.02,
-    "angularStdDevFactor": 0.06,
+    "maxAcceptedDistanceMeters": 10,
+    "linearStdDevFactor": 0.0014,
+    "angularStdDevFactor": 0.001,
     "maxZCutoff": 0.75,
     "maxSingleTagAmbiguity": 0.3,
     "maxAmbiguity": 0.3
@@ -10,43 +10,43 @@
   "camera1Index": 0,
   "camera1Name": "FrontRight",
   "camera1Transform": {
-    "rotation": {
-      "roll": 0.0,
-      "pitch": 20.0,
-      "yaw": -90
-    },
     "translation": {
       "x": 0.26015,
       "y": -0.25995,
       "z": 0.2091
+    },
+    "rotation": {
+      "roll": 0,
+      "pitch": -20,
+      "yaw": -90
     }
   },
   "camera2Index": 1,
   "camera2Name": "BackRight",
   "camera2Transform": {
-    "rotation": {
-      "roll": 0.0,
-      "pitch": 20,
-      "yaw": 180
-    },
     "translation": {
       "x": -0.26095,
       "y": -0.25195,
       "z": 0.2091
+    },
+    "rotation": {
+      "roll": 0,
+      "pitch": -20,
+      "yaw": 180
     }
   },
   "camera3Index": 2,
   "camera3Name": "BackLeft",
   "camera3Transform": {
-    "rotation": {
-      "roll": 0.0,
-      "pitch": 20,
-      "yaw": 90.0
-    },
     "translation": {
       "x": -0.26015,
       "y": 0.25995,
       "z": 0.2091
+    },
+    "rotation": {
+      "roll": 0,
+      "pitch": -20,
+      "yaw": 90
     }
   }
 }

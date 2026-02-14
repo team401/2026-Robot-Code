@@ -18,7 +18,7 @@
     "unit": "Radian per Second"
   },
   "linearDriveProfileMaxLinearAcceleration": {
-    "value": 6.0,
+    "value": 3.0,
     "unit": "Meter per Second per Second"
   },
   "linearDriveProfileMaxAngularAcceleration": {
