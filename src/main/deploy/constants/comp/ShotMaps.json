@@ -32,5 +32,9 @@
         "unit": "Second"
       }
     }
-  ]
+  ],
+  "mechanismCompensationDelay ": {
+    "value": 0.1,
+    "unit": "Second"
+  }
 }

@@ -26,6 +26,7 @@
     "unit": "Amp"
   },
   "shooterMotorDirection": "CounterClockwise_Positive",
+  "invertFollower": true,
   "defaultShooterNeutralMode": "Brake",
   "shooterMaxVelocity": {
     "value": 2900.0,

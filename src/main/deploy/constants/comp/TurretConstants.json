@@ -45,5 +45,9 @@
   "maxTurretAngle": {
     "value": 350.0,
     "unit": "Degree"
+  },
+  "headingToTurretAngle": {
+    "value": -45.0,
+    "unit": "Degree"
   }
 }
