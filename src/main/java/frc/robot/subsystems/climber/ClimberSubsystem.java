@@ -15,7 +15,6 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.TestModeManager;
@@ -67,7 +66,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Climber", TestMode.class);
 
-  public ClimberSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
+  public ClimberSubsystem(MotorIO motor) {
     this.motor = motor;
     stateMachine = new StateMachine<>(this);
 
@@ -82,6 +81,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     homingWaitForButtonState
         .when(climber -> climber.isClimberTestMode(), "In climber test mode")
         .transitionTo(testModeState);
+    homingWaitForButtonState.whenFinished().transitionTo(idleState);
     idleState
         .when(climber -> climber.isClimberTestMode(), "In climber test mode")
         .transitionTo(testModeState);
@@ -124,7 +124,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     climberTuningVolts = new LoggedTunableNumber("ClimberTunables/climberTuningVolts", 0.0);
     AutoLogOutputManager.addObject(this);
 
-    dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
+    updateInputs();
+
+    // dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
   }
 
   public void monitoredPeriodic() {
@@ -194,6 +196,10 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
   private boolean isClimberTestMode() {
     return testModeManager.isInTestMode();
+  }
+
+  public boolean isHomingSwitchPressed() {
+    return true;
   }
 
   public AngularVelocity getClimberVelocity() {

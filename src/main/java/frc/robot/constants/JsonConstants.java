@@ -72,6 +72,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
         jsonHandler.addRoute("/intake", intakeConstants);
+        jsonHandler.addRoute("/climber", climberConstants);
         jsonHandler.addRoute("/shotmaps", shotMaps);
         jsonHandler.registerPostCallback(
             "/shotmaps",

@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -25,6 +27,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -43,7 +46,9 @@ public class ClimberConstants {
 
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
   public final Angle upperClimbAngle =
-      homingAngle.plus(Degrees.of(90.0)); // TODO: Find actual value for this
+      homingAngle.plus(Degrees.of(90.0)); // TODO: Find actual value for thi
+
+  public final Distance climberToMechanismRatio = Meters.of(0.005); // TODO: Find real value
 
   public Double climberKP = 0.0; // Tune these
   public Double climberKI = 0.0;
@@ -65,6 +70,7 @@ public class ClimberConstants {
         .withLeadMotorId(
             new CANDeviceID(
                 JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.climberKrakenId))
+        .withElevatorToMechanismRatio(climberToMechanismRatio.div(Rotations.of(1.0)))
         .build();
   }
 
@@ -80,10 +86,10 @@ public class ClimberConstants {
   // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
   // 0.0508^2. These calculations seemed to create a VERY heavy object
 
-  public final double minClimberHeightMeters = 0.0;
-  public final double maxClimberHeightMeters = 0.0; // TODO: Find actual value
-  public final double climberStartingHeightMeters = 0.0;
-  public final double climberMeasurementStdDevs = 0.001;
+  public final Distance minClimberHeightMeters = Meters.of(0.0);
+  public final Distance maxClimberHeightMeters = Meters.of(1.0); // TODO: Find actual value
+  public final Distance climberStartingHeightMeters = Meters.of(0.0);
+  public final Distance climberMeasurementStdDevs = Meters.of(0.001);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
@@ -122,10 +128,11 @@ public class ClimberConstants {
                 simClimberMOI.in(KilogramSquareMeters),
                 1 / climberReduction),
             DCMotor.getKrakenX60Foc(1),
-            minClimberHeightMeters,
-            maxClimberHeightMeters,
+            minClimberHeightMeters.in(Meters),
+            maxClimberHeightMeters.in(Meters),
             true,
-            climberStartingHeightMeters,
-            climberMeasurementStdDevs));
+            climberStartingHeightMeters.in(Meters)
+            // ,climberMeasurementStdDevs.in(Meters)
+            ));
   }
 }

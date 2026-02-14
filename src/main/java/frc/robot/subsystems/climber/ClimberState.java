@@ -9,7 +9,7 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToHomedPosition();
-      if (climber.dependencies.isHomingSwitchPressed()) {
+      if (climber.isHomingSwitchPressed()) {
         finish();
       }
     }

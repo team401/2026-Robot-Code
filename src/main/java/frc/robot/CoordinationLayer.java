@@ -21,6 +21,7 @@ import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
@@ -37,6 +38,7 @@ import java.util.Optional;
  */
 public class CoordinationLayer {
   // Subsystems
+  private Optional<ClimberSubsystem> climber = Optional.empty();
   private Optional<Drive> drive = Optional.empty();
   private Optional<DriveCoordinator> driveCoordinator = Optional.empty();
   private Optional<HopperSubsystem> hopper = Optional.empty();
@@ -82,6 +84,11 @@ public class CoordinationLayer {
     if (optionalSubsystem.isPresent()) {
       throw new IllegalStateException("CoordinationLayer set" + name + " was called twice!");
     }
+  }
+
+  public void setClimber(ClimberSubsystem climber) {
+    checkForDuplicateSubsystem(this.climber, "Climber");
+    this.climber = Optional.of(climber);
   }
 
   public void setDrive(Drive drive) {

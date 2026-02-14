@@ -18,6 +18,7 @@ import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
@@ -69,6 +70,10 @@ public class RobotContainer {
 
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
+    if (JsonConstants.featureFlags.runClimber) {
+      ClimberSubsystem climber = InitSubsystems.initClimberSubsystem();
+      coordinationLayer.setClimber(climber);
+    }
     if (JsonConstants.featureFlags.runDrive) {
       Drive drive = InitSubsystems.initDriveSubsystem();
       DriveCoordinator driveCoordinator = new DriveCoordinator(drive);
