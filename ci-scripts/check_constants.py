@@ -38,7 +38,7 @@ BUILD_CLASSES_DIR = "build/classes/java/main"
 #   private final int count;
 # But NOT method declarations (which have parentheses in the descriptor).
 FIELD_PATTERN = re.compile(
-    r"^\s+(?:public|protected|private)\s+(?:static\s+)?(?:final\s+)?\S+\s+(\w+);$"
+    r"^\s+(?:public|protected|private)\s+(static\s+)?(?:final\s+)?\S+\s+(\w+);$"
 )
 
 JSON_EXCLUDE_ANNOTATION = "coppercore.parameter_tools.json.annotations.JSONExclude"
@@ -67,7 +67,11 @@ def get_class_fields(class_name):
     while i < len(lines):
         m = FIELD_PATTERN.match(lines[i])
         if m:
-            field_name = m.group(1)
+            is_static = m.group(1) is not None
+            field_name = m.group(2)
+            if is_static:
+                i += 1
+                continue
             all_fields.add(field_name)
             # Scan the indented block following this field for annotations
             j = i + 1
