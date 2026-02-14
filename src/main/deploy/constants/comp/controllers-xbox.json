@@ -53,6 +53,14 @@
             "elementType": "axis",
             "id": "rightTrigger"
           }
+        },
+        {
+          "command": "testClimbDrive",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "a"
+          }
         }
       ]
     }
