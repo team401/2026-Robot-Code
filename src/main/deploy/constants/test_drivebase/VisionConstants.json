@@ -12,12 +12,12 @@
   "camera1Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": 0.3491,
-      "yaw": -1.571
+      "pitch": 20.0,
+      "yaw": -90
     },
     "translation": {
-      "x": 0.2665,
-      "y": -0.2663,
+      "x": 0.26015,
+      "y": -0.25995,
       "z": 0.2091
     }
   },
@@ -26,12 +26,12 @@
   "camera2Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": 0.3491,
-      "yaw": 3.142
+      "pitch": 20,
+      "yaw": 180
     },
     "translation": {
-      "x": -0.2673,
-      "y": -0.2583,
+      "x": -0.26095,
+      "y": -0.25195,
       "z": 0.2091
     }
   },
@@ -40,12 +40,12 @@
   "camera3Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": 0.3491,
-      "yaw": 1.571
+      "pitch": 20,
+      "yaw": 90.0
     },
     "translation": {
-      "x": -0.2665,
-      "y": 0.2663,
+      "x": -0.26015,
+      "y": 0.25995,
       "z": 0.2091
     }
   }

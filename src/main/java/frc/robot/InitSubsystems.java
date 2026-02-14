@@ -98,6 +98,18 @@ public class InitSubsystems {
     AprilTagFieldLayout tagLayout = JsonConstants.aprilTagConstants.getTagLayout();
     switch (Constants.currentMode) {
       case REAL:
+        System.out.println(
+            JsonConstants.visionConstants.camera1Name
+                + " roll "
+                + JsonConstants.visionConstants.camera1Transform.getRotation().getX());
+        System.out.println(
+            JsonConstants.visionConstants.camera2Name
+                + " pitch "
+                + JsonConstants.visionConstants.camera2Transform.getRotation().getY());
+        System.out.println(
+            JsonConstants.visionConstants.camera3Name
+                + " yaw "
+                + JsonConstants.visionConstants.camera3Transform.getRotation().getZ());
         return new VisionLocalizer(
             drive::addVisionMeasurement,
             tagLayout,

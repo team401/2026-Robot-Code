@@ -9,7 +9,7 @@ public class VisionConstants {
   // Placeholder values for camera configs
   public final VisionGainConstants gainConstants = new VisionGainConstants();
   public final Integer camera1Index = 0;
-  public final String camera1Name = "FrontRight";
+  public String camera1Name = "FrontRight";
   public final Transform3d camera1Transform =
       new Transform3d(
           Units.inchesToMeters(1.0),
@@ -17,7 +17,7 @@ public class VisionConstants {
           Units.inchesToMeters(1.0),
           new Rotation3d(0, 0, 0));
   public final Integer camera2Index = 1;
-  public final String camera2Name = "BackRight";
+  public String camera2Name = "BackRight";
   public final Transform3d camera2Transform =
       new Transform3d(
           Units.inchesToMeters(2.0),
@@ -25,7 +25,7 @@ public class VisionConstants {
           Units.inchesToMeters(2.0),
           new Rotation3d(0, 0, 0));
   public final Integer camera3Index = 2;
-  public final String camera3Name = "BackRight";
+  public String camera3Name = "BackLeft";
   public final Transform3d camera3Transform =
       new Transform3d(
           Units.inchesToMeters(3.0),
