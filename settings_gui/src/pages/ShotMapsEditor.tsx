@@ -21,8 +21,9 @@ import SaveIcon from '@mui/icons-material/Save';
 import SendIcon from '@mui/icons-material/Send';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { useConnection } from '../contexts/ConnectionContext';
-import { getData, putData, postData, saveLocal } from '../services/api';
+import { getData, putData, postData, saveLocal, loadLocal } from '../services/api';
 import type { ShotMaps, ShotMapDataPoint } from '../types/ShotMaps';
 
 function defaultDataPoint(): ShotMapDataPoint {
@@ -209,6 +210,17 @@ export function ShotMapsEditor() {
     }
   };
 
+  const handleLoadLocal = async () => {
+    setError(null);
+    try {
+      const result = await loadLocal<ShotMaps>(environment, 'ShotMaps.json');
+      setData(result);
+      setSnack({ message: 'Loaded from local source tree', severity: 'success' });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load from local');
+    }
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
 
   if (!data) {
@@ -233,7 +245,10 @@ export function ShotMapsEditor() {
         <Button startIcon={<RefreshIcon />} onClick={fetchData}>
           Refresh
         </Button>
-        <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleSaveLocal} sx={{ ml: 'auto' }}>
+        <Button variant="outlined" startIcon={<FileUploadIcon />} onClick={handleLoadLocal} sx={{ ml: 'auto' }}>
+          Load from Local
+        </Button>
+        <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleSaveLocal}>
           Save to Local
         </Button>
       </Box>
