@@ -209,8 +209,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     return testModeManager.isInTestMode();
   }
 
-  public boolean isHomingSwitchPressed() {
-    return true;
+  public boolean shouldHome() {
+    return false; //TODO: Find out how to determine this.
   }
 
   public AngularVelocity getClimberVelocity() {

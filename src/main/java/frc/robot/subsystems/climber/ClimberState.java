@@ -12,7 +12,7 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
   public static class WaitForHomingState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      if (climber.isHomingSwitchPressed()) {
+      if (climber.shouldHome()) {
         finish();
       }
     }
