@@ -1,15 +1,30 @@
 package frc.robot.subsystems.climber;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
+import edu.wpi.first.units.AngularVelocityUnit;
+import frc.robot.constants.JsonConstants;
 
 // Copilot autocomplete was used to help write this file
 public abstract class ClimberState extends State<ClimberSubsystem> {
-  public static class HomingWaitForButtonState extends ClimberState {
+  public static class WaitForHomingState extends ClimberState {
+    @Override
+    public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
+      if (climber.isHomingSwitchPressed()) {
+        finish();
+      }
+    }
+  }
+
+  public static class HomingWaitForClimbState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToHomedPosition();
-      if (climber.isHomingSwitchPressed()) {
+      final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
+      if (climber.getClimberVelocity().abs(velocityComparisonUnit)
+          >= JsonConstants.climberConstants.homingMovementThreshold.in(velocityComparisonUnit)) {
         finish();
       }
     }
@@ -41,8 +56,8 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToUpperClimbPosition();
-      // Move servo out
       climber.setToHomedPosition();
+      //TODO: Move servo out
     }
   }
 
@@ -50,6 +65,37 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToUpperClimbPosition();
+      if (!climber.shouldDeClimb()) {
+        finish();
+      }
     }
   }
+
+  public static class ClimberToLowerPositionState extends ClimberState {
+    @Override
+    public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
+      climber.setToLowerClimbPosition();
+      if (climber.getClimberInLowerPosition()) {
+        finish();
+      }
+    }
+  }
+
+  public static class climberToUpPositionState extends ClimberState {
+    @Override
+    public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
+      climber.setToUpperClimbPosition();
+      if (climber.getClimberInUpPosition()) {
+        finish();
+      }
+    }
+  }
+
+  public static class ClimberPullUpState extends ClimberState {
+    @Override
+    public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
+      climber.setToLowerClimbPosition();
+    }
+  }
+
 }
