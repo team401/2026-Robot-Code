@@ -3,7 +3,7 @@
     "value": -3.0,
     "unit": "Volts"
   },
-  "climberReduction": 37.5,
+  "climberReduction": 0.01,
   "homingMovementThreshold": {
     "value": 2.0,
     "unit": "DegreesPerSecond"
@@ -21,7 +21,7 @@
     "unit": "Degrees"
   },
   "climberToMechanismRatio": {
-    "value": 0.005,
+    "value": 1.0,
     "unit": "Meters"
   },
   "climberKP": 0.0,
@@ -42,8 +42,16 @@
     "unit": "Amps"
   },
   "simClimberMOI": {
-    "value": 0.0025,
+    "value": 0.025,
     "unit": "KilogramSquareMeters"
+  },
+  "simClimberWeight": {
+    "value": 0.5,
+    "unit": "Kilograms"
+  },
+  "simClimberRadius": {
+    "value": 1.0,
+    "unit": "Inches"
   },
   "minClimberHeightMeters": {
     "value": 0.0,

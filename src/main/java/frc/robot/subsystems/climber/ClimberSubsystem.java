@@ -15,7 +15,6 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -25,18 +24,6 @@ import org.littletonrobotics.junction.Logger;
 public class ClimberSubsystem extends MonitoredSubsystem {
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
-
-  public static final ActionKey UPDATE_INPUTS = new ActionKey("ClimberSubsystem::updateInputs");
-
-  public static class ClimberDependencies {
-    private boolean isHomingSwitchPressed = false;
-
-    public boolean isHomingSwitchPressed() {
-      return isHomingSwitchPressed;
-    }
-  }
-
-  public final ClimberDependencies dependencies = new ClimberDependencies();
 
   private final StateMachine<ClimberSubsystem> stateMachine;
 
@@ -123,13 +110,12 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     climberTuningAmps = new LoggedTunableNumber("ClimberTunables/climberTuningAmps", 0.0);
     climberTuningVolts = new LoggedTunableNumber("ClimberTunables/climberTuningVolts", 0.0);
     AutoLogOutputManager.addObject(this);
-
-    updateInputs();
-
-    // dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
   }
 
+  @Override
   public void monitoredPeriodic() {
+    motor.updateInputs(inputs);
+    Logger.processInputs("Climber/inputs", inputs);
     Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
     Logger.recordOutput("Climber/StateAfter", stateMachine.getCurrentState().getName());
@@ -173,7 +159,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
             climberExpoKV,
             climberExpoKA);
 
-        motor.controlToPositionExpoProfiled(Degrees.of(climberTuningSetpointDegrees.getAsDouble()));
+        motor.controlToPositionUnprofiled(Degrees.of(climberTuningSetpointDegrees.getAsDouble()));
       }
       case ClimberCurrentTuning -> {
         motor.controlOpenLoopCurrent(Amps.of(climberTuningAmps.getAsDouble()));
@@ -183,11 +169,6 @@ public class ClimberSubsystem extends MonitoredSubsystem {
       }
       default -> {}
     }
-  }
-
-  private void updateInputs() {
-    motor.updateInputs(inputs);
-    Logger.processInputs("Climber/inputs", inputs);
   }
 
   protected void coast() {

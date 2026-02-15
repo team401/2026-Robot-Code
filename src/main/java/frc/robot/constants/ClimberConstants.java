@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
@@ -28,6 +29,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -50,7 +52,7 @@ public class ClimberConstants {
 
   public final Distance climberToMechanismRatio = Meters.of(0.005); // TODO: Find real value
 
-  public Double climberKP = 0.0; // Tune these
+  public Double climberKP = 0.0; // TODO: Tune these
   public Double climberKI = 0.0;
   public Double climberKD = 0.0;
   public Double climberKS = 0.0;
@@ -82,9 +84,12 @@ public class ClimberConstants {
   // According to Shorya, 422 alum/mentor:
   // "we usually just figure out what we expect out of the subsystems
   // and just tune the moi as a magic constant"
-  public final MomentOfInertia simClimberMOI = KilogramSquareMeters.of(0.00025);
+  public final MomentOfInertia simClimberMOI = KilogramSquareMeters.of(0.025);
   // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
   // 0.0508^2. These calculations seemed to create a VERY heavy object
+
+  public final Mass simClimberWeight = Kilograms.of(1.0);
+  public final Distance simClimberRadius = Meters.of(1.0);
 
   public final Distance minClimberHeightMeters = Meters.of(0.0);
   public final Distance maxClimberHeightMeters = Meters.of(1.0); // TODO: Find actual value
@@ -123,10 +128,11 @@ public class ClimberConstants {
     return new ElevatorSimAdapter(
         buildMechanismConfig(),
         new ElevatorSim(
-            LinearSystemId.createDCMotorSystem(
+            LinearSystemId.createElevatorSystem(
                 DCMotor.getKrakenX60Foc(1),
-                simClimberMOI.in(KilogramSquareMeters),
-                1 / climberReduction),
+                simClimberWeight.in(Kilograms),
+                simClimberRadius.in(Meters),
+                1.0), // DCMotor Sim is terrible at reductions
             DCMotor.getKrakenX60Foc(1),
             minClimberHeightMeters.in(Meters),
             maxClimberHeightMeters.in(Meters),
