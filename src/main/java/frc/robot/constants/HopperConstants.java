@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Amps;
 // import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -23,7 +22,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -36,9 +34,6 @@ public class HopperConstants {
   public final Double hopperReduction = 1.0;
 
   public final AngularVelocity spinningMovementThreshold = RadiansPerSecond.of(3.0);
-
-  public final Time spinningMaxUnmovingTime = Seconds.of(5.0);
-  public final Time spinningMaxOverallTime = Seconds.of(10.0);
 
   /**
    * The robot-relative angle that the hopper is at once it has homed. This should be determined

@@ -16,3 +16,5 @@ jobs:
         run: chmod +x gradlew
       - name: Build robot code
         run: ./gradlew build
+      - name: Check constants for wrong options
+        run: python3 ci-scripts/check_constants.py

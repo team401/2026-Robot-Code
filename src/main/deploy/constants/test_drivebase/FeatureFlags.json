@@ -4,11 +4,11 @@
   "runVision": true,
   "runHopper": false,
   "runIndexer": false,
-  "runTurret": false,
   "runShooter": false,
+  "runTurret": false,
   "runIntake": false,
   "runHood": false,
   "useHomingSwitch": false,
   "useTuningServer": true,
-  "pretendCamerasAreMobile": false
+  "pretendCamerasAreMobile": true
 }

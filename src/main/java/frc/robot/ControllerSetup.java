@@ -2,10 +2,13 @@ package frc.robot;
 
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.drive.DriveCoordinator.DriveAction;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
@@ -39,6 +42,23 @@ public class ControllerSetup {
             JsonConstants.driveConstants.maxAngularSpeed, // type: double (rad/s)
             JsonConstants.driveConstants.joystickDeadband, // type: double
             JsonConstants.driveConstants.joystickMagnitudeExponent));
+
+    Pose2d targetPose = new Pose2d(14.968, 3.9, new Rotation2d(Math.toRadians(-90.0)));
+
+    controllers
+        .getButton("testClimbDrive")
+        .getTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.setLinearTargetPose(targetPose);
+                  driveCoordinator.setDriveAction(DriveAction.LinearDriveToPose);
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
+                }));
   }
 
   public static void initIntakeBindings(IntakeSubsystem intakeSubsystem) {

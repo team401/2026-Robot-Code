@@ -58,6 +58,7 @@ public class RobotContainer {
     CopperCoreMetadata.printInfo();
 
     JsonConstants.loadConstants();
+    JsonConstants.featureFlags.logFlags();
 
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
     dependencyOrderedExecutor.registerAction(

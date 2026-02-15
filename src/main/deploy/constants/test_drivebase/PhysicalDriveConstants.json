@@ -43,11 +43,11 @@
     "steerMotorInverted": true,
     "encoderInverted": false,
     "xPos": {
-      "value": 10.5,
+      "value": 10.25,
       "unit": "Inch"
     },
     "yPos": {
-      "value": 10.125,
+      "value": 10.0,
       "unit": "Inch"
     }
   },
@@ -62,11 +62,11 @@
     "steerMotorInverted": true,
     "encoderInverted": false,
     "xPos": {
-      "value": 10.5,
+      "value": 10.25,
       "unit": "Inch"
     },
     "yPos": {
-      "value": -10.125,
+      "value": -10.0,
       "unit": "Inch"
     }
   },
@@ -81,11 +81,11 @@
     "steerMotorInverted": true,
     "encoderInverted": false,
     "xPos": {
-      "value": -10.5,
+      "value": -10.25,
       "unit": "Inch"
     },
     "yPos": {
-      "value": 10.125,
+      "value": 10.0,
       "unit": "Inch"
     }
   },
@@ -100,11 +100,11 @@
     "steerMotorInverted": true,
     "encoderInverted": false,
     "xPos": {
-      "value": -10.5,
+      "value": -10.25,
       "unit": "Inch"
     },
     "yPos": {
-      "value": -10.125,
+      "value": -10.0,
       "unit": "Inch"
     }
   },
@@ -118,6 +118,5 @@
   },
   "kCoupleRatio": 3.5714285714285716,
   "kInvertLeftSide": false,
-  "kInvertRightSide": true,
-  "kPigeonId": 20
+  "kInvertRightSide": true
 }
