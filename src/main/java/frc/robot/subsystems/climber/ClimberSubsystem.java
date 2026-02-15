@@ -97,6 +97,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     climberKA =
         new LoggedTunableNumber(
             "ClimberTunables/climberKA", JsonConstants.climberConstants.climberKA);
+    climberKG =
+        new LoggedTunableNumber(
+            "ClimberTunables/climberKG", JsonConstants.climberConstants.climberKG);
 
     climberExpoKV =
         new LoggedTunableNumber(
@@ -133,15 +136,17 @@ public class ClimberSubsystem extends MonitoredSubsystem {
               JsonConstants.climberConstants.climberKS = pid_sva[3];
               JsonConstants.climberConstants.climberKV = pid_sva[4];
               JsonConstants.climberConstants.climberKA = pid_sva[5];
+              JsonConstants.climberConstants.climberKG = pid_sva[6];
               motor.setGains(
-                  pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
+                  pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], pid_sva[6], pid_sva[4], pid_sva[5]);
             },
             climberKP,
             climberKI,
             climberKD,
             climberKS,
             climberKV,
-            climberKA);
+            climberKA,
+            climberKG);
 
         LoggedTunableNumber.ifChanged(
             hashCode(),

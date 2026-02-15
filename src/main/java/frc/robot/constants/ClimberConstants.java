@@ -52,12 +52,12 @@ public class ClimberConstants {
 
   public final Distance climberToMechanismRatio = Meters.of(0.005); // TODO: Find real value
 
-  public Double climberKP = 0.0; // TODO: Tune these
-  public Double climberKI = 0.0;
-  public Double climberKD = 0.0;
+  public Double climberKP = 500.0; // TODO: Tune these
+  public Double climberKI = 50.0;
+  public Double climberKD = 50.0;
   public Double climberKS = 0.0;
   public Double climberKV = 0.0;
-  public Double climberKG = 0.0;
+  public Double climberKG = 0.2;
   public Double climberKA = 0.0;
 
   public Double climberExpoKV = 2.0;
