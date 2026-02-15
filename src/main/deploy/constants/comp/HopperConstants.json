@@ -9,14 +9,6 @@
     "value": 3.0,
     "unit": "Radian per Second"
   },
-  "spinningMaxUnmovingTime": {
-    "value": 5.0,
-    "unit": "Second"
-  },
-  "spinningMaxOverallTime": {
-    "value": 10.0,
-    "unit": "Second"
-  },
   "hopperKP": 16.0,
   "hopperKI": 0.0,
   "hopperKD": 0.0,
