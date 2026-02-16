@@ -1,18 +1,18 @@
 package frc.robot.subsystems.drive.states;
 
-import coppercore.wpilib_interface.DriveWithJoysticks;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.util.CommandState;
+import coppercore.controls.state_machine.State;
+import coppercore.controls.state_machine.StateMachine;
+import frc.robot.subsystems.drive.DriveCoordinator;
 
-public class DriveWithJoysticksState extends CommandState<Drive> {
+public class DriveWithJoysticksState extends State<DriveCoordinator> {
 
   // This is to allow subclasses (DriveTestModeState) to set the name
-
-  protected DriveWithJoysticksState(String name, DriveWithJoysticks driveCommand) {
-    super(name, driveCommand);
+  public DriveWithJoysticksState() {
+    super("DriveWithJoysticks");
   }
 
-  public DriveWithJoysticksState(DriveWithJoysticks driveCommand) {
-    this("DriveWithJoysticks", driveCommand);
+  @Override
+  protected void periodic(StateMachine<DriveCoordinator> stateMachine, DriveCoordinator world) {
+    world.setControlMethod(world.JOYSTICK_DRIVE);
   }
 }

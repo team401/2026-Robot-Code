@@ -32,7 +32,7 @@ public class ControllerSetup {
    */
   public static void initDriveBindings(DriveCoordinator driveCoordinator, Drive drive) {
     var controllers = getControllers();
-    driveCoordinator.createStateMachine(
+    driveCoordinator.initializeJoyStickDriveControl(
         new DriveWithJoysticks(
             drive,
             controllers.getAxis("driveX").getSupplier(),
@@ -51,13 +51,12 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.setLinearTargetPose(targetPose);
-                  driveCoordinator.setDriveAction(DriveAction.LinearDriveToPose);
+                  driveCoordinator.tryToLinearDriveToPose(targetPose);
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
+                  driveCoordinator.setDriveTargetAction(DriveAction.DriveWithJoysticks);
                 }));
   }
 
