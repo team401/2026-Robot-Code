@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.util.AllianceUtil;
 
@@ -36,5 +37,17 @@ public class FieldLocations {
     return AllianceUtil.isRed()
         ? JsonConstants.redFieldLocations.rightPassingTarget
         : JsonConstants.blueFieldLocations.rightPassingTarget;
+  }
+
+  public static Pose2d leftClimbLocation() {
+    return AllianceUtil.isRed()
+        ? JsonConstants.redFieldLocations.leftClimbLocation
+        : JsonConstants.blueFieldLocations.leftClimbLocation;
+  }
+
+  public static Pose2d rightClimbLocation() {
+    return AllianceUtil.isRed()
+        ? JsonConstants.redFieldLocations.rightClimbLocation
+        : JsonConstants.blueFieldLocations.rightClimbLocation;
   }
 }

@@ -5,14 +5,12 @@ import frc.robot.subsystems.drive.Drive;
 // This control method is used to disable the drive
 public class DisabledDrive extends DriveControlMethod {
 
+  public DisabledDrive(Drive drive) {
+    super(drive);
+  }
 
-    public DisabledDrive(Drive drive) {
-        super(drive);
-    }
-
-    @Override
-    protected void _periodic() {
-        drive.stop();
-    }
-
+  @Override
+  protected void _periodic() {
+    drive.stop();
+  }
 }

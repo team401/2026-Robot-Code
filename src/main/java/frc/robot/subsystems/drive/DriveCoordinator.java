@@ -10,10 +10,10 @@ import frc.robot.subsystems.drive.control_methods.DriveControlMethod;
 import frc.robot.subsystems.drive.control_methods.JoystickDrive;
 import frc.robot.subsystems.drive.control_methods.LinearDrive;
 import frc.robot.subsystems.drive.states.DriveTestModeState;
+import frc.robot.subsystems.drive.states.DriveToClimbState;
 import frc.robot.subsystems.drive.states.DriveWithJoysticksState;
 import frc.robot.subsystems.drive.states.DrivingLinearPathState;
 import frc.robot.util.TestModeManager;
-
 import org.littletonrobotics.junction.Logger;
 
 // Copilot used to help write this class
@@ -25,7 +25,13 @@ public class DriveCoordinator extends SubsystemBase {
 
   public enum DriveAction {
     DriveWithJoysticks,
-    DriveLinearPath
+    DriveLinearPath,
+    DriveToClimb
+  }
+
+  public enum ClimbLocations {
+    LeftClimbLocation,
+    RightClimbLocation
   }
 
   public DriveControlMethod DISABLED_DRIVE;
@@ -43,7 +49,7 @@ public class DriveCoordinator extends SubsystemBase {
     }
     currentControlMethod = controlMethod;
     if (currentControlMethod != null) {
-        currentControlMethod.activateControl();
+      currentControlMethod.activateControl();
     }
   }
 
@@ -53,6 +59,7 @@ public class DriveCoordinator extends SubsystemBase {
   private DriveWithJoysticksState driveWithJoysticksState;
   private DrivingLinearPathState linearDriveToPoseState;
   private DriveTestModeState testModeState;
+  private DriveToClimbState driveToClimbState;
   static final TestModeManager<TestMode> testModeManager =
       new TestModeManager<>("Drive", TestMode.class);
 
@@ -61,6 +68,7 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   public DriveAction targetAction = DriveAction.DriveWithJoysticks;
+
   /** Current Action being null means its outside of normal operation such as Test Mode */
   public DriveAction currentAction = DriveAction.DriveWithJoysticks;
 
@@ -71,7 +79,8 @@ public class DriveCoordinator extends SubsystemBase {
 
     DISABLED_DRIVE = new DisabledDrive(drive);
     LINEAR_DRIVE = new LinearDrive(drive);
-    JOYSTICK_DRIVE = DISABLED_DRIVE; // Initialize to disabled drive until joystick drive is initialized
+    JOYSTICK_DRIVE =
+        DISABLED_DRIVE; // Initialize to disabled drive until joystick drive is initialized
 
     setControlMethod(DISABLED_DRIVE);
 
@@ -80,6 +89,7 @@ public class DriveCoordinator extends SubsystemBase {
     linearDriveToPoseState = driveStateMachine.registerState(new DrivingLinearPathState());
     driveWithJoysticksState = driveStateMachine.registerState(new DriveWithJoysticksState());
     testModeState = driveStateMachine.registerState(new DriveTestModeState());
+    driveToClimbState = driveStateMachine.registerState(new DriveToClimbState());
 
     driveWithJoysticksState.whenRequestedTransitionTo(linearDriveToPoseState);
     driveWithJoysticksState
@@ -88,6 +98,10 @@ public class DriveCoordinator extends SubsystemBase {
 
     linearDriveToPoseState.whenRequestedTransitionTo(driveWithJoysticksState);
     linearDriveToPoseState.whenFinished().transitionTo(driveWithJoysticksState);
+
+    linearDriveToPoseState.whenRequestedTransitionTo(driveWithJoysticksState);
+    // TODO: add more climb states for more precise climb line up
+    driveToClimbState.whenFinished().transitionTo(driveWithJoysticksState);
 
     testModeState.whenFinished("No Drive Test Mode Active").transitionTo(driveWithJoysticksState);
 
@@ -102,7 +116,8 @@ public class DriveCoordinator extends SubsystemBase {
 
   public void setLinearDriveTarget(Pose2d pose) {
     Logger.recordOutput("driveCoordinator/linearTarget", pose);
-    linearDriveToPoseState.setCommand(driveStateMachine, this, new LinearDrive.LinearDriveCommand(pose));
+    linearDriveToPoseState.setCommand(
+        driveStateMachine, this, new LinearDrive.LinearDriveCommand(pose));
   }
 
   public void tryToLinearDriveToPose(Pose2d pose) {
@@ -112,6 +127,11 @@ public class DriveCoordinator extends SubsystemBase {
 
   public void setDriveTargetAction(DriveAction action) {
     targetAction = action;
+  }
+
+  public void tryToDriveToClimbLocation(ClimbLocations climbLocation) {
+    driveToClimbState.setClimbLocation(climbLocation);
+    setDriveTargetAction(DriveAction.DriveToClimb);
   }
 
   @Override
@@ -124,6 +144,9 @@ public class DriveCoordinator extends SubsystemBase {
           break;
         case DriveLinearPath:
           driveStateMachine.requestState(linearDriveToPoseState);
+          break;
+        case DriveToClimb:
+          driveStateMachine.requestState(driveToClimbState);
           break;
       }
     }

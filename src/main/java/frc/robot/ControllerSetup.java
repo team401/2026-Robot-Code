@@ -43,10 +43,25 @@ public class ControllerSetup {
             JsonConstants.driveConstants.joystickDeadband, // type: double
             JsonConstants.driveConstants.joystickMagnitudeExponent));
 
-    Pose2d targetPose = new Pose2d(14.968, 3.9, new Rotation2d(Math.toRadians(-90.0)));
-
     controllers
         .getButton("testClimbDrive")
+        .getTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.tryToDriveToClimbLocation(
+                      DriveCoordinator.ClimbLocations.LeftClimbLocation);
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.setDriveTargetAction(DriveAction.DriveWithJoysticks);
+                }));
+
+    Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
+
+    controllers
+        .getButton("testGoToAllianceCenter")
         .getTrigger()
         .onTrue(
             new InstantCommand(

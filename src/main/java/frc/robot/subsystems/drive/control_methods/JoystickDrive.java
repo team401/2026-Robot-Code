@@ -4,27 +4,26 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import frc.robot.subsystems.drive.Drive;
 
 public class JoystickDrive extends DriveControlMethod {
-    
-    private DriveWithJoysticks command;
 
-    public JoystickDrive(Drive drive, DriveWithJoysticks command) {
-        super(drive, true);
-        this.command = command;
-    }
+  private DriveWithJoysticks command;
 
-    @Override
-    public void activateControl() {
-        command.initialize();
-    }
+  public JoystickDrive(Drive drive, DriveWithJoysticks command) {
+    super(drive, true);
+    this.command = command;
+  }
 
-    @Override
-    protected void _periodic() {
-        command.execute();
-    }
+  @Override
+  public void activateControl() {
+    command.initialize();
+  }
 
-    @Override
-    public void deactivateControl() {
-        command.end(false);
-    }
+  @Override
+  protected void _periodic() {
+    command.execute();
+  }
 
+  @Override
+  public void deactivateControl() {
+    command.end(false);
+  }
 }

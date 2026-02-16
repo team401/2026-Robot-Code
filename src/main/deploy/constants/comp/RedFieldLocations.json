@@ -8,5 +8,23 @@
     "x": 0.0,
     "y": 0.0,
     "z": 0.0
+  },
+  "leftClimbLocation": {
+    "rotation": {
+      "radians": -1.57079
+    },
+    "translation": {
+      "x": 14.968,
+      "y": 3.9
+    }
+  },
+  "rightClimbLocation": {
+    "rotation": {
+      "radians": 0.0
+    },
+    "translation": {
+      "x": 0.0,
+      "y": 0.0
+    }
   }
 }
