@@ -7,6 +7,7 @@ package frc.robot.constants;
  * enabled/disabled subsystems without crashes.
  */
 public class FeatureFlags {
+  public final Boolean runClimber = true;
   public final Boolean runDrive = true;
   public final Boolean useMAPoseEstimator = true;
   public final Boolean runVision = true;
