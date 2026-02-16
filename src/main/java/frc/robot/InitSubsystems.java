@@ -105,27 +105,27 @@ public class InitSubsystems {
           cameraConfigs =
               new CameraConfig[] {
                 CameraConfig.mobile(
+                    new VisionIOPhotonReal(visionConstants.camera0Name),
+                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                CameraConfig.mobile(
                     new VisionIOPhotonReal(visionConstants.camera1Name),
                     (_ignored) -> Optional.of(visionConstants.camera1Transform)),
                 CameraConfig.mobile(
                     new VisionIOPhotonReal(visionConstants.camera2Name),
-                    (_ignored) -> Optional.of(visionConstants.camera2Transform)),
-                CameraConfig.mobile(
-                    new VisionIOPhotonReal(visionConstants.camera3Name),
-                    (_ignored) -> Optional.of(visionConstants.camera3Transform))
+                    (_ignored) -> Optional.of(visionConstants.camera2Transform))
               };
         } else {
           cameraConfigs =
               new CameraConfig[] {
                 CameraConfig.fixed(
+                    new VisionIOPhotonReal(visionConstants.camera0Name),
+                    visionConstants.camera0Transform),
+                CameraConfig.fixed(
                     new VisionIOPhotonReal(visionConstants.camera1Name),
                     visionConstants.camera1Transform),
                 CameraConfig.fixed(
                     new VisionIOPhotonReal(visionConstants.camera2Name),
-                    visionConstants.camera2Transform),
-                CameraConfig.fixed(
-                    new VisionIOPhotonReal(visionConstants.camera3Name),
-                    visionConstants.camera3Transform)
+                    visionConstants.camera2Transform)
               };
         }
         return new VisionLocalizer(
@@ -137,6 +137,12 @@ public class InitSubsystems {
               new CameraConfig[] {
                 CameraConfig.mobile(
                     new VisionIOPhotonSim(
+                        visionConstants.camera0Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.MOBILE),
+                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonSim(
                         visionConstants.camera1Name,
                         drive::getPose,
                         VisionLocalizer.CameraType.MOBILE),
@@ -146,17 +152,17 @@ public class InitSubsystems {
                         visionConstants.camera2Name,
                         drive::getPose,
                         VisionLocalizer.CameraType.MOBILE),
-                    (_ignored) -> Optional.of(visionConstants.camera2Transform)),
-                CameraConfig.mobile(
-                    new VisionIOPhotonSim(
-                        visionConstants.camera3Name,
-                        drive::getPose,
-                        VisionLocalizer.CameraType.MOBILE),
-                    (_ignored) -> Optional.of(visionConstants.camera3Transform))
+                    (_ignored) -> Optional.of(visionConstants.camera2Transform))
               };
         } else {
           cameraConfigs =
               new CameraConfig[] {
+                CameraConfig.fixed(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera0Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.FIXED),
+                    visionConstants.camera0Transform),
                 CameraConfig.fixed(
                     new VisionIOPhotonSim(
                         visionConstants.camera1Name,
@@ -168,13 +174,7 @@ public class InitSubsystems {
                         visionConstants.camera2Name,
                         drive::getPose,
                         VisionLocalizer.CameraType.FIXED),
-                    visionConstants.camera2Transform),
-                CameraConfig.fixed(
-                    new VisionIOPhotonSim(
-                        visionConstants.camera3Name,
-                        drive::getPose,
-                        VisionLocalizer.CameraType.FIXED),
-                    visionConstants.camera3Transform)
+                    visionConstants.camera2Transform)
               };
         }
         return new VisionLocalizer(

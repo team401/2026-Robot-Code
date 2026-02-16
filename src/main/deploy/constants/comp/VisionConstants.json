@@ -7,9 +7,9 @@
     "maxSingleTagAmbiguity": 0.3,
     "maxAmbiguity": 0.3
   },
-  "camera1Index": 0,
-  "camera1Name": "FrontRight",
-  "camera1Transform": {
+  "camera0Index": 0,
+  "camera0Name": "FrontRight",
+  "camera0Transform": {
     "rotation": {
       "roll": 0.0,
       "pitch": 0.3491,
@@ -21,9 +21,9 @@
       "z": 0.2091
     }
   },
-  "camera2Index": 1,
-  "camera2Name": "BackRight",
-  "camera2Transform": {
+  "camera1Index": 1,
+  "camera1Name": "BackRight",
+  "camera1Transform": {
     "rotation": {
       "roll": 0.0,
       "pitch": 0.3491,
@@ -35,9 +35,9 @@
       "z": 0.2091
     }
   },
-  "camera3Index": 2,
-  "camera3Name": "BackLeft",
-  "camera3Transform": {
+  "camera2Index": 2,
+  "camera2Name": "BackLeft",
+  "camera2Transform": {
     "rotation": {
       "roll": 0.0,
       "pitch": 0.3491,
