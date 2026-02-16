@@ -69,13 +69,10 @@ public class DriveCoordinator extends SubsystemBase {
 
   public DriveAction targetAction = DriveAction.DriveWithJoysticks;
 
-  /** Current Action being null means its outside of normal operation such as Test Mode */
-  public DriveAction currentAction = DriveAction.DriveWithJoysticks;
-
   public DriveCoordinator(Drive drive) {
     this.drive = drive;
-    drive.setDriveGains(JsonConstants.driveConstants.driveGains);
-    drive.setSteerGains(JsonConstants.driveConstants.steerGains);
+    // drive.setDriveGains(JsonConstants.driveConstants.driveGains);
+    // drive.setSteerGains(JsonConstants.driveConstants.steerGains);
 
     DISABLED_DRIVE = new DisabledDrive(drive);
     LINEAR_DRIVE = new LinearDrive(drive);
@@ -91,23 +88,36 @@ public class DriveCoordinator extends SubsystemBase {
     testModeState = driveStateMachine.registerState(new DriveTestModeState());
     driveToClimbState = driveStateMachine.registerState(new DriveToClimbState());
 
-    driveWithJoysticksState.whenRequestedTransitionTo(linearDriveToPoseState);
+    // TODO: Decide if we really want to use dedicated transitions for drive or just use setState
+
+    // Test Mode Transitions
+    // TODO: Decide if we want to move test mode to not be a state
+    testModeState.whenFinished("No Drive Test Mode Active").transitionTo(driveWithJoysticksState);
+    driveWithJoysticksState
+        .when(testModeManager::isInTestMode, "drive test mode active")
+        .transitionTo(testModeState);
+    driveToClimbState
+      .when(testModeManager::isInTestMode, "drive test mode active")
+      .transitionTo(testModeState);
     driveWithJoysticksState
         .when(testModeManager::isInTestMode, "drive test mode active")
         .transitionTo(testModeState);
 
+
+    driveWithJoysticksState.whenRequestedTransitionTo(linearDriveToPoseState);
+    driveWithJoysticksState.whenRequestedTransitionTo(driveToClimbState);
+    
+
     linearDriveToPoseState.whenRequestedTransitionTo(driveWithJoysticksState);
+    linearDriveToPoseState.whenRequestedTransitionTo(driveToClimbState);
     linearDriveToPoseState.whenFinished().transitionTo(driveWithJoysticksState);
 
-    linearDriveToPoseState.whenRequestedTransitionTo(driveWithJoysticksState);
+    driveToClimbState.whenRequestedTransitionTo(driveWithJoysticksState);
+    driveToClimbState.whenRequestedTransitionTo(linearDriveToPoseState);
     // TODO: add more climb states for more precise climb line up
     driveToClimbState.whenFinished().transitionTo(driveWithJoysticksState);
-
-    testModeState.whenFinished("No Drive Test Mode Active").transitionTo(driveWithJoysticksState);
-
     driveStateMachine.setState(driveWithJoysticksState);
     targetAction = DriveAction.DriveWithJoysticks;
-    currentAction = DriveAction.DriveWithJoysticks;
   }
 
   public void initializeJoyStickDriveControl(DriveWithJoysticks command) {
@@ -115,7 +125,7 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   public void setLinearDriveTarget(Pose2d pose) {
-    Logger.recordOutput("driveCoordinator/linearTarget", pose);
+    Logger.recordOutput("DriveCoordinator/linearTarget", pose);
     linearDriveToPoseState.setCommand(
         driveStateMachine, this, new LinearDrive.LinearDriveCommand(pose));
   }
@@ -137,18 +147,16 @@ public class DriveCoordinator extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (currentAction != null && currentAction != targetAction) {
-      switch (targetAction) {
-        case DriveWithJoysticks:
-          driveStateMachine.requestState(driveWithJoysticksState);
-          break;
-        case DriveLinearPath:
-          driveStateMachine.requestState(linearDriveToPoseState);
-          break;
-        case DriveToClimb:
-          driveStateMachine.requestState(driveToClimbState);
-          break;
-      }
+    switch (targetAction) {
+      case DriveWithJoysticks:
+        driveStateMachine.requestState(driveWithJoysticksState);
+        break;
+      case DriveLinearPath:
+        driveStateMachine.requestState(linearDriveToPoseState);
+        break;
+      case DriveToClimb:
+        driveStateMachine.requestState(driveToClimbState);
+        break;
     }
 
     driveStateMachine.periodic();
@@ -157,6 +165,25 @@ public class DriveCoordinator extends SubsystemBase {
       currentControlMethod.periodic();
     }
 
-    Logger.recordOutput("driveCoordinator/state", driveStateMachine.getCurrentState().getName());
+    Logger.recordOutput("DriveCoordinator/targetAction", targetAction);
+    Logger.recordOutput(
+        "DriveCoordinator/Command/name",
+        currentControlMethod == null ? "None" : currentControlMethod.getName());
+    Logger.recordOutput("DriveCoordinator/state", driveStateMachine.getCurrentState().getName());
+  }
+
+
+
+  // These exist so that if a seperate drive action was requested, but a state finishes it properly updates
+  // the target action
+
+  public void stateFinishAction(DriveAction stateAction) {
+    stateNextAction(stateAction, DriveAction.DriveWithJoysticks);
+  }
+
+  public void stateNextAction(DriveAction stateAction, DriveAction nextAction) {
+    if (targetAction == stateAction) {
+      targetAction = nextAction;
+    }
   }
 }

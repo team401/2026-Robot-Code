@@ -42,6 +42,7 @@ public class DriveToClimbState extends State<DriveCoordinator> {
     world.setControlMethod(world.LINEAR_DRIVE);
     if (world.LINEAR_DRIVE.isFinished()) {
       finish();
+      world.stateFinishAction(DriveCoordinator.DriveAction.DriveToClimb);
     }
   }
 }

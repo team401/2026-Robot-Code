@@ -6,16 +6,22 @@ import org.littletonrobotics.junction.Logger;
 
 public abstract class DriveControlMethod {
 
+  public final String name;
   protected final Drive drive;
   private final boolean requiresEnabled;
 
-  public DriveControlMethod(Drive drive) {
-    this(drive, true);
+  public String getName() {
+    return name;
   }
 
-  public DriveControlMethod(Drive drive, boolean requiresEnabled) {
+  public DriveControlMethod(Drive drive, String name) {
+    this(drive, name, true);
+  }
+
+  public DriveControlMethod(Drive drive, String name, boolean requiresEnabled) {
     this.drive = drive;
     this.requiresEnabled = requiresEnabled;
+    this.name = name;
   }
 
   /**

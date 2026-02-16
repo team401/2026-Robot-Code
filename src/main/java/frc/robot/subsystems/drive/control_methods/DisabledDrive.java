@@ -6,7 +6,7 @@ import frc.robot.subsystems.drive.Drive;
 public class DisabledDrive extends DriveControlMethod {
 
   public DisabledDrive(Drive drive) {
-    super(drive);
+    super(drive, "DisabledDrive");
   }
 
   @Override

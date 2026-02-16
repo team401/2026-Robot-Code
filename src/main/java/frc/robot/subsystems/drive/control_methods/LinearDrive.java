@@ -67,7 +67,7 @@ public class LinearDrive extends DriveControlMethod {
   protected AdjustableLinearPath linearPath;
 
   public LinearDrive(Drive drive) {
-    super(drive, false);
+    super(drive, "LinearDrive", true);
     this.command = null;
     this.linearPath =
         new AdjustableLinearPath(

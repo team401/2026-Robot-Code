@@ -30,11 +30,13 @@ public class DrivingLinearPathState extends State<DriveCoordinator> {
     world.setControlMethod(world.LINEAR_DRIVE);
     if (world.LINEAR_DRIVE.isFinished()) {
       finish();
+      world.stateFinishAction(DriveCoordinator.DriveAction.DriveLinearPath);
     }
   }
 
   @Override
   protected void onExit(StateMachine<DriveCoordinator> stateMachine, DriveCoordinator world) {
     world.LINEAR_DRIVE.clearCommand();
+    world.targetAction = null;
   }
 }
