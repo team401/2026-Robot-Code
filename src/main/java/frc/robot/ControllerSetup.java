@@ -43,6 +43,8 @@ public class ControllerSetup {
             JsonConstants.driveConstants.joystickDeadband, // type: double
             JsonConstants.driveConstants.joystickMagnitudeExponent));
 
+    // Sample climb pose; This should be moved to a constants file (see #34) but it's located on the
+    // red side of the field against the left upright of the tower.
     Pose2d targetPose = new Pose2d(14.968, 3.9, new Rotation2d(Math.toRadians(-90.0)));
 
     controllers
