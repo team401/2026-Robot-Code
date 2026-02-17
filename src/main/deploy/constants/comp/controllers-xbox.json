@@ -139,7 +139,7 @@
       },
       "controlElements": [
         {
-          "command": "operatorStowIntake",
+          "command": "operatorToggleIntakeDeploy",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
