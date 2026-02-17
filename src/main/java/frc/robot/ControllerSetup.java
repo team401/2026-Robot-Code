@@ -4,11 +4,13 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinator.DriveAction;
+import frc.robot.subsystems.drive.control_methods.LinearDrive;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
@@ -59,6 +61,10 @@ public class ControllerSetup {
                 }));
 
     Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
+    ChassisSpeeds targetSpeeds = new ChassisSpeeds(0, 0, 5); // type: ChassisSpeeds
+
+    LinearDrive.LinearDriveCommand linearDriveCommand =
+        new LinearDrive.LinearDriveCommand(targetPose, targetSpeeds);
 
     controllers
         .getButton("testGoToAllianceCenter")
@@ -66,7 +72,7 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.linearDriveToPose(targetPose);
+                  driveCoordinator.followLinearDriveCommand(linearDriveCommand);
                 }))
         .onFalse(
             new InstantCommand(

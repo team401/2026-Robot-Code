@@ -17,10 +17,13 @@ public class DrivingLinearPathState extends State<DriveCoordinator> {
     super(name);
   }
 
-  // This should only be called by the DriveCoordinator when it wants to set the command for this state
-  // before it enters this state, or by a subclass of this state that wants to update the command based
-  // before the onEntry method is called. If this is called while we're already in this state 
-  // then it will not update the command until we exit and re-enter this state, so it should not be called 
+  // This should only be called by the DriveCoordinator when it wants to set the command for this
+  // state
+  // before it enters this state, or by a subclass of this state that wants to update the command
+  // based
+  // before the onEntry method is called. If this is called while we're already in this state
+  // then it will not update the command until we exit and re-enter this state, so it should not be
+  // called
   // by any code that is trying to update the command while we're already in this state.
   public void setCommand(LinearDrive.LinearDriveCommand command) {
     this.command = command;

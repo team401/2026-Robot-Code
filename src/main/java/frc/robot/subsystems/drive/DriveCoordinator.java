@@ -76,8 +76,7 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   // Test Mode
-  final TestModeManager<TestMode> testModeManager =
-      new TestModeManager<>("Drive", TestMode.class);
+  final TestModeManager<TestMode> testModeManager = new TestModeManager<>("Drive", TestMode.class);
 
   LoggedTunablePIDGains steerGains;
   LoggedTunablePIDGains driveGains;
@@ -85,10 +84,12 @@ public class DriveCoordinator extends SubsystemBase {
   public void initializeTestMode() {
     steerGains =
         new LoggedTunablePIDGains(
-            "DriveCoordinatorTunables/SteerGains", JsonConstants.driveConstants.steerGains.asArray());
+            "DriveCoordinatorTunables/SteerGains",
+            JsonConstants.driveConstants.steerGains.asArray());
     driveGains =
         new LoggedTunablePIDGains(
-            "DriveCoordinatorTunables/DriveGains", JsonConstants.driveConstants.driveGains.asArray());
+            "DriveCoordinatorTunables/DriveGains",
+            JsonConstants.driveConstants.driveGains.asArray());
   }
 
   public DriveCoordinator(Drive drive) {
@@ -129,6 +130,11 @@ public class DriveCoordinator extends SubsystemBase {
     setDriveAction(DriveAction.DriveLinearPath);
   }
 
+  public void followLinearDriveCommand(LinearDrive.LinearDriveCommand command) {
+    linearDriveToPoseState.setCommand(command);
+    setDriveAction(DriveAction.DriveLinearPath);
+  }
+
   public void driveToClimbLocation(ClimbLocations climbLocation) {
     driveToClimbState.setClimbLocation(climbLocation);
     setDriveAction(DriveAction.DriveToClimb);
@@ -143,12 +149,14 @@ public class DriveCoordinator extends SubsystemBase {
 
     driveStateMachine.periodic();
 
-    // There should always be a current control method, but just in case, we can check for null before calling periodic on it
+    // There should always be a current control method, but just in case, we can check for null
+    // before calling periodic on it
     if (currentControlMethod != null) {
       currentControlMethod.periodic();
     }
 
-    // There should always be a current control method, but just in case, we can log "None" if there isn't one
+    // There should always be a current control method, but just in case, we can log "None" if there
+    // isn't one
     Logger.recordOutput(
         "DriveCoordinator/currentControlMethod",
         currentControlMethod == null ? "None" : currentControlMethod.getName());

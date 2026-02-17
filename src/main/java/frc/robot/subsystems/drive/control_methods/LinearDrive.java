@@ -29,6 +29,10 @@ public class LinearDrive extends DriveControlMethod {
       this(goalPose, new ChassisSpeeds(), LinearDriveProfileConfig.fromJSON());
     }
 
+    public LinearDriveCommand(Pose2d goalPose, ChassisSpeeds goalEndSpeedFieldRelative) {
+      this(goalPose, goalEndSpeedFieldRelative, LinearDriveProfileConfig.fromJSON());
+    }
+
     public LinearDriveCommand(
         Pose2d goalPose,
         ChassisSpeeds goalEndSpeedFieldRelative,

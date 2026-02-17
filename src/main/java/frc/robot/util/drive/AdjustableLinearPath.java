@@ -9,6 +9,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 // Mostly Copied from com.ctre.phoenix6.swerve.utility.LinearPath
 
+// TODO: Figure out how to make it care about direction of speed at the end of the path.
+
 public class AdjustableLinearPath {
   public static class State {
     public Pose2d pose;
