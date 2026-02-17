@@ -115,6 +115,16 @@
             "elementType": "button",
             "id": "a"
           }
+        },
+        {
+          "command": "stowHood",
+          "commandType": "button",
+          "threshold": 180,
+          "thresholdRange": 91,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
         }
       ]
     },
@@ -131,31 +141,54 @@
         {
           "command": "operatorStowIntake",
           "commandType": "button",
-          "threshold": 180,
-          "thresholdRange": 91,
-          "hapticControlElement": {
-            "elementType": "pov",
-            "id": 0
-          }
-        },
-        {
-          "command": "operatorRedWonAuto",
-          "commandType": "button",
-          "hapticControlElement": {
-            "elementType": "button",
-            "id": "leftBumper"
-          }
-        },
-        {
-          "command": "operatorBlueWonAuto",
-          "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
             "id": "rightBumper"
           }
         },
         {
-          "command": "operatorDisableAutonomy",
+          "command": "operatorStowHood",
+          "commandType": "button",
+          "threshold": 0.5,
+          "hapticControlElement": {
+            "elementType": "axis",
+            "id": "rightTrigger"
+          }
+        },
+        {
+          "command": "operatorWonAuto1",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topRightPaddle"
+          }
+        },
+        {
+          "command": "operatorWonAuto2",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomRightPaddle"
+          }
+        },
+        {
+          "command": "operatorLostAuto1",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topLeftPaddle"
+          }
+        },
+        {
+          "command": "operatorLostAuto2",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomLeftPaddle"
+          }
+        },
+        {
+          "command": "operatorStartShooting",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -163,11 +196,55 @@
           }
         },
         {
-          "command": "operatorEnableAutonomy",
+          "command": "operatorForceShoot",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "y"
+          }
+        },
+        {
+          "command": "operatorStopShooting",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
             "id": "a"
+          }
+        },
+        {
+          "command": "operatorEnterHubMode",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "axis",
+            "id": "leftTrigger"
+          }
+        },
+        {
+          "command": "operatorEnterPassMode",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "leftBumper"
+          }
+        },
+        {
+          "command": "operatorEnableAutonomy",
+          "commandType": "button",
+          "threshold": 0,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "operatorDisableAutonomy",
+          "commandType": "button",
+          "threshold": 180,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
           }
         }
       ]

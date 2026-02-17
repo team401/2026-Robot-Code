@@ -212,7 +212,7 @@ public class CoordinationLayer {
                 () -> {
                   autonomyLevel = AutonomyLevel.Smart;
                 }));
-    
+
     // Operator controller:
     makeTriggerFromButton(controllers.getButton("operatorStowIntake"))
         .whileTrue(
@@ -222,7 +222,7 @@ public class CoordinationLayer {
                     goalExtensionState = ExtensionState.None;
                   }
                 }));
-  
+
     // TODO: Add bindings for red/blue winning auto
 
     makeTriggerFromButton(controllers.getButton("operatorDisableAutonomy"))
@@ -238,7 +238,7 @@ public class CoordinationLayer {
                 () -> {
                   autonomyLevel = AutonomyLevel.Smart;
                 }));
-    
+
     // TODO: Discuss with operator to choose the rest of the binds
   }
 
