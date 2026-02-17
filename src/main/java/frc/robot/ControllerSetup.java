@@ -61,7 +61,7 @@ public class ControllerSetup {
                 }));
 
     Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
-    ChassisSpeeds targetSpeeds = new ChassisSpeeds(0, 0, 5); // type: ChassisSpeeds
+    ChassisSpeeds targetSpeeds = new ChassisSpeeds(0, 3, 0); // type: ChassisSpeeds
 
     LinearDrive.LinearDriveCommand linearDriveCommand =
         new LinearDrive.LinearDriveCommand(targetPose, targetSpeeds);

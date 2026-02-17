@@ -81,6 +81,7 @@ public class AdjustableLinearPath {
         this.heading = Rotation2d.kZero;
       }
 
+      // The problem is probably right here
       final var linearGoalSpeed = calculateVelocityAtHeading(goal.speeds, this.heading);
 
       this.linearGoal = new TrapezoidProfile.State(distance, linearGoalSpeed);
