@@ -110,11 +110,6 @@ public class DriveCoordinator extends SubsystemBase {
     driveStateMachine.setState(driveWithJoysticksState);
   }
 
-  public void setLinearDriveTarget(Pose2d pose) {
-    linearDriveToPoseState.setCommand(
-        driveStateMachine, this, new LinearDrive.LinearDriveCommand(pose));
-  }
-
   public void setDriveAction(DriveAction action) {
     switch (action) {
       case DriveWithJoysticks:
@@ -130,7 +125,7 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   public void linearDriveToPose(Pose2d pose) {
-    setLinearDriveTarget(pose);
+    linearDriveToPoseState.setCommand(new LinearDrive.LinearDriveCommand(pose));
     setDriveAction(DriveAction.DriveLinearPath);
   }
 
@@ -148,10 +143,12 @@ public class DriveCoordinator extends SubsystemBase {
 
     driveStateMachine.periodic();
 
+    // There should always be a current control method, but just in case, we can check for null before calling periodic on it
     if (currentControlMethod != null) {
       currentControlMethod.periodic();
     }
 
+    // There should always be a current control method, but just in case, we can log "None" if there isn't one
     Logger.recordOutput(
         "DriveCoordinator/currentControlMethod",
         currentControlMethod == null ? "None" : currentControlMethod.getName());

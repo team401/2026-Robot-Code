@@ -9,15 +9,21 @@ public class DrivingLinearPathState extends State<DriveCoordinator> {
 
   protected LinearDrive.LinearDriveCommand command;
 
-  public void setCommand(
-      StateMachine<DriveCoordinator> stateMachine,
-      DriveCoordinator world,
-      LinearDrive.LinearDriveCommand command) {
+  public DrivingLinearPathState() {
+    super("DrivingLinearPath");
+  }
+
+  public DrivingLinearPathState(String name) {
+    super(name);
+  }
+
+  // This should only be called by the DriveCoordinator when it wants to set the command for this state
+  // before it enters this state, or by a subclass of this state that wants to update the command based
+  // before the onEntry method is called. If this is called while we're already in this state 
+  // then it will not update the command until we exit and re-enter this state, so it should not be called 
+  // by any code that is trying to update the command while we're already in this state.
+  public void setCommand(LinearDrive.LinearDriveCommand command) {
     this.command = command;
-    if (stateMachine.getCurrentState() == this) {
-      // If we're currently in this state, update the command immediately
-      world.LINEAR_DRIVE.setCommand(command);
-    }
   }
 
   @Override

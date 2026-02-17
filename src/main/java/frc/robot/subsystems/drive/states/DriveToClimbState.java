@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive.states;
 
+import org.littletonrobotics.junction.Logger;
+
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -8,17 +10,10 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.drive.control_methods.LinearDrive.LinearDriveCommand;
 
-public class DriveToClimbState extends State<DriveCoordinator> {
-
-  private ClimbLocations climbLocation =
-      ClimbLocations.LeftClimbLocation; // Default to left climb location if not set
+public class DriveToClimbState extends DrivingLinearPathState {
 
   public DriveToClimbState() {
     super("DriveToClimb");
-  }
-
-  public void setClimbLocation(ClimbLocations climbLocation) {
-    this.climbLocation = climbLocation;
   }
 
   public LinearDriveCommand getClimbApproachCommand(ClimbLocations climbLocation) {
@@ -32,16 +27,12 @@ public class DriveToClimbState extends State<DriveCoordinator> {
     return new LinearDriveCommand(targetPose);
   }
 
-  @Override
-  public void onEntry(StateMachine<DriveCoordinator> stateMachine, DriveCoordinator world) {
-    world.LINEAR_DRIVE.setCommand(getClimbApproachCommand(climbLocation));
+  // This should only be called right before we enter this state to set which climb location
+  // we want to drive to, and it should not be called while we're already in this state, 
+  // because it will not update the command until we exit and re-enter this state
+  public void setClimbLocation(ClimbLocations climbLocation) {
+    Logger.recordOutput("DriveCoordinator/DriveToClimb/ClimbLocation", climbLocation);
+    setCommand(getClimbApproachCommand(climbLocation));
   }
-
-  @Override
-  protected void periodic(StateMachine<DriveCoordinator> stateMachine, DriveCoordinator world) {
-    world.setControlMethod(world.LINEAR_DRIVE);
-    if (world.LINEAR_DRIVE.isFinished()) {
-      finish();
-    }
-  }
+  
 }
