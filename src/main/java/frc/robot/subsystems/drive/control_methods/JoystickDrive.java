@@ -7,8 +7,8 @@ public class JoystickDrive extends DriveControlMethod {
 
   private DriveWithJoysticks command;
 
-  public JoystickDrive(Drive drive, DriveWithJoysticks command) {
-    super(drive, "JoystickDrive", true);
+  public JoystickDrive(Drive drive, DriveWithJoysticks command, String logPrefix) {
+    super(drive, logPrefix, "JoystickDrive");
     this.command = command;
   }
 

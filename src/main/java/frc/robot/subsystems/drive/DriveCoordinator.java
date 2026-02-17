@@ -9,10 +9,10 @@ import frc.robot.subsystems.drive.control_methods.DisabledDrive;
 import frc.robot.subsystems.drive.control_methods.DriveControlMethod;
 import frc.robot.subsystems.drive.control_methods.JoystickDrive;
 import frc.robot.subsystems.drive.control_methods.LinearDrive;
-import frc.robot.subsystems.drive.states.DriveTestModeState;
 import frc.robot.subsystems.drive.states.DriveToClimbState;
 import frc.robot.subsystems.drive.states.DriveWithJoysticksState;
 import frc.robot.subsystems.drive.states.DrivingLinearPathState;
+import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -34,6 +34,13 @@ public class DriveCoordinator extends SubsystemBase {
     RightClimbLocation
   }
 
+  StateMachine<DriveCoordinator> driveStateMachine;
+  public Drive drive;
+
+  private DriveWithJoysticksState driveWithJoysticksState;
+  private DrivingLinearPathState linearDriveToPoseState;
+  private DriveToClimbState driveToClimbState;
+
   public DriveControlMethod DISABLED_DRIVE;
   public LinearDrive LINEAR_DRIVE;
   public DriveControlMethod JOYSTICK_DRIVE;
@@ -53,110 +60,90 @@ public class DriveCoordinator extends SubsystemBase {
     }
   }
 
-  StateMachine<DriveCoordinator> driveStateMachine;
-  public Drive drive;
-
-  private DriveWithJoysticksState driveWithJoysticksState;
-  private DrivingLinearPathState linearDriveToPoseState;
-  private DriveTestModeState testModeState;
-  private DriveToClimbState driveToClimbState;
-  static final TestModeManager<TestMode> testModeManager =
-      new TestModeManager<>("Drive", TestMode.class);
-
-  public static TestModeManager<TestMode> getTestModeManager() {
-    return testModeManager;
+  public void initializeJoyStickDriveControl(DriveWithJoysticks command) {
+    JOYSTICK_DRIVE = new JoystickDrive(drive, command, "DriveCoordinator");
   }
 
-  public DriveAction targetAction = DriveAction.DriveWithJoysticks;
+  public void initializeControlMethods(Drive drive) {
+    DISABLED_DRIVE = new DisabledDrive(drive, "DriveCoordinator");
+    LINEAR_DRIVE = new LinearDrive(drive, "DriveCoordinator");
+    // Initialize to disabled drive until joystick drive is initialized
+    JOYSTICK_DRIVE = DISABLED_DRIVE;
+
+    setControlMethod(DISABLED_DRIVE);
+
+    driveStateMachine = new StateMachine<>(this);
+  }
+
+  // Test Mode
+  final TestModeManager<TestMode> testModeManager =
+      new TestModeManager<>("Drive", TestMode.class);
+
+  LoggedTunablePIDGains steerGains;
+  LoggedTunablePIDGains driveGains;
+
+  public void initializeTestMode() {
+    steerGains =
+        new LoggedTunablePIDGains(
+            "DriveCoordinatorTunables/SteerGains", JsonConstants.driveConstants.steerGains.asArray());
+    driveGains =
+        new LoggedTunablePIDGains(
+            "DriveCoordinatorTunables/DriveGains", JsonConstants.driveConstants.driveGains.asArray());
+  }
 
   public DriveCoordinator(Drive drive) {
     this.drive = drive;
     // drive.setDriveGains(JsonConstants.driveConstants.driveGains);
     // drive.setSteerGains(JsonConstants.driveConstants.steerGains);
 
-    DISABLED_DRIVE = new DisabledDrive(drive);
-    LINEAR_DRIVE = new LinearDrive(drive);
-    JOYSTICK_DRIVE =
-        DISABLED_DRIVE; // Initialize to disabled drive until joystick drive is initialized
-
-    setControlMethod(DISABLED_DRIVE);
-
-    driveStateMachine = new StateMachine<>(this);
+    initializeControlMethods(drive);
 
     linearDriveToPoseState = driveStateMachine.registerState(new DrivingLinearPathState());
     driveWithJoysticksState = driveStateMachine.registerState(new DriveWithJoysticksState());
-    testModeState = driveStateMachine.registerState(new DriveTestModeState());
     driveToClimbState = driveStateMachine.registerState(new DriveToClimbState());
 
-    // TODO: Decide if we really want to use dedicated transitions for drive or just use setState
-
-    // Test Mode Transitions
-    // TODO: Decide if we want to move test mode to not be a state
-    testModeState.whenFinished("No Drive Test Mode Active").transitionTo(driveWithJoysticksState);
-    driveWithJoysticksState
-        .when(testModeManager::isInTestMode, "drive test mode active")
-        .transitionTo(testModeState);
-    driveToClimbState
-      .when(testModeManager::isInTestMode, "drive test mode active")
-      .transitionTo(testModeState);
-    driveWithJoysticksState
-        .when(testModeManager::isInTestMode, "drive test mode active")
-        .transitionTo(testModeState);
-
-
-    driveWithJoysticksState.whenRequestedTransitionTo(linearDriveToPoseState);
-    driveWithJoysticksState.whenRequestedTransitionTo(driveToClimbState);
-    
-
-    linearDriveToPoseState.whenRequestedTransitionTo(driveWithJoysticksState);
-    linearDriveToPoseState.whenRequestedTransitionTo(driveToClimbState);
     linearDriveToPoseState.whenFinished().transitionTo(driveWithJoysticksState);
 
-    driveToClimbState.whenRequestedTransitionTo(driveWithJoysticksState);
-    driveToClimbState.whenRequestedTransitionTo(linearDriveToPoseState);
     // TODO: add more climb states for more precise climb line up
     driveToClimbState.whenFinished().transitionTo(driveWithJoysticksState);
-    driveStateMachine.setState(driveWithJoysticksState);
-    targetAction = DriveAction.DriveWithJoysticks;
-  }
 
-  public void initializeJoyStickDriveControl(DriveWithJoysticks command) {
-    JOYSTICK_DRIVE = new JoystickDrive(drive, command);
+    driveStateMachine.setState(driveWithJoysticksState);
   }
 
   public void setLinearDriveTarget(Pose2d pose) {
-    Logger.recordOutput("DriveCoordinator/linearTarget", pose);
     linearDriveToPoseState.setCommand(
         driveStateMachine, this, new LinearDrive.LinearDriveCommand(pose));
   }
 
-  public void tryToLinearDriveToPose(Pose2d pose) {
+  public void setDriveAction(DriveAction action) {
+    switch (action) {
+      case DriveWithJoysticks:
+        driveStateMachine.setState(driveWithJoysticksState);
+        break;
+      case DriveLinearPath:
+        driveStateMachine.setState(linearDriveToPoseState);
+        break;
+      case DriveToClimb:
+        driveStateMachine.setState(driveToClimbState);
+        break;
+    }
+  }
+
+  public void linearDriveToPose(Pose2d pose) {
     setLinearDriveTarget(pose);
-    setDriveTargetAction(DriveAction.DriveLinearPath);
+    setDriveAction(DriveAction.DriveLinearPath);
   }
 
-  public void setDriveTargetAction(DriveAction action) {
-    targetAction = action;
-  }
-
-  public void tryToDriveToClimbLocation(ClimbLocations climbLocation) {
+  public void driveToClimbLocation(ClimbLocations climbLocation) {
     driveToClimbState.setClimbLocation(climbLocation);
-    setDriveTargetAction(DriveAction.DriveToClimb);
+    setDriveAction(DriveAction.DriveToClimb);
   }
 
   @Override
   public void periodic() {
 
-    switch (targetAction) {
-      case DriveWithJoysticks:
-        driveStateMachine.requestState(driveWithJoysticksState);
-        break;
-      case DriveLinearPath:
-        driveStateMachine.requestState(linearDriveToPoseState);
-        break;
-      case DriveToClimb:
-        driveStateMachine.requestState(driveToClimbState);
-        break;
+    if (testModeManager.isInTestMode()) {
+      testPeriodic();
     }
 
     driveStateMachine.periodic();
@@ -165,25 +152,20 @@ public class DriveCoordinator extends SubsystemBase {
       currentControlMethod.periodic();
     }
 
-    Logger.recordOutput("DriveCoordinator/targetAction", targetAction);
     Logger.recordOutput(
-        "DriveCoordinator/Command/name",
+        "DriveCoordinator/currentControlMethod",
         currentControlMethod == null ? "None" : currentControlMethod.getName());
     Logger.recordOutput("DriveCoordinator/state", driveStateMachine.getCurrentState().getName());
   }
 
-
-
-  // These exist so that if a seperate drive action was requested, but a state finishes it properly updates
-  // the target action
-
-  public void stateFinishAction(DriveAction stateAction) {
-    stateNextAction(stateAction, DriveAction.DriveWithJoysticks);
-  }
-
-  public void stateNextAction(DriveAction stateAction, DriveAction nextAction) {
-    if (targetAction == stateAction) {
-      targetAction = nextAction;
+  public void testPeriodic() {
+    switch (testModeManager.getTestMode()) {
+      case DriveGainsTuning:
+        steerGains.ifChanged(hashCode(), drive::setSteerGains);
+        driveGains.ifChanged(hashCode(), drive::setDriveGains);
+        break;
+      default:
+        break;
     }
   }
 }

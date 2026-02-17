@@ -7,6 +7,7 @@ import org.littletonrobotics.junction.Logger;
 public abstract class DriveControlMethod {
 
   public final String name;
+  public final String logPrefix;
   protected final Drive drive;
   private final boolean requiresEnabled;
 
@@ -14,14 +15,19 @@ public abstract class DriveControlMethod {
     return name;
   }
 
-  public DriveControlMethod(Drive drive, String name) {
-    this(drive, name, true);
+  public DriveControlMethod(Drive drive, String logPrefix, String name) {
+    this(drive, logPrefix, name, true);
   }
 
-  public DriveControlMethod(Drive drive, String name, boolean requiresEnabled) {
+  public DriveControlMethod(Drive drive, String logPrefix, String name, boolean requiresEnabled) {
     this.drive = drive;
     this.requiresEnabled = requiresEnabled;
     this.name = name;
+    this.logPrefix = logPrefix;
+  }
+
+  public void log(String prefix, String message) {
+    Logger.recordOutput(logPrefix + "/ControlMethods/" + name + "/" + prefix, message);
   }
 
   /**
@@ -32,7 +38,7 @@ public abstract class DriveControlMethod {
    * @param warning_message
    */
   public void warn(String warning_message) {
-    Logger.recordOutput("driveControlMethod/warning", warning_message);
+    log("warning", warning_message);
   }
 
   /**

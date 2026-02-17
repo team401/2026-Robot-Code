@@ -49,13 +49,13 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.tryToDriveToClimbLocation(
+                  driveCoordinator.driveToClimbLocation(
                       DriveCoordinator.ClimbLocations.LeftClimbLocation);
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.setDriveTargetAction(DriveAction.DriveWithJoysticks);
+                  driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
                 }));
 
     Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
@@ -66,12 +66,12 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.tryToLinearDriveToPose(targetPose);
+                  driveCoordinator.linearDriveToPose(targetPose);
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.setDriveTargetAction(DriveAction.DriveWithJoysticks);
+                  driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
                 }));
   }
 
