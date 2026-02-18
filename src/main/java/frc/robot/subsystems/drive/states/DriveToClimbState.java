@@ -1,7 +1,6 @@
 package frc.robot.subsystems.drive.states;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.constants.FieldLocations;
 import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.drive.control_methods.LinearDrive.LinearDriveCommand;

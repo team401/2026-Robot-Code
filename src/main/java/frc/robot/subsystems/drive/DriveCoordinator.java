@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.control_methods.DisabledDrive;
@@ -92,8 +93,12 @@ public class DriveCoordinator extends SubsystemBase {
             JsonConstants.driveConstants.driveGains.asArray());
   }
 
+  public Command currentCommand;
+
   public DriveCoordinator(Drive drive) {
     this.drive = drive;
+
+    this.currentCommand = DriveCoordinatorCommands.stopDrive(this);
     // drive.setDriveGains(JsonConstants.driveConstants.driveGains);
     // drive.setSteerGains(JsonConstants.driveConstants.steerGains);
 
@@ -107,6 +112,8 @@ public class DriveCoordinator extends SubsystemBase {
 
     // TODO: add more climb states for more precise climb line up
     driveToClimbState.whenFinished().transitionTo(driveWithJoysticksState);
+
+
 
     driveStateMachine.setState(driveWithJoysticksState);
   }
@@ -139,6 +146,7 @@ public class DriveCoordinator extends SubsystemBase {
     driveToClimbState.setClimbLocation(climbLocation);
     setDriveAction(DriveAction.DriveToClimb);
   }
+
 
   @Override
   public void periodic() {
