@@ -53,6 +53,11 @@ deploy {
                     // jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
                     // jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
                     // jvmArgs.add("-Djava.rmi.server.hostname=10.04.01.2")
+
+                    // Cause code hotspots to be compiled after 50 runs rather than the default of 1500 (C1)
+                    // /10000 (C2). This option is potentially ignored anyway when tiered
+                    // compilation is enabled.
+                    // jvmArgs.add("-XX:CompileThreshold=50")
                 }
 
                 // Static files artifact
@@ -110,7 +115,7 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
-    def coppercoreVersion = "2026.2.9"
+    def coppercoreVersion = "2026.2.11"
 
     implementation "io.github.team401.coppercore:controls:$coppercoreVersion"
     implementation "io.github.team401.coppercore:geometry:$coppercoreVersion"
