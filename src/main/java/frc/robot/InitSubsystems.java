@@ -180,31 +180,20 @@ public class InitSubsystems {
         return new VisionLocalizer(
             drive::addVisionMeasurement, tagLayout, gainConstants, cameraConfigs);
       default:
+        VisionIO replayIO =
+            new VisionIO() {
+              public boolean isLoggingSingleTags() {
+                return false;
+              }
+            };
+
         return new VisionLocalizer(
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(
-                new VisionIO() {
-                  public boolean isLoggingSingleTags() {
-                    return false;
-                  }
-                },
-                new Transform3d()),
-            CameraConfig.fixed(
-                new VisionIO() {
-                  public boolean isLoggingSingleTags() {
-                    return false;
-                  }
-                },
-                new Transform3d()),
-            CameraConfig.fixed(
-                new VisionIO() {
-                  public boolean isLoggingSingleTags() {
-                    return false;
-                  }
-                },
-                new Transform3d()));
+            CameraConfig.fixed(replayIO, Transform3d.kZero),
+            CameraConfig.fixed(replayIO, Transform3d.kZero),
+            CameraConfig.fixed(replayIO, Transform3d.kZero));
     }
   }
 
