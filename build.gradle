@@ -53,6 +53,8 @@ deploy {
                     // jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
                     // jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
                     // jvmArgs.add("-Djava.rmi.server.hostname=10.04.01.2")
+
+                    jvmArgs.add("-XX:CompileThreshold=50")
                 }
 
                 // Static files artifact
@@ -110,7 +112,7 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
-    def coppercoreVersion = "2026.2.9"
+    def coppercoreVersion = "2026.2.11"
 
     implementation "io.github.team401.coppercore:controls:$coppercoreVersion"
     implementation "io.github.team401.coppercore:geometry:$coppercoreVersion"

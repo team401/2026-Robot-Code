@@ -184,9 +184,27 @@ public class InitSubsystems {
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()));
+            CameraConfig.fixed(
+                new VisionIO() {
+                  public boolean isLoggingSingleTags() {
+                    return false;
+                  }
+                },
+                new Transform3d()),
+            CameraConfig.fixed(
+                new VisionIO() {
+                  public boolean isLoggingSingleTags() {
+                    return false;
+                  }
+                },
+                new Transform3d()),
+            CameraConfig.fixed(
+                new VisionIO() {
+                  public boolean isLoggingSingleTags() {
+                    return false;
+                  }
+                },
+                new Transform3d()));
     }
   }
 
