@@ -7,10 +7,8 @@ import static edu.wpi.first.units.Units.Meters;
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
-import com.therekrab.autopilot.Autopilot;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,7 +17,6 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
-import frc.robot.subsystems.drive.DriveCoordinatorCommands.AutoPilotCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
@@ -73,7 +70,7 @@ public class ControllerSetup {
                   driveCoordinator.cancelCurrentCommand();
                 }));
 
-    Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
+    Pose2d targetPose = new Pose2d(13.5, 3.9, new Rotation2d(Math.toRadians(-90.0)));
 
     APConstraints constraints = new APConstraints().withAcceleration(3.0).withJerk(1.0);
 
@@ -83,11 +80,10 @@ public class ControllerSetup {
             .withErrorTheta(Degrees.of(5))
             .withBeelineRadius(Centimeters.of(8));
 
-    APTarget target = new APTarget(targetPose)
-      .withEntryAngle(new Rotation2d(1.3));
+    APTarget target = new APTarget(targetPose).withEntryAngle(new Rotation2d(1.3));
 
-    Command autoPilotCommand = DriveCoordinatorCommands
-      .autoPilotCommand(driveCoordinator, profile, target);
+    Command autoPilotCommand =
+        DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target);
 
     controllers
         .getButton("testGoToAllianceCenter")

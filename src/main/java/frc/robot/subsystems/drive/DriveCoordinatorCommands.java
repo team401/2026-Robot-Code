@@ -243,10 +243,9 @@ public class DriveCoordinatorCommands extends Command {
   }
 
   public static Command autoPilotCommand(
-      DriveCoordinator driveCoordinator,
-      Autopilot autoPilot,
-      APTarget target) {
-    return new AutoPilotCommand(driveCoordinator, autoPilot, target, createDefaultAutoPilotHeadingController());
+      DriveCoordinator driveCoordinator, Autopilot autoPilot, APTarget target) {
+    return new AutoPilotCommand(
+        driveCoordinator, autoPilot, target, createDefaultAutoPilotHeadingController());
   }
 
   public static Command autoPilotCommand(
