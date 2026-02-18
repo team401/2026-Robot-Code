@@ -9,9 +9,9 @@ import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.constants.JsonConstants;
@@ -22,23 +22,29 @@ import org.littletonrobotics.junction.Logger;
 public class LinearDrive extends DriveControlMethod {
 
   public static class LinearDriveCommand {
-    public AdjustableLinearPath.State goalState;
+    public Pose2d goalPose2d;
+    public LinearVelocity endLinearVelocity;
+    public AngularVelocity endAngularVelocity;
     public LinearDriveProfileConfig profileConfig;
 
     public LinearDriveCommand(Pose2d goalPose) {
-      this(goalPose, new ChassisSpeeds(), LinearDriveProfileConfig.fromJSON());
+      this(goalPose, MetersPerSecond.zero(), RadiansPerSecond.zero(), LinearDriveProfileConfig.fromJSON());
     }
 
-    public LinearDriveCommand(Pose2d goalPose, ChassisSpeeds goalEndSpeedFieldRelative) {
-      this(goalPose, goalEndSpeedFieldRelative, LinearDriveProfileConfig.fromJSON());
+    public LinearDriveCommand(Pose2d goalPose, LinearVelocity endLinearVelocity,
+        AngularVelocity endAngularVelocity) {
+      this(goalPose, endLinearVelocity, endAngularVelocity, LinearDriveProfileConfig.fromJSON());
     }
 
     public LinearDriveCommand(
         Pose2d goalPose,
-        ChassisSpeeds goalEndSpeedFieldRelative,
+        LinearVelocity endLinearVelocity,
+        AngularVelocity endAngularVelocity,
         LinearDriveProfileConfig profileConfig) {
-      this.goalState = new AdjustableLinearPath.State(goalPose, goalEndSpeedFieldRelative);
       this.profileConfig = profileConfig;
+      this.endAngularVelocity = endAngularVelocity;
+      this.endLinearVelocity = endLinearVelocity;
+      this.goalPose2d = goalPose;
     }
   }
 
@@ -116,21 +122,23 @@ public class LinearDrive extends DriveControlMethod {
                 drive.getPose(),
                 ChassisSpeeds.fromRobotRelativeSpeeds(
                     drive.getChassisSpeeds(), drive.getPose().getRotation())),
-            command.goalState);
+            command.goalPose2d,
+            command.endLinearVelocity,
+            command.endAngularVelocity);
 
     drive.setGoalSpeedsBlueOrigins(pathState.speeds);
 
     Logger.recordOutput(
-        "DriveCoordinator/DriveMethods/LinearDrive/goalOmegaRadPerSec",
+        getLogPath("goalOmegaRadPerSec"),
         pathState.speeds.omegaRadiansPerSecond);
     Logger.recordOutput(
-        "DriveCoordinator/DriveMethods/LinearDrive/actualOmegaRadPerSec",
+        getLogPath("actualOmegaRadPerSec"),
         drive.getChassisSpeeds().omegaRadiansPerSecond);
 
     Logger.recordOutput(
-        "DriveCoordinator/DriveMethods/LinearDrive/Command/GoalPose", command.goalState.pose);
-    Logger.recordOutput(
-        "DriveCoordinator/DriveMethods/LinearDrive/Command/GoalSpeeds", command.goalState.speeds);
+        getLogPath("GoalPose"), command.goalPose2d);
+    Logger.recordOutput(getLogPath("GoalLinearSpeed"), command.endLinearVelocity);
+
   }
 
   public boolean isFinished() {
@@ -138,7 +146,7 @@ public class LinearDrive extends DriveControlMethod {
       return true;
     }
 
-    var currentDistanceToTarget = getPoseDistance(drive.getPose(), command.goalState.pose);
+    var currentDistanceToTarget = getPoseDistance(drive.getPose(), command.goalPose2d);
     if (!currentDistanceToTarget.isNear(
         Meters.zero(), JsonConstants.driveConstants.linearDriveMaxPositionError)) {
       return false;
@@ -146,7 +154,7 @@ public class LinearDrive extends DriveControlMethod {
 
     var currentAngularError =
         Radians.of(
-            drive.getPose().getRotation().minus(command.goalState.pose.getRotation()).getRadians());
+            drive.getPose().getRotation().minus(command.goalPose2d.getRotation()).getRadians());
     if (!currentAngularError.isNear(
         Radians.zero(), JsonConstants.driveConstants.linearDriveMaxAngularError)) {
       return false;
@@ -159,28 +167,18 @@ public class LinearDrive extends DriveControlMethod {
             Math.hypot(driveChassisSpeeds.vxMetersPerSecond, driveChassisSpeeds.vyMetersPerSecond));
     // Because the goal speeds are field-relative we have to convert them to robot-relative before
     // comparing them to the current robot-relative speeds
-    var goalLinearVelocity =
-        getChassisLinearVelocity(command.goalState.speeds, command.goalState.pose.getRotation());
     if (!currentLinearVelocity.isNear(
-        goalLinearVelocity, JsonConstants.driveConstants.linearDriveMaxLinearVelocityError)) {
+        command.endLinearVelocity, JsonConstants.driveConstants.linearDriveMaxLinearVelocityError)) {
       return false;
     }
 
     var currentAngularVelocity = RadiansPerSecond.of(driveChassisSpeeds.omegaRadiansPerSecond);
-    var goalAngularVelocity = RadiansPerSecond.of(command.goalState.speeds.omegaRadiansPerSecond);
     if (!currentAngularVelocity.isNear(
-        goalAngularVelocity, JsonConstants.driveConstants.linearDriveMaxAngularVelocityError)) {
+        command.endAngularVelocity, JsonConstants.driveConstants.linearDriveMaxAngularVelocityError)) {
       return false;
     }
 
     return true;
-  }
-
-  private static LinearVelocity getChassisLinearVelocity(ChassisSpeeds speeds, Rotation2d heading) {
-    // vel = <vx, vy> ⋅ <cos(heading), sin(heading)>
-    // vel = vx * cos(heading) + vy * sin(heading)
-    return MetersPerSecond.of(
-        speeds.vxMetersPerSecond * heading.getCos() + speeds.vyMetersPerSecond * heading.getSin());
   }
 
   private static Distance getPoseDistance(Pose2d current, Pose2d target) {

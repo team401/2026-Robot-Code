@@ -26,8 +26,12 @@ public abstract class DriveControlMethod {
     this.logPrefix = logPrefix;
   }
 
-  public void log(String prefix, String message) {
-    Logger.recordOutput(logPrefix + "/ControlMethods/" + name + "/" + prefix, message);
+  public String getLogPath(String path) {
+    return logPrefix + "/ControlMethods/" + name + "/" + path;
+  }
+
+  public void log(String path, String message) {
+    Logger.recordOutput(getLogPath(path), message);
   }
 
   /**

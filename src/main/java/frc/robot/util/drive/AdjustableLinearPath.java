@@ -1,9 +1,14 @@
 package frc.robot.util.drive;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 
 // For now mostly just a copy and paste, but will edit more later
 
@@ -67,12 +72,12 @@ public class AdjustableLinearPath {
         + speeds.vyMetersPerSecond * heading.getSin();
   }
 
-  private void setState(State current, State goal) {
+  private void setState(State current, Pose2d goalPose, LinearVelocity endLinearSpeed, AngularVelocity endAngularSpeed) {
     this.initialPose = current.pose;
 
     {
       // pull out the translation from our initial pose to the target
-      final var translation = goal.pose.getTranslation().minus(this.initialPose.getTranslation());
+      final var translation = goalPose.getTranslation().minus(this.initialPose.getTranslation());
       // pull out distance and heading to the target
       final var distance = translation.getNorm();
       if (distance > 1e-6) {
@@ -81,10 +86,7 @@ public class AdjustableLinearPath {
         this.heading = Rotation2d.kZero;
       }
 
-      // The problem is probably right here
-      final var linearGoalSpeed = calculateVelocityAtHeading(goal.speeds, this.heading);
-
-      this.linearGoal = new TrapezoidProfile.State(distance, linearGoalSpeed);
+      this.linearGoal = new TrapezoidProfile.State(distance, endLinearSpeed.in(MetersPerSecond));
     }
 
     {
@@ -100,8 +102,8 @@ public class AdjustableLinearPath {
     this.angularGoal =
         new TrapezoidProfile.State(
             current.pose.getRotation().getRadians()
-                + goal.pose.getRotation().minus(current.pose.getRotation()).getRadians(),
-            goal.speeds.omegaRadiansPerSecond);
+                + goalPose.getRotation().minus(current.pose.getRotation()).getRadians(),
+            endAngularSpeed.in(RadiansPerSecond));
   }
 
   private State calculate(double t) {
@@ -124,8 +126,8 @@ public class AdjustableLinearPath {
     return new State(pose, speeds);
   }
 
-  public final State calculate(double t, State current, State goal) {
-    setState(current, goal);
+  public final State calculate(double t, State current, Pose2d goalPose, LinearVelocity endLinearSpeed, AngularVelocity endAngularSpeed) {
+    setState(current, goalPose, endLinearSpeed, endAngularSpeed);
     return calculate(t);
   }
 
