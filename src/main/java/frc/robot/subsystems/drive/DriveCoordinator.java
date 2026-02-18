@@ -10,16 +10,9 @@ import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveGoal;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveProfileConfig;
 import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.TestModeManager;
-
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import org.littletonrobotics.junction.Logger;
 
-// Copilot used to help write this class
-
-// States currently are more so what is drive trying to do
-// And Control Methods are more so how drive is trying to do it
+// TODO: Add lots of logging to this class and the commands
 
 public class DriveCoordinator extends SubsystemBase {
 
@@ -39,7 +32,7 @@ public class DriveCoordinator extends SubsystemBase {
             "DriveCoordinatorTunables/DriveGains",
             JsonConstants.driveConstants.driveGains.asArray());
   }
-  
+
   // Fields for normal operation
 
   public enum ClimbLocations {
@@ -48,7 +41,6 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   public Drive drive;
-
 
   public Command currentCommand;
 
@@ -63,6 +55,7 @@ public class DriveCoordinator extends SubsystemBase {
 
   /**
    * The active command is always has the periodic run currently before it checks if it is finished.
+   *
    * @return
    */
   protected Command getCurrentActiveCommand() {
@@ -72,13 +65,18 @@ public class DriveCoordinator extends SubsystemBase {
     return defaultCommand;
   }
 
-  // TODO: Determine if we want to have a default command, and if it should be stopDrive or joystickCommand
+  // TODO: Determine if we want to have a default command, and if it should be stopDrive or
+  // joystickCommand
   /**
-   * Sets the default command for the DriveCoordinator. The default command is used when there is no current active command.
-   * If the current active command is null when this method is called, the new default command will be initialized immediately.
-   * If the current active command is the same as the current default command, it will be ended and the new default command will be initialized.
-   * If the current default command is the same as the new default command, this method will do nothing.
-   * @param command The new default command to set. If null, it will default to the joystick command.
+   * Sets the default command for the DriveCoordinator. The default command is used when there is no
+   * current active command. If the current active command is null when this method is called, the
+   * new default command will be initialized immediately. If the current active command is the same
+   * as the current default command, it will be ended and the new default command will be
+   * initialized. If the current default command is the same as the new default command, this method
+   * will do nothing.
+   *
+   * @param command The new default command to set. If null, it will default to the joystick
+   *     command.
    */
   public void setDefaultCommand(Command command) {
     var newDefaultCommand = (command == null) ? joystickCommand : command;
@@ -96,18 +94,19 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   /**
-   * Sets the current command for the DriveCoordinator.
-   * If the new command is different from the current active command, it will end the current command
-   * (if it exists) and initialize the new command (if it's not null).
-   * This method ensures that only one command is active at a time and that the default command is used
-   * when no other command is set.
-   * 
-   * If the command#isFinished() method returns true, this will call command#end(false) otherwise
-   * it will call command#end(true). This allows for proper cleanup of the command based on whether it finished successfully
-   * or was interrupted by another command.
-   * 
-   * Also the command will automatically be ended when it says it is finished.
-   * @param command The new command to set as the current command. If null, the default command will be used.
+   * Sets the current command for the DriveCoordinator. If the new command is different from the
+   * current active command, it will end the current command (if it exists) and initialize the new
+   * command (if it's not null). This method ensures that only one command is active at a time and
+   * that the default command is used when no other command is set.
+   *
+   * <p>If the command#isFinished() method returns true, this will call command#end(false) otherwise
+   * it will call command#end(true). This allows for proper cleanup of the command based on whether
+   * it finished successfully or was interrupted by another command.
+   *
+   * <p>Also the command will automatically be ended when it says it is finished.
+   *
+   * @param command The new command to set as the current command. If null, the default command will
+   *     be used.
    */
   public void setCurrentCommand(Command command) {
     var activeCommand = getCurrentActiveCommand();
@@ -139,10 +138,9 @@ public class DriveCoordinator extends SubsystemBase {
     if (currentCommand != null && currentCommand.isFinished()) {
       currentCommand.end(true);
       currentCommand = null;
-    }else{
+    } else {
       if (defaultCommand != null && defaultCommand.isFinished()) {
         defaultCommand.end(true);
-        
       }
     }
   }
@@ -166,8 +164,10 @@ public class DriveCoordinator extends SubsystemBase {
     setCurrentCommand(DriveCoordinatorCommands.linearDriveToGoal(this, goal));
   }
 
-  public void linearDriveWithConfig(LinearDriveGoal command, LinearDriveProfileConfig linearDriveConfig) {
-    setCurrentCommand(DriveCoordinatorCommands.linearDriveWithConfig(this, command, linearDriveConfig));
+  public void linearDriveWithConfig(
+      LinearDriveGoal command, LinearDriveProfileConfig linearDriveConfig) {
+    setCurrentCommand(
+        DriveCoordinatorCommands.linearDriveWithConfig(this, command, linearDriveConfig));
   }
 
   public Command getDriveToClimbCommand(ClimbLocations climbLocation) {
@@ -179,17 +179,13 @@ public class DriveCoordinator extends SubsystemBase {
     var linearDriveConfig = LinearDriveProfileConfig.fromJSON();
 
     return DriveCoordinatorCommands.linearDriveWithConfig(
-      this, 
-      LinearDriveGoal.toPose(targetPose),
-      linearDriveConfig
-    );
+        this, LinearDriveGoal.toPose(targetPose), linearDriveConfig);
   }
 
   public void driveToClimbLocation(ClimbLocations climbLocation) {
     setCurrentCommand(getDriveToClimbCommand(climbLocation));
   }
 
-  
   @Override
   public void periodic() {
 
@@ -198,13 +194,20 @@ public class DriveCoordinator extends SubsystemBase {
     }
 
     // Maybe decide if we want to check if it is finished before or after executing.
-    // And if we check before executing, do we want it to be able to go through multiple commands 
+    // And if we check before executing, do we want it to be able to go through multiple commands
     // in one periodic if they are all finished, or just one command per periodic?
     var activeCommand = getCurrentActiveCommand();
     if (activeCommand != null) {
       activeCommand.execute();
       finishCurrentCommandIfFinished();
     }
+
+    // While yes the active command technically could be different from what is logged here
+    // But this is meant to log the command that we ran this periodic, not necessarily the command
+    // that is active at the end of this periodic.
+    Logger.recordOutput(
+        "DriveCoordinator/CurrentCommand",
+        activeCommand == null ? "None" : activeCommand.getName());
   }
 
   public void testPeriodic() {

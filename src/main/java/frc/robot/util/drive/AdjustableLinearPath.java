@@ -72,7 +72,11 @@ public class AdjustableLinearPath {
         + speeds.vyMetersPerSecond * heading.getSin();
   }
 
-  private void setState(State current, Pose2d goalPose, LinearVelocity endLinearSpeed, AngularVelocity endAngularSpeed) {
+  private void setState(
+      State current,
+      Pose2d goalPose,
+      LinearVelocity endLinearSpeed,
+      AngularVelocity endAngularSpeed) {
     this.initialPose = current.pose;
 
     {
@@ -126,7 +130,12 @@ public class AdjustableLinearPath {
     return new State(pose, speeds);
   }
 
-  public final State calculate(double t, State current, Pose2d goalPose, LinearVelocity endLinearSpeed, AngularVelocity endAngularSpeed) {
+  public final State calculate(
+      double t,
+      State current,
+      Pose2d goalPose,
+      LinearVelocity endLinearSpeed,
+      AngularVelocity endAngularSpeed) {
     setState(current, goalPose, endLinearSpeed, endAngularSpeed);
     return calculate(t);
   }

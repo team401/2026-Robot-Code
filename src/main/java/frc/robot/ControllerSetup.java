@@ -34,7 +34,7 @@ public class ControllerSetup {
     var controllers = getControllers();
 
     var joystickDriveCommand =
-      new DriveWithJoysticks(
+        new DriveWithJoysticks(
             drive,
             controllers.getAxis("driveX").getSupplier(),
             controllers.getAxis("driveY").getSupplier(),
@@ -43,8 +43,7 @@ public class ControllerSetup {
             JsonConstants.driveConstants.maxAngularSpeed, // type: double (rad/s)
             JsonConstants.driveConstants.joystickDeadband, // type: double
             JsonConstants.driveConstants.joystickMagnitudeExponent // type: double
-    ); 
-
+            );
 
     driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
@@ -65,8 +64,7 @@ public class ControllerSetup {
 
     Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
 
-    LinearDriveGoal linearDriveGoal =
-        LinearDriveGoal.toPose(targetPose);
+    LinearDriveGoal linearDriveGoal = LinearDriveGoal.toPose(targetPose);
 
     controllers
         .getButton("testGoToAllianceCenter")
