@@ -13,6 +13,7 @@ import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -82,16 +83,11 @@ public class ControllerSetup {
             .withErrorTheta(Degrees.of(5))
             .withBeelineRadius(Centimeters.of(8));
 
-    Autopilot autoPilot = new Autopilot(profile);
-
     APTarget target = new APTarget(targetPose)
       .withEntryAngle(new Rotation2d(1.3));
 
-    PIDController headingController =
-        DriveCoordinatorCommands.createDefaultAutoPilotHeadingController();
-
-    AutoPilotCommand autoPilotCommand =
-        new AutoPilotCommand(driveCoordinator, autoPilot, target, headingController);
+    Command autoPilotCommand = DriveCoordinatorCommands
+      .autoPilotCommand(driveCoordinator, profile, target);
 
     controllers
         .getButton("testGoToAllianceCenter")

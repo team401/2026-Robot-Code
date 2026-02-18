@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
 import com.therekrab.autopilot.Autopilot.APResult;
@@ -233,6 +234,27 @@ public class DriveCoordinatorCommands extends Command {
 
   public static Command stopDrive(DriveCoordinator driveCoordinator) {
     return new StopDriveCommand(driveCoordinator);
+  }
+
+  public static Command autoPilotCommand(
+      DriveCoordinator driveCoordinator, APProfile profile, APTarget target) {
+    Autopilot autoPilot = new Autopilot(profile);
+    return autoPilotCommand(driveCoordinator, autoPilot, target);
+  }
+
+  public static Command autoPilotCommand(
+      DriveCoordinator driveCoordinator,
+      Autopilot autoPilot,
+      APTarget target) {
+    return new AutoPilotCommand(driveCoordinator, autoPilot, target, createDefaultAutoPilotHeadingController());
+  }
+
+  public static Command autoPilotCommand(
+      DriveCoordinator driveCoordinator,
+      Autopilot autoPilot,
+      APTarget target,
+      PIDController headingController) {
+    return new AutoPilotCommand(driveCoordinator, autoPilot, target, headingController);
   }
 
   public static boolean isWithinPositionTolerance(
