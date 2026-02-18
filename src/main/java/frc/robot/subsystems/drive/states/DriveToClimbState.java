@@ -1,9 +1,12 @@
 package frc.robot.subsystems.drive.states;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.constants.FieldLocations;
 import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.drive.control_methods.LinearDrive.LinearDriveCommand;
+import frc.robot.subsystems.drive.control_methods.LinearDrive.LinearDriveProfileConfig;
+
 import org.littletonrobotics.junction.Logger;
 
 public class DriveToClimbState extends DrivingLinearPathState {
@@ -20,7 +23,7 @@ public class DriveToClimbState extends DrivingLinearPathState {
 
     // TODO: Make this command have custom constraints, such as a slower max velocity, to ensure
     // precise and stable driving to the climb location
-    return new LinearDriveCommand(targetPose);
+    return new LinearDriveCommand(targetPose, new ChassisSpeeds(), LinearDriveProfileConfig.fromJSON());
   }
 
   // This should only be called right before we enter this state to set which climb location
