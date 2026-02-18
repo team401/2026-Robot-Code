@@ -8,6 +8,10 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.therekrab.autopilot.APTarget;
+import com.therekrab.autopilot.Autopilot;
+import com.therekrab.autopilot.Autopilot.APResult;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -19,8 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.drive.AdjustableLinearPath;
 import org.littletonrobotics.junction.Logger;
-
-import coppercore.geometry.Line;
 
 public class DriveCoordinatorCommands extends Command {
 
@@ -73,7 +75,8 @@ public class DriveCoordinatorCommands extends Command {
       return fromJSONWithVelocityChecks(true, true);
     }
 
-    public static LinearDriveProfileConfig fromJSONWithVelocityChecks(boolean linearSpeedCheckEnabled, boolean angularSpeedCheckEnabled ) {
+    public static LinearDriveProfileConfig fromJSONWithVelocityChecks(
+        boolean linearSpeedCheckEnabled, boolean angularSpeedCheckEnabled) {
       return new LinearDriveProfileConfig(
           new TrapezoidProfile.Constraints(
               JsonConstants.driveConstants.linearDriveProfileMaxLinearVelocity.in(MetersPerSecond),
@@ -84,7 +87,8 @@ public class DriveCoordinatorCommands extends Command {
                   RadiansPerSecond),
               JsonConstants.driveConstants.linearDriveProfileMaxAngularAcceleration.in(
                   RadiansPerSecondPerSecond)),
-                  linearSpeedCheckEnabled, angularSpeedCheckEnabled);
+          linearSpeedCheckEnabled,
+          angularSpeedCheckEnabled);
     }
   }
 
@@ -132,7 +136,8 @@ public class DriveCoordinatorCommands extends Command {
 
       Logger.recordOutput("DriveCoordinator/LinearDrive/goalPose", linearDriveGoal.targetPose);
       Logger.recordOutput(
-          "DriveCoordinator/LinearDrive/goalOmegaRadPerSec", pathState.speeds.omegaRadiansPerSecond);
+          "DriveCoordinator/LinearDrive/goalOmegaRadPerSec",
+          pathState.speeds.omegaRadiansPerSecond);
       Logger.recordOutput(
           "DriveCoordinator/LinearDrive/actualOmegaRadPerSec",
           driveCoordinator.drive.getChassisSpeeds().omegaRadiansPerSecond);
@@ -140,12 +145,72 @@ public class DriveCoordinatorCommands extends Command {
 
     @Override
     public boolean isFinished() {
-        return isWithinPositionTolerance(driveCoordinator.drive, linearDriveGoal.targetPose, JsonConstants.driveConstants.linearDriveMaxPositionError, JsonConstants.driveConstants.linearDriveMaxAngularError)
-            && isWithinVelocityTolerance(driveCoordinator.drive, linearDriveGoal.endLinearVelocity, linearDriveGoal.endAngularVelocity, JsonConstants.driveConstants.linearDriveMaxLinearVelocityError, JsonConstants.driveConstants.linearDriveMaxAngularVelocityError);
+      return isWithinPositionTolerance(
+              driveCoordinator.drive,
+              linearDriveGoal.targetPose,
+              JsonConstants.driveConstants.linearDriveMaxPositionError,
+              JsonConstants.driveConstants.linearDriveMaxAngularError)
+          && isWithinVelocityTolerance(
+              driveCoordinator.drive,
+              linearDriveGoal.endLinearVelocity,
+              linearDriveGoal.endAngularVelocity,
+              JsonConstants.driveConstants.linearDriveMaxLinearVelocityError,
+              JsonConstants.driveConstants.linearDriveMaxAngularVelocityError);
     }
   }
 
-  
+  public static PIDController createDefaultAutoPilotHeadingController() {
+    return JsonConstants.driveConstants.defaultAutoPilotHeadingGains.toPIDController();
+  }
+
+  public static class AutoPilotCommand extends DriveCoordinatorCommands {
+    private Autopilot autoPilot;
+    private APTarget target;
+    private PIDController headingController;
+
+    public AutoPilotCommand(
+        DriveCoordinator driveCoordinator,
+        Autopilot autoPilot,
+        APTarget target,
+        PIDController headingController) {
+      super(driveCoordinator);
+      this.autoPilot = autoPilot;
+      this.target = target;
+      this.headingController = headingController;
+    }
+
+    @Override
+    public void initialize() {
+      headingController.reset();
+    }
+
+    @Override
+    public void execute() {
+      var chassisSpeeds = driveCoordinator.drive.getChassisSpeeds();
+      var currentPose = driveCoordinator.drive.getPose();
+
+      APResult output = autoPilot.calculate(currentPose, chassisSpeeds, target);
+
+      // TODO: Figure out how to convert target heading into rotation speed.
+      var desiredHeading = output.targetAngle();
+      var currentHeading = currentPose.getRotation();
+
+      double omega =
+          headingController.calculate(currentHeading.getRadians(), desiredHeading.getRadians());
+
+      var speeds =
+          new ChassisSpeeds(
+              output.vx().in(MetersPerSecond), output.vy().in(MetersPerSecond), omega);
+
+      driveCoordinator.drive.setGoalSpeedsBlueOrigins(speeds);
+    }
+
+    @Override
+    public boolean isFinished() {
+      var currentPose = driveCoordinator.drive.getPose();
+      return autoPilot.atTarget(currentPose, target);
+    }
+  }
 
   public static Command linearDriveToPose(DriveCoordinator driveCoordinator, Pose2d targetPose) {
     return new FollowLinearPathCommand(driveCoordinator, LinearDriveGoal.toPose(targetPose));
@@ -170,23 +235,17 @@ public class DriveCoordinatorCommands extends Command {
     return new StopDriveCommand(driveCoordinator);
   }
 
-  public static boolean isWithinPositionTolerance(Drive drive, Pose2d targetPose, Distance linearTolerance, Angle angularTolerance) {
+  public static boolean isWithinPositionTolerance(
+      Drive drive, Pose2d targetPose, Distance linearTolerance, Angle angularTolerance) {
     var currentPose = drive.getPose();
     var currentDistanceToTarget =
-        Meters.of(
-            currentPose
-                .getTranslation()
-                .getDistance(targetPose.getTranslation()));
+        Meters.of(currentPose.getTranslation().getDistance(targetPose.getTranslation()));
     if (!currentDistanceToTarget.isNear(Meters.zero(), linearTolerance)) {
       return false;
     }
 
     var currentAngularError =
-        Radians.of(
-            currentPose
-                .getRotation()
-                .minus(targetPose.getRotation())
-                .getRadians());
+        Radians.of(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
     if (!currentAngularError.isNear(Radians.zero(), angularTolerance)) {
       return false;
     }
@@ -194,7 +253,12 @@ public class DriveCoordinatorCommands extends Command {
     return true;
   }
 
-  public static boolean isWithinVelocityTolerance(Drive drive, LinearVelocity targetLinearVelocity, AngularVelocity targetAngularVelocity, LinearVelocity linearTolerance, AngularVelocity angularTolerance) {
+  public static boolean isWithinVelocityTolerance(
+      Drive drive,
+      LinearVelocity targetLinearVelocity,
+      AngularVelocity targetAngularVelocity,
+      LinearVelocity linearTolerance,
+      AngularVelocity angularTolerance) {
     var chassisSpeeds = drive.getChassisSpeeds();
 
     var currentLinearVelocity =

@@ -1,14 +1,24 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
+import com.therekrab.autopilot.APConstraints;
+import com.therekrab.autopilot.APProfile;
+import com.therekrab.autopilot.APTarget;
+import com.therekrab.autopilot.Autopilot;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
-import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveGoal;
+import frc.robot.subsystems.drive.DriveCoordinatorCommands;
+import frc.robot.subsystems.drive.DriveCoordinatorCommands.AutoPilotCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
@@ -64,7 +74,24 @@ public class ControllerSetup {
 
     Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
 
-    LinearDriveGoal linearDriveGoal = LinearDriveGoal.toPose(targetPose);
+    APConstraints constraints = new APConstraints().withAcceleration(3.0).withJerk(1.0);
+
+    APProfile profile =
+        new APProfile(constraints)
+            .withErrorXY(Meters.of(0.05))
+            .withErrorTheta(Degrees.of(5))
+            .withBeelineRadius(Centimeters.of(8));
+
+    Autopilot autoPilot = new Autopilot(profile);
+
+    APTarget target = new APTarget(targetPose)
+      .withEntryAngle(new Rotation2d(1.3));
+
+    PIDController headingController =
+        DriveCoordinatorCommands.createDefaultAutoPilotHeadingController();
+
+    AutoPilotCommand autoPilotCommand =
+        new AutoPilotCommand(driveCoordinator, autoPilot, target, headingController);
 
     controllers
         .getButton("testGoToAllianceCenter")
@@ -72,7 +99,7 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.linearDriveToGoal(linearDriveGoal);
+                  driveCoordinator.setCurrentCommand(autoPilotCommand);
                 }))
         .onFalse(
             new InstantCommand(
