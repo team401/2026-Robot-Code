@@ -11,8 +11,6 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
@@ -72,7 +70,7 @@ public class ControllerSetup {
                   driveCoordinator.cancelCurrentCommand();
                 }));
 
-    Pose2d targetPose = new Pose2d(13.5, 3.9, new Rotation2d(Math.toRadians(-90.0)));
+    Pose2d targetPose = new Pose2d(12, 7.5, new Rotation2d(Math.toRadians(90)));
 
     APConstraints constraints = new APConstraints().withAcceleration(3.0).withJerk(1.0);
 
@@ -82,7 +80,7 @@ public class ControllerSetup {
             .withErrorTheta(Degrees.of(5))
             .withBeelineRadius(Centimeters.of(8));
 
-    APTarget target = new APTarget(targetPose).withEntryAngle(new Rotation2d(1.3));
+    APTarget target = new APTarget(targetPose).withEntryAngle(new Rotation2d(Degrees.of(180)));
 
     Command autoPilotCommand =
         DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target);
