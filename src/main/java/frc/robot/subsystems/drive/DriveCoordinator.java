@@ -8,8 +8,6 @@ import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveGoal;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveProfileConfig;
-import frc.robot.subsystems.drive.control_methods.DriveControlMethod;
-import frc.robot.subsystems.drive.control_methods.LinearDrive;
 import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.TestModeManager;
 
@@ -25,32 +23,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class DriveCoordinator extends SubsystemBase {
 
-  public enum ClimbLocations {
-    LeftClimbLocation,
-    RightClimbLocation
-  }
-
-  public Drive drive;
-
-  public LinearDrive LINEAR_DRIVE;
-
-  private DriveControlMethod currentControlMethod;
-
-  public void setControlMethod(DriveControlMethod controlMethod) {
-    // Just here currently to make java happy
-  }
-
-  public void initializeJoyStickDriveControl(DriveWithJoysticks command) {
-    this.joystickCommand = command;
-    // Maybe temporary
-    this.defaultCommand = joystickCommand;
-  }
-
-  public void initializeControlMethods(Drive drive) {
-    LINEAR_DRIVE = new LinearDrive(drive, "DriveCoordinator");
-  }
-
-  // Test Mode
+  // Testing Mode Fields
   final TestModeManager<TestMode> testModeManager = new TestModeManager<>("Drive", TestMode.class);
 
   LoggedTunablePIDGains steerGains;
@@ -66,11 +39,27 @@ public class DriveCoordinator extends SubsystemBase {
             "DriveCoordinatorTunables/DriveGains",
             JsonConstants.driveConstants.driveGains.asArray());
   }
+  
+  // Fields for normal operation
+
+  public enum ClimbLocations {
+    LeftClimbLocation,
+    RightClimbLocation
+  }
+
+  public Drive drive;
+
 
   public Command currentCommand;
 
   protected Command defaultCommand;
   protected DriveWithJoysticks joystickCommand;
+
+  public void setDriveWithJoysticksCommand(DriveWithJoysticks command) {
+    this.joystickCommand = command;
+    // Maybe temporary
+    this.defaultCommand = joystickCommand;
+  }
 
   /**
    * The active command is always has the periodic run currently before it checks if it is finished.
@@ -134,6 +123,18 @@ public class DriveCoordinator extends SubsystemBase {
     }
   }
 
+  public void cancelCurrentCommand() {
+    setCurrentCommand(null);
+  }
+
+  public void forceRestartCurrentCommand() {
+    var activeCommand = getCurrentActiveCommand();
+    if (activeCommand != null) {
+      activeCommand.end(activeCommand.isFinished());
+      activeCommand.initialize();
+    }
+  }
+
   private void finishCurrentCommandIfFinished() {
     if (currentCommand != null && currentCommand.isFinished()) {
       currentCommand.end(true);
@@ -151,14 +152,18 @@ public class DriveCoordinator extends SubsystemBase {
 
     this.defaultCommand = DriveCoordinatorCommands.stopDrive(this);
     this.currentCommand = null;
+    this.joystickCommand = null;
+
     // drive.setDriveGains(JsonConstants.driveConstants.driveGains);
     // drive.setSteerGains(JsonConstants.driveConstants.steerGains);
-
-    initializeControlMethods(drive);
   }
 
   public void linearDriveToPose(Pose2d pose) {
     setCurrentCommand(DriveCoordinatorCommands.linearDriveToPose(this, pose));
+  }
+
+  public void linearDriveToGoal(LinearDriveGoal goal) {
+    setCurrentCommand(DriveCoordinatorCommands.linearDriveToGoal(this, goal));
   }
 
   public void linearDriveWithConfig(LinearDriveGoal command, LinearDriveProfileConfig linearDriveConfig) {
@@ -199,13 +204,6 @@ public class DriveCoordinator extends SubsystemBase {
     if (activeCommand != null) {
       activeCommand.execute();
       finishCurrentCommandIfFinished();
-    }
-    
-
-    // There should always be a current control method, but just in case, we can check for null
-    // before calling periodic on it
-    if (currentControlMethod != null) {
-      currentControlMethod.periodic();
     }
   }
 

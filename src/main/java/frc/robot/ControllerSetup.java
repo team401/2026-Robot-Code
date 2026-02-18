@@ -4,13 +4,11 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
-import frc.robot.subsystems.drive.DriveCoordinator.DriveAction;
-import frc.robot.subsystems.drive.control_methods.LinearDrive;
+import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveGoal;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
@@ -34,8 +32,9 @@ public class ControllerSetup {
    */
   public static void initDriveBindings(DriveCoordinator driveCoordinator, Drive drive) {
     var controllers = getControllers();
-    driveCoordinator.initializeJoyStickDriveControl(
-        new DriveWithJoysticks(
+
+    var joystickDriveCommand =
+      new DriveWithJoysticks(
             drive,
             controllers.getAxis("driveX").getSupplier(),
             controllers.getAxis("driveY").getSupplier(),
@@ -43,7 +42,11 @@ public class ControllerSetup {
             JsonConstants.driveConstants.maxLinearSpeed, // type: double (m/s)
             JsonConstants.driveConstants.maxAngularSpeed, // type: double (rad/s)
             JsonConstants.driveConstants.joystickDeadband, // type: double
-            JsonConstants.driveConstants.joystickMagnitudeExponent));
+            JsonConstants.driveConstants.joystickMagnitudeExponent // type: double
+    ); 
+
+
+    driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
     controllers
         .getButton("testClimbDrive")
@@ -57,13 +60,13 @@ public class ControllerSetup {
         .onFalse(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
+                  driveCoordinator.cancelCurrentCommand();
                 }));
 
     Pose2d targetPose = new Pose2d(13, 3.9, new Rotation2d(Math.toRadians(-90.0)));
 
-    LinearDrive.LinearDriveCommand linearDriveCommand =
-        new LinearDrive.LinearDriveCommand(targetPose);
+    LinearDriveGoal linearDriveGoal =
+        LinearDriveGoal.toPose(targetPose);
 
     controllers
         .getButton("testGoToAllianceCenter")
@@ -71,12 +74,12 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.followLinearDriveCommand(linearDriveCommand);
+                  driveCoordinator.linearDriveToGoal(linearDriveGoal);
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
+                  driveCoordinator.cancelCurrentCommand();
                 }));
   }
 
