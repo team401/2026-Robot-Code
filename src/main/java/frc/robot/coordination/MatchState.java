@@ -24,7 +24,8 @@ public class MatchState {
   private boolean hasDeterminedAutoWinner = false;
 
   /** Track the last match time to determine when we are using practice mode */
-  private double lastMatchTime = 0.0;
+  //initalze to negative infinity so that we don't accidentally think we're in practice mode at the start of a match before we've gotten a valid match time reading
+  private double lastMatchTime = Double.NEGATIVE_INFINITY;
 
   private boolean hasGameData =
       DriverStation.getMatchType() == DriverStation.MatchType.Practice
