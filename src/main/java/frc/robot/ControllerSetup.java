@@ -17,6 +17,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
+import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
@@ -56,47 +57,35 @@ public class ControllerSetup {
     driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
     controllers
-        .getButton("testClimbDrive")
-        .getTrigger()
+        .getButton("testClimbDrive").getTrigger()
         .onTrue(
-            new InstantCommand(
-                () -> {
-                  driveCoordinator.driveToClimbLocation(
-                      DriveCoordinator.ClimbLocations.LeftClimbLocation);
-                }))
+            driveCoordinator.createInstantCommandToSetCurrent(
+                driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
         .onFalse(
-            new InstantCommand(
-                () -> {
-                  driveCoordinator.cancelCurrentCommand();
-                }));
+            driveCoordinator.createInstantCommandToCancelCommand());
 
     var combinedAutoPilot =
         DriveCoordinatorCommands.autoPilotToTargetsCommand(
             driveCoordinator,
-            new APProfile(new APConstraints().withAcceleration(3.0).withJerk(1.0))
-                .withErrorXY(Meters.of(0.05))
+            new APProfile(new APConstraints().withAcceleration(5.0).withJerk(3.0))
+                .withErrorXY(Meters.of(0.2))
                 .withErrorTheta(Degrees.of(5))
-                .withBeelineRadius(Centimeters.of(8)),
-            new APTarget(new Pose2d(12.5, 7.4, new Rotation2d(Math.toRadians(90))))
+                .withBeelineRadius(Meters.of(0.2)),
+            new APTarget(new Pose2d(12.6, 7.4, new Rotation2d(Math.toRadians(90))))
                 .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond)),
-            new APTarget(new Pose2d(11.5, 7.4, new Rotation2d(Math.toRadians(90))))
+                .withVelocity(MetersPerSecond.of(3.0).in(MetersPerSecond)),
+            new APTarget(new Pose2d(11.4, 7.4, new Rotation2d(Math.toRadians(90))))
                 .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond)));
+                .withVelocity(MetersPerSecond.of(3.0).in(MetersPerSecond)),
+            new APTarget(new Pose2d(8.2, 4, new Rotation2d(Math.toRadians(90))))
+                .withEntryAngle(new Rotation2d(Degrees.of(270))));
 
     controllers
-        .getButton("testGoToAllianceCenter")
-        .getTrigger()
+        .getButton("testGoToAllianceCenter").getTrigger()
         .onTrue(
-            new InstantCommand(
-                () -> {
-                  driveCoordinator.setCurrentCommand(combinedAutoPilot);
-                }))
+            driveCoordinator.createInstantCommandToSetCurrent(combinedAutoPilot))
         .onFalse(
-            new InstantCommand(
-                () -> {
-                  driveCoordinator.cancelCurrentCommand();
-                }));
+            driveCoordinator.createInstantCommandToCancelCommand());
   }
 
   public static void initIntakeBindings(IntakeSubsystem intakeSubsystem) {

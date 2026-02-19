@@ -39,7 +39,9 @@ public class DriveCoordinatorCommands extends Command {
   }
 
   public static PIDController createDefaultAutoPilotHeadingController() {
-    return JsonConstants.driveConstants.defaultAutoPilotHeadingGains.toPIDController();
+    var controller = JsonConstants.driveConstants.defaultAutoPilotHeadingGains.toPIDController();
+    controller.enableContinuousInput(-Math.PI, Math.PI);
+    return controller;
   }
 
   public static class AutoPilotCommand extends DriveCoordinatorCommands {
@@ -94,7 +96,7 @@ public class DriveCoordinatorCommands extends Command {
   }
 
   public static APConstraints createDefaltAPConstraints() {
-    return new APConstraints().withAcceleration(0.0).withJerk(0.0);
+    return new APConstraints().withAcceleration(3).withJerk(3);
   }
 
   public static APProfile createDefaultAPProfile() {

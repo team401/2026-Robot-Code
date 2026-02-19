@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
@@ -122,6 +123,14 @@ public class DriveCoordinator extends SubsystemBase {
 
   public void cancelCurrentCommand() {
     setCurrentCommand(null);
+  }
+
+  public InstantCommand createInstantCommandToSetCurrent(Command command) {
+    return new InstantCommand(() -> setCurrentCommand(command));
+  }
+
+  public InstantCommand createInstantCommandToCancelCommand() {
+    return new InstantCommand(this::cancelCurrentCommand);
   }
 
   public void forceRestartCurrentCommand() {
