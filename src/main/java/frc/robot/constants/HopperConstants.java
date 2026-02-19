@@ -42,11 +42,9 @@ public class HopperConstants {
    * The robot-relative angle that the hopper is at once it has homed. This should be determined
    * using CAD to find the angle of the "negative direction" hardstop.
    */
+  public PIDGains hopperGains = PIDGains.kPID(16.0, 0.0, 0.0);
 
-  public PIDGains hopperGains =
-      PIDGains.kPID(16.0, 0.0, 0.0);
-
-    // The important values here are maxAcceleration and maxJerk
+  // The important values here are maxAcceleration and maxJerk
   public MotionProfileConfig hopperMotionProfileConfig =
       MotionProfileConfig.immutable(
           RotationsPerSecond.zero(),
@@ -86,8 +84,7 @@ public class HopperConstants {
                 .withStatorCurrentLimit(hopperStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs().withInverted(hopperMotorDirection))
-        .withMotionMagic(
-            hopperMotionProfileConfig.asMotionMagicConfigs());
+        .withMotionMagic(hopperMotionProfileConfig.asMotionMagicConfigs());
   }
 
   public CoppercoreSimAdapter buildHopperSim() {

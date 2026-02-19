@@ -5,145 +5,281 @@
     {
       "name": "Indexer Tuning",
       "grid_layout": {
-        "layouts": [],
+        "layouts": [
+          {
+            "title": "IndexerFeedForwardGains",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kS",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/PIDGains/kS",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kG",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/PIDGains/kG",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kV",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/PIDGains/kV",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kA",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/PIDGains/kA",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "IndexerMotorTuning",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "CurrentTuning_Amps",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/CurrentTuning_Amps",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "VelocityTarget_Rotation per Minute",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/VelocityTarget_Rotation per Minute",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "VoltageTuning_Volts",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/VoltageTuning_Volts",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "IndexerPIDGains",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kP",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/PIDGains/kP",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kI",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/PIDGains/kI",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kD",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/PIDGains/kD",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "IndexerMotionProfile",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "MaxAcceleration",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxAcceleration",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "MaxJerk",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxJerk",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "MaxVelocity",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxVelocity",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "expoKV",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/expoKV",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "expoKA",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/expoKA",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          }
+        ],
         "containers": [
           {
             "title": "Indexer Test Mode Selector",
             "x": 0.0,
-            "y": 384.0,
-            "width": 256.0,
+            "y": 256.0,
+            "width": 1024.0,
             "height": 128.0,
-            "type": "ComboBox Chooser",
+            "type": "Split Button Chooser",
             "properties": {
               "topic": "/SmartDashboard/Indexer Test Mode Selector",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "indexerKP",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKP",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerKI",
-            "x": 128.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKI",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerKD",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKD",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerKS",
-            "x": 0.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKS",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerKV",
-            "x": 128.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKV",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerKA",
-            "x": 256.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerKA",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerTuningSetpointVelocityRPM",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerTuningSetpointVelocityRPM",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerMaxAccelerationRotationsPerSecond",
-            "x": 512.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerMaxAccelerationRotationsPerSecond",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "indexerMaxJerkRotationsPerSecond",
-            "x": 512.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "TunableNumbers/IndexerTunables/indexerMaxJerkRotationsPerSecond",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
+              "period": 0.06
             }
           }
         ]
@@ -1016,7 +1152,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kP",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1030,7 +1166,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kI",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1044,7 +1180,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kD",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               }
             ]
@@ -1071,7 +1207,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kS",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1085,7 +1221,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kG",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1099,7 +1235,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kV",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1113,7 +1249,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kA",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               }
             ]
@@ -1140,7 +1276,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kS",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1154,7 +1290,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kG",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1168,7 +1304,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kV",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1182,7 +1318,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kA",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               }
             ]
@@ -1209,7 +1345,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kP",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1223,7 +1359,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kI",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1237,7 +1373,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kD",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               }
             ]
@@ -1250,7 +1386,7 @@
             "height": 256.0,
             "type": "List Layout",
             "properties": {
-              "label_position": "RIGHT"
+              "label_position": "LEFT"
             },
             "children": [
               {
@@ -1264,7 +1400,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/CurrentTuning_Amps",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1278,7 +1414,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/PositionTarget_Degree",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1292,7 +1428,7 @@
                   "topic": "TunableNumbers/Intake/PivotMotorTuning/VoltageTuning_Volts",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               }
             ]
@@ -1305,7 +1441,7 @@
             "height": 256.0,
             "type": "List Layout",
             "properties": {
-              "label_position": "RIGHT"
+              "label_position": "LEFT"
             },
             "children": [
               {
@@ -1319,7 +1455,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/VoltageTuning_Volts",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1333,7 +1469,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/CurrentTuning_Amps",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -1347,7 +1483,7 @@
                   "topic": "TunableNumbers/Intake/RollersMotorTuning/VelocityTarget_Rotation per Minute",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               }
             ]
@@ -1485,6 +1621,289 @@
               "wrap_value": false,
               "show_pointer": true,
               "show_ticks": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Hopper Tuning",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "HopperFeedForwardGains",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kS",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/PIDGains/kS",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kG",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/PIDGains/kG",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kV",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/PIDGains/kV",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kA",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/PIDGains/kA",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "MotorTuning",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "CurrentTuning_Amps",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/CurrentTuning_Amps",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "VelocityTarget_Rotation per Minute",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/VelocityTarget_Rotation per Minute",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "VoltageTuning_Volts",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/VoltageTuning_Volts",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "HopperPIDGains",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kP",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/PIDGains/kP",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kI",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/PIDGains/kI",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "kD",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/PIDGains/kD",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "HopperMotionProfile",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "MaxAcceleration",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxAcceleration",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "MaxJerk",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxJerk",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "MaxVelocity",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxVelocity",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "expoKV",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/expoKV",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "expoKA",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/expoKA",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "title": "Hopper Test Mode Selector",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 1024.0,
+            "height": 128.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Hopper Test Mode Selector",
+              "period": 0.06
             }
           }
         ]

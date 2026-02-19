@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
-import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
@@ -24,7 +23,6 @@ import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
-
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -77,24 +75,23 @@ public class HopperSubsystem extends MonitoredSubsystem {
         TunableMotorConfiguration.defaultConfiguration()
             .withVelocityTuning()
             .profiled()
-            .withDefaultMotionProfileConfig(
-                JsonConstants.hopperConstants.hopperMotionProfileConfig)
+            .withDefaultMotionProfileConfig(JsonConstants.hopperConstants.hopperMotionProfileConfig)
             .withDefaultPIDGains(JsonConstants.hopperConstants.hopperGains)
             .onPIDGainsChanged(newGains -> JsonConstants.hopperConstants.hopperGains = newGains)
             .onMotionProfileConfigChanged(
-                newProfile ->
-                    JsonConstants.hopperConstants.hopperMotionProfileConfig = newProfile)
+                newProfile -> JsonConstants.hopperConstants.hopperMotionProfileConfig = newProfile)
             .withLoggingAngularVelocityUnit(RPM)
             .build("Hopper/MotorTuning", motor);
 
-    tuningModeHelper = new TuningModeHelper<TestMode>( TestMode.class)
-            .addMotorTuningModes(tunableMotor, 
-              MotorTuningMode.of(TestMode.HopperClosedLoopTuning, ControlMode.CLOSED_LOOP),
-              MotorTuningMode.of(TestMode.HopperCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-              MotorTuningMode.of(TestMode.HopperVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-              MotorTuningMode.of(TestMode.HopperPhoenixTuning, ControlMode.PHOENIX_TUNING),
-              MotorTuningMode.of(TestMode.None, ControlMode.NONE)
-            );
+    tuningModeHelper =
+        new TuningModeHelper<TestMode>(TestMode.class)
+            .addMotorTuningModes(
+                tunableMotor,
+                MotorTuningMode.of(TestMode.HopperClosedLoopTuning, ControlMode.CLOSED_LOOP),
+                MotorTuningMode.of(TestMode.HopperCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+                MotorTuningMode.of(TestMode.HopperVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+                MotorTuningMode.of(TestMode.HopperPhoenixTuning, ControlMode.PHOENIX_TUNING),
+                MotorTuningMode.of(TestMode.None, ControlMode.NONE));
 
     AutoLogOutputManager.addObject(this);
   }

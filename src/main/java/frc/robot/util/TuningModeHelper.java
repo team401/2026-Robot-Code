@@ -143,14 +143,12 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       if (configuration.voltageTuning) {
         openLoopVoltage =
-            LoggedTunableMeasure.VOLTAGE.of(
-                prefix + "/VoltageTuning_Volts", Volts.zero(), Volts);
+            LoggedTunableMeasure.VOLTAGE.of(prefix + "/VoltageTuning_Volts", Volts.zero(), Volts);
       }
 
       if (configuration.currentTuning) {
         openLoopCurrent =
-            LoggedTunableMeasure.CURRENT.of(
-                prefix + "/CurrentTuning_Amps", Amps.zero(), Amps);
+            LoggedTunableMeasure.CURRENT.of(prefix + "/CurrentTuning_Amps", Amps.zero(), Amps);
       }
 
       String unitSuffix = "";
@@ -174,8 +172,7 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       if (configuration.hasClosedLoopTuning) {
         closedLoopPIDGains =
-            new LoggedTunablePIDGains(
-                prefix + "/PIDGains", configuration.defaultPIDGains);
+            new LoggedTunablePIDGains(prefix + "/PIDGains", configuration.defaultPIDGains);
 
         if (configuration.profileType != ProfileType.UNPROFILED) {
           closedLoopMotionProfile =
@@ -186,13 +183,11 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         if (configuration.closedLoopType == ClosedLoopType.POSITION) {
           closedLoopPositionTarget =
               LoggedTunableMeasure.ANGLE.of(
-                  prefix + "/PositionTarget" + unitSuffix,
-                  configuration.initialPositionSetpoint);
+                  prefix + "/PositionTarget" + unitSuffix, configuration.initialPositionSetpoint);
         } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
           closedLoopVelocityTarget =
               LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-                  prefix + "/VelocityTarget" + unitSuffix,
-                  configuration.initialVelocitySetpoint);
+                  prefix + "/VelocityTarget" + unitSuffix, configuration.initialVelocitySetpoint);
         }
       }
     }

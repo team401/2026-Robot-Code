@@ -18,8 +18,8 @@ public class LoggedTunableMotionProfile {
   LoggedAngularVelocity maxVelocity;
   LoggedAngularAcceleration maxAcceleration;
   LoggedAngularJerk maxJerk;
-  LoggedVoltagePerAngularVelocity kV;
-  LoggedVoltagePerAngularAcceleration kA;
+  LoggedVoltagePerAngularVelocity expoKV;
+  LoggedVoltagePerAngularAcceleration expoKA;
 
   MutableMotionProfileConfig currentMotionProfile;
 
@@ -47,12 +47,14 @@ public class LoggedTunableMotionProfile {
             namePrefix + "/MaxJerk",
             defaultProfile.getMaxJerk(),
             RotationsPerSecondPerSecond.per(Seconds));
-    this.kV =
+    this.expoKV =
         LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_VELOCITY.of(
-            namePrefix + "/kV", defaultProfile.getExpoKv(), Volts.per(RotationsPerSecond));
-    this.kA =
+            namePrefix + "/expoKV", defaultProfile.getExpoKv(), Volts.per(RotationsPerSecond));
+    this.expoKA =
         LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_ACCELERATION.of(
-            namePrefix + "/kA", defaultProfile.getExpoKa(), Volts.per(RotationsPerSecondPerSecond));
+            namePrefix + "/expoKA",
+            defaultProfile.getExpoKa(),
+            Volts.per(RotationsPerSecondPerSecond));
   }
 
   public LoggedTunableMotionProfile(String namePrefix) {
@@ -78,12 +80,12 @@ public class LoggedTunableMotionProfile {
       currentMotionProfile.withMaxJerk(maxJerk.get());
       hasChanged = true;
     }
-    if (kV.hasChanged(id)) {
-      currentMotionProfile.withExpoKv(kV.get());
+    if (expoKV.hasChanged(id)) {
+      currentMotionProfile.withExpoKv(expoKV.get());
       hasChanged = true;
     }
-    if (kA.hasChanged(id)) {
-      currentMotionProfile.withExpoKa(kA.get());
+    if (expoKA.hasChanged(id)) {
+      currentMotionProfile.withExpoKa(expoKA.get());
       hasChanged = true;
     }
     return hasChanged;
