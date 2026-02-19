@@ -36,7 +36,8 @@ public class IndexerConstants {
 
   public PIDGains indexerGains = PIDGains.kPID(10.0, 5.0, 0.0);
 
-  // The important values here are maxAcceleration and maxJerk
+  // The important values here are maxAcceleration and maxJerk because it uses
+  // a profiled velocity request
   public MotionProfileConfig indexerMotionProfileConfig =
       MotionProfileConfig.immutable(
           RotationsPerSecond.zero(),

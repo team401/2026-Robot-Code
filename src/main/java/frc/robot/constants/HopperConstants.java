@@ -38,13 +38,10 @@ public class HopperConstants {
 
   public final AngularVelocity spinningMovementThreshold = RadiansPerSecond.of(3.0);
 
-  /**
-   * The robot-relative angle that the hopper is at once it has homed. This should be determined
-   * using CAD to find the angle of the "negative direction" hardstop.
-   */
   public PIDGains hopperGains = PIDGains.kPID(16.0, 0.0, 0.0);
 
-  // The important values here are maxAcceleration and maxJerk
+  // The important values here are maxAcceleration and maxJerk because it uses
+  // a profiled velocity request
   public MotionProfileConfig hopperMotionProfileConfig =
       MotionProfileConfig.immutable(
           RotationsPerSecond.zero(),

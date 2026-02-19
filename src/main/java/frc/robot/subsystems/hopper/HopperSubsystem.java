@@ -80,7 +80,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
             .onPIDGainsChanged(newGains -> JsonConstants.hopperConstants.hopperGains = newGains)
             .onMotionProfileConfigChanged(
                 newProfile -> JsonConstants.hopperConstants.hopperMotionProfileConfig = newProfile)
-            .withLoggingAngularVelocityUnit(RPM)
+            .withTunableAngularVelocityUnit(RPM)
             .build("Hopper/MotorTuning", motor);
 
     tuningModeHelper =

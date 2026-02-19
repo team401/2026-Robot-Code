@@ -155,9 +155,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       if (configuration.useUnitInLoggedTunablePaths) {
         Unit unit = null;
         if (configuration.closedLoopType == ClosedLoopType.POSITION) {
-          unit = configuration.loggingAngleUnit;
+          unit = configuration.tunableAngleUnit;
         } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
-          unit = configuration.loggingAngularVelocityUnit;
+          unit = configuration.tunableAngularVelocityUnit;
         } else {
           return;
         }
@@ -377,8 +377,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     protected MotionProfileConfig defaultMotionProfileConfig =
         LoggedTunableMotionProfile.defaultMotionProfileConfig;
 
-    protected AngleUnit loggingAngleUnit = Radians;
-    protected AngularVelocityUnit loggingAngularVelocityUnit = RadiansPerSecond;
+    protected AngleUnit tunableAngleUnit = Radians;
+    protected AngularVelocityUnit tunableAngularVelocityUnit = RadiansPerSecond;
 
     protected Consumer<PIDGains> onPIDGainsChanged = pidGains -> {};
     protected Consumer<MotionProfileConfig> onMotionProfileConfigChanged = profileConfig -> {};
@@ -473,14 +473,14 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return this;
     }
 
-    public TunableMotorConfiguration withLoggingAngleUnit(AngleUnit loggingAngleUnit) {
-      this.loggingAngleUnit = loggingAngleUnit;
+    public TunableMotorConfiguration withTunableAngleUnit(AngleUnit tunableAngleUnit) {
+      this.tunableAngleUnit = tunableAngleUnit;
       return this;
     }
 
-    public TunableMotorConfiguration withLoggingAngularVelocityUnit(
-        AngularVelocityUnit loggingAngularVelocityUnit) {
-      this.loggingAngularVelocityUnit = loggingAngularVelocityUnit;
+    public TunableMotorConfiguration withTunableAngularVelocityUnit(
+        AngularVelocityUnit tunableAngularVelocityUnit) {
+      this.tunableAngularVelocityUnit = tunableAngularVelocityUnit;
       return this;
     }
 
@@ -520,8 +520,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       copy.defaultMotionProfileConfig = this.defaultMotionProfileConfig;
       copy.onPIDGainsChanged = this.onPIDGainsChanged;
       copy.onMotionProfileConfigChanged = this.onMotionProfileConfigChanged;
-      copy.loggingAngleUnit = this.loggingAngleUnit;
-      copy.loggingAngularVelocityUnit = this.loggingAngularVelocityUnit;
+      copy.tunableAngleUnit = this.tunableAngleUnit;
+      copy.tunableAngularVelocityUnit = this.tunableAngularVelocityUnit;
       copy.useUnitInLoggedTunablePaths = this.useUnitInLoggedTunablePaths;
       copy.useUnitSymbolInsteadOfNameInLoggedTunablePaths =
           this.useUnitSymbolInsteadOfNameInLoggedTunablePaths;

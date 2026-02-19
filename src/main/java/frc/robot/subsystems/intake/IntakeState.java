@@ -51,14 +51,14 @@ public class IntakeState {
               .withPositionTuning()
               .withDefaultPIDGains(JsonConstants.intakeConstants.pivotPIDGains)
               .onPIDGainsChanged(gains -> JsonConstants.intakeConstants.pivotPIDGains = gains)
-              .withLoggingAngleUnit(Degrees)
+              .withTunableAngleUnit(Degrees)
               .build("Intake/PivotMotorTuning", world.pivotMotorIO);
       TunableMotor rollerMotors =
           TunableMotorConfiguration.defaultConfiguration()
               .withVelocityTuning()
               .withDefaultPIDGains(JsonConstants.intakeConstants.rollersPIDGains)
               .onPIDGainsChanged(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains)
-              .withLoggingAngularVelocityUnit(RPM)
+              .withTunableAngularVelocityUnit(RPM)
               .build(
                   "Intake/RollersMotorTuning",
                   world.rollersLeadMotorIO,

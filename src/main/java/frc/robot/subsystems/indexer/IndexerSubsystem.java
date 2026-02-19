@@ -96,7 +96,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
             .onMotionProfileConfigChanged(
                 newProfile ->
                     JsonConstants.indexerConstants.indexerMotionProfileConfig = newProfile)
-            .withLoggingAngularVelocityUnit(RPM)
+            .withTunableAngularVelocityUnit(RPM)
             .build("Indexer/MotorTuning", motor);
 
     tuningModeHelper =

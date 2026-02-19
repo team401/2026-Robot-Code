@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.json;
 
 import coppercore.parameter_tools.json.helpers.JSONObject;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
@@ -17,8 +17,8 @@ public class JSONMotionProfileConfig extends JSONObject<MotionProfileConfig> {
   AngularVelocity maxVelocity;
   AngularAcceleration maxAcceleration;
   Velocity<AngularAccelerationUnit> maxJerk;
-  Per<VoltageUnit, AngularVelocityUnit> voltsPerVelocity;
-  Per<VoltageUnit, AngularAccelerationUnit> voltsPerAcceleration;
+  Per<VoltageUnit, AngularVelocityUnit> expoKV;
+  Per<VoltageUnit, AngularAccelerationUnit> expoKA;
 
   public JSONMotionProfileConfig(MotionProfileConfig motionProfileConfig) {
     super(motionProfileConfig);
@@ -27,18 +27,18 @@ public class JSONMotionProfileConfig extends JSONObject<MotionProfileConfig> {
     this.maxVelocity = motionProfileConfig.getMaxVelocity();
     this.maxAcceleration = motionProfileConfig.getMaxAcceleration();
     this.maxJerk = motionProfileConfig.getMaxJerk();
-    this.voltsPerVelocity = motionProfileConfig.getExpoKv();
-    this.voltsPerAcceleration = motionProfileConfig.getExpoKa();
+    this.expoKV = motionProfileConfig.getExpoKv();
+    this.expoKA = motionProfileConfig.getExpoKa();
   }
 
   @Override
   public MotionProfileConfig toJava() {
     if (isMutable) {
       return MotionProfileConfig.mutable(
-          maxVelocity, maxAcceleration, maxJerk, voltsPerVelocity, voltsPerAcceleration);
+          maxVelocity, maxAcceleration, maxJerk, expoKV, expoKA);
     } else {
       return MotionProfileConfig.immutable(
-          maxVelocity, maxAcceleration, maxJerk, voltsPerVelocity, voltsPerAcceleration);
+          maxVelocity, maxAcceleration, maxJerk, expoKV, expoKA);
     }
   }
 

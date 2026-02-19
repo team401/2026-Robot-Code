@@ -32,7 +32,7 @@
       "value": 999.9999999999999,
       "unit": "Rotation per Second per Second per Second"
     },
-    "voltsPerVelocity": {
+    "expoKV": {
       "dividend": {
         "value": 0.0,
         "unit": "Volt"
@@ -40,6 +40,16 @@
       "divisor": {
         "value": 1.0,
         "unit": "Rotation per Second"
+      }
+    },
+    "expoKA": {
+      "dividend": {
+        "value": 0.0,
+        "unit": "Volt"
+      },
+      "divisor": {
+        "value": 1.0,
+        "unit": "Rotation per Second per Second"
       }
     }
   },
