@@ -71,5 +71,9 @@ public class ControllerSetup {
       .getButton("overrideMatchStateRed")
       .getTrigger()
       .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateRed));
+    controllers
+      .getButton("overrideMatchStateBlue")
+      .getTrigger()
+      .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateBlue));  
   }
 }
