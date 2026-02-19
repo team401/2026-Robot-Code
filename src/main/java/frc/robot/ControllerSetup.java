@@ -64,4 +64,12 @@ public class ControllerSetup {
                 () -> intakeSubsystem.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed)))
         .onFalse(new InstantCommand(intakeSubsystem::stopRollers));
   }
+
+  public static void initMatchStateBindings(CoordinationLayer coordinationLayer){
+    var controllers = getControllers();
+    controllers
+      .getButton("overrideMatchStateRed")
+      .getTrigger()
+      .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateRed));
+  }
 }

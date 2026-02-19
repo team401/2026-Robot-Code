@@ -19,6 +19,8 @@ import org.littletonrobotics.junction.Logger;
  */
 public class MatchState {
   private Alliance wonAuto = Alliance.Red;
+  private boolean canTrustFMS = false;
+  
   private boolean hasDeterminedAutoWinner = false;
 
   /** Track the last match time to determine when we are using practice mode */
@@ -30,6 +32,8 @@ public class MatchState {
           || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
   private MatchShift currentShift = MatchShift.Unknown;
   private boolean canScore = true;
+  public boolean manualRedOverridePressed;
+  public boolean manualBlueOverridePressed;
 
   public enum MatchShift {
     /** Autonomous; both hubs are active */
@@ -100,8 +104,20 @@ public class MatchState {
 
   /** Must be called by the coordination layer when enabled */
   public void enabledPeriodic(boolean manualRedOverridePressed, boolean manualBlueOverridePressed) {
+    this.manualRedOverridePressed = manualRedOverridePressed;
+    this.manualBlueOverridePressed = manualBlueOverridePressed;
     if (!hasDeterminedAutoWinner) {
+      // Check for game data; if not present allow for manual override.
       checkGameDataForAutoWinner();
+    } else {
+      if (manualRedOverridePressed && !canTrustFMS) {
+        wonAuto = Alliance.Red;
+      } else if (manualBlueOverridePressed && !canTrustFMS) {
+        wonAuto = Alliance.Blue;
+      } else {
+        //yikes!
+        wonAuto = null;
+      }
     }
 
     // Determine if it's possible to shoot by checking the current match shift
@@ -142,11 +158,12 @@ public class MatchState {
         wonAuto = Alliance.Blue;
         hasDeterminedAutoWinner = true;
       }
+      canTrustFMS = true;
     }
-  }
+    else {
+      canTrustFMS = false;
+    }
 
-  public boolean hasDeterminedAutoWinner() {
-    return hasDeterminedAutoWinner;
   }
 
   public Alliance getAutoWinner() {
@@ -249,5 +266,10 @@ public class MatchState {
   @AutoLogOutput(key = "MatchState/currentShift")
   public MatchShift getCurrentShift() {
     return currentShift;
+  }
+
+  @AutoLogOutput(key = "MatchState/hasDeterminedAutoWinner")
+  public boolean hasDeterminedAutoWinner() {
+    return hasDeterminedAutoWinner;
   }
 }

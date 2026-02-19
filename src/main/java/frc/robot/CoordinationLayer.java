@@ -65,10 +65,17 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::runSubsystemDemoModes");
   public static final ActionKey UPDATE_MATCH_STATE =
       new ActionKey("CoordinationLayer::updateMatchState");
-
+  public static final ActionKey OVERRIDE_MATCH_STATE_RED =
+      new ActionKey("CoordinationLayer::overrideMatchStateRed");
+  public static final ActionKey OVERRIDE_MATCH_STATE_BLUE =
+      new ActionKey("CoordinationLayer::overrideMatchStateBlue");
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
   private final MatchState matchState = new MatchState();
+  // Manual override requests set by controller bindings. These are cleared once consumed in
+  // updateMatchState and forwarded to MatchState.enabledPeriodic as booleans.
+  private volatile boolean manualRedOverrideRequest = false;
+  private volatile boolean manualBlueOverrideRequest = false;
 
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
@@ -76,8 +83,10 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.registerAction(UPDATE_MATCH_STATE, this::updateMatchState);
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
     dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
-
+    dependencyOrderedExecutor.registerAction(OVERRIDE_MATCH_STATE_RED, this::overrideMatchStateRed);
+    dependencyOrderedExecutor.registerAction(OVERRIDE_MATCH_STATE_BLUE, this::overrideMatchStateBlue);
     // make sure match state is updated before running the shot calculator
+
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, UPDATE_MATCH_STATE);
   }
 
@@ -346,14 +355,32 @@ public class CoordinationLayer {
 
   /** Update the MatchState each periodic loop */
   private void updateMatchState() {
-    matchState.enabledPeriodic(false, false);
+    // Consume any manual override requests set by controller bindings. These are one-shot and
+    // should be cleared immediately after being read so subsequent loops don't re-trigger them.
+    boolean redRequest = manualRedOverrideRequest;
+    boolean blueRequest = manualBlueOverrideRequest;
+    manualRedOverrideRequest = false;
+    manualBlueOverrideRequest = false;
+
+    matchState.enabledPeriodic(redRequest, blueRequest);
 
     double timeLeft = matchState.getTimeLeftInCurrentShift();
 
     boolean hasFiveSecondsLeft = timeLeft >= 5.0;
     Logger.recordOutput("MatchState/has5sLeft", hasFiveSecondsLeft);
   }
-
+  /** Called by a controller binding or DOE action to request that the match state be
+   * overridden to red for the next enabledPeriodic call. This sets a one-shot request which
+   * is consumed by updateMatchState.
+   */
+  public void overrideMatchStateRed(){
+    manualRedOverrideRequest = true;
+    manualBlueOverrideRequest = false;
+  }
+  public void overrideMatchStateBlue(){
+    manualBlueOverrideRequest = true;
+    manualRedOverrideRequest = false;
+  }
   /**
    * Given an "ideal" shot, command the scoring subsystems to target it
    *
