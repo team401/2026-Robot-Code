@@ -1,6 +1,5 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -72,29 +71,10 @@ public class ControllerSetup {
         .onFalse(
             driveCoordinator.createInstantCommandToCancelCommand());
 
-    var combinedAutoPilot =
-        DriveCoordinatorCommands.autoPilotToTargetsCommand(
-            driveCoordinator,
-            new APProfile(new APConstraints().withAcceleration(5.0).withJerk(3.0))
-                .withErrorXY(Meters.of(0.2))
-                .withErrorTheta(Degrees.of(5))
-                .withBeelineRadius(Meters.of(0.2)),
-            new APTarget(new Pose2d(12.6, 7.4, new Rotation2d(Math.toRadians(90))))
-                .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                .withVelocity(MetersPerSecond.of(3.0).in(MetersPerSecond)),
-            new APTarget(new Pose2d(11.4, 7.4, new Rotation2d(Math.toRadians(90))))
-                .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                .withVelocity(MetersPerSecond.of(3.0).in(MetersPerSecond)),
-            new APTarget(new Pose2d(8.2, 4, new Rotation2d(Math.toRadians(90))))
-                .withEntryAngle(new Rotation2d(Degrees.of(270))));
-            new InstantCommand(
-                () -> {
-                  driveCoordinator.cancelCurrentCommand();
-                }));
 
-    Pose2d pose1 = new Pose2d(12.5, 7.33, new Rotation2d(Math.toRadians(90)));
+    Pose2d pose1 = new Pose2d(12.6, 7.33, new Rotation2d(Math.toRadians(90)));
 
-    Pose2d pose2 = new Pose2d(11.5, 7.33, new Rotation2d(Math.toRadians(90)));
+    Pose2d pose2 = new Pose2d(11.4, 7.33, new Rotation2d(Math.toRadians(90)));
 
     controllers
         .getButton("testGoToAllianceCenter")
@@ -102,44 +82,39 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  APConstraints constraints =
-                      new APConstraints()
-                          .withAcceleration(trenchAccelMpsSquared.get())
-                          .withJerk(trenchJerkMpsCubed.get());
 
-                  APProfile profile =
-                      new APProfile(constraints)
-                          .withErrorXY(Meters.of(0.05))
-                          .withErrorTheta(Degrees.of(5))
-                          .withBeelineRadius(Centimeters.of(8));
+                    var constraints = new APConstraints()
+                        .withAcceleration(trenchAccelMpsSquared.get())
+                        .withJerk(trenchJerkMpsCubed.get());
+                    
+                    var profile = new APProfile(constraints)
+                        .withErrorXY(Meters.of(0.2))
+                        .withErrorTheta(Degrees.of(5))
+                        .withBeelineRadius(Meters.of(0.2));
 
-                  double endVelocityMps = trenchEndVelocityMps.get();
-                  APTarget target1 =
-                      new APTarget(pose1)
-                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+                    double endVelocityMps = trenchEndVelocityMps.get();
+                    var target1 = new APTarget(pose1)
+                        .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                        .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+                    
+                    var target2 = new APTarget(pose2)
+                        .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                        .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+                    
+                    var target3 = new APTarget(new Pose2d(8.2, 4, new Rotation2d(Math.toRadians(90))))
+                        .withEntryAngle(new Rotation2d(Degrees.of(270)));
 
-                  Command autoPilotCommand1 =
-                      DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target1);
-
-                  APTarget target2 =
-                      new APTarget(pose2)
-                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
-
-                  Command autoPilotCommand2 =
-                      DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target2);
-
-                  var combinedAutoPilot = autoPilotCommand1.andThen(autoPilotCommand2);
-
-    controllers
-        .getButton("testGoToAllianceCenter").getTrigger()
-        .onTrue(
-            driveCoordinator.createInstantCommandToSetCurrent(combinedAutoPilot))
-                  driveCoordinator.setCurrentCommand(combinedAutoPilot);
+                    
+                    driveCoordinator.setCurrentCommand(
+                        DriveCoordinatorCommands.autoPilotToTargetsCommand(
+                            driveCoordinator,
+                            profile,
+                            target1,
+                            target2,
+                            target3
+                    ));
                 }))
-        .onFalse(
-            driveCoordinator.createInstantCommandToCancelCommand());
+        .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
   }
 
   public static void initIntakeBindings(IntakeSubsystem intakeSubsystem) {
