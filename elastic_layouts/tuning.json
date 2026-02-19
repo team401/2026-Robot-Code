@@ -189,7 +189,7 @@
             "title": "IndexerMotionProfile",
             "x": 1024.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 384.0,
             "height": 384.0,
             "type": "List Layout",
             "properties": {
@@ -197,70 +197,70 @@
             },
             "children": [
               {
-                "title": "MaxAcceleration",
+                "title": "MaxAcceleration_Rotation per Second per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxAcceleration",
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxAcceleration_Rotation per Second per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "MaxJerk",
+                "title": "MaxJerk_Rotation per Second per Second per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxJerk",
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxJerk_Rotation per Second per Second per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "MaxVelocity",
+                "title": "MaxVelocity_Rotation per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxVelocity",
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/MaxVelocity_Rotation per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "expoKV",
+                "title": "expoKA_Volt per Rotation per Second per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/expoKV",
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/expoKA_Volt per Rotation per Second per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "expoKA",
+                "title": "expoKV_Volt per Rotation per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/expoKA",
+                  "topic": "TunableNumbers/Indexer/MotorTuning/MotionProfile/expoKV_Volt per Rotation per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
@@ -1051,7 +1051,8 @@
             "properties": {
               "topic": "/SmartDashboard/ShotMapTuning/addHubDataPoint",
               "period": 0.06,
-              "show_type": true
+              "show_type": true,
+              "maximize_button_space": false
             }
           },
           {
@@ -1064,7 +1065,8 @@
             "properties": {
               "topic": "/SmartDashboard/ShotMapTuning/addPassDataPoint",
               "period": 0.06,
-              "show_type": true
+              "show_type": true,
+              "maximize_button_space": false
             }
           },
           {
@@ -1810,10 +1812,10 @@
             ]
           },
           {
-            "title": "HopperMotionProfile",
+            "title": "MotionProfile",
             "x": 1024.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 384.0,
             "height": 384.0,
             "type": "List Layout",
             "properties": {
@@ -1821,70 +1823,70 @@
             },
             "children": [
               {
-                "title": "MaxAcceleration",
+                "title": "MaxAcceleration_Rotation per Second per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxAcceleration",
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxAcceleration_Rotation per Second per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "MaxJerk",
+                "title": "MaxJerk_Rotation per Second per Second per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxJerk",
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxJerk_Rotation per Second per Second per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "MaxVelocity",
+                "title": "MaxVelocity_Rotation per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxVelocity",
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/MaxVelocity_Rotation per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "expoKV",
+                "title": "expoKA_Volt per Rotation per Second per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/expoKV",
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/expoKA_Volt per Rotation per Second per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true
                 }
               },
               {
-                "title": "expoKA",
+                "title": "expoKV_Volt per Rotation per Second",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/expoKA",
+                  "topic": "TunableNumbers/Hopper/MotorTuning/MotionProfile/expoKV_Volt per Rotation per Second",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": true

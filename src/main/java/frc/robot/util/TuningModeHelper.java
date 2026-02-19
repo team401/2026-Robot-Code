@@ -9,7 +9,6 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -143,31 +142,12 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       if (configuration.voltageTuning) {
         openLoopVoltage =
-            LoggedTunableMeasure.VOLTAGE.of(prefix + "/VoltageTuning_Volts", Volts.zero(), Volts);
+            LoggedTunableMeasure.VOLTAGE.of(prefix + "/VoltageTuning", Volts.zero(), Volts, true);
       }
 
       if (configuration.currentTuning) {
         openLoopCurrent =
-            LoggedTunableMeasure.CURRENT.of(prefix + "/CurrentTuning_Amps", Amps.zero(), Amps);
-      }
-
-      String unitSuffix = "";
-      if (configuration.useUnitInLoggedTunablePaths) {
-        Unit unit = null;
-        if (configuration.closedLoopType == ClosedLoopType.POSITION) {
-          unit = configuration.tunableAngleUnit;
-        } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
-          unit = configuration.tunableAngularVelocityUnit;
-        } else {
-          return;
-        }
-        if (configuration.useUnitSymbolInsteadOfNameInLoggedTunablePaths) {
-          unitSuffix = unit.symbol();
-        } else {
-          unitSuffix = unit.name();
-        }
-        // For now for readability might want to remove the underscore
-        unitSuffix = "_" + unitSuffix;
+            LoggedTunableMeasure.CURRENT.of(prefix + "/CurrentTuning", Amps.zero(), Amps, true);
       }
 
       if (configuration.hasClosedLoopTuning) {
@@ -177,17 +157,33 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         if (configuration.profileType != ProfileType.UNPROFILED) {
           closedLoopMotionProfile =
               new LoggedTunableMotionProfile(
-                  prefix + "/MotionProfile", configuration.defaultMotionProfileConfig);
+                  prefix + "/MotionProfile",
+                  configuration.defaultMotionProfileConfig,
+                  configuration.useUnitInLoggedTunablePaths);
         }
 
         if (configuration.closedLoopType == ClosedLoopType.POSITION) {
+          AngleUnit loggedUnit = configuration.tunableAngleUnit;
+          if (loggedUnit == null) {
+            loggedUnit = configuration.initialPositionSetpoint.unit();
+          }
           closedLoopPositionTarget =
               LoggedTunableMeasure.ANGLE.of(
-                  prefix + "/PositionTarget" + unitSuffix, configuration.initialPositionSetpoint);
+                  prefix + "/PositionTarget",
+                  configuration.initialPositionSetpoint,
+                  loggedUnit,
+                  configuration.useUnitInLoggedTunablePaths);
         } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
+          AngularVelocityUnit loggedUnit = configuration.tunableAngularVelocityUnit;
+          if (loggedUnit == null) {
+            loggedUnit = configuration.initialVelocitySetpoint.unit();
+          }
           closedLoopVelocityTarget =
               LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-                  prefix + "/VelocityTarget" + unitSuffix, configuration.initialVelocitySetpoint);
+                  prefix + "/VelocityTarget",
+                  configuration.initialVelocitySetpoint,
+                  loggedUnit,
+                  configuration.useUnitInLoggedTunablePaths);
         }
       }
     }
@@ -368,7 +364,6 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     protected ProfileType profileType = ProfileType.UNPROFILED;
     protected boolean phoenixTuning = false;
     protected boolean useUnitInLoggedTunablePaths = true;
-    protected boolean useUnitSymbolInsteadOfNameInLoggedTunablePaths = false;
 
     // Default Values
     protected Angle initialPositionSetpoint = Radians.zero();
@@ -377,8 +372,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     protected MotionProfileConfig defaultMotionProfileConfig =
         LoggedTunableMotionProfile.defaultMotionProfileConfig;
 
-    protected AngleUnit tunableAngleUnit = Radians;
-    protected AngularVelocityUnit tunableAngularVelocityUnit = RadiansPerSecond;
+    protected AngleUnit tunableAngleUnit = null;
+    protected AngularVelocityUnit tunableAngularVelocityUnit = null;
 
     protected Consumer<PIDGains> onPIDGainsChanged = pidGains -> {};
     protected Consumer<MotionProfileConfig> onMotionProfileConfigChanged = profileConfig -> {};
@@ -490,15 +485,6 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return this;
     }
 
-    public TunableMotorConfiguration withUseUnitSymbolInsteadOfNameInLoggedTunablePaths(
-        boolean useUnitSymbolInsteadOfNameInLoggedTunablePaths) {
-      this.useUnitSymbolInsteadOfNameInLoggedTunablePaths =
-          useUnitSymbolInsteadOfNameInLoggedTunablePaths;
-      this.useUnitInLoggedTunablePaths =
-          true; // If using unit symbol, we need to use unit in the paths to avoid confusion
-      return this;
-    }
-
     private void validate() {
       if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED) {
         throw new IllegalArgumentException(
@@ -523,8 +509,6 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       copy.tunableAngleUnit = this.tunableAngleUnit;
       copy.tunableAngularVelocityUnit = this.tunableAngularVelocityUnit;
       copy.useUnitInLoggedTunablePaths = this.useUnitInLoggedTunablePaths;
-      copy.useUnitSymbolInsteadOfNameInLoggedTunablePaths =
-          this.useUnitSymbolInsteadOfNameInLoggedTunablePaths;
       return copy;
     }
 

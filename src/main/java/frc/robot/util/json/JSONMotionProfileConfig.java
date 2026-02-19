@@ -34,11 +34,9 @@ public class JSONMotionProfileConfig extends JSONObject<MotionProfileConfig> {
   @Override
   public MotionProfileConfig toJava() {
     if (isMutable) {
-      return MotionProfileConfig.mutable(
-          maxVelocity, maxAcceleration, maxJerk, expoKV, expoKA);
+      return MotionProfileConfig.mutable(maxVelocity, maxAcceleration, maxJerk, expoKV, expoKA);
     } else {
-      return MotionProfileConfig.immutable(
-          maxVelocity, maxAcceleration, maxJerk, expoKV, expoKA);
+      return MotionProfileConfig.immutable(maxVelocity, maxAcceleration, maxJerk, expoKV, expoKA);
     }
   }
 

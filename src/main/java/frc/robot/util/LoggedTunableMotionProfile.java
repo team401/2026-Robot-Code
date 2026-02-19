@@ -32,29 +32,43 @@ public class LoggedTunableMotionProfile {
           Volts.of(0).div(RotationsPerSecondPerSecond.of(1)));
 
   public LoggedTunableMotionProfile(String namePrefix, MotionProfileConfig defaultProfile) {
+    this(namePrefix, defaultProfile, false);
+  }
+
+  public LoggedTunableMotionProfile(
+      String namePrefix, MotionProfileConfig defaultProfile, boolean addUnitSuffix) {
     this.currentMotionProfile = defaultProfile.derive();
 
     this.maxVelocity =
         LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-            namePrefix + "/MaxVelocity", defaultProfile.getMaxVelocity(), RotationsPerSecond);
+            namePrefix + "/MaxVelocity",
+            defaultProfile.getMaxVelocity(),
+            RotationsPerSecond,
+            addUnitSuffix);
     this.maxAcceleration =
         LoggedTunableMeasure.ANGULAR_ACCELERATION.of(
             namePrefix + "/MaxAcceleration",
             defaultProfile.getMaxAcceleration(),
-            RotationsPerSecondPerSecond);
+            RotationsPerSecondPerSecond,
+            addUnitSuffix);
     this.maxJerk =
         LoggedTunableMeasure.ANGULAR_JERK.of(
             namePrefix + "/MaxJerk",
             defaultProfile.getMaxJerk(),
-            RotationsPerSecondPerSecond.per(Seconds));
+            RotationsPerSecondPerSecond.per(Seconds),
+            addUnitSuffix);
     this.expoKV =
         LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_VELOCITY.of(
-            namePrefix + "/expoKV", defaultProfile.getExpoKv(), Volts.per(RotationsPerSecond));
+            namePrefix + "/expoKV",
+            defaultProfile.getExpoKv(),
+            Volts.per(RotationsPerSecond),
+            addUnitSuffix);
     this.expoKA =
         LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_ACCELERATION.of(
             namePrefix + "/expoKA",
             defaultProfile.getExpoKa(),
-            Volts.per(RotationsPerSecondPerSecond));
+            Volts.per(RotationsPerSecondPerSecond),
+            addUnitSuffix);
   }
 
   public LoggedTunableMotionProfile(String namePrefix) {

@@ -84,9 +84,10 @@ public class LoggedTunableMeasure<
   final BaseUnitType displayedUnit;
 
   public LoggedTunableMeasure(
-      String name, MutMeasureType defaultValue, BaseUnitType displayedUnit) {
+      String name, MutMeasureType defaultValue, BaseUnitType displayedUnit, boolean addUnitSuffix) {
     this.value = defaultValue;
-    this.tunableNumber = new LoggedTunableNumber(name, defaultValue.in(displayedUnit));
+    String suffix = (addUnitSuffix) ? "_" + displayedUnit.name() : "";
+    this.tunableNumber = new LoggedTunableNumber(name + suffix, defaultValue.in(displayedUnit));
     this.displayedUnit = displayedUnit;
   }
 
@@ -161,8 +162,12 @@ public class LoggedTunableMeasure<
       this.factoryFunction = factoryFunction;
     }
 
+    public S of(String name, M defaultValue, U displayedUnit, boolean addUnitSuffix) {
+      return factoryFunction.apply(name, defaultValue, displayedUnit, addUnitSuffix);
+    }
+
     public S of(String name, M defaultValue, U displayedUnit) {
-      return factoryFunction.apply(name, defaultValue, displayedUnit);
+      return of(name, defaultValue, displayedUnit, false);
     }
 
     public S of(String name, M defaultValue) {
@@ -173,9 +178,13 @@ public class LoggedTunableMeasure<
       return of(name, defaultValue, defaultValue.unit());
     }
 
-    @SuppressWarnings("unchecked")
     public S of(String name, B defaultValue, U displayedUnit) {
-      return of(name, (M) defaultValue.mutableCopy(), displayedUnit);
+      return of(name, defaultValue, displayedUnit, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public S of(String name, B defaultValue, U displayedUnit, boolean addUnitSuffix) {
+      return of(name, (M) defaultValue.mutableCopy(), displayedUnit, addUnitSuffix);
     }
 
     @SuppressWarnings("unchecked")
@@ -189,13 +198,14 @@ public class LoggedTunableMeasure<
         B extends Measure<U>,
         U extends Unit,
         S extends LoggedTunableMeasure<M, B, U>> {
-      S apply(String name, M defaultValue, U displayedUnit);
+      S apply(String name, M defaultValue, U displayedUnit, boolean addUnitSuffix);
     }
   }
 
   public static class LoggedAngle extends LoggedTunableMeasure<MutAngle, Angle, AngleUnit> {
-    public LoggedAngle(String name, MutAngle defaultValue, AngleUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedAngle(
+        String name, MutAngle defaultValue, AngleUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
@@ -203,64 +213,84 @@ public class LoggedTunableMeasure<
       extends LoggedTunableMeasure<
           MutAngularAcceleration, AngularAcceleration, AngularAccelerationUnit> {
     public LoggedAngularAcceleration(
-        String name, MutAngularAcceleration defaultValue, AngularAccelerationUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutAngularAcceleration defaultValue,
+        AngularAccelerationUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedAngularMomentum
       extends LoggedTunableMeasure<MutAngularMomentum, AngularMomentum, AngularMomentumUnit> {
     public LoggedAngularMomentum(
-        String name, MutAngularMomentum defaultValue, AngularMomentumUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutAngularMomentum defaultValue,
+        AngularMomentumUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedAngularVelocity
       extends LoggedTunableMeasure<MutAngularVelocity, AngularVelocity, AngularVelocityUnit> {
     public LoggedAngularVelocity(
-        String name, MutAngularVelocity defaultValue, AngularVelocityUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutAngularVelocity defaultValue,
+        AngularVelocityUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedCurrent extends LoggedTunableMeasure<MutCurrent, Current, CurrentUnit> {
-    public LoggedCurrent(String name, MutCurrent defaultValue, CurrentUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedCurrent(
+        String name, MutCurrent defaultValue, CurrentUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedDimensionless
       extends LoggedTunableMeasure<MutDimensionless, Dimensionless, DimensionlessUnit> {
     public LoggedDimensionless(
-        String name, MutDimensionless defaultValue, DimensionlessUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutDimensionless defaultValue,
+        DimensionlessUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedDistance
       extends LoggedTunableMeasure<MutDistance, Distance, DistanceUnit> {
-    public LoggedDistance(String name, MutDistance defaultValue, DistanceUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedDistance(
+        String name, MutDistance defaultValue, DistanceUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedEnergy extends LoggedTunableMeasure<MutEnergy, Energy, EnergyUnit> {
-    public LoggedEnergy(String name, MutEnergy defaultValue, EnergyUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedEnergy(
+        String name, MutEnergy defaultValue, EnergyUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedForce extends LoggedTunableMeasure<MutForce, Force, ForceUnit> {
-    public LoggedForce(String name, MutForce defaultValue, ForceUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedForce(
+        String name, MutForce defaultValue, ForceUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedFrequency
       extends LoggedTunableMeasure<MutFrequency, Frequency, FrequencyUnit> {
-    public LoggedFrequency(String name, MutFrequency defaultValue, FrequencyUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedFrequency(
+        String name,
+        MutFrequency defaultValue,
+        FrequencyUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
@@ -268,77 +298,101 @@ public class LoggedTunableMeasure<
       extends LoggedTunableMeasure<
           MutLinearAcceleration, LinearAcceleration, LinearAccelerationUnit> {
     public LoggedLinearAcceleration(
-        String name, MutLinearAcceleration defaultValue, LinearAccelerationUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutLinearAcceleration defaultValue,
+        LinearAccelerationUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedLinearMomentum
       extends LoggedTunableMeasure<MutLinearMomentum, LinearMomentum, LinearMomentumUnit> {
     public LoggedLinearMomentum(
-        String name, MutLinearMomentum defaultValue, LinearMomentumUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutLinearMomentum defaultValue,
+        LinearMomentumUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedLinearVelocity
       extends LoggedTunableMeasure<MutLinearVelocity, LinearVelocity, LinearVelocityUnit> {
     public LoggedLinearVelocity(
-        String name, MutLinearVelocity defaultValue, LinearVelocityUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutLinearVelocity defaultValue,
+        LinearVelocityUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedMass extends LoggedTunableMeasure<MutMass, Mass, MassUnit> {
-    public LoggedMass(String name, MutMass defaultValue, MassUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedMass(
+        String name, MutMass defaultValue, MassUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedMomentOfInertia
       extends LoggedTunableMeasure<MutMomentOfInertia, MomentOfInertia, MomentOfInertiaUnit> {
     public LoggedMomentOfInertia(
-        String name, MutMomentOfInertia defaultValue, MomentOfInertiaUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutMomentOfInertia defaultValue,
+        MomentOfInertiaUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedPower extends LoggedTunableMeasure<MutPower, Power, PowerUnit> {
-    public LoggedPower(String name, MutPower defaultValue, PowerUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedPower(
+        String name, MutPower defaultValue, PowerUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedResistance
       extends LoggedTunableMeasure<MutResistance, Resistance, ResistanceUnit> {
-    public LoggedResistance(String name, MutResistance defaultValue, ResistanceUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedResistance(
+        String name,
+        MutResistance defaultValue,
+        ResistanceUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedTemperature
       extends LoggedTunableMeasure<MutTemperature, Temperature, TemperatureUnit> {
     public LoggedTemperature(
-        String name, MutTemperature defaultValue, TemperatureUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        String name,
+        MutTemperature defaultValue,
+        TemperatureUnit displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedTime extends LoggedTunableMeasure<MutTime, Time, TimeUnit> {
-    public LoggedTime(String name, MutTime defaultValue, TimeUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedTime(
+        String name, MutTime defaultValue, TimeUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedTorque extends LoggedTunableMeasure<MutTorque, Torque, TorqueUnit> {
-    public LoggedTorque(String name, MutTorque defaultValue, TorqueUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedTorque(
+        String name, MutTorque defaultValue, TorqueUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
   public static class LoggedVoltage extends LoggedTunableMeasure<MutVoltage, Voltage, VoltageUnit> {
-    public LoggedVoltage(String name, MutVoltage defaultValue, VoltageUnit displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+    public LoggedVoltage(
+        String name, MutVoltage defaultValue, VoltageUnit displayedUnit, boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
@@ -409,8 +463,9 @@ public class LoggedTunableMeasure<
     public LoggedAngularJerk(
         String name,
         MutVelocity<AngularAccelerationUnit> defaultValue,
-        VelocityUnit<AngularAccelerationUnit> displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        VelocityUnit<AngularAccelerationUnit> displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
@@ -422,8 +477,9 @@ public class LoggedTunableMeasure<
     public LoggedVoltagePerAngularVelocity(
         String name,
         MutPer<VoltageUnit, AngularVelocityUnit> defaultValue,
-        PerUnit<VoltageUnit, AngularVelocityUnit> displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        PerUnit<VoltageUnit, AngularVelocityUnit> displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
@@ -435,8 +491,9 @@ public class LoggedTunableMeasure<
     public LoggedVoltagePerAngularAcceleration(
         String name,
         MutPer<VoltageUnit, AngularAccelerationUnit> defaultValue,
-        PerUnit<VoltageUnit, AngularAccelerationUnit> displayedUnit) {
-      super(name, defaultValue, displayedUnit);
+        PerUnit<VoltageUnit, AngularAccelerationUnit> displayedUnit,
+        boolean addUnitSuffix) {
+      super(name, defaultValue, displayedUnit, addUnitSuffix);
     }
   }
 
