@@ -9,8 +9,8 @@
         "containers": [
           {
             "title": "Indexer Test Mode Selector",
-            "x": 128.0,
-            "y": 128.0,
+            "x": 0.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -23,7 +23,7 @@
           {
             "title": "indexerKP",
             "x": 0.0,
-            "y": 128.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -36,8 +36,8 @@
           },
           {
             "title": "indexerKI",
-            "x": 0.0,
-            "y": 256.0,
+            "x": 128.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -50,8 +50,8 @@
           },
           {
             "title": "indexerKD",
-            "x": 0.0,
-            "y": 384.0,
+            "x": 256.0,
+            "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -64,8 +64,8 @@
           },
           {
             "title": "indexerKS",
-            "x": 256.0,
-            "y": 256.0,
+            "x": 0.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -79,7 +79,7 @@
           {
             "title": "indexerKV",
             "x": 128.0,
-            "y": 384.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -93,7 +93,7 @@
           {
             "title": "indexerKA",
             "x": 256.0,
-            "y": 384.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -106,9 +106,9 @@
           },
           {
             "title": "indexerTuningSetpointVelocityRPM",
-            "x": 128.0,
+            "x": 0.0,
             "y": 256.0,
-            "width": 128.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -120,7 +120,7 @@
           },
           {
             "title": "indexerMaxAccelerationRotationsPerSecond",
-            "x": 384.0,
+            "x": 512.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
@@ -134,7 +134,7 @@
           },
           {
             "title": "indexerMaxJerkRotationsPerSecond",
-            "x": 384.0,
+            "x": 512.0,
             "y": 256.0,
             "width": 256.0,
             "height": 128.0,
@@ -240,7 +240,7 @@
           },
           {
             "title": "turretKV",
-            "x": 384.0,
+            "x": 512.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
@@ -254,7 +254,7 @@
           },
           {
             "title": "turretKA",
-            "x": 512.0,
+            "x": 384.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
@@ -270,7 +270,7 @@
             "title": "turretTuningSetpointDegrees",
             "x": 256.0,
             "y": 384.0,
-            "width": 128.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -282,9 +282,9 @@
           },
           {
             "title": "turretTuningAmps",
-            "x": 256.0,
-            "y": 512.0,
-            "width": 128.0,
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -310,7 +310,7 @@
           },
           {
             "title": "turretTuningSetpointDegrees",
-            "x": 384.0,
+            "x": 512.0,
             "y": 384.0,
             "width": 256.0,
             "height": 128.0,
@@ -462,7 +462,7 @@
             "title": "turretTuningSetpointDegrees",
             "x": 256.0,
             "y": 384.0,
-            "width": 128.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -474,9 +474,9 @@
           },
           {
             "title": "turretTuningAmps",
-            "x": 256.0,
-            "y": 512.0,
-            "width": 128.0,
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -488,7 +488,7 @@
           },
           {
             "title": "turretTuningVolts",
-            "x": 384.0,
+            "x": 512.0,
             "y": 512.0,
             "width": 128.0,
             "height": 128.0,
@@ -502,7 +502,7 @@
           },
           {
             "title": "turretTuningSetpointDegrees",
-            "x": 384.0,
+            "x": 512.0,
             "y": 384.0,
             "width": 256.0,
             "height": 128.0,
@@ -581,7 +581,7 @@
           },
           {
             "title": "HoodKA",
-            "x": 384.0,
+            "x": 512.0,
             "y": 128.0,
             "width": 128.0,
             "height": 128.0,
@@ -666,7 +666,7 @@
           {
             "title": "HoodTuningSetpointDegrees",
             "x": 0.0,
-            "y": 384.0,
+            "y": 512.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Number Slider",
@@ -697,7 +697,7 @@
           {
             "title": "HoodAmps",
             "x": 256.0,
-            "y": 384.0,
+            "y": 512.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -710,8 +710,8 @@
           },
           {
             "title": "HoodVolts",
-            "x": 384.0,
-            "y": 384.0,
+            "x": 512.0,
+            "y": 512.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -845,7 +845,7 @@
           {
             "title": "shooterTuningRPM",
             "x": 0.0,
-            "y": 384.0,
+            "y": 512.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
@@ -858,8 +858,8 @@
           },
           {
             "title": "shooterTuningVolts",
-            "x": 384.0,
-            "y": 384.0,
+            "x": 512.0,
+            "y": 512.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -873,7 +873,7 @@
           {
             "title": "shooterTuningAmps",
             "x": 256.0,
-            "y": 384.0,
+            "y": 512.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -915,8 +915,7 @@
             "properties": {
               "topic": "/SmartDashboard/ShotMapTuning/addHubDataPoint",
               "period": 0.06,
-              "show_type": true,
-              "maximize_button_space": false
+              "show_type": true
             }
           },
           {
@@ -929,8 +928,7 @@
             "properties": {
               "topic": "/SmartDashboard/ShotMapTuning/addPassDataPoint",
               "period": 0.06,
-              "show_type": true,
-              "maximize_button_space": false
+              "show_type": true
             }
           },
           {
@@ -987,6 +985,506 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Intake Tuning",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "PivotPIDGains",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kP",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kP",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kI",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kI",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kD",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kD",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "PivotFeedForwardGains",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kS",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kS",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kG",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kG",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kV",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kV",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kA",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PIDGains/kA",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "RollerFeedForwardGains",
+            "x": 384.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kS",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kS",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kG",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kG",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kV",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kV",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kA",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kA",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "RollerPIDGains",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "kP",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kP",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kI",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kI",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "kD",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/PIDGains/kD",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "PivotMotorTuning",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "RIGHT"
+            },
+            "children": [
+              {
+                "title": "CurrentTuning_Amps",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/CurrentTuning_Amps",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "PositionTarget_Degree",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/PositionTarget_Degree",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "VoltageTuning_Volts",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/PivotMotorTuning/VoltageTuning_Volts",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "RollersMotorTuning",
+            "x": 384.0,
+            "y": 512.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "RIGHT"
+            },
+            "children": [
+              {
+                "title": "VoltageTuning_Volts",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/VoltageTuning_Volts",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "CurrentTuning_Amps",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/CurrentTuning_Amps",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "VelocityTarget_Rotation per Minute",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "TunableNumbers/Intake/RollersMotorTuning/VelocityTarget_Rotation per Minute",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "title": "IntakePivot Test Mode Selector",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/IntakePivot Test Mode Selector",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "RollersTargetSpeedRPM",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "TunableNumbers/IntakeTunables/RollersTargetSpeedRPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "IntakeRollers Test Mode Selector",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/IntakeRollers Test Mode Selector",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "PositionRadians",
+            "x": 768.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/AdvantageKit/Intake/Pivot/Inputs/PositionRadians",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 1.57,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "PivotAppliedVolts",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/Intake/Pivot/Inputs/AppliedVolts",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 4.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "RollersFollowerAppliedVolts",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/Intake/RollerFollower/Inputs/AppliedVolts",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": -12.0,
+              "max_value": 12.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "RollersLeaderAppliedVolts",
+            "x": 1024.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/Intake/RollerLeader/Inputs/AppliedVolts",
+              "period": 0.06,
+              "min_value": -12.0,
+              "max_value": 12.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "Roller Speed",
+            "x": 1024.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/AdvantageKit/Intake/RollerLead/Inputs/VelocityRadiansPerSecond",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 300.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
             }
           }
         ]

@@ -69,7 +69,8 @@ public class IntakeConstants {
 
   // PID GAINS
   public PIDGains pivotPIDGains = PIDGains.kPID(0.5, 0.0, 0.1); // These values are placeholders
-  public PIDGains rollersPIDGains = PIDGains.kPID(20.0, 10.0, 10.0); // These values are placeholders
+  public PIDGains rollersPIDGains =
+      PIDGains.kPID(20.0, 10.0, 10.0); // These values are placeholders
 
   // Current Limits (These current limits are placeholders and were picked randomly)
   public final Current pivotSupplyCurrentLimit = Amps.of(40.0);

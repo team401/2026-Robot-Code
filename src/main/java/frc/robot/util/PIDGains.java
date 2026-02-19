@@ -17,11 +17,9 @@ public record PIDGains(
     return new PIDGains(kP, kI, kD, kS, kG, kV, kA);
   }
 
-  public static PIDGains kPIDSVA(
-      double kP, double kI, double kD, double kS, double kV, double kA) {
+  public static PIDGains kPIDSVA(double kP, double kI, double kD, double kS, double kV, double kA) {
     return new PIDGains(kP, kI, kD, kS, 0.0, kV, kA);
   }
-
 
   public double[] asArrayWithoutFeedForward() {
     return new double[] {kP, kI, kD};

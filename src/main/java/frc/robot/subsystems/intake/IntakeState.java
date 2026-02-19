@@ -59,7 +59,10 @@ public class IntakeState {
               .withDefaultPIDGains(JsonConstants.intakeConstants.rollersPIDGains)
               .onPIDGainsChanged(gains -> JsonConstants.intakeConstants.rollersPIDGains = gains)
               .withLoggingAngularVelocityUnit(RPM)
-              .build("Intake/RollersMotorTuning", world.rollersLeadMotorIO, world.rollersFollowerMotorIO);
+              .build(
+                  "Intake/RollersMotorTuning",
+                  world.rollersLeadMotorIO,
+                  world.rollersFollowerMotorIO);
 
       pivotTuningModeHelper =
           new TuningModeHelper<>(PivotTestMode.class)

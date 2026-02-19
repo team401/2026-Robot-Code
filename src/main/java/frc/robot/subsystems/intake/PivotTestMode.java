@@ -4,10 +4,10 @@ import frc.robot.util.TestModeDescription;
 
 public enum PivotTestMode implements TestModeDescription {
   // Intake Pivot-related test modes
-  PivotVoltageTuning("Pivot Voltage Open Loop Tuning"),
-  PivotCurrentTuning("Pivot Current Open Loop Tuning"),
-  PivotClosedLoopTuning("Pivot Closed Loop Tuning"),
-  PivotPhoenixTuning("Pivot Phoenix Tuning (no-op)"),
+  PivotVoltageTuning("Voltage"),
+  PivotCurrentTuning("Current"),
+  PivotClosedLoopTuning("Closed Loop"),
+  PivotPhoenixTuning("Phoenix"),
   // Miscellaneous
   None; // No test mode selected
 

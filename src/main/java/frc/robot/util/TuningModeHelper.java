@@ -143,12 +143,14 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       if (configuration.voltageTuning) {
         openLoopVoltage =
-            LoggedTunableMeasure.VOLTAGE.of(prefix + "/OpenLoopVoltageTuningVolts", Volts.zero(), Volts);
+            LoggedTunableMeasure.VOLTAGE.of(
+                prefix + "/VoltageTuning_Volts", Volts.zero(), Volts);
       }
 
       if (configuration.currentTuning) {
         openLoopCurrent =
-            LoggedTunableMeasure.CURRENT.of(prefix + "/OpenLoopCurrentTuningAmps", Amps.zero(), Amps);
+            LoggedTunableMeasure.CURRENT.of(
+                prefix + "/CurrentTuning_Amps", Amps.zero(), Amps);
       }
 
       String unitSuffix = "";
@@ -158,8 +160,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
           unit = configuration.loggingAngleUnit;
         } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
           unit = configuration.loggingAngularVelocityUnit;
-        }else {
-          return; 
+        } else {
+          return;
         }
         if (configuration.useUnitSymbolInsteadOfNameInLoggedTunablePaths) {
           unitSuffix = unit.symbol();
@@ -169,26 +171,28 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         // For now for readability might want to remove the underscore
         unitSuffix = "_" + unitSuffix;
       }
-    
+
       if (configuration.hasClosedLoopTuning) {
         closedLoopPIDGains =
             new LoggedTunablePIDGains(
-                prefix + "/ClosedLoopPIDGains", configuration.defaultPIDGains);
+                prefix + "/PIDGains", configuration.defaultPIDGains);
 
         if (configuration.profileType != ProfileType.UNPROFILED) {
           closedLoopMotionProfile =
               new LoggedTunableMotionProfile(
-                  prefix + "/ClosedLoopMotionProfile", configuration.defaultMotionProfileConfig);
+                  prefix + "/MotionProfile", configuration.defaultMotionProfileConfig);
         }
 
         if (configuration.closedLoopType == ClosedLoopType.POSITION) {
           closedLoopPositionTarget =
               LoggedTunableMeasure.ANGLE.of(
-                  prefix + "/ClosedLoopPositionTarget" + unitSuffix, configuration.initialPositionSetpoint);
+                  prefix + "/PositionTarget" + unitSuffix,
+                  configuration.initialPositionSetpoint);
         } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
           closedLoopVelocityTarget =
               LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-                  prefix + "/ClosedLoopVelocityTarget" + unitSuffix, configuration.initialVelocitySetpoint);
+                  prefix + "/VelocityTarget" + unitSuffix,
+                  configuration.initialVelocitySetpoint);
         }
       }
     }
@@ -353,12 +357,13 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
   // TODO: Look into if this is a pattern that some type of annotation would be able to generate?
   /**
-   * TunableMotorConfiguration is a configuration class for creating TunableMotors. It allows you to specify which control modes you want to be able to tune,
-   *  as well as default values and callbacks for when PID gains or motion profile configs are changed. Use the builder pattern to create a configuration, 
-   * then pass it to the TunableMotor constructor.
-   * Note the initial unit will affect the logged tunable paths.
-   * So if you want to be able to change the initial unit without worrying about the name set the logging unit
-   * to what you want the logged unit to be, Or just disable using unit name in the logged tunable paths by using
+   * TunableMotorConfiguration is a configuration class for creating TunableMotors. It allows you to
+   * specify which control modes you want to be able to tune, as well as default values and
+   * callbacks for when PID gains or motion profile configs are changed. Use the builder pattern to
+   * create a configuration, then pass it to the TunableMotor constructor. Note the initial unit
+   * will affect the logged tunable paths. So if you want to be able to change the initial unit
+   * without worrying about the name set the logging unit to what you want the logged unit to be, Or
+   * just disable using unit name in the logged tunable paths by using
    */
   public static class TunableMotorConfiguration {
     protected boolean voltageTuning = false;
@@ -484,14 +489,18 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return this;
     }
 
-    public TunableMotorConfiguration withUseUnitInLoggedTunablePaths(boolean useUnitInLoggedTunablePaths) {
+    public TunableMotorConfiguration withUseUnitInLoggedTunablePaths(
+        boolean useUnitInLoggedTunablePaths) {
       this.useUnitInLoggedTunablePaths = useUnitInLoggedTunablePaths;
       return this;
     }
 
-    public TunableMotorConfiguration withUseUnitSymbolInsteadOfNameInLoggedTunablePaths(boolean useUnitSymbolInsteadOfNameInLoggedTunablePaths) {
-      this.useUnitSymbolInsteadOfNameInLoggedTunablePaths = useUnitSymbolInsteadOfNameInLoggedTunablePaths;
-      this.useUnitInLoggedTunablePaths = true; // If using unit symbol, we need to use unit in the paths to avoid confusion
+    public TunableMotorConfiguration withUseUnitSymbolInsteadOfNameInLoggedTunablePaths(
+        boolean useUnitSymbolInsteadOfNameInLoggedTunablePaths) {
+      this.useUnitSymbolInsteadOfNameInLoggedTunablePaths =
+          useUnitSymbolInsteadOfNameInLoggedTunablePaths;
+      this.useUnitInLoggedTunablePaths =
+          true; // If using unit symbol, we need to use unit in the paths to avoid confusion
       return this;
     }
 
@@ -519,7 +528,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       copy.loggingAngleUnit = this.loggingAngleUnit;
       copy.loggingAngularVelocityUnit = this.loggingAngularVelocityUnit;
       copy.useUnitInLoggedTunablePaths = this.useUnitInLoggedTunablePaths;
-      copy.useUnitSymbolInsteadOfNameInLoggedTunablePaths = this.useUnitSymbolInsteadOfNameInLoggedTunablePaths;
+      copy.useUnitSymbolInsteadOfNameInLoggedTunablePaths =
+          this.useUnitSymbolInsteadOfNameInLoggedTunablePaths;
       return copy;
     }
 

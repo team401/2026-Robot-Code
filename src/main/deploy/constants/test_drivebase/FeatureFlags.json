@@ -6,7 +6,7 @@
   "runIndexer": false,
   "runShooter": false,
   "runTurret": false,
-  "runIntake": false,
+  "runIntake": true,
   "runHood": false,
   "useHomingSwitch": false,
   "useTuningServer": true,
