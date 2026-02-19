@@ -26,11 +26,13 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
 import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
+import java.util.Optional;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -93,43 +95,105 @@ public class InitSubsystems {
   }
 
   public static VisionLocalizer initVisionSubsystem(Drive drive) {
-    var gainConstants = JsonConstants.visionConstants.gainConstants;
+    var visionConstants = JsonConstants.visionConstants;
+    var gainConstants = visionConstants.gainConstants;
     AprilTagFieldLayout tagLayout = JsonConstants.aprilTagConstants.getTagLayout();
+    CameraConfig[] cameraConfigs = null;
     switch (Constants.currentMode) {
       case REAL:
+        if (JsonConstants.featureFlags.pretendCamerasAreMobile) {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.mobile(
+                    new VisionIOPhotonReal(visionConstants.camera0Name),
+                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonReal(visionConstants.camera1Name),
+                    (_ignored) -> Optional.of(visionConstants.camera1Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonReal(visionConstants.camera2Name),
+                    (_ignored) -> Optional.of(visionConstants.camera2Transform))
+              };
+        } else {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.fixed(
+                    new VisionIOPhotonReal(visionConstants.camera0Name),
+                    visionConstants.camera0Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonReal(visionConstants.camera1Name),
+                    visionConstants.camera1Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonReal(visionConstants.camera2Name),
+                    visionConstants.camera2Transform)
+              };
+        }
         return new VisionLocalizer(
-            drive::addVisionMeasurement,
-            tagLayout,
-            gainConstants,
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera1"), JsonConstants.visionConstants.camera1Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera2"), JsonConstants.visionConstants.camera2Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera3"), JsonConstants.visionConstants.camera3Transform));
+            drive::addVisionMeasurement, tagLayout, gainConstants, cameraConfigs);
 
       case SIM:
+        if (JsonConstants.featureFlags.pretendCamerasAreMobile) {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.mobile(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera0Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.MOBILE),
+                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera1Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.MOBILE),
+                    (_ignored) -> Optional.of(visionConstants.camera1Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera2Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.MOBILE),
+                    (_ignored) -> Optional.of(visionConstants.camera2Transform))
+              };
+        } else {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.fixed(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera0Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.FIXED),
+                    visionConstants.camera0Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera1Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.FIXED),
+                    visionConstants.camera1Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera2Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.FIXED),
+                    visionConstants.camera2Transform)
+              };
+        }
         return new VisionLocalizer(
-            drive::addVisionMeasurement,
-            tagLayout,
-            gainConstants,
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera1", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera1Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera2", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera2Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera3", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera3Transform));
+            drive::addVisionMeasurement, tagLayout, gainConstants, cameraConfigs);
       default:
+        VisionIO replayIO =
+            new VisionIO() {
+              public boolean isLoggingSingleTags() {
+                return false;
+              }
+            };
+
         return new VisionLocalizer(
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()));
+            CameraConfig.fixed(replayIO, Transform3d.kZero),
+            CameraConfig.fixed(replayIO, Transform3d.kZero),
+            CameraConfig.fixed(replayIO, Transform3d.kZero));
     }
   }
 
@@ -297,6 +361,52 @@ public class InitSubsystems {
         return new HomingSwitch(dependencyOrderedExecutor, new DigitalInputIOReplay());
       default:
         throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
+    }
+  }
+
+  public static IntakeSubsystem initIntakeSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new IntakeSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.intakeConstants.buildPivotMechanismConfig(),
+                JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig()),
+            MotorIOTalonFX.newLeader(
+                JsonConstants.intakeConstants.buildRollersMechanismConfig(),
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()),
+            MotorIOTalonFX.newFollower(
+                JsonConstants.intakeConstants.buildRollersMechanismConfig(),
+                0,
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig pivotConfig = JsonConstants.intakeConstants.buildPivotMechanismConfig();
+        MechanismConfig rollersConfig = JsonConstants.intakeConstants.buildRollersMechanismConfig();
+
+        CoppercoreSimAdapter rollerSim = JsonConstants.intakeConstants.buildRollersSim();
+
+        return new IntakeSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                pivotConfig,
+                JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig(),
+                JsonConstants.intakeConstants.buildPivotSim()),
+            MotorIOTalonFXSim.newLeader(
+                rollersConfig,
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                rollerSim),
+            MotorIOTalonFXSim.newFollower(
+                rollersConfig,
+                0,
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                rollerSim));
+
+      case REPLAY:
+        return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
+
+      default:
+        // Replayed robot, disable IO implementations
+        return new IntakeSubsystem(new MotorIOReplay(), new MotorIOReplay(), new MotorIOReplay());
     }
   }
 }

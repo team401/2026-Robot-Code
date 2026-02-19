@@ -1,0 +1,14 @@
+{
+  "runDrive": true,
+  "useMAPoseEstimator": true,
+  "runVision": true,
+  "runHopper": false,
+  "runIndexer": false,
+  "runShooter": false,
+  "runTurret": false,
+  "runIntake": false,
+  "runHood": false,
+  "useHomingSwitch": false,
+  "useTuningServer": true,
+  "pretendCamerasAreMobile": true
+}

@@ -1,0 +1,52 @@
+{
+  "gainConstants": {
+    "maxAcceptedDistanceMeters": 10,
+    "linearStdDevFactor": 0.0014,
+    "angularStdDevFactor": 0.001,
+    "maxZCutoff": 0.75,
+    "maxSingleTagAmbiguity": 0.3,
+    "maxAmbiguity": 0.3
+  },
+  "camera0Index": 0,
+  "camera0Name": "FrontRight",
+  "camera0Transform": {
+    "translation": {
+      "x": 0.26015,
+      "y": -0.25995,
+      "z": 0.2091
+    },
+    "rotation": {
+      "roll": 0,
+      "pitch": -20,
+      "yaw": -90
+    }
+  },
+  "camera1Index": 1,
+  "camera1Name": "BackRight",
+  "camera1Transform": {
+    "translation": {
+      "x": -0.26095,
+      "y": -0.25195,
+      "z": 0.2091
+    },
+    "rotation": {
+      "roll": 0,
+      "pitch": -20,
+      "yaw": 180
+    }
+  },
+  "camera2Index": 2,
+  "camera2Name": "BackLeft",
+  "camera2Transform": {
+    "translation": {
+      "x": -0.26015,
+      "y": 0.25995,
+      "z": 0.2091
+    },
+    "rotation": {
+      "roll": 0,
+      "pitch": -20,
+      "yaw": 90
+    }
+  }
+}

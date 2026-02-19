@@ -14,6 +14,18 @@ import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.JSONMotionProfileConfig;
+import coppercore.parameter_tools.json.helpers.JSONConverter;
+import coppercore.parameter_tools.path_provider.EnvironmentHandler;
+import coppercore.wpilib_interface.controllers.Controllers;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.constants.drive.DriveConstants;
+import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.json.JSONRotation3d;
+import frc.robot.util.json.JSONTransform2d;
+import frc.robot.util.json.JSONTransform3d;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -28,6 +40,10 @@ public class JsonConstants {
     // This should be replaced with a polymorphic adapter in the future
     // But that requires changes to the coppercore library
     JSONConverter.addConversion(MotionProfileConfig.class, JSONMotionProfileConfig.class);
+    
+    JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
+    JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
+    JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
   }
 
   public static void loadConstants() {
@@ -39,8 +55,10 @@ public class JsonConstants {
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
-    var jsonHandler =
-        new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
+    var pathProvider = environmentHandler.getEnvironmentPathProvider();
+
+    System.out.println("[JsonConstants] Environment name: " + pathProvider.getEnvironmentName());
+    var jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
@@ -57,6 +75,7 @@ public class JsonConstants {
     hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
@@ -74,6 +93,14 @@ public class JsonConstants {
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
+        jsonHandler.addRoute("/intake", intakeConstants);
+        jsonHandler.addRoute("/vision", visionConstants);
+        jsonHandler.registerPostCallback(
+            "/vision",
+            (visionConstants) -> {
+              System.out.println("Vision Constants were updated");
+              return true;
+            });
         jsonHandler.addRoute("/shotmaps", shotMaps);
         jsonHandler.registerPostCallback(
             "/shotmaps",
@@ -101,6 +128,7 @@ public class JsonConstants {
   public static HopperConstants hopperConstants;
   public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
+  public static IntakeConstants intakeConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
   public static ShotMaps shotMaps;

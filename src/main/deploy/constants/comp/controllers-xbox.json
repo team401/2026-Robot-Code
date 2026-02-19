@@ -10,7 +10,7 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "leftX",
-            "inverted": true
+            "inverted": false
           }
         },
         {
@@ -19,7 +19,7 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "leftY",
-            "inverted": true
+            "inverted": false
           }
         },
         {
@@ -28,6 +28,38 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "rightX"
+          }
+        },
+        {
+          "command": "intakePivotUp",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "intakePivotDown",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "leftBumper"
+          }
+        },
+        {
+          "command": "runIntakeRollers",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "axis",
+            "id": "rightTrigger"
+          }
+        },
+        {
+          "command": "testClimbDrive",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "a"
           }
         }
       ]

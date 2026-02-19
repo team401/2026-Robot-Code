@@ -41,10 +41,23 @@ deploy {
 
                     // The options below may improve performance, but should only be enabled on the RIO 2
                     //
-                    // final MAX_JAVA_HEAP_SIZE_MB = 100;
-                    // jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    // jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    // jvmArgs.add("-XX:+AlwaysPreTouch")
+                    final MAX_JAVA_HEAP_SIZE_MB = 100;
+                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-XX:+AlwaysPreTouch")
+
+                    // Enable VisualVM connection
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                    // jvmArgs.add("-Djava.rmi.server.hostname=10.04.01.2")
+
+                    // Cause code hotspots to be compiled after 50 runs rather than the default of 1500 (C1)
+                    // /10000 (C2). This option is potentially ignored anyway when tiered
+                    // compilation is enabled.
+                    // jvmArgs.add("-XX:CompileThreshold=50")
                 }
 
                 // Static files artifact
@@ -102,7 +115,7 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
-    def coppercoreVersion = "2026.2.8"
+    def coppercoreVersion = "2026.2.11"
 
     implementation "io.github.team401.coppercore:controls:$coppercoreVersion"
     implementation "io.github.team401.coppercore:geometry:$coppercoreVersion"

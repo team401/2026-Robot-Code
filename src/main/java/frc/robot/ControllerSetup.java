@@ -2,9 +2,14 @@ package frc.robot;
 
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.drive.DriveCoordinator.DriveAction;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
@@ -37,5 +42,48 @@ public class ControllerSetup {
             JsonConstants.driveConstants.maxAngularSpeed, // type: double (rad/s)
             JsonConstants.driveConstants.joystickDeadband, // type: double
             JsonConstants.driveConstants.joystickMagnitudeExponent));
+
+    // Sample climb pose; This should be moved to a constants file (see #34) but it's located on the
+    // red side of the field against the left upright of the tower.
+    Pose2d targetPose = new Pose2d(14.968, 3.9, new Rotation2d(Math.toRadians(-90.0)));
+
+    controllers
+        .getButton("testClimbDrive")
+        .getTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.setLinearTargetPose(targetPose);
+                  driveCoordinator.setDriveAction(DriveAction.LinearDriveToPose);
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
+                }));
+  }
+
+  public static void initIntakeBindings(IntakeSubsystem intakeSubsystem) {
+    // These are just temporary bindings for testing the intake subsystem
+
+    var controllers = getControllers();
+
+    controllers
+        .getButton("intakePivotUp")
+        .getTrigger()
+        .onTrue(new InstantCommand(intakeSubsystem::setTargetPositionStowed));
+
+    controllers
+        .getButton("intakePivotDown")
+        .getTrigger()
+        .onTrue(new InstantCommand(intakeSubsystem::setTargetPositionIntaking));
+
+    controllers
+        .getButton("runIntakeRollers")
+        .getTrigger()
+        .whileTrue(
+            new InstantCommand(
+                () -> intakeSubsystem.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed)))
+        .onFalse(new InstantCommand(intakeSubsystem::stopRollers));
   }
 }

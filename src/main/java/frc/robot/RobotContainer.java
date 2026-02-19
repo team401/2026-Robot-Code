@@ -23,6 +23,7 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
@@ -41,6 +42,7 @@ public class RobotContainer {
   // Subsystems
   private final Optional<Drive> drive;
   private final Optional<DriveCoordinator> driveCoordinator;
+  private final Optional<IntakeSubsystem> intakeSubsystem;
   // Since the RobotContainer doesn't really need a reference to any subsystem except for drive,
   // their references are stored in the CoordinationLayer instead
 
@@ -56,6 +58,7 @@ public class RobotContainer {
     CopperCoreMetadata.printInfo();
 
     JsonConstants.loadConstants();
+    JsonConstants.featureFlags.logFlags();
 
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
     dependencyOrderedExecutor.registerAction(
@@ -90,6 +93,16 @@ public class RobotContainer {
     if (JsonConstants.featureFlags.runIndexer) {
       IndexerSubsystem indexer = InitSubsystems.initIndexerSubsystem();
       coordinationLayer.setIndexer(indexer);
+    }
+
+    if (JsonConstants.featureFlags.runIntake) {
+      IntakeSubsystem intakeSubsystem = InitSubsystems.initIntakeSubsystem();
+      coordinationLayer.setIntake(intakeSubsystem);
+      dependencyOrderedExecutor.addDependencies(
+          RUN_COMMAND_SCHEDULER, CoordinationLayer.UPDATE_INTAKE_DEPENDENCIES);
+      this.intakeSubsystem = Optional.of(intakeSubsystem);
+    } else {
+      this.intakeSubsystem = Optional.empty();
     }
 
     if (JsonConstants.featureFlags.runHood) {
@@ -179,6 +192,11 @@ public class RobotContainer {
               (drive) -> {
                 ControllerSetup.initDriveBindings(driveCoordinator, drive);
               });
+        });
+
+    intakeSubsystem.ifPresent(
+        (intake) -> {
+          ControllerSetup.initIntakeBindings(intake);
         });
   }
 
