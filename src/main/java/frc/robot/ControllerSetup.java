@@ -19,6 +19,7 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
@@ -33,6 +34,13 @@ public class ControllerSetup {
   private static Controllers getControllers() {
     return JsonConstants.controllers;
   }
+
+  private static LoggedNetworkNumber trenchEndVelocityMps =
+      new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/EndVelocityMps", 4.0);
+  private static LoggedNetworkNumber trenchAccelMpsSquared =
+      new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/AccelMps2", 6.0);
+  private static LoggedNetworkNumber trenchJerkMpsCubed =
+      new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/JerkMps3", 1.0);
 
   /**
    * Initialize drive bindings by setting the default command to a DriveWithJoysticks command
@@ -79,11 +87,57 @@ public class ControllerSetup {
                 .withVelocity(MetersPerSecond.of(3.0).in(MetersPerSecond)),
             new APTarget(new Pose2d(8.2, 4, new Rotation2d(Math.toRadians(90))))
                 .withEntryAngle(new Rotation2d(Degrees.of(270))));
+            new InstantCommand(
+                () -> {
+                  driveCoordinator.cancelCurrentCommand();
+                }));
+
+    Pose2d pose1 = new Pose2d(12.5, 7.33, new Rotation2d(Math.toRadians(90)));
+
+    Pose2d pose2 = new Pose2d(11.5, 7.33, new Rotation2d(Math.toRadians(90)));
+
+    controllers
+        .getButton("testGoToAllianceCenter")
+        .getTrigger()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  APConstraints constraints =
+                      new APConstraints()
+                          .withAcceleration(trenchAccelMpsSquared.get())
+                          .withJerk(trenchJerkMpsCubed.get());
+
+                  APProfile profile =
+                      new APProfile(constraints)
+                          .withErrorXY(Meters.of(0.05))
+                          .withErrorTheta(Degrees.of(5))
+                          .withBeelineRadius(Centimeters.of(8));
+
+                  double endVelocityMps = trenchEndVelocityMps.get();
+                  APTarget target1 =
+                      new APTarget(pose1)
+                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+
+                  Command autoPilotCommand1 =
+                      DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target1);
+
+                  APTarget target2 =
+                      new APTarget(pose2)
+                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+
+                  Command autoPilotCommand2 =
+                      DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target2);
+
+                  var combinedAutoPilot = autoPilotCommand1.andThen(autoPilotCommand2);
 
     controllers
         .getButton("testGoToAllianceCenter").getTrigger()
         .onTrue(
             driveCoordinator.createInstantCommandToSetCurrent(combinedAutoPilot))
+                  driveCoordinator.setCurrentCommand(combinedAutoPilot);
+                }))
         .onFalse(
             driveCoordinator.createInstantCommandToCancelCommand());
   }
