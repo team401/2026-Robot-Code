@@ -2,7 +2,6 @@
   "indexerReduction": 1.0,
   "indexerMaximumRelativeVelocityError": 0.01,
   "indexerDemoMode": false,
-<<<<<<< 51-util-code-for-better-loggedtunables
   "indexerGains": {
     "kP": 10.0,
     "kI": 5.0,
@@ -47,7 +46,6 @@
       }
     }
   },
-=======
   "indexerKP": 10.0,
   "indexerKI": 5.0,
   "indexerKD": 0.0,
@@ -56,7 +54,6 @@
   "indexerKA": 0.0,
   "indexerMaxAccelerationRotationsPerSecondSquared": 3000.0,
   "indexerMaxJerkRotationsPerSecondCubed": 1000.0,
->>>>>>> main
   "indexerSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
