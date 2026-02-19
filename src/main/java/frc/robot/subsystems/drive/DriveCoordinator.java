@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
-import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveGoal;
-import frc.robot.subsystems.drive.DriveCoordinatorCommands.LinearDriveProfileConfig;
 import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.Logger;
@@ -156,18 +154,8 @@ public class DriveCoordinator extends SubsystemBase {
     // drive.setSteerGains(JsonConstants.driveConstants.steerGains);
   }
 
-  public void linearDriveToPose(Pose2d pose) {
-    setCurrentCommand(DriveCoordinatorCommands.linearDriveToPose(this, pose));
-  }
-
-  public void linearDriveToGoal(LinearDriveGoal goal) {
-    setCurrentCommand(DriveCoordinatorCommands.linearDriveToGoal(this, goal));
-  }
-
-  public void linearDriveWithConfig(
-      LinearDriveGoal command, LinearDriveProfileConfig linearDriveConfig) {
-    setCurrentCommand(
-        DriveCoordinatorCommands.linearDriveWithConfig(this, command, linearDriveConfig));
+  public void autoPilotToPose(Pose2d pose) {
+    setCurrentCommand(DriveCoordinatorCommands.autoPilotToPoseCommand(this, pose));
   }
 
   public Command getDriveToClimbCommand(ClimbLocations climbLocation) {
@@ -176,10 +164,9 @@ public class DriveCoordinator extends SubsystemBase {
             ? FieldLocations.leftClimbLocation()
             : FieldLocations.rightClimbLocation();
 
-    var linearDriveConfig = LinearDriveProfileConfig.fromJSON();
+    // TODO: Enhance this to not just use the default settings
 
-    return DriveCoordinatorCommands.linearDriveWithConfig(
-        this, LinearDriveGoal.toPose(targetPose), linearDriveConfig);
+    return DriveCoordinatorCommands.autoPilotToPoseCommand(this, targetPose);
   }
 
   public void driveToClimbLocation(ClimbLocations climbLocation) {

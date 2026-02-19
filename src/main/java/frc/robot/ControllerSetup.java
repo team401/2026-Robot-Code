@@ -12,7 +12,6 @@ import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -70,35 +69,20 @@ public class ControllerSetup {
                 () -> {
                   driveCoordinator.cancelCurrentCommand();
                 }));
-    APConstraints constraints = new APConstraints().withAcceleration(3.0).withJerk(1.0);
 
-    APProfile profile =
-        new APProfile(constraints)
-            .withErrorXY(Meters.of(0.05))
-            .withErrorTheta(Degrees.of(5))
-            .withBeelineRadius(Centimeters.of(8));
-
-    Pose2d pose1 = new Pose2d(12.5, 7.4, new Rotation2d(Math.toRadians(90)));
-
-    APTarget target1 =
-        new APTarget(pose1)
-            .withEntryAngle(new Rotation2d(Degrees.of(180)))
-            .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond));
-
-    Command autoPilotCommand1 =
-        DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target1);
-
-    Pose2d pose2 = new Pose2d(11.5, 7.4, new Rotation2d(Math.toRadians(90)));
-
-    APTarget target2 =
-        new APTarget(pose2)
-            .withEntryAngle(new Rotation2d(Degrees.of(180)))
-            .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond));
-
-    Command autoPilotCommand2 =
-        DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target2);
-
-    var combinedAutoPilot = autoPilotCommand1.andThen(autoPilotCommand2);
+    var combinedAutoPilot =
+        DriveCoordinatorCommands.autoPilotToTargetsCommand(
+            driveCoordinator,
+            new APProfile(new APConstraints().withAcceleration(3.0).withJerk(1.0))
+                .withErrorXY(Meters.of(0.05))
+                .withErrorTheta(Degrees.of(5))
+                .withBeelineRadius(Centimeters.of(8)),
+            new APTarget(new Pose2d(12.5, 7.4, new Rotation2d(Math.toRadians(90))))
+                .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond)),
+            new APTarget(new Pose2d(11.5, 7.4, new Rotation2d(Math.toRadians(90))))
+                .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond)));
 
     controllers
         .getButton("testGoToAllianceCenter")
