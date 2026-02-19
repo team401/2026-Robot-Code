@@ -4,17 +4,19 @@ import static edu.wpi.first.units.Units.Amps;
 // import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -24,6 +26,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.util.PIDGains;
 
 public class HopperConstants {
 
@@ -39,17 +42,18 @@ public class HopperConstants {
    * The robot-relative angle that the hopper is at once it has homed. This should be determined
    * using CAD to find the angle of the "negative direction" hardstop.
    */
-  public Double hopperKP = 16.0;
 
-  public Double hopperKI = 0.0;
-  public Double hopperKD = 0.0;
-  public Double hopperKS = 0.0;
-  public Double hopperKV = 0.0;
-  public Double hopperKG = 0.0;
-  public Double hopperKA = 0.0;
+  public PIDGains hopperGains =
+      PIDGains.kPID(16.0, 0.0, 0.0);
 
-  public Double hopperMaxAccelerationRotationsPerSecondSquared = 3000.0; // TODO: Find actual values
-  public Double hopperMaxJerkRotationsPerSecondCubed = 1000.0;
+    // The important values here are maxAcceleration and maxJerk
+  public MotionProfileConfig hopperMotionProfileConfig =
+      MotionProfileConfig.immutable(
+          RotationsPerSecond.zero(),
+          RotationsPerSecondPerSecond.of(3000.0),
+          RotationsPerSecondPerSecond.of(1000.0).div(Seconds.of(1.0)),
+          Volts.zero().div(RotationsPerSecond.of(1)),
+          Volts.zero().div(RotationsPerSecondPerSecond.of(1)));
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -74,15 +78,7 @@ public class HopperConstants {
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
-        .withSlot0(
-            new Slot0Configs()
-                .withKP(hopperKP)
-                .withKI(hopperKI)
-                .withKD(hopperKD)
-                .withKS(hopperKS)
-                .withKV(hopperKV)
-                .withKG(hopperKG)
-                .withKA(hopperKA))
+        .withSlot0(hopperGains.toSlot0Config())
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(hopperSupplyCurrentLimit)
@@ -91,9 +87,7 @@ public class HopperConstants {
                 .withStatorCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs().withInverted(hopperMotorDirection))
         .withMotionMagic(
-            new MotionMagicConfigs()
-                .withMotionMagicAcceleration(hopperMaxAccelerationRotationsPerSecondSquared)
-                .withMotionMagicJerk(hopperMaxJerkRotationsPerSecondCubed));
+            hopperMotionProfileConfig.asMotionMagicConfigs());
   }
 
   public CoppercoreSimAdapter buildHopperSim() {

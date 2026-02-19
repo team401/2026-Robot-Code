@@ -1,5 +1,6 @@
 package frc.robot.subsystems.indexer;
 
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import coppercore.controls.state_machine.StateMachine;
@@ -95,6 +96,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
             .onMotionProfileConfigChanged(
                 newProfile ->
                     JsonConstants.indexerConstants.indexerMotionProfileConfig = newProfile)
+            .withLoggingAngularVelocityUnit(RPM)
             .build("Indexer/MotorTuning", motor);
 
     tuningModeHelper =

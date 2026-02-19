@@ -1,10 +1,8 @@
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
@@ -12,7 +10,6 @@ import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
-import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -22,6 +19,12 @@ import frc.robot.subsystems.hopper.HopperState.IdleState;
 import frc.robot.subsystems.hopper.HopperState.SpinningState;
 import frc.robot.subsystems.hopper.HopperState.TestModeState;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TuningModeHelper;
+import frc.robot.util.TuningModeHelper.ControlMode;
+import frc.robot.util.TuningModeHelper.MotorTuningMode;
+import frc.robot.util.TuningModeHelper.TunableMotor;
+import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
+
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -38,24 +41,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   private final HopperState idleState;
   private final HopperState testModeState;
 
-  LoggedTunableNumber hopperKP;
-  LoggedTunableNumber hopperKI;
-  LoggedTunableNumber hopperKD;
-
-  LoggedTunableNumber hopperKS;
-  LoggedTunableNumber hopperKV;
-  LoggedTunableNumber hopperKA;
-  LoggedTunableNumber hopperKG;
-
-  LoggedTunableNumber hopperExpoKV;
-  LoggedTunableNumber hopperExpoKA;
-
-  LoggedTunableNumber hopperTuningSetpointVelocity;
-  LoggedTunableNumber hopperTuningAmps;
-  LoggedTunableNumber hopperTuningVolts;
-
-  LoggedTunableNumber hopperMaxAccelerationRotationsPerSecondSquared;
-  LoggedTunableNumber hopperMaxJerkRotationsPerSecondCubed;
+  TuningModeHelper<TestMode> tuningModeHelper;
 
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Hopper", TestMode.class);
@@ -85,33 +71,30 @@ public class HopperSubsystem extends MonitoredSubsystem {
         .when(hopper -> !hopper.isHopperTestMode(), "Not in hopper test mode")
         .transitionTo(idleState);
     stateMachine.setState(idleState);
-    hopperKP =
-        new LoggedTunableNumber("HopperTunables/hopperKP", JsonConstants.hopperConstants.hopperKP);
-    hopperKI =
-        new LoggedTunableNumber("HopperTunables/hopperKI", JsonConstants.hopperConstants.hopperKI);
-    hopperKD =
-        new LoggedTunableNumber("HopperTunables/hopperKD", JsonConstants.hopperConstants.hopperKD);
 
-    hopperKS =
-        new LoggedTunableNumber("HopperTunables/hopperKS", JsonConstants.hopperConstants.hopperKS);
-    hopperKV =
-        new LoggedTunableNumber("HopperTunables/hopperKV", JsonConstants.hopperConstants.hopperKV);
-    hopperKA =
-        new LoggedTunableNumber("HopperTunables/hopperKA", JsonConstants.hopperConstants.hopperKA);
+    // Initialize tuning mode helper
+    TunableMotor tunableMotor =
+        TunableMotorConfiguration.defaultConfiguration()
+            .withVelocityTuning()
+            .profiled()
+            .withDefaultMotionProfileConfig(
+                JsonConstants.hopperConstants.hopperMotionProfileConfig)
+            .withDefaultPIDGains(JsonConstants.hopperConstants.hopperGains)
+            .onPIDGainsChanged(newGains -> JsonConstants.hopperConstants.hopperGains = newGains)
+            .onMotionProfileConfigChanged(
+                newProfile ->
+                    JsonConstants.hopperConstants.hopperMotionProfileConfig = newProfile)
+            .withLoggingAngularVelocityUnit(RPM)
+            .build("Hopper/MotorTuning", motor);
 
-    hopperMaxAccelerationRotationsPerSecondSquared =
-        new LoggedTunableNumber(
-            "HopperTunables/hopperMaxAccelerationRotationsPerSecond",
-            JsonConstants.hopperConstants.hopperMaxAccelerationRotationsPerSecondSquared);
-    hopperMaxJerkRotationsPerSecondCubed =
-        new LoggedTunableNumber(
-            "HopperTunables/hopperMaxJerkRotationsPerSecond",
-            JsonConstants.hopperConstants.hopperMaxJerkRotationsPerSecondCubed);
-
-    hopperTuningSetpointVelocity =
-        new LoggedTunableNumber("HopperTunables/hopperTuningSetpointVelocity", 0.0);
-    hopperTuningAmps = new LoggedTunableNumber("HopperTunables/hopperTuningAmps", 0.0);
-    hopperTuningVolts = new LoggedTunableNumber("HopperTunables/hopperTuningVolts", 0.0);
+    tuningModeHelper = new TuningModeHelper<TestMode>( TestMode.class)
+            .addMotorTuningModes(tunableMotor, 
+              MotorTuningMode.of(TestMode.HopperClosedLoopTuning, ControlMode.CLOSED_LOOP),
+              MotorTuningMode.of(TestMode.HopperCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+              MotorTuningMode.of(TestMode.HopperVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+              MotorTuningMode.of(TestMode.HopperPhoenixTuning, ControlMode.PHOENIX_TUNING),
+              MotorTuningMode.of(TestMode.None, ControlMode.NONE)
+            );
 
     AutoLogOutputManager.addObject(this);
   }
@@ -126,59 +109,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    switch (testModeManager.getTestMode()) {
-      case HopperClosedLoopTuning -> {
-        // if the user changes any of the gains, update the motor gains
-        // and the hopperConstants
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            (pid_sva) -> {
-              JsonConstants.hopperConstants.hopperKP = pid_sva[0];
-              JsonConstants.hopperConstants.hopperKI = pid_sva[1];
-              JsonConstants.hopperConstants.hopperKD = pid_sva[2];
-              JsonConstants.hopperConstants.hopperKS = pid_sva[3];
-              JsonConstants.hopperConstants.hopperKV = pid_sva[4];
-              JsonConstants.hopperConstants.hopperKA = pid_sva[5];
-              motor.setGains(
-                  pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
-            },
-            hopperKP,
-            hopperKI,
-            hopperKD,
-            hopperKS,
-            hopperKV,
-            hopperKA);
-
-        // if the user changes acceleration or jerk, update the motor profile
-        // and the hopperConstants
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            (acc_jerk) -> {
-              JsonConstants.hopperConstants.hopperMaxAccelerationRotationsPerSecondSquared =
-                  acc_jerk[0];
-              JsonConstants.hopperConstants.hopperMaxJerkRotationsPerSecondCubed = acc_jerk[1];
-              motor.setProfileConstraints(
-                  MotionProfileConfig.immutable(
-                      RotationsPerSecond.zero(),
-                      RotationsPerSecondPerSecond.of(acc_jerk[0]),
-                      RotationsPerSecondPerSecond.of(acc_jerk[1]).div(Seconds.of(1.0)),
-                      Volts.zero().div(RotationsPerSecond.of(1)),
-                      Volts.zero().div(RotationsPerSecondPerSecond.of(1))));
-            },
-            hopperMaxAccelerationRotationsPerSecondSquared,
-            hopperMaxJerkRotationsPerSecondCubed);
-
-        motor.controlToVelocityProfiled(
-            RadiansPerSecond.of(hopperTuningSetpointVelocity.getAsDouble()));
-      }
-      case HopperCurrentTuning -> {
-        motor.controlOpenLoopCurrent(Amps.of(hopperTuningAmps.getAsDouble()));
-      }
-      case HopperVoltageTuning -> {
-        motor.controlOpenLoopVoltage(Volts.of(hopperTuningVolts.getAsDouble()));
-      }
-      default -> {}
-    }
+    tuningModeHelper.testPeriodic(testModeManager.getTestMode());
   }
 
   private boolean isHopperTestMode() {
