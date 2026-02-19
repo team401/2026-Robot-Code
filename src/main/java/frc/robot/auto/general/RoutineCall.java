@@ -6,7 +6,7 @@ import frc.robot.auto.AutoAction;
 public class RoutineCall extends AutoAction {
     
     @Override
-    public Command toCommand(){
+    public Command toCommand(AutoActionData data){
         return null;
     }
 

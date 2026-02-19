@@ -12,10 +12,10 @@ public class Deadline extends AutoAction {
     public AutoAction[] others;
 
     @Override
-    public Command toCommand(){
-        return deadline.toCommand().deadlineFor(
+    public Command toCommand(AutoActionData data) {
+        return deadline.toCommand(data).deadlineFor(
             Stream.of(others).map(
-                action -> action.toCommand()
+                action -> action.toCommand(data)
             ).toArray(Command[]::new)
         );
     }

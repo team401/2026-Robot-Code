@@ -10,10 +10,10 @@ public class Race extends AutoAction {
     public AutoAction[] actions;
 
     @Override
-    public Command toCommand(){
+    public Command toCommand(AutoActionData data){
         return new ParallelRaceGroup(
             Stream.of(actions).map(
-                action -> action.toCommand()
+                action -> action.toCommand(data)
             ).toArray(Command[]::new)
         );
     }
