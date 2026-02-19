@@ -9,6 +9,9 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import coppercore.metadata.CopperCoreMetadata;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +30,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -146,6 +150,24 @@ public class RobotContainer {
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+  }
+
+  public void updateRobotModel() {
+    Logger.recordOutput(
+        "componentPositions",
+        new Pose3d[] {
+          new Pose3d(new Translation3d(0.058, -0.245, 0.37), new Rotation3d(0.0, 0.0, Math.PI / 2)),
+          new Pose3d(
+              new Translation3d(-0.121, -0.025, 0.0),
+              new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2)),
+          new Pose3d(
+              new Translation3d(-0.35, 0.0, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
+          new Pose3d(
+              new Translation3d(0.099, -0.138, 0.331),
+              new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
+          new Pose3d(
+              new Translation3d(0.028, 0.259, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI))
+        });
   }
 
   /**
