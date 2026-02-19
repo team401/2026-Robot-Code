@@ -7,6 +7,9 @@ import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -140,14 +143,33 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
       if (configuration.voltageTuning) {
         openLoopVoltage =
-            LoggedTunableMeasure.VOLTAGE.of(prefix + "/OpenLoopVoltageTuning", Volts.zero(), Volts);
+            LoggedTunableMeasure.VOLTAGE.of(prefix + "/OpenLoopVoltageTuningVolts", Volts.zero(), Volts);
       }
 
       if (configuration.currentTuning) {
         openLoopCurrent =
-            LoggedTunableMeasure.CURRENT.of(prefix + "/OpenLoopCurrentTuning", Amps.zero(), Amps);
+            LoggedTunableMeasure.CURRENT.of(prefix + "/OpenLoopCurrentTuningAmps", Amps.zero(), Amps);
       }
 
+      String unitSuffix = "";
+      if (configuration.useUnitInLoggedTunablePaths) {
+        Unit unit = null;
+        if (configuration.closedLoopType == ClosedLoopType.POSITION) {
+          unit = configuration.loggingAngleUnit;
+        } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
+          unit = configuration.loggingAngularVelocityUnit;
+        }else {
+          return; 
+        }
+        if (configuration.useUnitSymbolInsteadOfNameInLoggedTunablePaths) {
+          unitSuffix = unit.symbol();
+        } else {
+          unitSuffix = unit.name();
+        }
+        // For now for readability might want to remove the underscore
+        unitSuffix = "_" + unitSuffix;
+      }
+    
       if (configuration.hasClosedLoopTuning) {
         closedLoopPIDGains =
             new LoggedTunablePIDGains(
@@ -162,11 +184,11 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         if (configuration.closedLoopType == ClosedLoopType.POSITION) {
           closedLoopPositionTarget =
               LoggedTunableMeasure.ANGLE.of(
-                  prefix + "/ClosedLoopPositionTarget", configuration.initialPositionSetpoint);
+                  prefix + "/ClosedLoopPositionTarget" + unitSuffix, configuration.initialPositionSetpoint);
         } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
           closedLoopVelocityTarget =
               LoggedTunableMeasure.ANGULAR_VELOCITY.of(
-                  prefix + "/ClosedLoopVelocityTarget", configuration.initialVelocitySetpoint);
+                  prefix + "/ClosedLoopVelocityTarget" + unitSuffix, configuration.initialVelocitySetpoint);
         }
       }
     }
@@ -329,6 +351,15 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     EXPO_PROFILED
   }
 
+  // TODO: Look into if this is a pattern that some type of annotation would be able to generate?
+  /**
+   * TunableMotorConfiguration is a configuration class for creating TunableMotors. It allows you to specify which control modes you want to be able to tune,
+   *  as well as default values and callbacks for when PID gains or motion profile configs are changed. Use the builder pattern to create a configuration, 
+   * then pass it to the TunableMotor constructor.
+   * Note the initial unit will affect the logged tunable paths.
+   * So if you want to be able to change the initial unit without worrying about the name set the logging unit
+   * to what you want the logged unit to be, Or just disable using unit name in the logged tunable paths by using
+   */
   public static class TunableMotorConfiguration {
     protected boolean voltageTuning = false;
     protected boolean currentTuning = false;
@@ -336,6 +367,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     protected ClosedLoopType closedLoopType = ClosedLoopType.POSITION;
     protected ProfileType profileType = ProfileType.UNPROFILED;
     protected boolean phoenixTuning = false;
+    protected boolean useUnitInLoggedTunablePaths = true;
+    protected boolean useUnitSymbolInsteadOfNameInLoggedTunablePaths = false;
 
     // Default Values
     protected Angle initialPositionSetpoint = Radians.zero();
@@ -343,6 +376,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     protected PIDGains defaultPIDGains = new PIDGains(0, 0, 0, 0, 0, 0, 0);
     protected MotionProfileConfig defaultMotionProfileConfig =
         LoggedTunableMotionProfile.defaultMotionProfileConfig;
+
+    protected AngleUnit loggingAngleUnit = Radians;
+    protected AngularVelocityUnit loggingAngularVelocityUnit = RadiansPerSecond;
 
     protected Consumer<PIDGains> onPIDGainsChanged = pidGains -> {};
     protected Consumer<MotionProfileConfig> onMotionProfileConfigChanged = profileConfig -> {};
@@ -437,6 +473,28 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return this;
     }
 
+    public TunableMotorConfiguration withLoggingAngleUnit(AngleUnit loggingAngleUnit) {
+      this.loggingAngleUnit = loggingAngleUnit;
+      return this;
+    }
+
+    public TunableMotorConfiguration withLoggingAngularVelocityUnit(
+        AngularVelocityUnit loggingAngularVelocityUnit) {
+      this.loggingAngularVelocityUnit = loggingAngularVelocityUnit;
+      return this;
+    }
+
+    public TunableMotorConfiguration withUseUnitInLoggedTunablePaths(boolean useUnitInLoggedTunablePaths) {
+      this.useUnitInLoggedTunablePaths = useUnitInLoggedTunablePaths;
+      return this;
+    }
+
+    public TunableMotorConfiguration withUseUnitSymbolInsteadOfNameInLoggedTunablePaths(boolean useUnitSymbolInsteadOfNameInLoggedTunablePaths) {
+      this.useUnitSymbolInsteadOfNameInLoggedTunablePaths = useUnitSymbolInsteadOfNameInLoggedTunablePaths;
+      this.useUnitInLoggedTunablePaths = true; // If using unit symbol, we need to use unit in the paths to avoid confusion
+      return this;
+    }
+
     private void validate() {
       if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED) {
         throw new IllegalArgumentException(
@@ -458,6 +516,10 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       copy.defaultMotionProfileConfig = this.defaultMotionProfileConfig;
       copy.onPIDGainsChanged = this.onPIDGainsChanged;
       copy.onMotionProfileConfigChanged = this.onMotionProfileConfigChanged;
+      copy.loggingAngleUnit = this.loggingAngleUnit;
+      copy.loggingAngularVelocityUnit = this.loggingAngularVelocityUnit;
+      copy.useUnitInLoggedTunablePaths = this.useUnitInLoggedTunablePaths;
+      copy.useUnitSymbolInsteadOfNameInLoggedTunablePaths = this.useUnitSymbolInsteadOfNameInLoggedTunablePaths;
       return copy;
     }
 
