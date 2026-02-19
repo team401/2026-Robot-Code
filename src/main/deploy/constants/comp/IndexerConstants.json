@@ -46,14 +46,6 @@
       }
     }
   },
-  "indexerKP": 10.0,
-  "indexerKI": 5.0,
-  "indexerKD": 0.0,
-  "indexerKS": 0.0,
-  "indexerKV": 0.0,
-  "indexerKA": 0.0,
-  "indexerMaxAccelerationRotationsPerSecondSquared": 3000.0,
-  "indexerMaxJerkRotationsPerSecondCubed": 1000.0,
   "indexerSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
