@@ -1,8 +1,8 @@
 {
   "gainConstants": {
     "maxAcceptedDistanceMeters": 10,
-    "linearStdDevFactor": 0.0014,
-    "angularStdDevFactor": 0.001,
+    "linearStdDevFactor": 0.0034,
+    "angularStdDevFactor": 0.003,
     "maxZCutoff": 0.75,
     "maxSingleTagAmbiguity": 0.3,
     "maxAmbiguity": 0.3

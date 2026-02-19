@@ -204,6 +204,8 @@ public class DriveCoordinatorCommands extends Command {
               output.vx().in(MetersPerSecond), output.vy().in(MetersPerSecond), omega);
 
       driveCoordinator.drive.setGoalSpeedsBlueOrigins(speeds);
+
+      Logger.recordOutput("DriveCoordinator/AutoPilot/goalPose", target.getReference());
     }
 
     @Override

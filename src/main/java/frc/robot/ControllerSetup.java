@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
@@ -69,9 +70,6 @@ public class ControllerSetup {
                 () -> {
                   driveCoordinator.cancelCurrentCommand();
                 }));
-
-    Pose2d targetPose = new Pose2d(12, 7.5, new Rotation2d(Math.toRadians(90)));
-
     APConstraints constraints = new APConstraints().withAcceleration(3.0).withJerk(1.0);
 
     APProfile profile =
@@ -80,10 +78,27 @@ public class ControllerSetup {
             .withErrorTheta(Degrees.of(5))
             .withBeelineRadius(Centimeters.of(8));
 
-    APTarget target = new APTarget(targetPose).withEntryAngle(new Rotation2d(Degrees.of(180)));
+    Pose2d pose1 = new Pose2d(12.5, 7.4, new Rotation2d(Math.toRadians(90)));
 
-    Command autoPilotCommand =
-        DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target);
+    APTarget target1 =
+        new APTarget(pose1)
+            .withEntryAngle(new Rotation2d(Degrees.of(180)))
+            .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond));
+
+    Command autoPilotCommand1 =
+        DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target1);
+
+    Pose2d pose2 = new Pose2d(11.5, 7.4, new Rotation2d(Math.toRadians(90)));
+
+    APTarget target2 =
+        new APTarget(pose2)
+            .withEntryAngle(new Rotation2d(Degrees.of(180)))
+            .withVelocity(MetersPerSecond.of(1.0).in(MetersPerSecond));
+
+    Command autoPilotCommand2 =
+        DriveCoordinatorCommands.autoPilotCommand(driveCoordinator, profile, target2);
+
+    var combinedAutoPilot = autoPilotCommand1.andThen(autoPilotCommand2);
 
     controllers
         .getButton("testGoToAllianceCenter")
@@ -91,7 +106,7 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  driveCoordinator.setCurrentCommand(autoPilotCommand);
+                  driveCoordinator.setCurrentCommand(combinedAutoPilot);
                 }))
         .onFalse(
             new InstantCommand(
