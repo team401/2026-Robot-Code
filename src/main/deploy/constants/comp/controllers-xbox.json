@@ -16,7 +16,7 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "leftX",
-            "inverted": true
+            "inverted": false
           }
         },
         {
@@ -25,7 +25,7 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "leftY",
-            "inverted": true
+            "inverted": false
           }
         },
         {
@@ -135,7 +135,14 @@
             "elementType": "pov",
             "id": 0
           }
-        }
+        },
+        {
+          "command": "testClimbDrive",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "x",
+          }
       ]
     },
     {
