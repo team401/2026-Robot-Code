@@ -1,25 +1,18 @@
 package frc.robot.util.json;
 
-import coppercore.parameter_tools.json.annotations.JSONName;
+import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.helpers.JSONObject;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
-
 import java.lang.reflect.Constructor;
-import java.util.Optional;
-
-import com.therekrab.autopilot.APTarget;
 
 public class JSONAPTarget extends JSONObject<APTarget> {
-  @JSONName("target")
   protected Pose2d reference;
+
   protected Rotation2d entryAngle;
   protected double velocity;
   protected Distance rotationRadius;
-
 
   public JSONAPTarget(APTarget target) {
     super(target);
@@ -27,7 +20,6 @@ public class JSONAPTarget extends JSONObject<APTarget> {
     this.entryAngle = target.getEntryAngle().orElse(null);
     this.velocity = target.getVelocity();
     this.rotationRadius = target.getRotationRadius().orElse(null);
-    
   }
 
   @Override

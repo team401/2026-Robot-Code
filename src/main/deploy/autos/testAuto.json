@@ -1,0 +1,16 @@
+{
+  "auto": {
+    "type": "AutoPilotAction",
+    "target": {
+      "reference": {
+        "translation": {
+          "x": 6.0,
+          "y": 2.0
+        },
+        "rotation": {
+          "radians": 0.0
+        }
+      }
+    }
+  }
+}

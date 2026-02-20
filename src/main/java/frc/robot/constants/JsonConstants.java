@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONRotation3d;
 import frc.robot.util.json.JSONTransform2d;
 import frc.robot.util.json.JSONTransform3d;
@@ -21,11 +23,13 @@ import frc.robot.util.json.JSONTransform3d;
  */
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
+  public static JSONHandler jsonHandler;
 
   static {
     JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
     JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
     JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
+    JSONConverter.addConversion(APTarget.class, JSONAPTarget.class);
   }
 
   public static void loadConstants() {
@@ -40,7 +44,7 @@ public class JsonConstants {
     var pathProvider = environmentHandler.getEnvironmentPathProvider();
 
     System.out.println("[JsonConstants] Environment name: " + pathProvider.getEnvironmentName());
-    var jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
+    jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");

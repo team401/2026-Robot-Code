@@ -14,24 +14,20 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 @JsonType(
     property = "type",
     subtypes = {
-        // General actions
-        @JsonSubtype(clazz = RoutineCall.class, name = "RoutineCall"),
-        @JsonSubtype(clazz = Deadline.class, name = "Deadline"),
-        @JsonSubtype(clazz = Sequence.class, name = "Sequence"),
-        @JsonSubtype(clazz = Parallel.class, name = "Parallel"),
-        @JsonSubtype(clazz = Race.class, name = "Race"),
-        // Drive actions
-        @JsonSubtype(clazz = AutoPilotAction.class, name = "AutoPilotAction"),
-    }
-)
+      // General actions
+      @JsonSubtype(clazz = RoutineCall.class, name = "RoutineCall"),
+      @JsonSubtype(clazz = Deadline.class, name = "Deadline"),
+      @JsonSubtype(clazz = Sequence.class, name = "Sequence"),
+      @JsonSubtype(clazz = Parallel.class, name = "Parallel"),
+      @JsonSubtype(clazz = Race.class, name = "Race"),
+      // Drive actions
+      @JsonSubtype(clazz = AutoPilotAction.class, name = "AutoPilotAction"),
+    })
 public abstract class AutoAction {
-    
-    public String type;
-    
-    public record AutoActionData(
-        DriveCoordinator driveCoordinator
-    ) {}
 
-    public abstract Command toCommand(AutoActionData data);
+  public String type;
 
+  public record AutoActionData(DriveCoordinator driveCoordinator) {}
+
+  public abstract Command toCommand(AutoActionData data);
 }

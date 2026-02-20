@@ -12,11 +12,12 @@ import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.auto.AutoAction.AutoActionData;
+import frc.robot.auto.AutoManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
-import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -63,14 +64,18 @@ public class ControllerSetup {
 
     driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
-    controllers
-        .getButton("testClimbDrive").getTrigger()
-        .onTrue(
-            driveCoordinator.createInstantCommandToSetCurrent(
-                driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
-        .onFalse(
-            driveCoordinator.createInstantCommandToCancelCommand());
+    var autoAction = AutoManager.loadAuto("testAuto.json");
+    var autoActionData = new AutoActionData(driveCoordinator);
 
+    // Temporary testing setup
+    controllers
+        .getButton("testClimbDrive")
+        .getTrigger()
+        // .onTrue(
+        // driveCoordinator.createInstantCommandToSetCurrent(
+        // driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
+        .onTrue(driveCoordinator.createInstantCommandToSetCurrent(autoAction.toCommand(autoActionData)))
+        .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
 
     Pose2d pose1 = new Pose2d(12.6, 7.33, new Rotation2d(Math.toRadians(90)));
 
@@ -82,37 +87,35 @@ public class ControllerSetup {
         .onTrue(
             new InstantCommand(
                 () -> {
+                  var constraints =
+                      new APConstraints()
+                          .withAcceleration(trenchAccelMpsSquared.get())
+                          .withJerk(trenchJerkMpsCubed.get());
 
-                    var constraints = new APConstraints()
-                        .withAcceleration(trenchAccelMpsSquared.get())
-                        .withJerk(trenchJerkMpsCubed.get());
-                    
-                    var profile = new APProfile(constraints)
-                        .withErrorXY(Meters.of(0.2))
-                        .withErrorTheta(Degrees.of(5))
-                        .withBeelineRadius(Meters.of(0.2));
+                  var profile =
+                      new APProfile(constraints)
+                          .withErrorXY(Meters.of(0.2))
+                          .withErrorTheta(Degrees.of(5))
+                          .withBeelineRadius(Meters.of(0.2));
 
-                    double endVelocityMps = trenchEndVelocityMps.get();
-                    var target1 = new APTarget(pose1)
-                        .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                        .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
-                    
-                    var target2 = new APTarget(pose2)
-                        .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                        .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
-                    
-                    var target3 = new APTarget(new Pose2d(8.2, 4, new Rotation2d(Math.toRadians(90))))
-                        .withEntryAngle(new Rotation2d(Degrees.of(270)));
+                  double endVelocityMps = trenchEndVelocityMps.get();
+                  var target1 =
+                      new APTarget(pose1)
+                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
 
-                    
-                    driveCoordinator.setCurrentCommand(
-                        DriveCoordinatorCommands.autoPilotToTargetsCommand(
-                            driveCoordinator,
-                            profile,
-                            target1,
-                            target2,
-                            target3
-                    ));
+                  var target2 =
+                      new APTarget(pose2)
+                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
+                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+
+                  var target3 =
+                      new APTarget(new Pose2d(8.2, 4, new Rotation2d(Math.toRadians(90))))
+                          .withEntryAngle(new Rotation2d(Degrees.of(270)));
+
+                  driveCoordinator.setCurrentCommand(
+                      DriveCoordinatorCommands.autoPilotToTargetsCommand(
+                          driveCoordinator, profile, target1, target2, target3));
                 }))
         .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
   }
