@@ -49,7 +49,15 @@ public class AutoPilotAction extends AutoAction {
       }
     }
 
+    PIDGains gains = pidGains;
+
+    if (gains == null) {
+      gains = JsonConstants.driveConstants.defaultAutoPilotHeadingGains;
+    }
+
+    var headingController = pidGains.toPIDController();
+
     return DriveCoordinatorCommands.autoPilotCommand(
-        data.driveCoordinator(), new Autopilot(profile), target);
+        data.driveCoordinator(), new Autopilot(profile), target, headingController);
   }
 }

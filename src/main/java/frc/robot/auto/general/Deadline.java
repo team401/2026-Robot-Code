@@ -11,6 +11,18 @@ public class Deadline extends AutoAction {
   public AutoAction[] others;
 
   @Override
+  public void setupParameters(AutoActionData data) {
+    if (deadline != null) {
+      deadline.setupParameters(data);
+    }
+    if (others != null) {
+      for (AutoAction action : others) {
+        action.setupParameters(data);
+      }
+    }
+  }
+
+  @Override
   public Command toCommand(AutoActionData data) {
     return deadline
         .toCommand(data)

@@ -32,9 +32,8 @@ public class AutoManager {
     jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
   }
 
-  public static class Auto {
+  public static void loadRoutines() {
 
-    public AutoAction auto;
   }
 
   public static AutoAction loadAuto(String autoName) {

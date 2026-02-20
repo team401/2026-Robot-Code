@@ -65,7 +65,7 @@ public class ControllerSetup {
     driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
     var autoAction = AutoManager.loadAuto("testAuto.json");
-    var autoActionData = new AutoActionData(driveCoordinator);
+    var autoActionData = new AutoActionData(driveCoordinator, null);
     var autoCommand = autoAction.toCommand(autoActionData);
     // Temporary testing setup
     controllers
@@ -74,7 +74,7 @@ public class ControllerSetup {
         // .onTrue(
         // driveCoordinator.createInstantCommandToSetCurrent(
         // driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
-        //.onTrue(
+        // .onTrue(
         //    driveCoordinator.createInstantCommandToSetCurrent(autoCommand))
         .onTrue(autoCommand)
         .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
