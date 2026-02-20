@@ -88,7 +88,7 @@
           "command": "climbLeft",
           "commandType": "button",
           "hapticControlElement": {
-            "elementType": "trigger",
+            "elementType": "axis",
             "id": "leftTrigger"
           }
         },
@@ -96,7 +96,7 @@
           "command": "climbRight",
           "commandType": "button",
           "hapticControlElement": {
-            "elementType": "trigger",
+            "elementType": "axis",
             "id": "rightTrigger"
           }
         },
@@ -141,8 +141,9 @@
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
-            "id": "x",
+            "id": "x"
           }
+        }
       ]
     },
     {
