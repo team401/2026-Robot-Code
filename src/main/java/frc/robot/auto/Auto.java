@@ -27,6 +27,16 @@ public class Auto {
         data = new AutoActionData(driveCoordinator, this);
     }
 
+    public void registerParameter(AutoParameter<?> parameter) {
+        parameters.registerParameter(parameter);
+    }
+
+    public void registerParameters(AutoParameter<?>... parameters) {
+        for (var parameter : parameters) {
+            registerParameter(parameter);
+        }
+    }
+
     public void setupParameters() {
         if (data == null) {
             throw new IllegalStateException("Auto data has not been set. Call setData() first.");

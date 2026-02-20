@@ -3,6 +3,8 @@ package frc.robot.auto;
 import java.util.HashMap;
 import java.util.Objects;
 
+import edu.wpi.first.math.geometry.Pose2d;
+
 public class AutoParameters {
     
     public HashMap<String, AutoParameter<?>> parameters = new HashMap<>();
@@ -27,12 +29,16 @@ public class AutoParameters {
         parameters.put(name, parameter);
     }
 
-    public void registerIfAbsent(String name, AutoParameter<?> parameter) {
-        if (!parameters.containsKey(name)) {
-            parameters.put(name, parameter);
-        }
-    }
-
+    /**
+     * Gets the parameter with the given name. Returns null if no such parameter exists.
+     * Caller is expected to know the type of the parameter they are getting, and to cast it to the appropriate type. 
+     * For example, if you know that the parameter with name "speed" is a NumberParameter, you would call getParameter("speed")
+     *  and cast the result to NumberParameter or get the Value and cast it to a double. 
+     * If you try to cast it to the wrong type, you will get a ClassCastException at runtime.
+     * Caller is expected to cast the result to the appropriate type, and should check for null before using the result.
+     * @param name the name of the parameter to get
+     * @return the parameter with the given name, or null if no such parameter exists
+     */
     public AutoParameter<?> getParameter(String name) {
         return parameters.get(name);
     }
@@ -45,11 +51,14 @@ public class AutoParameters {
 
     public static abstract class AutoParameter<T> {
         private final String name;
-        public T defaultValue;
+        private final T defaultValue;
+        protected T value;
+        private boolean isPublished = false;
 
         public AutoParameter(String name, T defaultValue) {
             this.name = name;
             this.defaultValue = defaultValue;
+            this.value = defaultValue;
         }
 
         public String getName() {
@@ -58,7 +67,16 @@ public class AutoParameters {
 
         public abstract T getValue();
 
-        public abstract void setValue(T value);
+        public void setValue(T value) {
+            this.value = value;
+            republish();
+        }
+
+        protected void republish() {
+            if (isPublished) {
+                publishToDashboard();
+            }
+        }
 
         public abstract void publishToDashboard();
 
@@ -189,4 +207,27 @@ public class AutoParameters {
         }
     }
 
+    public static class Pose2dParameter extends AutoParameter<Pose2d> {
+        public Pose2dParameter(String name, Pose2d defaultValue) {
+            super(name, defaultValue);
+        }
+
+        @Override
+        public Pose2d getValue() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getValue'");
+        }
+
+        @Override
+        public void setValue(Pose2d value) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'setValue'");
+        }
+
+        @Override
+        public void publishToDashboard() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'publishToDashboard'");
+        }
+    }
 }

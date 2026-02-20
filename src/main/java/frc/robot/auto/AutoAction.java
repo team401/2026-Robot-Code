@@ -3,7 +3,6 @@ package frc.robot.auto;
 import coppercore.parameter_tools.json.annotations.JsonSubtype;
 import coppercore.parameter_tools.json.annotations.JsonType;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.auto.AutoParameters.AutoParameter;
 import frc.robot.auto.drive.AutoPilotAction;
 import frc.robot.auto.general.Deadline;
 import frc.robot.auto.general.Parallel;
@@ -29,10 +28,6 @@ public abstract class AutoAction {
   public String type;
 
   public record AutoActionData(DriveCoordinator driveCoordinator, Auto auto) {}
-
-  public static AutoParameter getParameter(Auto auto, String name) {
-    return auto.parameters.parameters.get(name);
-  }
 
   public void setupParameters(AutoActionData data) {}
 
