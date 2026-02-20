@@ -41,7 +41,7 @@
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
-            "id": "bottomLeftPaddle"
+            "id": "topLeftPaddle"
           }
         },
         {
@@ -49,7 +49,7 @@
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
-            "id": "topLeftPaddle"
+            "id": "bottomLeftPaddle"
           }
         },
         {
@@ -117,9 +117,19 @@
           }
         },
         {
-          "command": "stowHood",
+          "command": "goUnderTrench",
           "commandType": "button",
           "threshold": 180,
+          "thresholdRange": 91,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "stowClimber",
+          "commandType": "button",
+          "threshold": 270,
           "thresholdRange": 91,
           "hapticControlElement": {
             "elementType": "pov",

@@ -132,114 +132,98 @@ public class CoordinationLayer {
   }
 
   // Controller bindings
+  private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
+  private BooleanSupplier isOperatorStowHoodForTrenchPressed = () -> false;
+  private BooleanSupplier isWonAutoPressed = () -> false;
+  private BooleanSupplier isLostAutoPressed = () -> false;
+  private BooleanSupplier isForceShootPressed = () -> false;
+
   /** Initialize all bindings based on the controllers loaded from JSON */
   public void initBindings() {
     Controllers controllers = JsonConstants.controllers;
 
     makeTriggerFromButton(controllers.getButton("toggleIntakeDeploy"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  goalExtensionState =
-                      switch (goalExtensionState) {
-                        case None -> ExtensionState.IntakeDeployed;
-                        case IntakeDeployed, ClimbDeployed -> ExtensionState.None;
-                      };
-                }));
-
+        .onTrue(new InstantCommand(this::toggleIntakeDeploy));
     makeTriggerFromButton(controllers.getButton("toggleIntakeRollers"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  runningIntakeRollers = !runningIntakeRollers;
-                }));
+        .onTrue(new InstantCommand(this::toggleIntakeRollers));
 
     makeTriggerFromButton(controllers.getButton("enterPassMode"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  shotMode = ShotMode.Pass;
-                }));
+        .onTrue(new InstantCommand(this::enterPassMode));
 
     makeTriggerFromButton(controllers.getButton("enterHubMode"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  shotMode = ShotMode.Hub;
-                }));
+        .onTrue(new InstantCommand(this::enterHubMode));
 
     makeTriggerFromButton(controllers.getButton("startShooting"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  shootingEnabled = true;
-                }));
+        .onTrue(new InstantCommand(this::startShooting));
 
     makeTriggerFromButton(controllers.getButton("stopShooting"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  shootingEnabled = false;
-                }));
+        .onTrue(new InstantCommand(this::stopShooting));
 
     // TODO: Add smart mode climb controls
-    Trigger climbPressed =
+    Trigger eitherClimbPressed =
         makeTriggerFromButton(controllers.getButton("climbLeft"))
             .or(controllers.getButton("climbRight").getPrimitiveIsPressedSupplier());
-    climbPressed.onTrue(
-        new InstantCommand(
-            () -> {
-              // TODO: Add real climber controls once the climber exists
-              System.out.println("Climb going up!");
-            }));
+    eitherClimbPressed
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  // TODO: Add real climber controls once the climber exists
+                  System.out.println("Climb going up!");
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  System.out.println("Climb going down!");
+                }));
 
-    climbPressed.onFalse(
-        new InstantCommand(
-            () -> {
-              System.out.println("Climb going down!");
-            }));
+    var goUnderTrenchButton = controllers.getButton("goUnderTrench");
+    makeTriggerFromButton(goUnderTrenchButton).onTrue(new InstantCommand(this::goUnderTrench));
+    this.isDriverGoUnderTrenchPressed = goUnderTrenchButton.getPrimitiveIsPressedSupplier();
+
+    makeTriggerFromButton(controllers.getButton("stowClimber"))
+        .onTrue(new InstantCommand(this::stowClimber));
 
     makeTriggerFromButton(controllers.getButton("disableAutonomy"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  autonomyLevel = AutonomyLevel.Manual;
-                }));
+        .onTrue(new InstantCommand(this::disableAutonomy));
 
     makeTriggerFromButton(controllers.getButton("enableAutonomy"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  autonomyLevel = AutonomyLevel.Smart;
-                }));
+        .onTrue(new InstantCommand(this::enableAutonomy));
 
     // Operator controller:
-    makeTriggerFromButton(controllers.getButton("operatorStowIntake"))
-        .whileTrue(
-            new RunCommand(
-                () -> {
-                  if (goalExtensionState == ExtensionState.IntakeDeployed) {
-                    goalExtensionState = ExtensionState.None;
-                  }
-                }));
+    makeTriggerFromButton(controllers.getButton("operatorToggleIntakeDeploy"))
+        .whileTrue(new RunCommand(this::toggleIntakeDeploy));
 
-    // TODO: Add bindings for red/blue winning auto
+    this.isOperatorStowHoodForTrenchPressed =
+        controllers.getButton("operatorStowHood").getPrimitiveIsPressedSupplier();
+
+    var won1Supplier = controllers.getButton("operatorWonAuto1").getPrimitiveIsPressedSupplier();
+    var won2Supplier = controllers.getButton("operatorWonAuto2").getPrimitiveIsPressedSupplier();
+    this.isWonAutoPressed = () -> won1Supplier.getAsBoolean() || won2Supplier.getAsBoolean();
+
+    var lost1Supplier = controllers.getButton("operatorLostAuto1").getPrimitiveIsPressedSupplier();
+    var lost2Supplier = controllers.getButton("operatorLostAuto2").getPrimitiveIsPressedSupplier();
+    this.isLostAutoPressed = () -> lost1Supplier.getAsBoolean() || lost2Supplier.getAsBoolean();
+
+    makeTriggerFromButton(controllers.getButton("operatorStartShooting"))
+        .whileTrue(new RunCommand(this::startShooting));
+
+    this.isForceShootPressed =
+        controllers.getButton("operatorForceShoot").getPrimitiveIsPressedSupplier();
+
+    makeTriggerFromButton(controllers.getButton("operatorStopShooting"))
+        .whileTrue(new RunCommand(this::stopShooting));
+
+    makeTriggerFromButton(controllers.getButton("operatorEnterPassMode"))
+        .onTrue(new InstantCommand(this::enterPassMode));
+
+    makeTriggerFromButton(controllers.getButton("operatorEnterHubMode"))
+        .onTrue(new InstantCommand(this::enterHubMode));
 
     makeTriggerFromButton(controllers.getButton("operatorDisableAutonomy"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  autonomyLevel = AutonomyLevel.Manual;
-                }));
+        .onTrue(new InstantCommand(this::disableAutonomy));
 
     makeTriggerFromButton(controllers.getButton("operatorEnableAutonomy"))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  autonomyLevel = AutonomyLevel.Smart;
-                }));
-
-    // TODO: Discuss with operator to choose the rest of the binds
+        .onTrue(new InstantCommand(this::enableAutonomy));
   }
 
   /**
@@ -263,6 +247,78 @@ public class CoordinationLayer {
    */
   private Trigger makeTriggerFromButton(Button button) {
     return makeTriggerFromCondition(button.getPrimitiveIsPressedSupplier());
+  }
+
+  /**
+   * If the climber is deployed, stow it and then deploy the intake. If nothing is deployed, deploy
+   * the intake. If the intake is deployed, stow the intake.
+   *
+   * <p>When deploying the intake, intake rollers are automatically enabled.
+   *
+   * <p>This means that this button can be pressed regardless of current extension state and it will
+   * still toggle the intake correctly.
+   */
+  private void toggleIntakeDeploy() {
+    switch (goalExtensionState) {
+      case None, ClimbDeployed -> {
+        goalExtensionState = ExtensionState.IntakeDeployed;
+        runningIntakeRollers = true;
+      }
+      case IntakeDeployed -> {
+        goalExtensionState = ExtensionState.None;
+      }
+    }
+  }
+
+  /**
+   * Toggles the intake rollers. Note that whenever the intake is deployed, the rollers are
+   * automatically started.
+   */
+  private void toggleIntakeRollers() {
+    runningIntakeRollers = !runningIntakeRollers;
+  }
+
+  private void enterPassMode() {
+    shotMode = ShotMode.Pass;
+  }
+
+  private void enterHubMode() {
+    shotMode = ShotMode.Hub;
+  }
+
+  private void startShooting() {
+    shootingEnabled = true;
+  }
+
+  private void stopShooting() {
+    shootingEnabled = false;
+  }
+
+  /**
+   * When in smart mode, starts autonomously driving under the trench. When in manual mode, does
+   * nothing.
+   *
+   * <p>The method coordinateRobotActions is responsible for stowing the hood when this button is
+   * pressed in manual autonomy using the associated BooleanSupplier.
+   */
+  private void goUnderTrench() {
+    if (this.autonomyLevel == AutonomyLevel.Smart) {
+      // TODO: Add smart mode go under trench behavior after auto-trench-drive is merged.
+    }
+  }
+
+  private void stowClimber() {
+    if (goalExtensionState == ExtensionState.ClimbDeployed) {
+      goalExtensionState = ExtensionState.None;
+    }
+  }
+
+  private void disableAutonomy() {
+    autonomyLevel = AutonomyLevel.Manual;
+  }
+
+  private void enableAutonomy() {
+    autonomyLevel = AutonomyLevel.Smart;
   }
 
   // Subsystem initialization
