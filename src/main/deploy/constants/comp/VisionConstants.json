@@ -48,5 +48,9 @@
       "y": 0.2663,
       "z": 0.2091
     }
+  },
+  "disconnectedDebounceTime": {
+    "value": 2.0,
+    "unit": "Seconds"
   }
 }

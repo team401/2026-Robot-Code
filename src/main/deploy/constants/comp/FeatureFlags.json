@@ -1,7 +1,7 @@
 {
   "runDrive": true,
   "useMAPoseEstimator": true,
-  "runVision": true,
+  "runVision": false,
   "runHopper": false,
   "runIndexer": false,
   "runTurret": false,

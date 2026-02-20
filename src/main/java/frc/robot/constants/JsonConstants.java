@@ -65,6 +65,9 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
+    jsonHandler.saveObject(new ManualModeConstants(), "ManualModeConstants.json");
+    manualModeConstants =
+        jsonHandler.getObject(new ManualModeConstants(), "ManualModeConstants.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -90,6 +93,7 @@ public class JsonConstants {
               shotMaps.afterJsonLoad();
               return true;
             });
+        jsonHandler.addRoute("/manualMode", manualModeConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
@@ -116,6 +120,7 @@ public class JsonConstants {
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
+  public static ManualModeConstants manualModeConstants;
 
   public static Controllers controllers;
 }

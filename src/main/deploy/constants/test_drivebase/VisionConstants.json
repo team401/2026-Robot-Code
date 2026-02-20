@@ -48,5 +48,9 @@
       "pitch": -20,
       "yaw": 90
     }
+  },
+  "disconnectedDebounceTime": {
+    "value": 2.0,
+    "unit": "Seconds"
   }
 }

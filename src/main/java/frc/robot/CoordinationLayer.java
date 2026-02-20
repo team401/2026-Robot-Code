@@ -1,14 +1,19 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.vision.VisionLocalizer;
 import coppercore.wpilib_interface.controllers.Controller.Button;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +22,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -35,6 +42,7 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.util.AllianceUtil;
 import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -51,6 +59,7 @@ public class CoordinationLayer {
   // Subsystems
   private Optional<Drive> drive = Optional.empty();
   private Optional<DriveCoordinator> driveCoordinator = Optional.empty();
+  private Optional<VisionLocalizer> vision = Optional.empty();
   private Optional<HopperSubsystem> hopper = Optional.empty();
   private Optional<IndexerSubsystem> indexer = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
@@ -85,6 +94,11 @@ public class CoordinationLayer {
     Smart,
     Manual
   }
+
+  private final Debouncer visionConnectedDebouncer =
+      new Debouncer(
+          JsonConstants.visionConstants.disconnectedDebounceTime.in(Seconds),
+          DebounceType.kFalling);
 
   public enum ExtensionState {
     None,
@@ -124,6 +138,13 @@ public class CoordinationLayer {
 
   @AutoLogOutput(key = "CoordinationLayer/shotMode")
   private ShotMode shotMode = ShotMode.Hub;
+
+  // Logging
+  private final Alert autonomyOverriddenAlert =
+      new Alert(
+          "Autonomy level forced to manual due to disconnected coprocessor.", AlertType.kWarning);
+  private final Alert visionDisconnectedAlert =
+      new Alert("Coprocessor disconnected", AlertType.kError);
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -424,6 +445,7 @@ public class CoordinationLayer {
 
   private void disableAutonomy() {
     autonomyLevel = AutonomyLevel.Manual;
+    stopShooting();
   }
 
   private void enableAutonomy() {
@@ -453,6 +475,11 @@ public class CoordinationLayer {
   public void setDriveCoordinator(DriveCoordinator driveCoordinator) {
     checkForDuplicateSubsystem(this.driveCoordinator, "DriveCoordinator");
     this.driveCoordinator = Optional.of(driveCoordinator);
+  }
+
+  public void setVisionLocalizer(VisionLocalizer vision) {
+    checkForDuplicateSubsystem(this.vision, "VisionLocalizer");
+    this.vision = Optional.of(vision);
   }
 
   public void setHopper(HopperSubsystem hopper) {
@@ -594,7 +621,57 @@ public class CoordinationLayer {
     Logger.recordOutput(
         "CoordinationLayer/extensionStateAfter", extensionStateMachine.getCurrentState().getName());
 
-    drive.ifPresent(this::runShotCalculatorWithDrive);
+    // Determine if vision is enabled and functioning
+    boolean visionConnected = vision.map(VisionLocalizer::coprocessorConnected).orElse(false);
+    Logger.recordOutput("CoordinationLayer/visionConnected", visionConnected);
+    boolean visionConnectedDebounced = visionConnectedDebouncer.calculate(visionConnected);
+    Logger.recordOutput("CoordinationLayer/visionConnectedDebounced", visionConnectedDebounced);
+
+    visionDisconnectedAlert.set(JsonConstants.featureFlags.runVision && !visionConnected);
+
+    AutonomyLevel effectiveAutonomyLevel =
+        visionConnectedDebounced ? autonomyLevel : AutonomyLevel.Manual;
+    Logger.recordOutput("CoordinationLayer/effectiveAutonomyLevel", effectiveAutonomyLevel);
+
+    autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
+
+    // Aim for a shot based on the current autonomy level
+    switch (effectiveAutonomyLevel) {
+      case Smart -> drive.ifPresent(this::runShotCalculatorWithDrive);
+      case Manual -> {
+        aimForManualShot();
+      }
+    }
+  }
+
+  /** Aim for either passing or scoring in manual mode */
+  private void aimForManualShot() {
+    switch (shotMode) {
+      case Hub -> {}
+      case Pass -> {
+        double distanceMeters = JsonConstants.manualModeConstants.assumedPassDistance.in(Meters);
+
+        double hoodAngleRadians =
+            JsonConstants.shotMaps
+                .passingMap
+                .hoodAngleRadiansByDistanceMeters()
+                .get(distanceMeters);
+        hood.ifPresent(
+            hood -> {
+              hood.targetAngleRadians(hoodAngleRadians);
+            });
+
+        double shooterRPM =
+            JsonConstants.shotMaps.passingMap.rpmByDistanceMeters().get(distanceMeters);
+        shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
+
+        Rotation2d turretHeading =
+            AllianceUtil.isRed()
+                ? JsonConstants.manualModeConstants.redPassHeading
+                : JsonConstants.manualModeConstants.bluePassHeading;
+        turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
+      }
+    }
   }
 
   /**
@@ -670,7 +747,6 @@ public class CoordinationLayer {
           hood.ifPresent(
               hood -> {
                 hood.targetAngleRadians(shot.hoodAngleRadians());
-                ;
               });
 
           shooter.ifPresent(
