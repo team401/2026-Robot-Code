@@ -1,0 +1,144 @@
+package frc.robot.util;
+
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import coppercore.wpilib_interface.subsystems.motors.MotorIO;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import coppercore.wpilib_interface.subsystems.motors.profile.MutableMotionProfileConfig;
+import frc.robot.util.LoggedTunableMeasure.LoggedAngularAcceleration;
+import frc.robot.util.LoggedTunableMeasure.LoggedAngularJerk;
+import frc.robot.util.LoggedTunableMeasure.LoggedAngularVelocity;
+import frc.robot.util.LoggedTunableMeasure.LoggedVoltagePerAngularAcceleration;
+import frc.robot.util.LoggedTunableMeasure.LoggedVoltagePerAngularVelocity;
+
+public class LoggedTunableMotionProfile {
+  LoggedAngularVelocity maxVelocity;
+  LoggedAngularAcceleration maxAcceleration;
+  LoggedAngularJerk maxJerk;
+  LoggedVoltagePerAngularVelocity expoKV;
+  LoggedVoltagePerAngularAcceleration expoKA;
+
+  MutableMotionProfileConfig currentMotionProfile;
+
+  public static final MotionProfileConfig defaultMotionProfileConfig =
+      MotionProfileConfig.immutable(
+          RotationsPerSecond.zero(),
+          RotationsPerSecondPerSecond.zero(),
+          RotationsPerSecondPerSecond.zero().div(Seconds.of(1.0)),
+          Volts.of(0).div(RotationsPerSecond.of(1)),
+          Volts.of(0).div(RotationsPerSecondPerSecond.of(1)));
+
+  public LoggedTunableMotionProfile(String namePrefix, MotionProfileConfig defaultProfile) {
+    this(namePrefix, defaultProfile, false);
+  }
+
+  public LoggedTunableMotionProfile(
+      String namePrefix, MotionProfileConfig defaultProfile, boolean addUnitSuffix) {
+    this.currentMotionProfile = defaultProfile.derive();
+
+    this.maxVelocity =
+        LoggedTunableMeasure.ANGULAR_VELOCITY.of(
+            namePrefix + "/MaxVelocity",
+            defaultProfile.getMaxVelocity(),
+            RotationsPerSecond,
+            addUnitSuffix);
+    this.maxAcceleration =
+        LoggedTunableMeasure.ANGULAR_ACCELERATION.of(
+            namePrefix + "/MaxAcceleration",
+            defaultProfile.getMaxAcceleration(),
+            RotationsPerSecondPerSecond,
+            addUnitSuffix);
+    this.maxJerk =
+        LoggedTunableMeasure.ANGULAR_JERK.of(
+            namePrefix + "/MaxJerk",
+            defaultProfile.getMaxJerk(),
+            RotationsPerSecondPerSecond.per(Seconds),
+            addUnitSuffix);
+    this.expoKV =
+        LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_VELOCITY.of(
+            namePrefix + "/expoKV",
+            defaultProfile.getExpoKv(),
+            Volts.per(RotationsPerSecond),
+            addUnitSuffix);
+    this.expoKA =
+        LoggedTunableMeasure.VOLTAGE_PER_ANGULAR_ACCELERATION.of(
+            namePrefix + "/expoKA",
+            defaultProfile.getExpoKa(),
+            Volts.per(RotationsPerSecondPerSecond),
+            addUnitSuffix);
+  }
+
+  public LoggedTunableMotionProfile(String namePrefix) {
+    this(namePrefix, defaultMotionProfileConfig);
+  }
+
+  public MotionProfileConfig getCurrentMotionProfile() {
+    updateProfile(hashCode());
+    return currentMotionProfile;
+  }
+
+  private boolean updateProfile(int id) {
+    boolean hasChanged = false;
+    if (maxVelocity.hasChanged(id)) {
+      currentMotionProfile.withMaxVelocity(maxVelocity.get());
+      hasChanged = true;
+    }
+    if (maxAcceleration.hasChanged(id)) {
+      currentMotionProfile.withMaxAcceleration(maxAcceleration.get());
+      hasChanged = true;
+    }
+    if (maxJerk.hasChanged(id)) {
+      currentMotionProfile.withMaxJerk(maxJerk.get());
+      hasChanged = true;
+    }
+    if (expoKV.hasChanged(id)) {
+      currentMotionProfile.withExpoKv(expoKV.get());
+      hasChanged = true;
+    }
+    if (expoKA.hasChanged(id)) {
+      currentMotionProfile.withExpoKa(expoKA.get());
+      hasChanged = true;
+    }
+    return hasChanged;
+  }
+
+  public void ifChanged(int id, MotionProfileConsumer callback) {
+    boolean hasChanged = updateProfile(id);
+    if (hasChanged) {
+      callback.accept(currentMotionProfile);
+    }
+  }
+
+  public MotionProfileConsumer getMotorIOApplier(MotorIO motorIO) {
+    return motionProfile -> motorIO.setProfileConstraints(motionProfile);
+  }
+
+  public MotionProfileConsumer getMotorIOAppliers(MotorIO... motorIOs) {
+    return motionProfile -> {
+      for (MotorIO motorIO : motorIOs) {
+        motorIO.setProfileConstraints(motionProfile);
+      }
+    };
+  }
+
+  @FunctionalInterface
+  public interface MotionProfileConsumer {
+    MotionProfileConsumer noOp = motionProfile -> {};
+
+    void accept(MotionProfileConfig motionProfile);
+
+    default MotionProfileConsumer chain(MotionProfileConsumer after) {
+      return motionProfile -> {
+        accept(motionProfile);
+        after.accept(motionProfile);
+      };
+    }
+
+    static MotionProfileConsumer noOp() {
+      return noOp;
+    }
+  }
+}

@@ -9,15 +9,50 @@
     "value": 3.0,
     "unit": "Radian per Second"
   },
-  "hopperKP": 16.0,
-  "hopperKI": 0.0,
-  "hopperKD": 0.0,
-  "hopperKS": 0.0,
-  "hopperKV": 0.0,
-  "hopperKG": 0.0,
-  "hopperKA": 0.0,
-  "hopperMaxAccelerationRotationsPerSecondSquared": 3000.0,
-  "hopperMaxJerkRotationsPerSecondCubed": 1000.0,
+  "hopperGains": {
+    "kP": 16.0,
+    "kI": 0.0,
+    "kD": 0.0,
+    "kS": 0.0,
+    "kV": 0.0,
+    "kG": 0.0,
+    "kA": 0.0
+  },
+  "hopperMotionProfileConfig": {
+    "isMutable": false,
+    "maxVelocity": {
+      "value": 0.0,
+      "unit": "Rotation per Second"
+    },
+    "maxAcceleration": {
+      "value": 3000.0,
+      "unit": "Rotation per Second per Second"
+    },
+    "maxJerk": {
+      "value": 999.9999999999999,
+      "unit": "Rotation per Second per Second per Second"
+    },
+    "expoKV": {
+      "dividend": {
+        "value": 0.0,
+        "unit": "Volt"
+      },
+      "divisor": {
+        "value": 1.0,
+        "unit": "Rotation per Second"
+      }
+    },
+    "expoKA": {
+      "dividend": {
+        "value": 0.0,
+        "unit": "Volt"
+      },
+      "divisor": {
+        "value": 1.0,
+        "unit": "Rotation per Second per Second"
+      }
+    }
+  },
   "hopperSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
