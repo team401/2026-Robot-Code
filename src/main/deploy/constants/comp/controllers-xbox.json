@@ -61,6 +61,14 @@
             "elementType": "button",
             "id": "a"
           }
+        },
+        {
+          "command": "testGoToAllianceCenter",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
         }
       ]
     }

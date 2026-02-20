@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 /**
@@ -20,4 +21,7 @@ public class FieldLocationInstance {
    * perspective)
    */
   public final Translation3d rightPassingTarget = new Translation3d();
+
+  public final Pose2d leftClimbLocation = new Pose2d();
+  public final Pose2d rightClimbLocation = new Pose2d();
 }
