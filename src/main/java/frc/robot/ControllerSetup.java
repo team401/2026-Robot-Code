@@ -66,7 +66,7 @@ public class ControllerSetup {
 
     var autoAction = AutoManager.loadAuto("testAuto.json");
     var autoActionData = new AutoActionData(driveCoordinator);
-
+    var autoCommand = autoAction.toCommand(autoActionData);
     // Temporary testing setup
     controllers
         .getButton("testClimbDrive")
@@ -74,7 +74,9 @@ public class ControllerSetup {
         // .onTrue(
         // driveCoordinator.createInstantCommandToSetCurrent(
         // driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
-        .onTrue(driveCoordinator.createInstantCommandToSetCurrent(autoAction.toCommand(autoActionData)))
+        //.onTrue(
+        //    driveCoordinator.createInstantCommandToSetCurrent(autoCommand))
+        .onTrue(autoCommand)
         .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
 
     Pose2d pose1 = new Pose2d(12.6, 7.33, new Rotation2d(Math.toRadians(90)));

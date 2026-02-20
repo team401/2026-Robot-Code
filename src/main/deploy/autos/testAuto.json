@@ -1,16 +1,69 @@
 {
   "auto": {
-    "type": "AutoPilotAction",
-    "target": {
-      "reference": {
-        "translation": {
-          "x": 6.0,
-          "y": 2.0
-        },
-        "rotation": {
-          "radians": 0.0
+    "type": "Sequence",
+    "actions": [
+      {
+        "type": "AutoPilotAction",
+        "target": {
+          "reference": {
+            "translation": {
+              "x": 6.0,
+              "y": 2.0
+            },
+            "rotation": {
+              "radians": 2.0
+            }
+          }
+        }
+      },
+      {
+        "type": "AutoPilotAction",
+        "target": {
+          "reference": {
+            "translation": {
+              "x": 12.0,
+              "y": 6.0
+            },
+            "rotation": {
+              "radians": 4.0
+            }
+          },
+          "entryAngle": {
+            "radians": 1.7
+          }
+        }
+      },
+      {
+        "type": "AutoPilotAction",
+        "target": {
+          "reference": {
+            "translation": {
+              "x": 7.0,
+              "y": 5.0
+            },
+            "rotation": {
+              "radians": 0.0
+            }
+          }
+        }
+      },
+      {
+        "type": "AutoPilotAction",
+        "target": {
+          "reference": {
+            "translation": {
+              "x": 13.0,
+              "y": 7.0
+            },
+            "rotation": {
+              "radians": 0.0
+            }
+          },
+          "entryAngle": {
+            "radians": 0.0
+          }
         }
       }
-    }
+    ]
   }
 }
