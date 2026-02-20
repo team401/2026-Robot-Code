@@ -3,6 +3,12 @@
     {
       "port": 0,
       "type": "xbox",
+      "buttonShorthands": {
+        "topLeftPaddle": 7,
+        "topRightPaddle": 8,
+        "bottomLeftPaddle": 9,
+        "bottomRightPaddle": 10
+      },
       "controlElements": [
         {
           "command": "driveX",
@@ -31,15 +37,23 @@
           }
         },
         {
-          "command": "intakePivotUp",
+          "command": "toggleIntakeDeploy",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
-            "id": "rightBumper"
+            "id": "topLeftPaddle"
           }
         },
         {
-          "command": "intakePivotDown",
+          "command": "toggleIntakeRollers",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomLeftPaddle"
+          }
+        },
+        {
+          "command": "enterPassMode",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -47,7 +61,39 @@
           }
         },
         {
-          "command": "runIntakeRollers",
+          "command": "enterHubMode",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "startShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomRightPaddle"
+          }
+        },
+        {
+          "command": "stopShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topRightPaddle"
+          }
+        },
+        {
+          "command": "climbLeft",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "axis",
+            "id": "leftTrigger"
+          }
+        },
+        {
+          "command": "climbRight",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "axis",
@@ -55,11 +101,168 @@
           }
         },
         {
-          "command": "testClimbDrive",
+          "command": "disableAutonomy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
+        },
+        {
+          "command": "enableAutonomy",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
             "id": "a"
+          }
+        },
+        {
+          "command": "goUnderTrench",
+          "commandType": "button",
+          "threshold": 180,
+          "thresholdRange": 91,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "stowClimber",
+          "commandType": "button",
+          "threshold": 270,
+          "thresholdRange": 91,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "testClimbDrive",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "x"
+          }
+        }
+      ]
+    },
+    {
+      "port": 1,
+      "type": "xbox",
+      "buttonShorthands": {
+        "topLeftPaddle": 7,
+        "topRightPaddle": 8,
+        "bottomLeftPaddle": 9,
+        "bottomRightPaddle": 10
+      },
+      "controlElements": [
+        {
+          "command": "operatorToggleIntakeDeploy",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "rightBumper"
+          }
+        },
+        {
+          "command": "operatorStowHood",
+          "commandType": "button",
+          "threshold": 0.5,
+          "hapticControlElement": {
+            "elementType": "axis",
+            "id": "rightTrigger"
+          }
+        },
+        {
+          "command": "operatorWonAuto1",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topRightPaddle"
+          }
+        },
+        {
+          "command": "operatorWonAuto2",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomRightPaddle"
+          }
+        },
+        {
+          "command": "operatorLostAuto1",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "topLeftPaddle"
+          }
+        },
+        {
+          "command": "operatorLostAuto2",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "bottomLeftPaddle"
+          }
+        },
+        {
+          "command": "operatorStartShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
+        },
+        {
+          "command": "operatorForceShoot",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "y"
+          }
+        },
+        {
+          "command": "operatorStopShooting",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "a"
+          }
+        },
+        {
+          "command": "operatorEnterHubMode",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "axis",
+            "id": "leftTrigger"
+          }
+        },
+        {
+          "command": "operatorEnterPassMode",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "leftBumper"
+          }
+        },
+        {
+          "command": "operatorEnableAutonomy",
+          "commandType": "button",
+          "threshold": 0,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "operatorDisableAutonomy",
+          "commandType": "button",
+          "threshold": 180,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
           }
         }
       ]

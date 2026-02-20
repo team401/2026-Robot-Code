@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.util.AllianceUtil;
 
@@ -36,5 +37,17 @@ public class FieldLocations {
     return AllianceUtil.isRed()
         ? JsonConstants.redFieldLocations.rightPassingTarget
         : JsonConstants.blueFieldLocations.rightPassingTarget;
+  }
+
+  /**
+   * Get the position the robot will "imagine" itself to be at while aiming for shooting manually.
+   *
+   * @return A pose lined up with the manual shooting location (probably the tower) and pointed in
+   *     the direction we intend to point while shooting.
+   */
+  public static Pose2d getManualHubShootingPosition() {
+    return AllianceUtil.isRed()
+        ? JsonConstants.redFieldLocations.manualHubShootingPosition
+        : JsonConstants.blueFieldLocations.manualHubShootingPosition;
   }
 }

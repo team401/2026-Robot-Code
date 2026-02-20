@@ -1,11 +1,19 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
+import coppercore.controls.state_machine.State;
+import coppercore.controls.state_machine.StateMachine;
+import coppercore.vision.VisionLocalizer;
+import coppercore.wpilib_interface.controllers.Controller.Button;
+import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,11 +22,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -29,16 +42,24 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.util.AllianceUtil;
+import java.io.PrintWriter;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
  * calculator, and distributing commands to subsystems based on the action layer.
+ *
+ * <p>It is also responsible for tracking the current robot action based on user inputs in teleop.
  */
 public class CoordinationLayer {
   // Subsystems
   private Optional<Drive> drive = Optional.empty();
   private Optional<DriveCoordinator> driveCoordinator = Optional.empty();
+  private Optional<VisionLocalizer> vision = Optional.empty();
   private Optional<HopperSubsystem> hopper = Optional.empty();
   private Optional<IndexerSubsystem> indexer = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
@@ -57,19 +78,381 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::updateHoodDependencies");
   public static final ActionKey UPDATE_INTAKE_DEPENDENCIES =
       new ActionKey("CoordinationLayer::updateIntakeDependencies");
-  public static final ActionKey RUN_SHOT_CALCULATOR =
-      new ActionKey("CoordinationLayer::runShotCalculator");
-  public static final ActionKey RUN_DEMO_MODES =
-      new ActionKey("CoordinationLayer::runSubsystemDemoModes");
+  public static final ActionKey COORDINATE_ROBOT_ACTIONS =
+      new ActionKey("CoordinationLayer::coordinateRobotActions");
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
+  /**
+   * This is the EventLoop that should be used for all buttons this season. This is necessary
+   * because the CommandScheduler button loop won't run before
+   * CoordinationLayer:coordinateRobotActions.
+   */
+  private final EventLoop buttonLoop = new EventLoop();
+
+  public enum AutonomyLevel {
+    Smart,
+    Manual
+  }
+
+  private final Debouncer visionConnectedDebouncer =
+      new Debouncer(
+          JsonConstants.visionConstants.disconnectedDebounceTime.in(Seconds),
+          DebounceType.kFalling);
+
+  public enum ExtensionState {
+    None,
+    IntakeDeployed,
+    ClimbDeployed
+  }
+
+  public enum ShotMode {
+    Pass,
+    Hub
+  }
+
+  /**
+   * Tracks our current "autonomy level": either vision is enabled & used (smart), or manual driver
+   * alignment is used (manual)
+   */
+  @AutoLogOutput(key = "CoordinationLayer/autonomyLevel")
+  private AutonomyLevel autonomyLevel = AutonomyLevel.Smart;
+
+  /**
+   * Tracks our target "extension state": either the intake, climber, or neither may deploy at once.
+   */
+  @AutoLogOutput(key = "CoordinationLayer/goalExtensionState")
+  private ExtensionState goalExtensionState = ExtensionState.None;
+
+  /** Handles making sure that only one subsystem is extended at a time */
+  private final StateMachine<CoordinationLayer> extensionStateMachine;
+
+  private final State<CoordinationLayer> noExtensionState;
+  private final State<CoordinationLayer> intakeDeployedState;
+  private final State<CoordinationLayer> waitForIntakeRetractState;
+  private final State<CoordinationLayer> climberDeployedState;
+  private final State<CoordinationLayer> waitForClimbRetractState;
+
+  @AutoLogOutput(key = "CoordinationLayer/runningIntakeRollers")
+  private boolean runningIntakeRollers = false;
+
+  @AutoLogOutput(key = "CoordinationLayer/shotMode")
+  private ShotMode shotMode = ShotMode.Hub;
+
+  // Logging
+  private final Alert autonomyOverriddenAlert =
+      new Alert(
+          "Autonomy level forced to manual due to disconnected coprocessor.", AlertType.kWarning);
+  private final Alert visionDisconnectedAlert =
+      new Alert("Coprocessor disconnected", AlertType.kError);
+
+  // Suppliers from controllers
+  private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
+  private BooleanSupplier isOperatorStowHoodForTrenchPressed = () -> false;
+  private BooleanSupplier isWonAutoPressed = () -> false;
+  private BooleanSupplier isLostAutoPressed = () -> false;
+  private BooleanSupplier isForceShootPressed = () -> false;
+
+  /**
+   * Whether or not the robot should currently be shooting.
+   *
+   * <p>In smart mode, this means the robot will shoot when ready. This means waiting for an
+   * achievable shot and waiting for mechanisms to achieve that shot.
+   *
+   * <p>In manual mode, this means the robot shoot as soon as its mechanisms are in the right
+   * positions for manual shooting from the tower.
+   */
+  @AutoLogOutput(key = "CoordinationLayer/shootingEnabled")
+  private boolean shootingEnabled = false;
+
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
-    dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
-    dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
+    dependencyOrderedExecutor.registerAction(
+        COORDINATE_ROBOT_ACTIONS, this::coordinateRobotActions);
+
+    this.extensionStateMachine = new StateMachine<CoordinationLayer>(this);
+
+    this.noExtensionState =
+        extensionStateMachine.registerState(
+            new State<CoordinationLayer>("NoExtension") {
+              @Override
+              protected void periodic(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                // TODO: Add climber stow method call when it is defined
+              }
+            });
+
+    this.intakeDeployedState =
+        extensionStateMachine.registerState(
+            new State<CoordinationLayer>("IntakeDeployed") {
+              @Override
+              protected void periodic(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+                intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
+                // TODO: Add climber stow method call when it is defined
+              }
+            });
+
+    this.waitForIntakeRetractState =
+        extensionStateMachine.registerState(
+            new State<CoordinationLayer>("WaitForIntakeRetract") {
+              @Override
+              protected void periodic(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                // TODO: Add climber stow method call when it is defined
+
+                // Assume the intake is stowed if it is disabled
+                if (intake.map(IntakeSubsystem::isStowed).orElse(true)) {
+                  finish();
+                }
+              }
+            });
+
+    this.climberDeployedState =
+        extensionStateMachine.registerState(
+            new State<CoordinationLayer>("ClimberDeployed") {
+              @Override
+              protected void periodic(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                // TODO: Add climber extend method call when it is defined
+              }
+            });
+
+    this.waitForClimbRetractState =
+        extensionStateMachine.registerState(
+            new State<CoordinationLayer>("WaitForClimberRetract") {
+              @Override
+              protected void periodic(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                // TODO: Add climber stow method call when it is defined
+
+                // TODO: Add check for whether or not the climber is stowed
+                // Assume the climber is stowed if it is disabled
+                if (true) {
+                  finish();
+                }
+              }
+            });
+
+    this.noExtensionState
+        .when(() -> goalExtensionState == ExtensionState.IntakeDeployed, "Goal is IntakeDeployed")
+        .transitionTo(intakeDeployedState);
+    this.noExtensionState
+        .when(() -> goalExtensionState == ExtensionState.ClimbDeployed, "Goal is ClimbDeployed")
+        .transitionTo(climberDeployedState);
+
+    this.intakeDeployedState
+        .when(
+            () -> goalExtensionState != ExtensionState.IntakeDeployed, "Goal is not IntakeDeployed")
+        .transitionTo(waitForIntakeRetractState);
+
+    this.waitForIntakeRetractState
+        .whenFinished("Intake finished retracting")
+        .transitionTo(noExtensionState);
+
+    this.climberDeployedState
+        .when(() -> goalExtensionState != ExtensionState.ClimbDeployed, "Goal is not ClimbDeployed")
+        .transitionTo(waitForClimbRetractState);
+
+    this.waitForClimbRetractState
+        .whenFinished("Climb finished retracting")
+        .transitionTo(noExtensionState);
+
+    extensionStateMachine.setState(noExtensionState);
+    extensionStateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
   }
+
+  // Controller bindings
+  /** Initialize all bindings based on the controllers loaded from JSON */
+  public void initBindings() {
+    Controllers controllers = JsonConstants.controllers;
+
+    makeTriggerFromButton(controllers.getButton("toggleIntakeDeploy"))
+        .onTrue(new InstantCommand(this::toggleIntakeDeploy));
+    makeTriggerFromButton(controllers.getButton("toggleIntakeRollers"))
+        .onTrue(new InstantCommand(this::toggleIntakeRollers));
+
+    makeTriggerFromButton(controllers.getButton("enterPassMode"))
+        .onTrue(new InstantCommand(this::enterPassMode));
+
+    makeTriggerFromButton(controllers.getButton("enterHubMode"))
+        .onTrue(new InstantCommand(this::enterHubMode));
+
+    makeTriggerFromButton(controllers.getButton("startShooting"))
+        .onTrue(new InstantCommand(this::startShooting));
+
+    makeTriggerFromButton(controllers.getButton("stopShooting"))
+        .onTrue(new InstantCommand(this::stopShooting));
+
+    // TODO: Add smart mode climb controls
+    Trigger eitherClimbPressed =
+        makeTriggerFromButton(controllers.getButton("climbLeft"))
+            .or(controllers.getButton("climbRight").getPrimitiveIsPressedSupplier());
+    eitherClimbPressed
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  // TODO: Add real climber controls once the climber exists
+                  System.out.println("Climb going up!");
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  System.out.println("Climb going down!");
+                }));
+
+    var goUnderTrenchButton = controllers.getButton("goUnderTrench");
+    makeTriggerFromButton(goUnderTrenchButton).onTrue(new InstantCommand(this::goUnderTrench));
+    this.isDriverGoUnderTrenchPressed = goUnderTrenchButton.getPrimitiveIsPressedSupplier();
+
+    makeTriggerFromButton(controllers.getButton("stowClimber"))
+        .onTrue(new InstantCommand(this::stowClimber));
+
+    makeTriggerFromButton(controllers.getButton("disableAutonomy"))
+        .onTrue(new InstantCommand(this::disableAutonomy));
+
+    makeTriggerFromButton(controllers.getButton("enableAutonomy"))
+        .onTrue(new InstantCommand(this::enableAutonomy));
+
+    // Operator controller:
+    makeTriggerFromButton(controllers.getButton("operatorToggleIntakeDeploy"))
+        .whileTrue(new RunCommand(this::toggleIntakeDeploy));
+
+    this.isOperatorStowHoodForTrenchPressed =
+        controllers.getButton("operatorStowHood").getPrimitiveIsPressedSupplier();
+
+    var won1Supplier = controllers.getButton("operatorWonAuto1").getPrimitiveIsPressedSupplier();
+    var won2Supplier = controllers.getButton("operatorWonAuto2").getPrimitiveIsPressedSupplier();
+    this.isWonAutoPressed = () -> won1Supplier.getAsBoolean() || won2Supplier.getAsBoolean();
+
+    var lost1Supplier = controllers.getButton("operatorLostAuto1").getPrimitiveIsPressedSupplier();
+    var lost2Supplier = controllers.getButton("operatorLostAuto2").getPrimitiveIsPressedSupplier();
+    this.isLostAutoPressed = () -> lost1Supplier.getAsBoolean() || lost2Supplier.getAsBoolean();
+
+    makeTriggerFromButton(controllers.getButton("operatorStartShooting"))
+        .whileTrue(new RunCommand(this::startShooting));
+
+    this.isForceShootPressed =
+        controllers.getButton("operatorForceShoot").getPrimitiveIsPressedSupplier();
+
+    makeTriggerFromButton(controllers.getButton("operatorStopShooting"))
+        .whileTrue(new RunCommand(this::stopShooting));
+
+    makeTriggerFromButton(controllers.getButton("operatorEnterPassMode"))
+        .onTrue(new InstantCommand(this::enterPassMode));
+
+    makeTriggerFromButton(controllers.getButton("operatorEnterHubMode"))
+        .onTrue(new InstantCommand(this::enterHubMode));
+
+    makeTriggerFromButton(controllers.getButton("operatorDisableAutonomy"))
+        .onTrue(new InstantCommand(this::disableAutonomy));
+
+    makeTriggerFromButton(controllers.getButton("operatorEnableAutonomy"))
+        .onTrue(new InstantCommand(this::enableAutonomy));
+  }
+
+  /**
+   * Create a Trigger from a condition supplier on the CoordinationLayer's custom button loop.
+   *
+   * @param condition A BooleanSupplier providing the condition (e.g.
+   *     Button.getPrimitiveIsPressedSupplier())
+   * @return A new Trigger on the custom button loop
+   */
+  private Trigger makeTriggerFromCondition(BooleanSupplier condition) {
+    return new Trigger(buttonLoop, condition);
+  }
+
+  /**
+   * Create a Trigger from a coppercore wpilib_interface Button.
+   *
+   * <p>Uses makeTriggerFromCondition on the primitive isPressed supplier provided by the button.
+   *
+   * @param button The Button from which to make the supplier
+   * @return A new Trigger on the CoordinationLayer's custom event loop
+   */
+  private Trigger makeTriggerFromButton(Button button) {
+    return makeTriggerFromCondition(button.getPrimitiveIsPressedSupplier());
+  }
+
+  /**
+   * If the climber is deployed, stow it and then deploy the intake. If nothing is deployed, deploy
+   * the intake. If the intake is deployed, stow the intake.
+   *
+   * <p>When deploying the intake, intake rollers are automatically enabled.
+   *
+   * <p>This means that this button can be pressed regardless of current extension state and it will
+   * still toggle the intake correctly.
+   */
+  private void toggleIntakeDeploy() {
+    switch (goalExtensionState) {
+      case None, ClimbDeployed -> {
+        goalExtensionState = ExtensionState.IntakeDeployed;
+        runningIntakeRollers = true;
+      }
+      case IntakeDeployed -> {
+        goalExtensionState = ExtensionState.None;
+      }
+    }
+  }
+
+  /**
+   * Toggles the intake rollers. Note that whenever the intake is deployed, the rollers are
+   * automatically started.
+   */
+  private void toggleIntakeRollers() {
+    runningIntakeRollers = !runningIntakeRollers;
+  }
+
+  private void enterPassMode() {
+    shotMode = ShotMode.Pass;
+  }
+
+  private void enterHubMode() {
+    shotMode = ShotMode.Hub;
+  }
+
+  private void startShooting() {
+    shootingEnabled = true;
+  }
+
+  private void stopShooting() {
+    shootingEnabled = false;
+  }
+
+  /**
+   * When in smart mode, starts autonomously driving under the trench. When in manual mode, does
+   * nothing.
+   *
+   * <p>The method coordinateRobotActions is responsible for stowing the hood when this button is
+   * pressed in manual autonomy using the associated BooleanSupplier.
+   */
+  private void goUnderTrench() {
+    if (this.autonomyLevel == AutonomyLevel.Smart) {
+      // TODO: Add smart mode go under trench behavior after auto-trench-drive is merged.
+    }
+  }
+
+  private void stowClimber() {
+    if (goalExtensionState == ExtensionState.ClimbDeployed) {
+      goalExtensionState = ExtensionState.None;
+    }
+  }
+
+  private void disableAutonomy() {
+    autonomyLevel = AutonomyLevel.Manual;
+    stopShooting();
+  }
+
+  private void enableAutonomy() {
+    autonomyLevel = AutonomyLevel.Smart;
+  }
+
+  // Subsystem initialization
 
   /**
    * Checks whether a subsystem has already been initialized and, if it has, throws an error.
@@ -92,6 +475,11 @@ public class CoordinationLayer {
   public void setDriveCoordinator(DriveCoordinator driveCoordinator) {
     checkForDuplicateSubsystem(this.driveCoordinator, "DriveCoordinator");
     this.driveCoordinator = Optional.of(driveCoordinator);
+  }
+
+  public void setVisionLocalizer(VisionLocalizer vision) {
+    checkForDuplicateSubsystem(this.vision, "VisionLocalizer");
+    this.vision = Optional.of(vision);
   }
 
   public void setHopper(HopperSubsystem hopper) {
@@ -128,7 +516,8 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.registerAction(
         UPDATE_TURRET_DEPENDENCIES, () -> updateTurretDependencies(turret));
 
-    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, TurretSubsystem.UPDATE_INPUTS);
+    dependencyOrderedExecutor.addDependencies(
+        COORDINATE_ROBOT_ACTIONS, TurretSubsystem.UPDATE_INPUTS);
   }
 
   /**
@@ -144,7 +533,8 @@ public class CoordinationLayer {
     checkForDuplicateSubsystem(this.shooter, "Shooter");
 
     this.shooter = Optional.of(shooter);
-    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, ShooterSubsystem.UPDATE_INPUTS);
+    dependencyOrderedExecutor.addDependencies(
+        COORDINATE_ROBOT_ACTIONS, ShooterSubsystem.UPDATE_INPUTS);
   }
 
   /**
@@ -164,7 +554,8 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.registerAction(
         UPDATE_HOOD_DEPENDENCIES, () -> updateHoodDependencies(hood));
 
-    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, HoodSubsystem.UPDATE_INPUTS);
+    dependencyOrderedExecutor.addDependencies(
+        COORDINATE_ROBOT_ACTIONS, HoodSubsystem.UPDATE_INPUTS);
   }
 
   public void setHomingSwitch(HomingSwitch homingSwitch) {
@@ -212,13 +603,75 @@ public class CoordinationLayer {
 
   // Coordination and processing
   /**
-   * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
-   * method should also command the subsystems to take their actinos.
-   *
-   * <p>This should likely go into some kind of coordination layer class.
+   * This method is like the "periodic" of the CoordinationLayer. It is run by the
+   * DependencyOrderedExecutor and is responsible for polling our custom button loop, reading robot
+   * goal actions, deciding the best subsystem actions based on the goal robot actions, and applying
+   * commands to subsystems. This method must run after subsystems update inputs but before
+   * CommandScheduler.run, as it will tell subsystems which commands to apply when their periodic
+   * methods run.
    */
-  public void runShotCalculator() {
-    drive.ifPresent(this::runShotCalculatorWithDrive);
+  public void coordinateRobotActions() {
+    // Poll buttons. This will modify state variables depending on the states of the buttons
+    buttonLoop.poll();
+
+    // Handle extension coordination and command intake/climber to their correct positions
+    Logger.recordOutput(
+        "CoordinationLayer/extensionState", extensionStateMachine.getCurrentState().getName());
+    extensionStateMachine.periodic();
+    Logger.recordOutput(
+        "CoordinationLayer/extensionStateAfter", extensionStateMachine.getCurrentState().getName());
+
+    // Determine if vision is enabled and functioning
+    boolean visionConnected = vision.map(VisionLocalizer::coprocessorConnected).orElse(false);
+    Logger.recordOutput("CoordinationLayer/visionConnected", visionConnected);
+    boolean visionConnectedDebounced = visionConnectedDebouncer.calculate(visionConnected);
+    Logger.recordOutput("CoordinationLayer/visionConnectedDebounced", visionConnectedDebounced);
+
+    visionDisconnectedAlert.set(JsonConstants.featureFlags.runVision && !visionConnected);
+
+    AutonomyLevel effectiveAutonomyLevel =
+        visionConnectedDebounced ? autonomyLevel : AutonomyLevel.Manual;
+    Logger.recordOutput("CoordinationLayer/effectiveAutonomyLevel", effectiveAutonomyLevel);
+
+    autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
+
+    // Aim for a shot based on the current autonomy level
+    switch (effectiveAutonomyLevel) {
+      case Smart -> drive.ifPresent(this::runShotCalculatorWithDrive);
+      case Manual -> {
+        aimForManualShot();
+      }
+    }
+  }
+
+  /** Aim for either passing or scoring in manual mode */
+  private void aimForManualShot() {
+    switch (shotMode) {
+      case Hub -> {}
+      case Pass -> {
+        double distanceMeters = JsonConstants.manualModeConstants.assumedPassDistance.in(Meters);
+
+        double hoodAngleRadians =
+            JsonConstants.shotMaps
+                .passingMap
+                .hoodAngleRadiansByDistanceMeters()
+                .get(distanceMeters);
+        hood.ifPresent(
+            hood -> {
+              hood.targetAngleRadians(hoodAngleRadians);
+            });
+
+        double shooterRPM =
+            JsonConstants.shotMaps.passingMap.rpmByDistanceMeters().get(distanceMeters);
+        shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
+
+        Rotation2d turretHeading =
+            AllianceUtil.isRed()
+                ? JsonConstants.manualModeConstants.redPassHeading
+                : JsonConstants.manualModeConstants.bluePassHeading;
+        turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
+      }
+    }
   }
 
   /**
@@ -294,7 +747,6 @@ public class CoordinationLayer {
           hood.ifPresent(
               hood -> {
                 hood.targetAngleRadians(shot.hoodAngleRadians());
-                ;
               });
 
           shooter.ifPresent(
@@ -302,33 +754,6 @@ public class CoordinationLayer {
                 shooter.setTargetVelocityRPM(shot.shooterRPM());
               });
         });
-  }
-
-  private void runSubsystemDemoModes() {
-    if (JsonConstants.hopperConstants.hopperDemoMode) {
-      hopper.ifPresent(
-          hopper -> {
-            hopper.setTargetVelocity(RadiansPerSecond.of(500));
-          });
-    }
-
-    if (JsonConstants.indexerConstants.indexerDemoMode) {
-      indexer.ifPresent(
-          indexer -> {
-            drive.ifPresent(
-                driveInstance -> {
-                  Pose2d robotPose = driveInstance.getPose();
-                  Translation2d hubTranslation =
-                      FieldConstants.Hub.topCenterPoint().toTranslation2d();
-                  var distance = robotPose.getTranslation().minus(hubTranslation).getNorm();
-                  if (distance < 2.0) {
-                    indexer.setTargetVelocity(RadiansPerSecond.of(500));
-                  } else {
-                    indexer.setTargetVelocity(RadiansPerSecond.of(0));
-                  }
-                });
-          });
-    }
   }
 
   /**

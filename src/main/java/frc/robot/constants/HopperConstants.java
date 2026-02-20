@@ -29,8 +29,6 @@ public class HopperConstants {
 
   public final Voltage dejamVoltage = Volts.of(3.0); // placeholder
 
-  public final Boolean hopperDemoMode = true;
-
   public final Double hopperReduction = 1.0;
 
   public final AngularVelocity spinningMovementThreshold = RadiansPerSecond.of(3.0);

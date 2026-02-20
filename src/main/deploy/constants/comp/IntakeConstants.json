@@ -33,6 +33,10 @@
     "value": 90.0,
     "unit": "Degree"
   },
+  "stowThresholdAngle": {
+    "value": 87.0,
+    "unit": "Degree"
+  },
   "intakeRollerSpeed": {
     "value": 1500.0,
     "unit": "Rotation per Minute"

@@ -1,9 +1,12 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import coppercore.vision.VisionGainConstants;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Time;
 
 public class VisionConstants {
   // Placeholder values for camera configs
@@ -32,4 +35,6 @@ public class VisionConstants {
           Units.inchesToMeters(3.0),
           Units.inchesToMeters(3.0),
           new Rotation3d(0, 0, 0));
+
+  public final Time disconnectedDebounceTime = Seconds.of(2.0);
 }

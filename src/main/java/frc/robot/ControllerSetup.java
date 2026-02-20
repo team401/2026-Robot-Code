@@ -9,7 +9,6 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinator.DriveAction;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
@@ -17,6 +16,21 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
  *
  * <p>Before calling any individual subsystem button initialization, setupControllers must be called
  * to load the bindings file from JSON.
+ *
+ * <p>Our controllers-xbox file adds button shorthands for the paddles on the back. These paddles
+ * are mapped to:
+ *
+ * <p>{@code "buttonShorthands": { "topLeftPaddle": 7, "topRightPaddle": 8, "bottomLeftPaddle": 9,
+ * "bottomRightPaddle": 10 }, }
+ *
+ * <ul>
+ *   <li>Top left paddle: Back
+ *   <li>Top right paddle: Start
+ *   <li>Bottom left paddle: Left Stick Press
+ *   <li>Bottom right paddle: Right Stick Press
+ * </ul>
+ *
+ * TODO: Add bindings that map left bumper 2 (L3) to dpad down and right bumper 2 (R3) to pad right.
  */
 public class ControllerSetup {
   private ControllerSetup() {}
@@ -61,29 +75,5 @@ public class ControllerSetup {
                 () -> {
                   driveCoordinator.setDriveAction(DriveAction.DriveWithJoysticks);
                 }));
-  }
-
-  public static void initIntakeBindings(IntakeSubsystem intakeSubsystem) {
-    // These are just temporary bindings for testing the intake subsystem
-
-    var controllers = getControllers();
-
-    controllers
-        .getButton("intakePivotUp")
-        .getTrigger()
-        .onTrue(new InstantCommand(intakeSubsystem::setTargetPositionStowed));
-
-    controllers
-        .getButton("intakePivotDown")
-        .getTrigger()
-        .onTrue(new InstantCommand(intakeSubsystem::setTargetPositionIntaking));
-
-    controllers
-        .getButton("runIntakeRollers")
-        .getTrigger()
-        .whileTrue(
-            new InstantCommand(
-                () -> intakeSubsystem.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed)))
-        .onFalse(new InstantCommand(intakeSubsystem::stopRollers));
   }
 }

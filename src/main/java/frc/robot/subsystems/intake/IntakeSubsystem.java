@@ -229,4 +229,13 @@ public class IntakeSubsystem extends MonitoredSubsystem {
       pivotMotorIO.setCurrentPositionAsZero();
     }
   }
+
+  /**
+   * @return {@code true} if the intake's current position is above the stowed threshold, {@code
+   *     false} otherwise.
+   */
+  public boolean isStowed() {
+    return pivotInputs.positionRadians
+        >= JsonConstants.intakeConstants.stowThresholdAngle.in(Radians);
+  }
 }
