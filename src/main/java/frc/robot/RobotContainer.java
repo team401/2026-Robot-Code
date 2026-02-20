@@ -63,7 +63,7 @@ public class RobotContainer {
     dependencyOrderedExecutor.registerAction(
         RUN_COMMAND_SCHEDULER, CommandScheduler.getInstance()::run);
     dependencyOrderedExecutor.addDependencies(
-        RUN_COMMAND_SCHEDULER, CoordinationLayer.COORDINATE_SUBSYSTEM_ACTIONS);
+        RUN_COMMAND_SCHEDULER, CoordinationLayer.COORDINATE_ROBOT_ACTIONS);
 
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 

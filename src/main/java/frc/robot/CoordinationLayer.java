@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 import coppercore.wpilib_interface.controllers.Controller.Button;
+import coppercore.controls.state_machine.State;
+import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Vector;
@@ -35,7 +37,10 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+
+import org.ejml.equation.Operation.Extents;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
@@ -65,8 +70,8 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::updateHoodDependencies");
   public static final ActionKey UPDATE_INTAKE_DEPENDENCIES =
       new ActionKey("CoordinationLayer::updateIntakeDependencies");
-  public static final ActionKey COORDINATE_SUBSYSTEM_ACTIONS =
-      new ActionKey("CoordinationLayer::coordinateSubsystemActions");
+  public static final ActionKey COORDINATE_ROBOT_ACTIONS =
+      new ActionKey("CoordinationLayer::coordinateRobotActions");
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
@@ -106,11 +111,28 @@ public class CoordinationLayer {
   @AutoLogOutput(key = "CoordinationLayer/goalExtensionState")
   private ExtensionState goalExtensionState = ExtensionState.None;
 
+  /**
+   * Handles making sure that only one subsystem is extended at a time
+   */
+  private final StateMachine<CoordinationLayer> extensionStateMachine;
+  private final State<CoordinationLayer> noExtensionState;
+  private final State<CoordinationLayer> intakeDeployedState;
+  private final State<CoordinationLayer> waitForIntakeRetractState;
+  private final State<CoordinationLayer> climberDeployedState;
+  private final State<CoordinationLayer> waitForClimbRetractState;
+
   @AutoLogOutput(key = "CoordinationLayer/runningIntakeRollers")
   private boolean runningIntakeRollers = false;
 
   @AutoLogOutput(key = "CoordinationLayer/shotMode")
   private ShotMode shotMode = ShotMode.Hub;
+
+  // Suppliers from controllers
+  private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
+  private BooleanSupplier isOperatorStowHoodForTrenchPressed = () -> false;
+  private BooleanSupplier isWonAutoPressed = () -> false;
+  private BooleanSupplier isLostAutoPressed = () -> false;
+  private BooleanSupplier isForceShootPressed = () -> false;
 
   /**
    * Whether or not the robot should currently be shooting.
@@ -128,16 +150,77 @@ public class CoordinationLayer {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
     dependencyOrderedExecutor.registerAction(
-        COORDINATE_SUBSYSTEM_ACTIONS, this::coordinateRobotActions);
+        COORDINATE_ROBOT_ACTIONS, this::coordinateRobotActions);
+    
+    this.extensionStateMachine = new StateMachine<CoordinationLayer>(this);
+
+    this.noExtensionState = extensionStateMachine.registerState(new State<CoordinationLayer>("NoExtension") {
+      @Override
+      protected void periodic(StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+        intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+        // TODO: Add climber stow method call when it is defined
+      }
+    });
+
+    this.intakeDeployedState = extensionStateMachine.registerState(new State<CoordinationLayer>("IntakeDeployed") {
+      @Override
+      protected void periodic(StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+        intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
+        // TODO: Add climber stow method call when it is defined
+      }
+    });
+
+    this.waitForIntakeRetractState = extensionStateMachine.registerState(new State<CoordinationLayer>("WaitForIntakeRetract") {
+      @Override
+      protected void periodic(StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+        intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+        // TODO: Add climber stow method call when it is defined
+
+        // Assume the intake is stowed if it is disabled
+        if (intake.map(IntakeSubsystem::isStowed).orElse(true)) {
+          finish();
+        }
+      }
+    });
+
+    this.climberDeployedState = extensionStateMachine.registerState(new State<CoordinationLayer>("ClimberDeployed") {
+      @Override
+      protected void periodic(StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+        intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+        // TODO: Add climber extend method call when it is defined
+      }
+    });
+
+    this.waitForClimbRetractState = extensionStateMachine.registerState(new State<CoordinationLayer>("WaitForClimberRetract") {
+      @Override
+      protected void periodic(StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+        intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+        // TODO: Add climber stow method call when it is defined
+
+        // TODO: Add check for whether or not the climber is stowed
+        // Assume the climber is stowed if it is disabled
+        if (true) {
+          finish();
+        }
+      }
+    });
+
+
+    this.noExtensionState.when(() -> goalExtensionState == ExtensionState.IntakeDeployed, "Goal is IntakeDeployed").transitionTo(intakeDeployedState);
+    this.noExtensionState.when(() -> goalExtensionState == ExtensionState.ClimbDeployed, "Goal is ClimbDeployed").transitionTo(climberDeployedState);
+
+    this.intakeDeployedState.when(() -> goalExtensionState != ExtensionState.IntakeDeployed, "Goal is not IntakeDeployed").transitionTo(waitForIntakeRetractState);
+
+    this.waitForIntakeRetractState.whenFinished("Intake finished retracting").transitionTo(noExtensionState);
+
+    this.climberDeployedState.when(() -> goalExtensionState != ExtensionState.ClimbDeployed, "Goal is not ClimbDeployed").transitionTo(waitForClimbRetractState);
+
+    this.waitForClimbRetractState.whenFinished("Climb finished retracting").transitionTo(noExtensionState);
+
+    extensionStateMachine.setState(noExtensionState);
   }
 
   // Controller bindings
-  private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
-  private BooleanSupplier isOperatorStowHoodForTrenchPressed = () -> false;
-  private BooleanSupplier isWonAutoPressed = () -> false;
-  private BooleanSupplier isLostAutoPressed = () -> false;
-  private BooleanSupplier isForceShootPressed = () -> false;
-
   /** Initialize all bindings based on the controllers loaded from JSON */
   public void initBindings() {
     Controllers controllers = JsonConstants.controllers;
@@ -381,7 +464,7 @@ public class CoordinationLayer {
         UPDATE_TURRET_DEPENDENCIES, () -> updateTurretDependencies(turret));
 
     dependencyOrderedExecutor.addDependencies(
-        COORDINATE_SUBSYSTEM_ACTIONS, TurretSubsystem.UPDATE_INPUTS);
+        COORDINATE_ROBOT_ACTIONS, TurretSubsystem.UPDATE_INPUTS);
   }
 
   /**
@@ -398,7 +481,7 @@ public class CoordinationLayer {
 
     this.shooter = Optional.of(shooter);
     dependencyOrderedExecutor.addDependencies(
-        COORDINATE_SUBSYSTEM_ACTIONS, ShooterSubsystem.UPDATE_INPUTS);
+        COORDINATE_ROBOT_ACTIONS, ShooterSubsystem.UPDATE_INPUTS);
   }
 
   /**
@@ -419,7 +502,7 @@ public class CoordinationLayer {
         UPDATE_HOOD_DEPENDENCIES, () -> updateHoodDependencies(hood));
 
     dependencyOrderedExecutor.addDependencies(
-        COORDINATE_SUBSYSTEM_ACTIONS, HoodSubsystem.UPDATE_INPUTS);
+        COORDINATE_ROBOT_ACTIONS, HoodSubsystem.UPDATE_INPUTS);
   }
 
   public void setHomingSwitch(HomingSwitch homingSwitch) {
@@ -477,6 +560,11 @@ public class CoordinationLayer {
   public void coordinateRobotActions() {
     // Poll buttons. This will modify state variables depending on the states of the buttons
     buttonLoop.poll();
+
+    // Handle extension coordination and command intake/climber to their correct positions
+    Logger.recordOutput("CoordinationLayer/extensionState", extensionStateMachine.getCurrentState().getName());
+    extensionStateMachine.periodic();
+    Logger.recordOutput("CoordinationLayer/extensionStateAfter", extensionStateMachine.getCurrentState().getName());
 
     drive.ifPresent(this::runShotCalculatorWithDrive);
   }
