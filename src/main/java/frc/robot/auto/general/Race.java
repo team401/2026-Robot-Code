@@ -9,9 +9,9 @@ public class Race extends AutoAction {
   public AutoAction[] actions;
 
   @Override
-  public void setupParameters(AutoActionData data) {
+  public void setupAction(AutoActionData data) {
     for (AutoAction action : actions) {
-      action.setupParameters(data);
+      action.setupAction(data);
     }
   }
 

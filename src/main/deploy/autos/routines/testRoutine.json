@@ -1,0 +1,17 @@
+{
+  "name": "Go To Center",
+  "routine": {
+    "type": "AutoPilotAction",
+    "target": {
+      "reference": {
+        "translation": {
+          "x": 8.25,
+          "y": 4.1
+        },
+        "rotation": {
+          "radians": 0.0
+        }
+      }
+    }
+  }
+}

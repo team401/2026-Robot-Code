@@ -29,7 +29,7 @@ public abstract class AutoAction {
 
   public record AutoActionData(DriveCoordinator driveCoordinator, Auto auto) {}
 
-  public void setupParameters(AutoActionData data) {}
+  public void setupAction(AutoActionData data) {}
 
   public abstract Command toCommand(AutoActionData data);
 }

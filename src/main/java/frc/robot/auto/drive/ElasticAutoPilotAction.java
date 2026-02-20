@@ -1,12 +1,9 @@
 package frc.robot.auto.drive;
 
-import java.util.Objects;
-
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAction;
@@ -15,8 +12,10 @@ import frc.robot.auto.AutoParameters.AutoParameter;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import frc.robot.util.PIDGains;
+import java.util.Objects;
 
-// This is more so an example of how to set up an auto action that can be configured from the dashboard, and less of a specific action we actually want to use.
+// This is more so an example of how to set up an auto action that can be configured from the
+// dashboard, and less of a specific action we actually want to use.
 // and it is not finished yet.
 public class ElasticAutoPilotAction extends AutoAction {
 
@@ -45,7 +44,7 @@ public class ElasticAutoPilotAction extends AutoAction {
   }
 
   @Override
-  public void setupParameters(AutoActionData data) {
+  public void setupAction(AutoActionData data) {
     Objects.requireNonNull(targetName, "Target Name must not be null");
     var auto = data.auto();
     Objects.requireNonNull(auto, "Auto must not be null");
@@ -54,9 +53,7 @@ public class ElasticAutoPilotAction extends AutoAction {
       target = new APTarget(new Pose2d());
     }
 
-    auto.registerParameter(
-      new APTargetParameter(targetName, target)
-    );
+    auto.registerParameter(new APTargetParameter(targetName, target));
   }
 
   @Override

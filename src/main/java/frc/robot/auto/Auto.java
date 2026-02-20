@@ -8,58 +8,60 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 
 public class Auto {
 
-    public AutoAction auto;
+  private AutoAction auto;
 
-    @JSONExclude
-    public AutoParameters parameters;
+  @JSONExclude public AutoParameters parameters;
 
-    @JSONExclude
-    public AutoAction.AutoActionData data;
+  @JSONExclude public AutoAction.AutoActionData data;
 
-    @JSONExclude
-    public boolean haveSetupParameters = false;
+  @JSONExclude public boolean haveSetupAutoAction = false;
 
-    public Auto() {
-        parameters = new AutoParameters();
+  public Auto() {
+    parameters = new AutoParameters();
+  }
+
+  public void setData(DriveCoordinator driveCoordinator) {
+    data = new AutoActionData(driveCoordinator, this);
+  }
+
+  public void registerParameter(AutoParameter<?> parameter) {
+    parameters.registerParameter(parameter);
+  }
+
+  public void registerParameters(AutoParameter<?>... parameters) {
+    for (var parameter : parameters) {
+      registerParameter(parameter);
     }
+  }
 
-    public void setData(DriveCoordinator driveCoordinator) {
-        data = new AutoActionData(driveCoordinator, this);
+  public void setupAutoAction() {
+    if (data == null) {
+      throw new IllegalStateException("Auto data has not been set. Call setData() first.");
     }
+    auto.setupAction(data);
+    haveSetupAutoAction = true;
+  }
 
-    public void registerParameter(AutoParameter<?> parameter) {
-        parameters.registerParameter(parameter);
+  public void publishParameters() {
+    if (!haveSetupAutoAction) {
+      throw new IllegalStateException(
+          "Auto parameters have not been set up. Call setupParameters() first.");
     }
+    parameters.publishToDashboard();
+  }
 
-    public void registerParameters(AutoParameter<?>... parameters) {
-        for (var parameter : parameters) {
-            registerParameter(parameter);
-        }
+  public Command toCommand() {
+    if (data == null) {
+      throw new IllegalStateException("Auto data has not been set. Call setData() first.");
     }
+    if (!haveSetupAutoAction) {
+      throw new IllegalStateException(
+          "Auto Action has not been set up yet. Call setupAutoAction() first.");
+    }
+    return auto.toCommand(data);
+  }
 
-    public void setupParameters() {
-        if (data == null) {
-            throw new IllegalStateException("Auto data has not been set. Call setData() first.");
-        }
-        auto.setupParameters(data);
-        haveSetupParameters = true;
-    }
-
-    public void publishParameters() {
-        if (!haveSetupParameters) {
-            throw new IllegalStateException("Auto parameters have not been set up. Call setupParameters() first.");
-        }
-        parameters.publishToDashboard();
-    }
-
-    public Command toCommand() {
-        if (data == null) {
-            throw new IllegalStateException("Auto data has not been set. Call setData() first.");
-        }
-        return auto.toCommand(data);
-    }
-
-    public AutoParameter<?> getParameter(String name) {
-        return parameters.getParameter(name);
-    }
+  public AutoParameter<?> getParameter(String name) {
+    return parameters.getParameter(name);
+  }
 }

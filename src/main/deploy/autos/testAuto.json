@@ -17,6 +17,10 @@
         }
       },
       {
+        "type": "RoutineCall",
+        "routineName": "Go To Center"
+      },
+      {
         "type": "AutoPilotAction",
         "target": {
           "reference": {

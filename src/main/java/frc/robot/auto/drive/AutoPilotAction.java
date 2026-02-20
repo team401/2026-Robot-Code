@@ -55,7 +55,9 @@ public class AutoPilotAction extends AutoAction {
       gains = JsonConstants.driveConstants.defaultAutoPilotHeadingGains;
     }
 
-    var headingController = pidGains.toPIDController();
+    var headingController = gains.toPIDController();
+
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
 
     return DriveCoordinatorCommands.autoPilotCommand(
         data.driveCoordinator(), new Autopilot(profile), target, headingController);

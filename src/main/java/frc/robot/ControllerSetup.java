@@ -12,7 +12,6 @@ import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.auto.AutoAction.AutoActionData;
 import frc.robot.auto.AutoManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -64,9 +63,12 @@ public class ControllerSetup {
 
     driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
+    AutoManager.loadAllRoutines();
+
     var autoAction = AutoManager.loadAuto("testAuto.json");
-    var autoActionData = new AutoActionData(driveCoordinator, null);
-    var autoCommand = autoAction.toCommand(autoActionData);
+    autoAction.setData(driveCoordinator);
+    autoAction.setupAutoAction();
+    var autoCommand = autoAction.toCommand();
     // Temporary testing setup
     controllers
         .getButton("testClimbDrive")
