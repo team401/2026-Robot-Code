@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
@@ -84,7 +85,8 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
     dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
     dependencyOrderedExecutor.registerAction(OVERRIDE_MATCH_STATE_RED, this::overrideMatchStateRed);
-    dependencyOrderedExecutor.registerAction(OVERRIDE_MATCH_STATE_BLUE, this::overrideMatchStateBlue);
+    dependencyOrderedExecutor.registerAction(
+        OVERRIDE_MATCH_STATE_BLUE, this::overrideMatchStateBlue);
     // make sure match state is updated before running the shot calculator
 
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, UPDATE_MATCH_STATE);
@@ -357,11 +359,11 @@ public class CoordinationLayer {
   private void updateMatchState() {
     // Consume any manual override requests set by controller bindings. These are one-shot and
     // should be cleared immediately after being read so subsequent loops don't re-trigger them.
-    boolean redRequest = manualRedOverrideRequest;
-    boolean blueRequest = manualBlueOverrideRequest;
-    manualRedOverrideRequest = false;
-    manualBlueOverrideRequest = false;
 
+    boolean redRequest = SmartDashboard.getBoolean("matchState/manualRedOverride", false);
+
+    boolean blueRequest = SmartDashboard.getBoolean("matchState/manualBlueOverride", false);
+    matchState.getAutoWinner();
     matchState.enabledPeriodic(redRequest, blueRequest);
 
     double timeLeft = matchState.getTimeLeftInCurrentShift();
@@ -369,18 +371,22 @@ public class CoordinationLayer {
     boolean hasFiveSecondsLeft = timeLeft >= 5.0;
     Logger.recordOutput("MatchState/has5sLeft", hasFiveSecondsLeft);
   }
-  /** Called by a controller binding or DOE action to request that the match state be
-   * overridden to red for the next enabledPeriodic call. This sets a one-shot request which
-   * is consumed by updateMatchState.
+
+  /**
+   * Called by a controller binding or DOE action to request that the match state be overridden to
+   * red for the next enabledPeriodic call. This sets a one-shot request which is consumed by
+   * updateMatchState.
    */
-  public void overrideMatchStateRed(){
+  public void overrideMatchStateRed() {
     manualRedOverrideRequest = true;
     manualBlueOverrideRequest = false;
   }
-  public void overrideMatchStateBlue(){
+
+  public void overrideMatchStateBlue() {
     manualBlueOverrideRequest = true;
     manualRedOverrideRequest = false;
   }
+
   /**
    * Given an "ideal" shot, command the scoring subsystems to target it
    *

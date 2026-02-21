@@ -65,15 +65,15 @@ public class ControllerSetup {
         .onFalse(new InstantCommand(intakeSubsystem::stopRollers));
   }
 
-  public static void initMatchStateBindings(CoordinationLayer coordinationLayer){
+  public static void initMatchStateBindings(CoordinationLayer coordinationLayer) {
     var controllers = getControllers();
     controllers
-      .getButton("overrideMatchStateRed")
-      .getTrigger()
-      .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateRed));
+        .getButton("overrideMatchStateRed")
+        .getTrigger()
+        .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateRed));
     controllers
-      .getButton("overrideMatchStateBlue")
-      .getTrigger()
-      .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateBlue));  
+        .getButton("overrideMatchStateBlue")
+        .getTrigger()
+        .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateBlue));
   }
 }

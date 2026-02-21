@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.constants.StrategyConstants;
 import frc.robot.util.AllianceUtil;
@@ -20,11 +19,12 @@ import org.littletonrobotics.junction.Logger;
 public class MatchState {
   private Alliance wonAuto = Alliance.Red;
   private boolean canTrustFMS = false;
-  
+
   private boolean hasDeterminedAutoWinner = false;
 
   /** Track the last match time to determine when we are using practice mode */
-  //initalze to negative infinity so that we don't accidentally think we're in practice mode at the start of a match before we've gotten a valid match time reading
+  // initalze to negative infinity so that we don't accidentally think we're in practice mode at the
+  // start of a match before we've gotten a valid match time reading
   private double lastMatchTime = Double.NEGATIVE_INFINITY;
 
   private boolean hasGameData =
@@ -33,8 +33,8 @@ public class MatchState {
           || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
   private MatchShift currentShift = MatchShift.Unknown;
   private boolean canScore = true;
-  public boolean manualRedOverridePressed;
-  public boolean manualBlueOverridePressed;
+  public boolean manualRedOverridePressed = false;
+  public boolean manualBlueOverridePressed = false;
 
   public enum MatchShift {
     /** Autonomous; both hubs are active */
@@ -99,28 +99,31 @@ public class MatchState {
 
   public MatchState() {
     AutoLogOutputManager.addObject(this);
-    SmartDashboard.putData(
-        "matchState/resetAutoWinner", new InstantCommand(() -> hasDeterminedAutoWinner = false));
+
+    SmartDashboard.putBoolean("matchState/manualRedOverride", false);
+    SmartDashboard.putBoolean("matchState/manualBlueOverride", false);
   }
 
   /** Must be called by the coordination layer when enabled */
   public void enabledPeriodic(boolean manualRedOverridePressed, boolean manualBlueOverridePressed) {
     this.manualRedOverridePressed = manualRedOverridePressed;
     this.manualBlueOverridePressed = manualBlueOverridePressed;
+    checkGameDataForAutoWinner();
     if (!hasDeterminedAutoWinner) {
       // Check for game data; if not present allow for manual override.
       checkGameDataForAutoWinner();
     } else {
       if (manualRedOverridePressed && !canTrustFMS) {
         wonAuto = Alliance.Red;
-      } else if (manualBlueOverridePressed && !canTrustFMS) {
+      }
+      if (manualBlueOverridePressed && !canTrustFMS) {
         wonAuto = Alliance.Blue;
-      } else {
-        //yikes!
-        wonAuto = null;
       }
     }
-
+    Logger.recordOutput("MatchState/canTrustFMS", canTrustFMS);
+    Logger.recordOutput("MatchState/manualRedOverridePressed", manualRedOverridePressed);
+    Logger.recordOutput("MatchState/manualBlueOverridePressed", manualBlueOverridePressed);
+    Logger.recordOutput("MatchState/autoWinner", wonAuto);
     // Determine if it's possible to shoot by checking the current match shift
     double matchTime = DriverStation.getMatchTime();
     currentShift = getCurrentShift(matchTime, lastMatchTime);
@@ -155,16 +158,15 @@ public class MatchState {
       if (gameData.startsWith("R")) {
         wonAuto = Alliance.Red;
         hasDeterminedAutoWinner = true;
+        canTrustFMS = true;
       } else if (gameData.startsWith("B")) {
         wonAuto = Alliance.Blue;
         hasDeterminedAutoWinner = true;
+        canTrustFMS = true;
       }
-      canTrustFMS = true;
-    }
-    else {
+    } else {
       canTrustFMS = false;
     }
-
   }
 
   public Alliance getAutoWinner() {
