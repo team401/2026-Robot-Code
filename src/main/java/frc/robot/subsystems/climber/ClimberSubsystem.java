@@ -8,9 +8,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.AutoLogOutputManager;
-import org.littletonrobotics.junction.Logger;
-
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
@@ -19,7 +16,12 @@ import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
+import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.TestModeManager;
+import java.io.PrintWriter;
+import org.littletonrobotics.junction.AutoLogOutputManager;
+import org.littletonrobotics.junction.Logger;
 
 // Copilot autocomplete was used to help write this file
 public class ClimberSubsystem extends MonitoredSubsystem {
@@ -29,7 +31,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   private final StateMachine<ClimberSubsystem> stateMachine;
 
   private final ClimberState waitForHomingState;
-  private final ClimberState homingWaitForClimbState;
+  private final ClimberState homingWaitForMovementState;
+  private final ClimberState homingWaitForStoppingState;
   private final ClimberState idleState;
   private final ClimberState testModeState;
   private final ClimberState climbLevelOneState;
@@ -64,28 +67,37 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     this.motor = motor;
     stateMachine = new StateMachine<>(this);
 
-    waitForHomingState =
-        stateMachine.registerState(new ClimberState.WaitForHomingState());
-    homingWaitForClimbState =
-        stateMachine.registerState(new ClimberState.ClimbLevelOneState());
+    waitForHomingState = stateMachine.registerState(new ClimberState.WaitForHomingState());
+    homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
+    homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
     idleState = stateMachine.registerState(new ClimberState.IdleState());
     testModeState = stateMachine.registerState(new ClimberState.TestModeState());
     climbLevelOneState = stateMachine.registerState(new ClimberState.ClimbLevelOneState());
     climbUpOneLevel = stateMachine.registerState(new ClimberState.ClimbUpOneLevel());
     deClimbState = stateMachine.registerState(new ClimberState.DeClimbState());
-    climberToLowerPositionState =  stateMachine.registerState(new ClimberState.ClimberToLowerPositionState()); 
+    climberToLowerPositionState =
+        stateMachine.registerState(new ClimberState.ClimberToLowerPositionState());
 
     // States for Glen Allen competition only , maybe, work in progress
-    climberToUpPositionState = stateMachine.registerState(new ClimberState.climberToUpPositionState());
+    climberToUpPositionState =
+        stateMachine.registerState(new ClimberState.climberToUpPositionState());
     climberPullUpState = stateMachine.registerState(new ClimberState.ClimberPullUpState());
 
     waitForHomingState
-        .when(climber -> climber.isClimberTestMode(), "In climber test mode")
-        .transitionTo(testModeState);
-    waitForHomingState.whenFinished().transitionTo(homingWaitForClimbState);
-    homingWaitForClimbState.whenFinished().transitionTo(climberToUpPositionState);
+        .when(climber -> climber.isClimberTestMode(), "In climber test mode (must home first)")
+        .transitionTo(homingWaitForMovementState);
+    waitForHomingState.whenFinished("Should home").transitionTo(homingWaitForMovementState);
+
+    homingWaitForMovementState.whenFinished("Moved").transitionTo(homingWaitForStoppingState);
+    homingWaitForMovementState
+        .whenTimeout(JsonConstants.climberConstants.homingMaxUnmovingTime)
+        .transitionTo(homingWaitForStoppingState);
+    homingWaitForStoppingState.whenFinished("Stopped").transitionTo(idleState);
+
     climberToUpPositionState.whenFinished().transitionTo(climberPullUpState);
-    climberPullUpState.when(climber -> climber.shouldDeClimb(), "Climber Declimbing").transitionTo(deClimbState);
+    climberPullUpState
+        .when(climber -> climber.shouldDeClimb(), "Climber Declimbing")
+        .transitionTo(deClimbState);
     deClimbState.whenFinished().transitionTo(climberToLowerPositionState);
 
     idleState
@@ -96,6 +108,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         .transitionTo(idleState);
 
     stateMachine.setState(waitForHomingState);
+    stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
+
     // Initialize tunable numbers for test modes
     climberKP =
         new LoggedTunableNumber(
@@ -210,31 +224,40 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   }
 
   public boolean shouldHome() {
-    return false; //TODO: Find out how to determine this.
+    return false; // TODO: Find out how to determine this.
   }
 
   public AngularVelocity getClimberVelocity() {
     return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
   }
 
-  public void setToHomedPosition() {
-    motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.homingAngle);
+  public void setPositionToHomedPosition() {
+    motor.setCurrentPosition(JsonConstants.climberConstants.homingAngle);
+  }
+
+  protected void applyHomingVoltage() {
+    motor.controlOpenLoopVoltage(JsonConstants.climberConstants.homingVoltage);
   }
 
   public boolean getClimberInUpPosition() {
-    return (Math.abs(inputs.positionRadians - JsonConstants.climberConstants.upperClimbAngle.in(Degrees)) < 5);
+    return (Math.abs(
+            inputs.positionRadians - JsonConstants.climberConstants.upperClimbAngle.in(Degrees))
+        < 5);
   }
+
   public void setToUpperClimbPosition() {
     motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.upperClimbAngle);
   }
 
   public boolean shouldDeClimb() {
-    if (!getClimberInUpPosition()) {  //TODO: Find how to determine this, need to be able to climb down depending on match stage, but I don't know how that is found
+    if (!getClimberInUpPosition()) { // TODO: Find how to determine this, need to be able to climb
+      // down depending on match stage, but I don't know how that is
+      // found
       return true;
     }
     return false;
   }
-  
+
   public boolean getClimberInLowerPosition() {
     return (inputs.positionRadians < 5);
   }

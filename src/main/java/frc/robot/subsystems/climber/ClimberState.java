@@ -18,13 +18,26 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     }
   }
 
-  public static class HomingWaitForClimbState extends ClimberState {
+  public static class HomingWaitForMovementState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      climber.setToHomedPosition();
+      climber.applyHomingVoltage();
       final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
       if (climber.getClimberVelocity().abs(velocityComparisonUnit)
           >= JsonConstants.climberConstants.homingMovementThreshold.in(velocityComparisonUnit)) {
+        finish();
+      }
+    }
+  }
+
+  public static class HomingWaitForStoppingState extends ClimberState {
+    @Override
+    public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
+      climber.applyHomingVoltage();
+      final AngularVelocityUnit velocityComparisonUnit = RadiansPerSecond;
+      if (climber.getClimberVelocity().abs(velocityComparisonUnit)
+          < JsonConstants.climberConstants.homingMovementThreshold.in(velocityComparisonUnit)) {
+        climber.setPositionToHomedPosition();
         finish();
       }
     }
@@ -44,11 +57,18 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     }
   }
 
+  public static class SearchingState extends ClimberState {
+    @Override
+    public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
+      climber.setToUpperClimbPosition();
+    }
+  }
+
   public static class ClimbLevelOneState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToUpperClimbPosition();
-      climber.setToHomedPosition();
+      climber.setPositionToHomedPosition();
     }
   }
 
@@ -56,8 +76,8 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToUpperClimbPosition();
-      climber.setToHomedPosition();
-      //TODO: Move servo out
+      climber.setPositionToHomedPosition();
+      // TODO: Move servo out
     }
   }
 
@@ -97,5 +117,4 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
       climber.setToLowerClimbPosition();
     }
   }
-
 }
