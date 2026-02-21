@@ -217,6 +217,10 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
     // For some reason, AutoLogOutput doesn't log the unit correctly, so we have to log it here.
     Logger.recordOutput("Hood/exitAngleRadians", getCurrentExitAngle().in(Radians));
+
+    Logger.recordOutput(
+        "Hood/bottomAngleRadians",
+        inputs.positionRadians - JsonConstants.hoodConstants.minHoodAngle.in(Radians));
   }
 
   @Override

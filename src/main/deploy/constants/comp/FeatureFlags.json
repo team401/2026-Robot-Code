@@ -6,8 +6,8 @@
   "runIndexer": false,
   "runTurret": false,
   "runShooter": false,
-  "runIntake": true,
-  "runHood": false,
+  "runIntake": false,
+  "runHood": true,
   "useHomingSwitch": false,
   "useTuningServer": true,
   "pretendCamerasAreMobile": false

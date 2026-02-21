@@ -22,9 +22,9 @@
     "value": 80.0,
     "unit": "Amp"
   },
-  "hoodMotorDirection": "Clockwise_Positive",
+  "hoodMotorDirection": "CounterClockwise_Positive",
   "minHoodAngle": {
-    "value": 10.0,
+    "value": 13.7532108812,
     "unit": "Degree"
   },
   "maxHoodAngle": {
