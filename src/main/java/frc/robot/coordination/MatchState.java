@@ -2,6 +2,8 @@ package frc.robot.coordination;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.Optional;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,10 +19,8 @@ import org.littletonrobotics.junction.Logger;
  * not score.
  */
 public class MatchState {
-  private Alliance wonAuto = Alliance.Red;
+  private Optional<Alliance> wonAuto = Optional.empty();
   private boolean canTrustFMS = false;
-
-  private boolean hasDeterminedAutoWinner = false;
 
   /** Track the last match time to determine when we are using practice mode */
   // initalze to negative infinity so that we don't accidentally think we're in practice mode at the
@@ -109,19 +109,19 @@ public class MatchState {
     this.manualRedOverridePressed = manualRedOverridePressed;
     this.manualBlueOverridePressed = manualBlueOverridePressed;
     checkGameDataForAutoWinner();
-    if (!hasDeterminedAutoWinner) {
+    if (!wonAuto.isPresent()) {
       // Check for game data; if not present allow for manual override.
       if (manualRedOverridePressed && !canTrustFMS) {
-        wonAuto = Alliance.Red;
+        wonAuto = Optional.of(Alliance.Red);
       }
       if (manualBlueOverridePressed && !canTrustFMS) {
-        wonAuto = Alliance.Blue;
+        wonAuto = Optional.of(Alliance.Blue);
       }
     }
     Logger.recordOutput("MatchState/canTrustFMS", canTrustFMS);
     Logger.recordOutput("MatchState/manualRedOverridePressed", manualRedOverridePressed);
     Logger.recordOutput("MatchState/manualBlueOverridePressed", manualBlueOverridePressed);
-    Logger.recordOutput("MatchState/autoWinner", wonAuto);
+    Logger.recordOutput("MatchState/autoWinner", wonAuto.orElse(null));
     // Determine if it's possible to shoot by checking the current match shift
     double matchTime = DriverStation.getMatchTime();
     currentShift = getCurrentShift(matchTime, lastMatchTime);
@@ -145,21 +145,19 @@ public class MatchState {
     lastMatchTime = matchTime;
 
     this.canScore =
-        currentShift.getActiveHub().isHubActive(wonAuto, hasDeterminedAutoWinner)
-            || shiftWithStartGrace.getActiveHub().isHubActive(wonAuto, hasDeterminedAutoWinner)
-            || shiftWithEndGrace.getActiveHub().isHubActive(wonAuto, hasDeterminedAutoWinner);
+        currentShift.getActiveHub().isHubActive(wonAuto.orElse(null), wonAuto.isPresent())
+            || shiftWithStartGrace.getActiveHub().isHubActive(wonAuto.orElse(null), wonAuto.isPresent())
+            || shiftWithEndGrace.getActiveHub().isHubActive(wonAuto.orElse(null), wonAuto.isPresent());
   }
 
   private void checkGameDataForAutoWinner() {
     String gameData = DriverStation.getGameSpecificMessage();
     if (gameData.length() > 0) {
       if (gameData.startsWith("R")) {
-        wonAuto = Alliance.Red;
-        hasDeterminedAutoWinner = true;
+        wonAuto = Optional.of(Alliance.Red);
         canTrustFMS = true;
       } else if (gameData.startsWith("B")) {
-        wonAuto = Alliance.Blue;
-        hasDeterminedAutoWinner = true;
+        wonAuto = Optional.of(Alliance.Blue);
         canTrustFMS = true;
       }
     } else {
@@ -167,7 +165,7 @@ public class MatchState {
     }
   }
 
-  public Alliance getAutoWinner() {
+  public Optional<Alliance> getAutoWinner() {
     return wonAuto;
   }
 
@@ -271,6 +269,6 @@ public class MatchState {
 
   @AutoLogOutput(key = "MatchState/hasDeterminedAutoWinner")
   public boolean hasDeterminedAutoWinner() {
-    return hasDeterminedAutoWinner;
+    return wonAuto.isPresent();
   }
 }
