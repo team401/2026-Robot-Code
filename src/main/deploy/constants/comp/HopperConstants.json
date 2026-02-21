@@ -10,10 +10,10 @@
     "unit": "Radian per Second"
   },
   "hopperGains": {
-    "kP": 16.0,
+    "kP": 0.5,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.0,
+    "kS": 7.0,
     "kV": 0.0,
     "kG": 0.0,
     "kA": 0.0

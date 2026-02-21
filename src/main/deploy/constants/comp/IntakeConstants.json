@@ -6,7 +6,7 @@
     "unit": "Meter"
   },
   "minPivotAngle": {
-    "value": 0.0,
+    "value": -8.0,
     "unit": "Degree"
   },
   "maxPivotAngle": {
@@ -50,10 +50,10 @@
     "unit": "Volt"
   },
   "pivotPIDGains": {
-    "kP": 150.0,
+    "kP": 200.0,
     "kI": 0.0,
     "kD": 15.0,
-    "kS": 0.0,
+    "kS": 4.0,
     "kG": 9.00,
     "kV": 0.0,
     "kA": 0.0

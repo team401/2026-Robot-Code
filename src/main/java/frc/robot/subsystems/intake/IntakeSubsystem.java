@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -89,6 +90,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
             IntakeState.homingWaitForStopMovingState,
             IntakeState.homingDoneState)
         .forEach(this.intakeStateMachine::registerState);
+
+    pivotMotorIO.setRequestUpdateFrequency(Hertz.of(1000));
 
     // ### Test Mode Transitions
     // Any time we finish any state and we should be in test mode, we transition to the test mode
