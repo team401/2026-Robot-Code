@@ -15,6 +15,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
@@ -66,7 +67,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     testModeState = stateMachine.registerState(new ClimberState.TestModeState());
 
     waitForHomingState
-        .when(climber -> climber.isClimberTestMode(), "In climber test mode (must home first)")
+        .when(
+            climber -> DriverStation.isEnabled() && climber.isClimberTestMode(),
+            "In climber test mode (must home first)")
         .transitionTo(homingWaitForMovementState);
     waitForHomingState.whenFinished("Should home").transitionTo(homingWaitForMovementState);
 
@@ -179,7 +182,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
             climberExpoKV,
             climberExpoKA);
 
-        motor.controlToPositionUnprofiled(Degrees.of(climberTuningSetpointDegrees.getAsDouble()));
+        motor.controlToPositionExpoProfiled(Degrees.of(climberTuningSetpointDegrees.getAsDouble()));
       }
       case ClimberCurrentTuning -> {
         motor.controlOpenLoopCurrent(Amps.of(climberTuningAmps.getAsDouble()));

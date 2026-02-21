@@ -1,6 +1,6 @@
 {
   "homingVoltage": {
-    "value": -3.0,
+    "value": -1.0,
     "unit": "Volts"
   },
   "climberReduction": 1.0,
@@ -24,15 +24,15 @@
     "value": 1.0,
     "unit": "Meters"
   },
-  "climberKP": 500.0,
-  "climberKI": 50.0,
-  "climberKD": 50.0,
-  "climberKS": 0.0,
+  "climberKP": 128.0,
+  "climberKI": 0.0,
+  "climberKD": 5.0,
+  "climberKS": 2.0,
   "climberKV": 0.0,
-  "climberKG": 0.2,
+  "climberKG": 0.0,
   "climberKA": 0.0,
-  "climberExpoKV": 2.0,
-  "climberExpoKA": 37.5,
+  "climberExpoKV": 10.0,
+  "climberExpoKA": 65.0,
   "climberSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amps"
