@@ -46,23 +46,23 @@
     "unit": "Second"
   },
   "homingVoltage": {
-    "value": -2.0,
+    "value": 2.0,
     "unit": "Volt"
   },
   "pivotPIDGains": {
-    "kP": 60.0,
+    "kP": 150.0,
     "kI": 0.0,
-    "kD": 30.0,
+    "kD": 15.0,
     "kS": 0.0,
-    "kG": 3.00,
+    "kG": 9.00,
     "kV": 0.0,
     "kA": 0.0
   },
   "rollersPIDGains": {
-    "kP": 10.0,
+    "kP": 5.0,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.0,
+    "kS": 4.0,
     "kG": 0.0,
     "kV": 0.0,
     "kA": 0.0

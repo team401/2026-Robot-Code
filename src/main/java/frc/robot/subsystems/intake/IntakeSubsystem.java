@@ -217,7 +217,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // Ensure that even if we accidentally command the follower motor to do something
     // it won't cause any issues because we always command it to follow the lead motor
     // at the end of the periodic
-    rollersFollowerMotorIO.follow(0, false);
+    rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
   }
 
   protected void controlToTargetPivotAngle() {
@@ -226,7 +226,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   protected void zeroPositionIfBelowZero() {
     if (pivotInputs.positionRadians < 0) {
-      pivotMotorIO.setCurrentPositionAsZero();
+      // pivotMotorIO.setCurrentPositionAsZero();
     }
   }
 }
