@@ -45,9 +45,9 @@ public class DriveCoordinatorCommands extends Command {
   }
 
   public static class AutoPilotCommand extends DriveCoordinatorCommands {
-    private Autopilot autoPilot;
-    private APTarget target;
-    private PIDController headingController;
+    protected Autopilot autoPilot;
+    protected APTarget target;
+    protected PIDController headingController;
 
     public AutoPilotCommand(
         DriveCoordinator driveCoordinator,
@@ -92,6 +92,29 @@ public class DriveCoordinatorCommands extends Command {
     public boolean isFinished() {
       var currentPose = driveCoordinator.drive.getPose();
       return autoPilot.atTarget(currentPose, target);
+    }
+  }
+
+  public static class XBasedAutoPilotCommand extends AutoPilotCommand {
+    protected final double directionOfTravelSign;
+
+    public XBasedAutoPilotCommand(
+        DriveCoordinator driveCoordinator,
+        Autopilot autoPilot,
+        APTarget target,
+        PIDController headingController) {
+      super(driveCoordinator, autoPilot, target, headingController);
+
+      double x = driveCoordinator.drive.getPose().getX();
+
+      directionOfTravelSign = x < target.getReference().getX() ? 1.0 : -1.0;
+    }
+
+    @Override
+    public boolean isFinished() {
+      return super.isFinished()
+          || driveCoordinator.drive.getPose().getX() * directionOfTravelSign
+              > target.getReference().getX() * directionOfTravelSign;
     }
   }
 

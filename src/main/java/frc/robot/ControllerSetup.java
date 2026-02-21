@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
+import com.therekrab.autopilot.Autopilot;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,7 +17,9 @@ import frc.robot.auto.AutoManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
+import frc.robot.subsystems.drive.DriveCoordinatorCommands.XBasedAutoPilotCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -73,12 +76,12 @@ public class ControllerSetup {
     controllers
         .getButton("testClimbDrive")
         .getTrigger()
-        // .onTrue(
-        // driveCoordinator.createInstantCommandToSetCurrent(
-        // driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
+        .onTrue(
+            driveCoordinator.createInstantCommandToSetCurrent(
+                driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
         // .onTrue(
         //    driveCoordinator.createInstantCommandToSetCurrent(autoCommand))
-        .onTrue(autoCommand)
+        // .onTrue(autoCommand)
         .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
 
     Pose2d pose1 = new Pose2d(12.6, 7.33, new Rotation2d(Math.toRadians(90)));
@@ -113,13 +116,20 @@ public class ControllerSetup {
                           .withEntryAngle(new Rotation2d(Degrees.of(180)))
                           .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
 
-                  var target3 =
-                      new APTarget(new Pose2d(8.2, 4, new Rotation2d(Math.toRadians(90))))
-                          .withEntryAngle(new Rotation2d(Degrees.of(270)));
-
-                  driveCoordinator.setCurrentCommand(
-                      DriveCoordinatorCommands.autoPilotToTargetsCommand(
-                          driveCoordinator, profile, target1, target2, target3));
+                  Autopilot autoPilot = new Autopilot(profile);
+                  var command1 =
+                      new XBasedAutoPilotCommand(
+                          driveCoordinator,
+                          autoPilot,
+                          target1,
+                          DriveCoordinatorCommands.createDefaultAutoPilotHeadingController());
+                  var command2 =
+                      new XBasedAutoPilotCommand(
+                          driveCoordinator,
+                          autoPilot,
+                          target2,
+                          DriveCoordinatorCommands.createDefaultAutoPilotHeadingController());
+                  driveCoordinator.setCurrentCommand(command1.andThen(command2));
                 }))
         .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
   }

@@ -11,17 +11,28 @@ function goToCenter() {
 
 AutoLib.startAuto();
 
-AutoLib.autoPilotToPose(new Geometry.sPose2d({x: 1.0, y: 1.0, rotation: 2.1}));
-goToCenter();
-AutoLib.autoPilotToPose(new Geometry.sPose2d({x: 15.0, y: 1.0, rotation: 0.7}));
-AutoLib.parallel(
-    () => AutoLib.sequence(() => {
-        goToCenter();
+function degToRad(degrees) {
+    return degrees * (Math.PI / 180);
+}
+
+AutoLib.autoPilot({
+    target: new AutoLib.apTarget({
+        pose: new Geometry.sPose2d({x: -15.0, y: 3.9, rotation: -1.57079}),
+        rotationRadius: 1.5,
+        entryAngle: Geometry.Rotation2d({})
+    }),
+    profile: new AutoLib.apProfile({
+        constraints: new AutoLib.apConstraints({
+            acceleration: 6,
+            jerk: 3
+        }),
+        errorXY: 0.02,
+        errorTheta: degToRad(15)
     })
-)
-
-AutoLib.auto("testAuto", () => {
-
 });
+
+// AutoLib.auto("testAuto", () => {
+
+// });
 
 AutoLib.endAuto();
