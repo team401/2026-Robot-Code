@@ -2,16 +2,19 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -19,6 +22,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.util.PIDGains;
 
 public class IndexerConstants {
 
@@ -30,16 +34,17 @@ public class IndexerConstants {
 
   public final Boolean indexerDemoMode = false;
 
-  public Double indexerKP = 10.0;
-  public Double indexerKI = 5.0;
-  public Double indexerKD = 0.0;
-  public Double indexerKS = 0.0;
-  public Double indexerKV = 0.0;
-  public Double indexerKA = 0.0;
+  public PIDGains indexerGains = PIDGains.kPID(10.0, 5.0, 0.0);
 
-  public Double indexerMaxAccelerationRotationsPerSecondSquared =
-      3000.0; // TODO: Find actual values
-  public Double indexerMaxJerkRotationsPerSecondCubed = 1000.0;
+  // The important values here are maxAcceleration and maxJerk because it uses
+  // a profiled velocity request
+  public MotionProfileConfig indexerMotionProfileConfig =
+      MotionProfileConfig.immutable(
+          RotationsPerSecond.zero(),
+          RotationsPerSecondPerSecond.of(3000.0),
+          RotationsPerSecondPerSecond.of(1000.0).div(Seconds.of(1.0)),
+          Volts.zero().div(RotationsPerSecond.of(1)),
+          Volts.zero().div(RotationsPerSecondPerSecond.of(1)));
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()
@@ -63,15 +68,7 @@ public class IndexerConstants {
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
-        .withSlot0(
-            new Slot0Configs()
-                .withKP(indexerKP)
-                .withKI(indexerKI)
-                .withKD(indexerKD)
-                .withKS(indexerKS)
-                .withKV(indexerKV)
-                .withKG(0)
-                .withKA(indexerKA))
+        .withSlot0(indexerGains.toSlot0Config())
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(indexerSupplyCurrentLimit)
@@ -79,10 +76,7 @@ public class IndexerConstants {
                 .withStatorCurrentLimit(indexerStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs().withInverted(indexerMotorDirection))
-        .withMotionMagic(
-            new MotionMagicConfigs()
-                .withMotionMagicAcceleration(indexerMaxAccelerationRotationsPerSecondSquared)
-                .withMotionMagicJerk(indexerMaxJerkRotationsPerSecondCubed));
+        .withMotionMagic(indexerMotionProfileConfig.asMotionMagicConfigs());
   }
 
   public CoppercoreSimAdapter buildIndexerSim() {

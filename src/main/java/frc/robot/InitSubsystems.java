@@ -32,6 +32,7 @@ import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
 import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
+import java.util.Optional;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -94,43 +95,105 @@ public class InitSubsystems {
   }
 
   public static VisionLocalizer initVisionSubsystem(Drive drive) {
-    var gainConstants = JsonConstants.visionConstants.gainConstants;
+    var visionConstants = JsonConstants.visionConstants;
+    var gainConstants = visionConstants.gainConstants;
     AprilTagFieldLayout tagLayout = JsonConstants.aprilTagConstants.getTagLayout();
+    CameraConfig[] cameraConfigs = null;
     switch (Constants.currentMode) {
       case REAL:
+        if (JsonConstants.featureFlags.pretendCamerasAreMobile) {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.mobile(
+                    new VisionIOPhotonReal(visionConstants.camera0Name),
+                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonReal(visionConstants.camera1Name),
+                    (_ignored) -> Optional.of(visionConstants.camera1Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonReal(visionConstants.camera2Name),
+                    (_ignored) -> Optional.of(visionConstants.camera2Transform))
+              };
+        } else {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.fixed(
+                    new VisionIOPhotonReal(visionConstants.camera0Name),
+                    visionConstants.camera0Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonReal(visionConstants.camera1Name),
+                    visionConstants.camera1Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonReal(visionConstants.camera2Name),
+                    visionConstants.camera2Transform)
+              };
+        }
         return new VisionLocalizer(
-            drive::addVisionMeasurement,
-            tagLayout,
-            gainConstants,
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera1"), JsonConstants.visionConstants.camera1Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera2"), JsonConstants.visionConstants.camera2Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonReal("Camera3"), JsonConstants.visionConstants.camera3Transform));
+            drive::addVisionMeasurement, tagLayout, gainConstants, cameraConfigs);
 
       case SIM:
+        if (JsonConstants.featureFlags.pretendCamerasAreMobile) {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.mobile(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera0Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.MOBILE),
+                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera1Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.MOBILE),
+                    (_ignored) -> Optional.of(visionConstants.camera1Transform)),
+                CameraConfig.mobile(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera2Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.MOBILE),
+                    (_ignored) -> Optional.of(visionConstants.camera2Transform))
+              };
+        } else {
+          cameraConfigs =
+              new CameraConfig[] {
+                CameraConfig.fixed(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera0Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.FIXED),
+                    visionConstants.camera0Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera1Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.FIXED),
+                    visionConstants.camera1Transform),
+                CameraConfig.fixed(
+                    new VisionIOPhotonSim(
+                        visionConstants.camera2Name,
+                        drive::getPose,
+                        VisionLocalizer.CameraType.FIXED),
+                    visionConstants.camera2Transform)
+              };
+        }
         return new VisionLocalizer(
-            drive::addVisionMeasurement,
-            tagLayout,
-            gainConstants,
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera1", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera1Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera2", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera2Transform),
-            CameraConfig.fixed(
-                new VisionIOPhotonSim("Camera3", drive::getPose, VisionLocalizer.CameraType.FIXED),
-                JsonConstants.visionConstants.camera3Transform));
+            drive::addVisionMeasurement, tagLayout, gainConstants, cameraConfigs);
       default:
+        VisionIO replayIO =
+            new VisionIO() {
+              public boolean isLoggingSingleTags() {
+                return false;
+              }
+            };
+
         return new VisionLocalizer(
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()),
-            CameraConfig.fixed(new VisionIO() {}, new Transform3d()));
+            CameraConfig.fixed(replayIO, Transform3d.kZero),
+            CameraConfig.fixed(replayIO, Transform3d.kZero),
+            CameraConfig.fixed(replayIO, Transform3d.kZero));
     }
   }
 

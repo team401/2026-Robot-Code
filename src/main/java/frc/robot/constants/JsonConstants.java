@@ -1,15 +1,23 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
+import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.json.JSONMotionProfileConfig;
+import frc.robot.util.json.JSONRotation3d;
 import frc.robot.util.json.JSONTransform2d;
 import frc.robot.util.json.JSONTransform3d;
 
@@ -20,9 +28,16 @@ import frc.robot.util.json.JSONTransform3d;
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
 
+  // TODO: Figure out a better way to serialize the MotionProfileConfig
   static {
+    JSONMeasure.registerUnit(RotationsPerSecondPerSecond.per(Second));
+    // This should be replaced with a polymorphic adapter in the future
+    // But that requires changes to the coppercore library
+    JSONConverter.addConversion(MotionProfileConfig.class, JSONMotionProfileConfig.class);
+
     JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
     JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
+    JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
   }
 
   public static void loadConstants() {
@@ -34,8 +49,10 @@ public class JsonConstants {
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
-    var jsonHandler =
-        new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
+    var pathProvider = environmentHandler.getEnvironmentPathProvider();
+
+    System.out.println("[JsonConstants] Environment name: " + pathProvider.getEnvironmentName());
+    var jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
@@ -72,6 +89,13 @@ public class JsonConstants {
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
         jsonHandler.addRoute("/intake", intakeConstants);
+        jsonHandler.addRoute("/vision", visionConstants);
+        jsonHandler.registerPostCallback(
+            "/vision",
+            (visionConstants) -> {
+              System.out.println("Vision Constants were updated");
+              return true;
+            });
         jsonHandler.addRoute("/shotmaps", shotMaps);
         jsonHandler.registerPostCallback(
             "/shotmaps",
