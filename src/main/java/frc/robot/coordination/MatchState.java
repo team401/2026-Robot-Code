@@ -111,8 +111,6 @@ public class MatchState {
     checkGameDataForAutoWinner();
     if (!hasDeterminedAutoWinner) {
       // Check for game data; if not present allow for manual override.
-      checkGameDataForAutoWinner();
-    } else {
       if (manualRedOverridePressed && !canTrustFMS) {
         wonAuto = Alliance.Red;
       }
