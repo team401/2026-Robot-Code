@@ -308,13 +308,14 @@ public class InitSubsystems {
       Optional<HoodSubsystem> hood,
       Optional<HopperSubsystem> hopper,
       Optional<ShooterSubsystem> shooter,
-      Optional<TurretSubsystem> turret) {
+      Optional<TurretSubsystem> turret,
+      Optional<CoordinationLayer> coordinationLayer) {
 
     switch (Constants.currentMode) {
       case REAL:
-        return new LED(drive, hood, hopper, shooter, turret);
+        return new LED(drive, hood, hopper, shooter, turret, coordinationLayer);
       case SIM:
-        return new LED(drive, hood, hopper, shooter, turret);
+        return new LED(drive, hood, hopper, shooter, turret, coordinationLayer);
       case REPLAY:
         throw new UnsupportedOperationException("LED replay is not going to happen.");
       default:

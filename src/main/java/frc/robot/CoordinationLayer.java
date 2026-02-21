@@ -45,6 +45,7 @@ public class CoordinationLayer {
   private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
   private Optional<LED> led = Optional.empty();
+  private Optional<CoordinationLayer> coordinationLayer = Optional.empty();
   // The homing switch will likely be either added to one subsystem or made its own subsystem later
   private Optional<HomingSwitch> homingSwitch = Optional.empty();
 
@@ -84,7 +85,9 @@ public class CoordinationLayer {
 
   public void makeLEDs() {
     checkForDuplicateSubsystem(this.led, "LED");
-    led = Optional.of(InitSubsystems.initLEDs(drive, hood, hopper, shooter, turret));
+    led =
+        Optional.of(
+            InitSubsystems.initLEDs(drive, hood, hopper, shooter, turret, coordinationLayer));
   }
 
   public void setDrive(Drive drive) {

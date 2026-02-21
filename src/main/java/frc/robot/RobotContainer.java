@@ -68,6 +68,10 @@ public class RobotContainer {
 
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
+    if (JsonConstants.featureFlags.runLEDs) {
+      coordinationLayer.makeLEDs();
+    }
+
     if (JsonConstants.featureFlags.runDrive) {
       Drive drive = InitSubsystems.initDriveSubsystem();
       DriveCoordinator driveCoordinator = new DriveCoordinator(drive);
@@ -123,9 +127,6 @@ public class RobotContainer {
       // that have demo modes are active
       dependencyOrderedExecutor.addDependencies(
           RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_DEMO_MODES);
-    }
-    if (JsonConstants.featureFlags.runLEDs) {
-      coordinationLayer.makeLEDs();
     }
 
     drive.ifPresentOrElse(
