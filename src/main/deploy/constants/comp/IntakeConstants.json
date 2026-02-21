@@ -26,15 +26,15 @@
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
   },
   "intakePositionAngle": {
-    "value": 0.0,
-    "unit": "Radian"
+    "value": -8.0,
+    "unit": "Degree"
   },
   "stowPositionAngle": {
     "value": 90.0,
     "unit": "Degree"
   },
   "intakeRollerSpeed": {
-    "value": 1500.0,
+    "value": 2900.0,
     "unit": "Rotation per Minute"
   },
   "homingMovementThreshold": {
