@@ -35,14 +35,6 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   private final ClimberState homingWaitForStoppingState;
   private final ClimberState idleState;
   private final ClimberState testModeState;
-  private final ClimberState climbLevelOneState;
-  private final ClimberState climbUpOneLevel;
-  private final ClimberState deClimbState;
-  private final ClimberState climberToLowerPositionState;
-
-  // States for Glen Allen competition only, maybe, work in progress
-  private final ClimberState climberToUpPositionState;
-  private final ClimberState climberPullUpState;
 
   LoggedTunableNumber climberKP;
   LoggedTunableNumber climberKI;
@@ -72,16 +64,6 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
     idleState = stateMachine.registerState(new ClimberState.IdleState());
     testModeState = stateMachine.registerState(new ClimberState.TestModeState());
-    climbLevelOneState = stateMachine.registerState(new ClimberState.ClimbLevelOneState());
-    climbUpOneLevel = stateMachine.registerState(new ClimberState.ClimbUpOneLevel());
-    deClimbState = stateMachine.registerState(new ClimberState.DeClimbState());
-    climberToLowerPositionState =
-        stateMachine.registerState(new ClimberState.ClimberToLowerPositionState());
-
-    // States for Glen Allen competition only , maybe, work in progress
-    climberToUpPositionState =
-        stateMachine.registerState(new ClimberState.climberToUpPositionState());
-    climberPullUpState = stateMachine.registerState(new ClimberState.ClimberPullUpState());
 
     waitForHomingState
         .when(climber -> climber.isClimberTestMode(), "In climber test mode (must home first)")
@@ -93,12 +75,6 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         .whenTimeout(JsonConstants.climberConstants.homingMaxUnmovingTime)
         .transitionTo(homingWaitForStoppingState);
     homingWaitForStoppingState.whenFinished("Stopped").transitionTo(idleState);
-
-    climberToUpPositionState.whenFinished().transitionTo(climberPullUpState);
-    climberPullUpState
-        .when(climber -> climber.shouldDeClimb(), "Climber Declimbing")
-        .transitionTo(deClimbState);
-    deClimbState.whenFinished().transitionTo(climberToLowerPositionState);
 
     idleState
         .when(climber -> climber.isClimberTestMode(), "In climber test mode")
