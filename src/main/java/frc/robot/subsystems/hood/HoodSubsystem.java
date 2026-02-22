@@ -115,6 +115,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
   public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
 
+    motor.setRequestUpdateFrequency(JsonConstants.hoodConstants.hoodRequestUpdateFrequency);
+
     addMonitor(
         new MonitorWithAlertBuilder()
             .withName("HoodMotorDisconnected")
