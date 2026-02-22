@@ -4,15 +4,15 @@
     "value": 10.0,
     "unit": "Degree"
   },
-  "hoodKP": 80.0,
-  "hoodKI": 0.0,
-  "hoodKD": 20.0,
-  "hoodKS": 0.0,
-  "hoodKG": 2.5,
-  "hoodKV": 0.0,
-  "hoodKA": 0.1,
-  "hoodExpoKV": 32.0,
-  "hoodExpoKA": 32.0,
+  "hoodKP": 512.0,
+  "hoodKI": 10.0,
+  "hoodKD": 5.0,
+  "hoodKS": 1.2,
+  "hoodKG": 3.0,
+  "hoodKV": 0.5,
+  "hoodKA": 0.0,
+  "hoodExpoKV": 0.5,
+  "hoodExpoKA": 0.5,
   "hoodReduction": 20.0,
   "hoodSupplyCurrentLimit": {
     "value": 60.0,
@@ -22,14 +22,18 @@
     "value": 80.0,
     "unit": "Amp"
   },
-  "hoodMotorDirection": "Clockwise_Positive",
+  "hoodMotorDirection": "CounterClockwise_Positive",
   "minHoodAngle": {
-    "value": 10.0,
+    "value": 13.7532108812,
     "unit": "Degree"
   },
   "maxHoodAngle": {
-    "value": 30.0,
+    "value": 68.99,
     "unit": "Degree"
+  },
+  "hoodRequestUpdateFrequency": {
+    "value": 1000,
+    "unit": "Hertz"
   },
   "homingVoltage": {
     "value": -3.0,
@@ -40,7 +44,7 @@
     "unit": "Degree per Second"
   },
   "homingMaxUnmovingTime": {
-    "value": 5.0,
+    "value": 0.25,
     "unit": "Second"
   },
   "simHoodMOI": {

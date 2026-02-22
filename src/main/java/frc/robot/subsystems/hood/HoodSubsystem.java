@@ -115,6 +115,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
   public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
 
+    motor.setRequestUpdateFrequency(JsonConstants.hoodConstants.hoodRequestUpdateFrequency);
+
     addMonitor(
         new MonitorWithAlertBuilder()
             .withName("HoodMotorDisconnected")
@@ -217,6 +219,10 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
     // For some reason, AutoLogOutput doesn't log the unit correctly, so we have to log it here.
     Logger.recordOutput("Hood/exitAngleRadians", getCurrentExitAngle().in(Radians));
+
+    Logger.recordOutput(
+        "Hood/bottomAngleRadians",
+        inputs.positionRadians - JsonConstants.hoodConstants.minHoodAngle.in(Radians));
   }
 
   @Override

@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Hertz;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import coppercore.vision.VisionIO;
@@ -11,6 +13,7 @@ import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -313,7 +316,10 @@ public class InitSubsystems {
         // Real robot, instantiate hardware IO implementations
         return new ShooterSubsystem(
             dependencyOrderedExecutor,
-            MotorIOTalonFX.newLeader(mechanismConfig, talonFXConfigs),
+            MotorIOTalonFX.newLeader(
+                mechanismConfig,
+                talonFXConfigs,
+                new SignalRefreshRates(Hertz.of(50.0), Hertz.of(20.0), Hertz.of(1000.0))),
             MotorIOTalonFX.newFollower(mechanismConfig, 0, talonFXConfigs));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations

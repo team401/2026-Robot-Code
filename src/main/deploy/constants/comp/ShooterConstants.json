@@ -10,11 +10,11 @@
     7.5
   ],
   "defaultViMetersPerSecond": 9.0,
-  "shooterKP": 48.0,
+  "shooterKP": 7.0,
   "shooterKI": 0.0,
   "shooterKD": 0.0,
   "shooterKS": 0.0,
-  "shooterKV": 1.85,
+  "shooterKV": 0.0,
   "shooterKA": 0.0,
   "shooterReduction": 0.625,
   "shooterSupplyCurrentLimit": {
@@ -25,15 +25,19 @@
     "value": 80.0,
     "unit": "Amp"
   },
-  "shooterMotorDirection": "CounterClockwise_Positive",
+  "shooterMotorDirection": "Clockwise_Positive",
   "invertFollower": true,
-  "defaultShooterNeutralMode": "Brake",
+  "defaultShooterNeutralMode": "Coast",
+  "shooterClosedLoopFrequency": {
+    "value": 1000.0,
+    "unit": "Hertz"
+  },
   "shooterMaxVelocity": {
     "value": 2900.0,
     "unit": "Rotation per Minute"
   },
   "shooterMaxAcceleration": {
-    "value": 314.1592653589793,
+    "value": 10,
     "unit": "Radian per Second per Second"
   },
   "shooterMOI": {

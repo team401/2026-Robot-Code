@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -89,6 +90,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
             IntakeState.homingWaitForStopMovingState,
             IntakeState.homingDoneState)
         .forEach(this.intakeStateMachine::registerState);
+
+    pivotMotorIO.setRequestUpdateFrequency(Hertz.of(1000));
 
     // ### Test Mode Transitions
     // Any time we finish any state and we should be in test mode, we transition to the test mode
@@ -217,7 +220,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // Ensure that even if we accidentally command the follower motor to do something
     // it won't cause any issues because we always command it to follow the lead motor
     // at the end of the periodic
-    rollersFollowerMotorIO.follow(0, false);
+    rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
   }
 
   protected void controlToTargetPivotAngle() {
@@ -226,7 +229,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   protected void zeroPositionIfBelowZero() {
     if (pivotInputs.positionRadians < 0) {
-      pivotMotorIO.setCurrentPositionAsZero();
+      // pivotMotorIO.setCurrentPositionAsZero();
     }
   }
 }

@@ -87,7 +87,7 @@
             },
             "children": [
               {
-                "title": "CurrentTuning_Amps",
+                "title": "CurrentTuning_Amp",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
@@ -115,7 +115,7 @@
                 }
               },
               {
-                "title": "VoltageTuning_Volts",
+                "title": "VoltageTuning_Volt",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
