@@ -2,14 +2,13 @@ package frc.robot.coordination;
 
 import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.Optional;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.JsonConstants;
 import frc.robot.constants.StrategyConstants;
 import frc.robot.util.AllianceUtil;
+import java.util.Optional;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -22,19 +21,20 @@ public class MatchState {
   private Optional<Alliance> wonAuto = Optional.empty();
   private boolean canTrustFMS = false;
 
-  /** Track the last match time to determine when we are using practice mode */
-  // initalze to negative infinity so that we don't accidentally think we're in practice mode at the
-  // start of a match before we've gotten a valid match time reading
-  private double lastMatchTime = Double.NEGATIVE_INFINITY;
-
-  private boolean hasGameData =
-      DriverStation.getMatchType() == DriverStation.MatchType.Practice
-          || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
-          || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
   private MatchShift currentShift = MatchShift.Unknown;
   private boolean canScore = true;
-  public boolean manualRedOverridePressed = false;
-  public boolean manualBlueOverridePressed = false;
+
+  /**
+   * @return {@code true} if we are in a match (FMS is attached or DriverStation.getMatchType()
+   *     return Practice, Qualification, or Elimination), {@code false} otherwise
+   */
+  @AutoLogOutput(key = "MatchState/isInMatch")
+  public boolean isInMatch() {
+    return DriverStation.isFMSAttached()
+        || DriverStation.getMatchType() == DriverStation.MatchType.Practice
+        || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
+        || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
+  }
 
   public enum MatchShift {
     /** Autonomous; both hubs are active */
@@ -53,8 +53,8 @@ public class MatchState {
     Endgame(ActiveHub.Both),
     /** Unknown; allow shooting just in case */
     Unknown(ActiveHub.Both),
-    /** Shop testing; allow shooting just in case */
-    AtHome(ActiveHub.Both);
+    /** Shop/pit testing; allow shooting just in case */
+    Testing(ActiveHub.Both);
 
     private ActiveHub hub;
 
@@ -73,26 +73,30 @@ public class MatchState {
     AutoLoser;
 
     /**
-     * Checks whether the hub is currently active, given information about who won auto and which
-     * alliance we are on
+     * Checks whether our alliance's hub is currently active, given information about who won auto
+     * and which alliance we are on
      *
      * @param autoWinner The winner of auto (or red if we haven't determined it yet)
      * @param hasDeterminedAutoWinner Whether or not we have determined the auto winner
-     * @return
+     * @return {@code true} if, based on this ActiveHub value, our hub should be active, or if the
+     *     auto winner is unknown, and {@code false} otherwise.
      */
-    public boolean isHubActive(Alliance autoWinner, boolean hasDeterminedAutoWinner) {
+    public boolean isOurHubActive(Optional<Alliance> autoWinner) {
       Alliance ourAlliance = AllianceUtil.getAlliance();
 
-      if (this == Both) {
-        return true;
-      } else if (!hasDeterminedAutoWinner) {
-        return true;
-      } else if (this == AutoWinner && ourAlliance == autoWinner) {
-        return true;
-      } else if (this == AutoLoser && ourAlliance != autoWinner) {
-        return true;
-      } else {
-        return false;
+      switch (this) {
+        case Both -> {
+          return true;
+        }
+        case AutoWinner -> {
+          return autoWinner.map(winningAlliance -> ourAlliance == winningAlliance).orElse(true);
+        }
+        case AutoLoser -> {
+          return autoWinner.map(winningAlliance -> ourAlliance != winningAlliance).orElse(true);
+        }
+        default -> {
+          throw new UnsupportedOperationException("Unknown ActiveHub value " + this);
+        }
       }
     }
   }
@@ -106,8 +110,6 @@ public class MatchState {
 
   /** Must be called by the coordination layer when enabled */
   public void enabledPeriodic(boolean manualRedOverridePressed, boolean manualBlueOverridePressed) {
-    this.manualRedOverridePressed = manualRedOverridePressed;
-    this.manualBlueOverridePressed = manualBlueOverridePressed;
     checkGameDataForAutoWinner();
     if (!wonAuto.isPresent()) {
       // Check for game data; if not present allow for manual override.
@@ -118,36 +120,31 @@ public class MatchState {
         wonAuto = Optional.of(Alliance.Blue);
       }
     }
+
     Logger.recordOutput("MatchState/canTrustFMS", canTrustFMS);
     Logger.recordOutput("MatchState/manualRedOverridePressed", manualRedOverridePressed);
     Logger.recordOutput("MatchState/manualBlueOverridePressed", manualBlueOverridePressed);
     Logger.recordOutput("MatchState/autoWinner", wonAuto.orElse(null));
     // Determine if it's possible to shoot by checking the current match shift
     double matchTime = DriverStation.getMatchTime();
-    currentShift = getCurrentShift(matchTime, lastMatchTime);
+    currentShift = getCurrentShift(matchTime);
 
     double shiftStartGracePeriodSeconds =
         JsonConstants.strategyConstants.shiftStartGracePeriod.in(Seconds);
-    MatchShift shiftWithStartGrace =
-        getCurrentShift(
-            matchTime + shiftStartGracePeriodSeconds, lastMatchTime + shiftStartGracePeriodSeconds);
+    MatchShift shiftWithStartGrace = getCurrentShift(matchTime + shiftStartGracePeriodSeconds);
 
     Logger.recordOutput("MatchState/startGraceShift", shiftWithStartGrace);
 
     double shiftEndGracePeriodSeconds =
         JsonConstants.strategyConstants.shiftEndGracePeriod.in(Seconds);
-    MatchShift shiftWithEndGrace =
-        getCurrentShift(
-            matchTime - shiftEndGracePeriodSeconds, lastMatchTime - shiftEndGracePeriodSeconds);
+    MatchShift shiftWithEndGrace = getCurrentShift(matchTime - shiftEndGracePeriodSeconds);
 
     Logger.recordOutput("MatchState/endGraceShift", shiftWithEndGrace);
 
-    lastMatchTime = matchTime;
-
     this.canScore =
-        currentShift.getActiveHub().isHubActive(wonAuto.orElse(null), wonAuto.isPresent())
-            || shiftWithStartGrace.getActiveHub().isHubActive(wonAuto.orElse(null), wonAuto.isPresent())
-            || shiftWithEndGrace.getActiveHub().isHubActive(wonAuto.orElse(null), wonAuto.isPresent());
+        currentShift.getActiveHub().isOurHubActive(wonAuto)
+            || shiftWithStartGrace.getActiveHub().isOurHubActive(wonAuto)
+            || shiftWithEndGrace.getActiveHub().isOurHubActive(wonAuto);
   }
 
   private void checkGameDataForAutoWinner() {
@@ -169,11 +166,10 @@ public class MatchState {
     return wonAuto;
   }
 
-  public MatchShift getCurrentShift(double currentMatchTime, double lastMatchTime) {
+  public MatchShift getCurrentShift(double currentMatchTime) {
     // The behavior of this method is determined largely by the docs here
     // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj/DriverStation.html#getMatchTime()
-    if (DriverStation.isFMSAttached() || currentMatchTime <= lastMatchTime) {
-      Logger.recordOutput("MatchState/isInMatch", true);
+    if (isInMatch()) {
       // Either FMS is attached or time is counting down. Either way, time is decreasing so we are
       // in a "match" situation
       if (DriverStation.isAutonomous()) {
@@ -182,15 +178,10 @@ public class MatchState {
         return getTeleopShiftFromMatchTime(currentMatchTime);
       }
     }
-    Logger.recordOutput("MatchState/isInMatch", false);
 
-    if (currentMatchTime > lastMatchTime && hasGameData) {
-      // If match time is counting up, we are not in practice mode and therefore we should be
-      // allowed to shoot always
-      return MatchShift.AtHome;
-    }
-
-    return MatchShift.Unknown;
+    return MatchShift.Testing;
+    // TODO: Determine if having "Unknown" makes any sense considering that right now, we are forced
+    // to either return a real shift or "Testing"
   }
 
   private MatchShift getTeleopShiftFromMatchTime(double matchTime) {

@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
@@ -84,10 +85,6 @@ public class CoordinationLayer {
     dependencyOrderedExecutor.registerAction(UPDATE_MATCH_STATE, this::updateMatchState);
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
     dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
-    dependencyOrderedExecutor.registerAction(OVERRIDE_MATCH_STATE_RED, this::overrideMatchStateRed);
-    dependencyOrderedExecutor.registerAction(
-        OVERRIDE_MATCH_STATE_BLUE, this::overrideMatchStateBlue);
-    // make sure match state is updated before running the shot calculator
 
     dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, UPDATE_MATCH_STATE);
   }
@@ -357,14 +354,13 @@ public class CoordinationLayer {
 
   /** Update the MatchState each periodic loop */
   private void updateMatchState() {
-    // Consume any manual override requests set by controller bindings. These are one-shot and
-    // should be cleared immediately after being read so subsequent loops don't re-trigger them.
+    boolean isRedOverridePressed = SmartDashboard.getBoolean("matchState/manualRedOverride", false);
+    boolean isBlueOverridePressed =
+        SmartDashboard.getBoolean("matchState/manualBlueOverride", false);
 
-    boolean redRequest = SmartDashboard.getBoolean("matchState/manualRedOverride", false);
-
-    boolean blueRequest = SmartDashboard.getBoolean("matchState/manualBlueOverride", false);
-    matchState.getAutoWinner();
-    matchState.enabledPeriodic(redRequest, blueRequest);
+    if (DriverStation.isEnabled()) {
+      matchState.enabledPeriodic(isRedOverridePressed, isBlueOverridePressed);
+    }
 
     double timeLeft = matchState.getTimeLeftInCurrentShift();
 
