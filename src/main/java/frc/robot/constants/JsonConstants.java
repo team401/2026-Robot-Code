@@ -77,6 +77,7 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
+    strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -128,6 +129,7 @@ public class JsonConstants {
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
+  public static StrategyConstants strategyConstants;
 
   public static Controllers controllers;
 }
