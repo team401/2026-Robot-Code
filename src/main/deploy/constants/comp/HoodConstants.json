@@ -4,13 +4,13 @@
     "value": 10.0,
     "unit": "Degree"
   },
-  "hoodKP": 80.0,
+  "hoodKP": 64.0,
   "hoodKI": 0.0,
-  "hoodKD": 20.0,
-  "hoodKS": 0.0,
-  "hoodKG": 2.5,
+  "hoodKD": 0.0,
+  "hoodKS": 2.0,
+  "hoodKG": 2.0,
   "hoodKV": 0.0,
-  "hoodKA": 0.1,
+  "hoodKA": 0.0,
   "hoodExpoKV": 32.0,
   "hoodExpoKA": 32.0,
   "hoodReduction": 20.0,
@@ -28,7 +28,7 @@
     "unit": "Degree"
   },
   "maxHoodAngle": {
-    "value": 30.0,
+    "value": 68.99,
     "unit": "Degree"
   },
   "homingVoltage": {
@@ -40,7 +40,7 @@
     "unit": "Degree per Second"
   },
   "homingMaxUnmovingTime": {
-    "value": 5.0,
+    "value": 0.25,
     "unit": "Second"
   },
   "simHoodMOI": {
