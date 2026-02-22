@@ -5,9 +5,9 @@
   "runHopper": false,
   "runIndexer": false,
   "runTurret": false,
-  "runShooter": false,
+  "runShooter": true,
   "runIntake": false,
-  "runHood": true,
+  "runHood": false,
   "useHomingSwitch": false,
   "useTuningServer": true,
   "pretendCamerasAreMobile": false

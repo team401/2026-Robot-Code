@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
@@ -27,6 +28,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.util.sim.FlywheelSimAdapter;
@@ -91,6 +93,8 @@ public class ShooterConstants {
       InvertedValue.CounterClockwise_Positive; // TODO: Actual value
   // TODO: Actual invert values for the follower
   public final Boolean invertFollower = true;
+
+  public final Frequency shooterClosedLoopFrequency = Hertz.of(1000);
 
   // Perhaps regenerative braking can improve our battery performance?
   public final NeutralModeValue defaultShooterNeutralMode = NeutralModeValue.Brake;
