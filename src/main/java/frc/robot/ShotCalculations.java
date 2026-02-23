@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
-import frc.robot.constants.FieldConstants;
+import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
 import frc.robot.constants.ShotMaps.ShotMap;
@@ -204,7 +204,7 @@ class ShotCalculations {
       ShotTarget target) {
     Translation3d targetPose =
         switch (target) {
-          case Hub -> FieldConstants.Hub.innerCenterPoint();
+          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };

@@ -32,6 +32,7 @@ import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -642,6 +643,11 @@ public class CoordinationLayer {
         aimForManualShot();
       }
     }
+
+    // TODO: Add stow hood for trench/go under trench functionality
+
+    // TODO: Add checks if we can shoot (subsystems are at target position), if we'd hit net (when
+    // passing), and then command the spindexer/balltower to shoot.
   }
 
   /** Aim for either passing or scoring in manual mode */
@@ -675,6 +681,41 @@ public class CoordinationLayer {
   }
 
   /**
+   * Given a robot pose, check whether or not that pose is on the left half of the field.
+   *
+   * @param robotPose The robot pose from vision and odometry to test.
+   * @return {@code true} if on the left side of the field, {@code false} otherwise.
+   */
+  private boolean isOnLeftSideOfField(Pose2d robotPose) {
+    boolean isRed = AllianceUtil.isRed();
+
+    if (isRed) {
+      // Blue origin: if we're on red, the left side is -y from the center line
+      return robotPose.getY() <= FieldConstants.fieldWidth() / 2;
+    } else {
+      // If we're on blue, the left side is +y from the center line.
+      return robotPose.getY() > FieldConstants.fieldWidth() / 2;
+    }
+  }
+
+  /**
+   * Gets the current ShotTarget based on the current value of shotMode
+   *
+   * <p>This means either returning ShotTarget.Hub if in hub mode, or finding the correct
+   * (left/right) pass target when in passing mode.
+   *
+   * @param robotPose A Pose2d containing the current position of the robot.
+   * @return A ShotTarget containing the correct target to shoot at based on shotMode and robot
+   *     position.
+   */
+  private ShotTarget getShotTargetFromPose(Pose2d robotPose) {
+    return switch (this.shotMode) {
+      case Hub -> ShotTarget.Hub;
+      case Pass -> isOnLeftSideOfField(robotPose) ? ShotTarget.PassLeft : ShotTarget.PassRight;
+    };
+  }
+
+  /**
    * Run the shot calculations, given an actual drive instance
    *
    * <p>This method exists to reduce the indentation in runShotCalculator introduced by widespread
@@ -687,8 +728,7 @@ public class CoordinationLayer {
     Translation3d shooterPosition =
         new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
 
-    // Pick either passing target or hub here.
-    ShotTarget target = ShotTarget.Hub;
+    ShotTarget target = getShotTargetFromPose(robotPose);
 
     ChassisSpeeds fieldCentricSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
