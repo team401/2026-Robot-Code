@@ -1,3 +1,8 @@
+export interface JSONMeasure {
+  value: number;
+  unit: string;
+}
+
 export type InvertedValue = "CounterClockwise_Positive" | "Clockwise_Positive";
 
 export interface HoodConstants {

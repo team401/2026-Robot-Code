@@ -19,8 +19,6 @@ export interface Race {
   actions: AutoAction[];
 }
 
-export interface AutoPilotAction {
-  type: "AutoPilotAction";
 export interface JSONRotation2d {
   radians: number;
 }
@@ -35,6 +33,11 @@ export interface JSONPose2d {
   translation: JSONTranslation2d;
 }
 
+export interface JSONMeasure {
+  value: number;
+  unit: string;
+}
+
 export interface JSONAPTarget {
   reference: JSONPose2d;
   entryAngle: JSONRotation2d;
@@ -42,7 +45,6 @@ export interface JSONAPTarget {
   rotationRadius: JSONMeasure;
 }
 
-  target: JSONAPTarget;
 export interface APConstraints {
   velocity: number;
   acceleration: number;
@@ -56,6 +58,19 @@ export interface APProfile {
   beelineRadius: JSONMeasure;
 }
 
+export interface PIDGains {
+  kP: number;
+  kI: number;
+  kD: number;
+  kS: number;
+  kG: number;
+  kV: number;
+  kA: number;
+}
+
+export interface AutoPilotAction {
+  type: "AutoPilotAction";
+  target: JSONAPTarget;
   profile: APProfile;
   constraints: APConstraints;
   pidGains: PIDGains;

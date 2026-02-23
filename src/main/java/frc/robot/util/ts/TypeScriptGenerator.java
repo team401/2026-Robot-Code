@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 
+// Written with the help of ChatGPT.
+
 /**
  * Generates TypeScript definitions from any Java class using the same config rules as JSONSync /
  * JSONHandler.
@@ -29,6 +31,8 @@ public final class TypeScriptGenerator {
   private static final Map<Class<?>, String> primitiveMap = new HashMap<>();
   private static final Set<Class<?>> generated = new HashSet<>();
   private static final StringBuilder output = new StringBuilder();
+  public static Set<Class<?>> emitted = new HashSet<>();
+
 
   private static final boolean shouldSkipField(Field field) {
     return Modifier.isStatic(field.getModifiers())
@@ -64,6 +68,7 @@ public final class TypeScriptGenerator {
 
   public static void generateFor(Object root, String filePath) {
     generated.clear();
+    emitted.clear();
     output.setLength(0);
 
     namingStrategy =
@@ -106,8 +111,6 @@ public final class TypeScriptGenerator {
   // ============================================
   // Interfaces
   // ============================================
-
-  public static Set<Class<?>> emitted = new HashSet<>();
 
   public static void generateInterface(Class<?> clazz) {
     if (emitted.contains(clazz)) return;
@@ -170,14 +173,16 @@ public final class TypeScriptGenerator {
     if (generated.contains(clazz)) return;
     generated.add(clazz);
 
-    output.append("export interface ").append(clazz.getSimpleName()).append(" {\n");
+    StringBuilder sb = new StringBuilder();
 
-    output
-        .append("  ")
-        .append(discriminator)
-        .append(": \"")
-        .append(discriminatorValue)
-        .append("\";\n");
+    sb.append("export interface ").append(clazz.getSimpleName()).append(" {\n");
+
+    sb
+      .append("  ")
+      .append(discriminator)
+      .append(": \"")
+      .append(discriminatorValue)
+      .append("\";\n");
 
     for (Field field : getAllFields(clazz)) {
 
@@ -187,10 +192,11 @@ public final class TypeScriptGenerator {
       String fieldName = namingStrategy.translateName(field);
       String tsType = resolveType(field.getGenericType());
 
-      output.append("  ").append(fieldName).append(": ").append(tsType).append(";\n");
+      sb.append("  ").append(fieldName).append(": ").append(tsType).append(";\n");
     }
 
-    output.append("}\n\n");
+    sb.append("}\n\n");
+    output.append(sb);
   }
 
   // ============================================

@@ -1,3 +1,18 @@
+export interface JSONMeasure {
+  value: number;
+  unit: string;
+}
+
+export interface PIDGains {
+  kP: number;
+  kI: number;
+  kD: number;
+  kS: number;
+  kG: number;
+  kV: number;
+  kA: number;
+}
+
 export interface IntakeConstants {
   pivotReduction: number;
   rollersReduction: number;

@@ -1,3 +1,8 @@
+export interface JSONMeasure {
+  value: number;
+  unit: string;
+}
+
 export interface PIDGains {
   kP: number;
   kI: number;
