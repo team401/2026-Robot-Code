@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -74,8 +73,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     this.leadMotor = leadMotor;
     this.followerMotor = followerMotor;
 
-    leadMotor.setRequestUpdateFrequency(Hertz.of(1000));
-    followerMotor.setRequestUpdateFrequency(Hertz.of(1000));
+    leadMotor.setRequestUpdateFrequency(JsonConstants.shooterConstants.shooterClosedLoopFrequency);
+    followerMotor.setRequestUpdateFrequency(
+        JsonConstants.shooterConstants.shooterClosedLoopFrequency);
 
     stateMachine = new StateMachine<>(this);
 

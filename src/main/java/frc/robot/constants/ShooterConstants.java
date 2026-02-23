@@ -21,6 +21,8 @@ import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -94,7 +96,20 @@ public class ShooterConstants {
   // TODO: Actual invert values for the follower
   public final Boolean invertFollower = true;
 
+  public final SignalRefreshRates shooterSignalRefreshRates =
+      new SignalRefreshRates(Hertz.of(200.0), Hertz.of(20.0), Hertz.of(1000.0));
+
+  /**
+   * The rate at which to run the velocity and follower control requests for the shooter motors.
+   * Note that if this doesn't match the "output" rate in shooterSignalRefreshRates, this number
+   * won't fully take effect.
+   */
   public final Frequency shooterClosedLoopFrequency = Hertz.of(1000);
+
+  public final int shooterMediumPrioritySignals =
+      MotorIOTalonFX.DEFAULT_MEDIUM_PRIORITY_SIGNALS | MotorIOTalonFX.DEFAULT_HIGH_PRIORITY_SIGNALS;
+  public final int shooterHighPrioritySignals = MotorIOTalonFX.SIGNAL_VELOCITY;
+  public final int shooterOutputSignals = MotorIOTalonFX.DEFAULT_OUTPUT_SIGNALS;
 
   // Perhaps regenerative braking can improve our battery performance?
   public final NeutralModeValue defaultShooterNeutralMode = NeutralModeValue.Brake;
