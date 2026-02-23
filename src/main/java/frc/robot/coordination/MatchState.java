@@ -24,7 +24,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class MatchState {
   private Optional<Alliance> wonAuto = Optional.empty();
-  private boolean canTrustFMS = false;
+  private boolean receivedAutoWinnerFromFMS = false;
 
   private MatchShift currentShift = MatchShift.Unknown;
   private boolean canScore = true;
@@ -126,6 +126,9 @@ public class MatchState {
         }
       }
     }
+
+    // Call getAutoWinner once to start logging that field.
+    getAutoWinner();
   }
 
   /** Must be called by the coordination layer when enabled */
@@ -134,18 +137,23 @@ public class MatchState {
       DriverStationSim.setMatchType(matchTypeChooser.get());
     }
 
-    checkGameDataForAutoWinner();
-    if (!wonAuto.isPresent()) {
+    // If we haven't yet received the auto winner, continue to check for it periodically.
+    if (!receivedAutoWinnerFromFMS) {
+      checkGameDataForAutoWinner();
+    }
+    // Even after checking, if we still haven't received it, poll user input.
+    if (!receivedAutoWinnerFromFMS) {
       // Check for game data; if not present allow for manual override.
-      if (manualRedOverridePressed && !canTrustFMS) {
+      if (manualRedOverridePressed) {
         wonAuto = Optional.of(Alliance.Red);
       }
-      if (manualBlueOverridePressed && !canTrustFMS) {
+
+      if (manualBlueOverridePressed) {
         wonAuto = Optional.of(Alliance.Blue);
       }
     }
 
-    Logger.recordOutput("MatchState/canTrustFMS", canTrustFMS);
+    Logger.recordOutput("MatchState/receivedAutoWinnerFromFMS", receivedAutoWinnerFromFMS);
     Logger.recordOutput("MatchState/manualRedOverridePressed", manualRedOverridePressed);
     Logger.recordOutput("MatchState/manualBlueOverridePressed", manualBlueOverridePressed);
     Logger.recordOutput("MatchState/autoWinner", wonAuto.orElse(null));
@@ -166,27 +174,30 @@ public class MatchState {
     Logger.recordOutput("MatchState/endGraceShift", shiftWithEndGrace);
 
     this.canScore =
-        currentShift.getActiveHub().isOurHubActive(wonAuto)
-            || shiftWithStartGrace.getActiveHub().isOurHubActive(wonAuto)
+        shiftWithStartGrace.getActiveHub().isOurHubActive(wonAuto)
             || shiftWithEndGrace.getActiveHub().isOurHubActive(wonAuto);
   }
 
   private void checkGameDataForAutoWinner() {
     String gameData = DriverStation.getGameSpecificMessage();
+
+    if (gameData == null) {
+      return;
+    }
+
     if (gameData.length() > 0) {
       if (gameData.startsWith("R")) {
         wonAuto = Optional.of(Alliance.Red);
-        canTrustFMS = true;
+        receivedAutoWinnerFromFMS = true;
       } else if (gameData.startsWith("B")) {
         wonAuto = Optional.of(Alliance.Blue);
-        canTrustFMS = true;
+        receivedAutoWinnerFromFMS = true;
       }
-    } else {
-      canTrustFMS = false;
     }
   }
 
   public Optional<Alliance> getAutoWinner() {
+    Logger.recordOutput("MatchState/autoWinner", wonAuto.map(Enum::name).orElse("Undetermined"));
     return wonAuto;
   }
 
