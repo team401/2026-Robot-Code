@@ -10,6 +10,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.auto.AutoAction;
+import frc.robot.auto.drive.AutoPilotAction;
+import frc.robot.auto.general.Sequence;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.JSONAPTarget;
@@ -107,6 +110,29 @@ public class JsonConstants {
     TypeScriptGenerator.generateFor(
         new RobotInfo(),
         Filesystem.getDeployDirectory().toPath().resolve("autos/RobotInfo.d.ts").toString());
+
+    TypeScriptGenerator.generateFor(
+        new HoodConstants(),
+        Filesystem.getDeployDirectory().toPath().resolve("autos/HopperConstants.d.ts").toString());
+
+    TypeScriptGenerator.generateFor(
+        new ShotMaps(),
+        Filesystem.getDeployDirectory().toPath().resolve("autos/ShotMaps.d.ts").toString());
+
+    TypeScriptGenerator.generateFor(
+        new DriveConstants(),
+        Filesystem.getDeployDirectory().toPath().resolve("autos/DriveConstants.d.ts").toString());
+
+    TypeScriptGenerator.generateFor(
+        new IntakeConstants(),
+        Filesystem.getDeployDirectory().toPath().resolve("autos/IntakeConstants.d.ts").toString());
+
+    Sequence hardTest = new Sequence();
+    hardTest.actions = new AutoAction[] {new AutoPilotAction()};
+
+    TypeScriptGenerator.generateFor(
+        hardTest,
+        Filesystem.getDeployDirectory().toPath().resolve("autos/HardTest.d.ts").toString());
   }
 
   public static RobotInfo robotInfo;
