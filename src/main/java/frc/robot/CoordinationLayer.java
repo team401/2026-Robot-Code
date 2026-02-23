@@ -66,10 +66,7 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::runSubsystemDemoModes");
   public static final ActionKey UPDATE_MATCH_STATE =
       new ActionKey("CoordinationLayer::updateMatchState");
-  public static final ActionKey OVERRIDE_MATCH_STATE_RED =
-      new ActionKey("CoordinationLayer::overrideMatchStateRed");
-  public static final ActionKey OVERRIDE_MATCH_STATE_BLUE =
-      new ActionKey("CoordinationLayer::overrideMatchStateBlue");
+
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
   private final MatchState matchState = new MatchState();
