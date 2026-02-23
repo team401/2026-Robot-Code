@@ -33,7 +33,6 @@ public final class TypeScriptGenerator {
   private static final StringBuilder output = new StringBuilder();
   public static Set<Class<?>> emitted = new HashSet<>();
 
-
   private static final boolean shouldSkipField(Field field) {
     return Modifier.isStatic(field.getModifiers())
         || Modifier.isTransient(field.getModifiers())
@@ -66,7 +65,7 @@ public final class TypeScriptGenerator {
   // Public Entry
   // ============================================
 
-  public static void generateFor(Object root, String filePath) {
+  public static void generateForObjects(String filePath, Object... roots) {
     generated.clear();
     emitted.clear();
     output.setLength(0);
@@ -75,7 +74,29 @@ public final class TypeScriptGenerator {
         JSONPrimitiveCheckStrategy.checkForPrimitives(
             new JSONNamingStrategy(defaultConfig.namingPolicy(), defaultConfig), defaultConfig);
 
-    generateType(root.getClass());
+    for (Object root : roots) {
+      generateType(root.getClass());
+    }
+
+    try (FileWriter writer = new FileWriter(filePath)) {
+      writer.write(output.toString());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void generateForClasses(String filePath, Class<?>... rootClasses) {
+    generated.clear();
+    emitted.clear();
+    output.setLength(0);
+
+    namingStrategy =
+        JSONPrimitiveCheckStrategy.checkForPrimitives(
+            new JSONNamingStrategy(defaultConfig.namingPolicy(), defaultConfig), defaultConfig);
+
+    for (Class<?> rootClass : rootClasses) {
+      generateType(rootClass);
+    }
 
     try (FileWriter writer = new FileWriter(filePath)) {
       writer.write(output.toString());
@@ -177,12 +198,7 @@ public final class TypeScriptGenerator {
 
     sb.append("export interface ").append(clazz.getSimpleName()).append(" {\n");
 
-    sb
-      .append("  ")
-      .append(discriminator)
-      .append(": \"")
-      .append(discriminatorValue)
-      .append("\";\n");
+    sb.append("  ").append(discriminator).append(": \"").append(discriminatorValue).append("\";\n");
 
     for (Field field : getAllFields(clazz)) {
 

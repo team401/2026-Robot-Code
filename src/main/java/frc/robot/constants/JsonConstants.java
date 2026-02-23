@@ -107,32 +107,32 @@ public class JsonConstants {
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
-    TypeScriptGenerator.generateFor(
-        new RobotInfo(),
-        Filesystem.getDeployDirectory().toPath().resolve("autos/RobotInfo.d.ts").toString());
-
-    TypeScriptGenerator.generateFor(
-        new HoodConstants(),
-        Filesystem.getDeployDirectory().toPath().resolve("autos/HopperConstants.d.ts").toString());
-
-    TypeScriptGenerator.generateFor(
-        new ShotMaps(),
-        Filesystem.getDeployDirectory().toPath().resolve("autos/ShotMaps.d.ts").toString());
-
-    TypeScriptGenerator.generateFor(
-        new DriveConstants(),
-        Filesystem.getDeployDirectory().toPath().resolve("autos/DriveConstants.d.ts").toString());
-
-    TypeScriptGenerator.generateFor(
-        new IntakeConstants(),
-        Filesystem.getDeployDirectory().toPath().resolve("autos/IntakeConstants.d.ts").toString());
+    TypeScriptGenerator.generateForClasses(
+        Filesystem.getDeployDirectory().toPath().resolve("autos/Constants.d.ts").toString(),
+        RobotInfo.class,
+        AprilTagConstants.class,
+        CANBusAssignment.class,
+        FeatureFlags.class,
+        DriveConstants.class,
+        VisionConstants.class,
+        PhysicalDriveConstants.class,
+        OperatorConstants.class,
+        HopperConstants.class,
+        IndexerConstants.class,
+        TurretConstants.class,
+        IntakeConstants.class,
+        ShooterConstants.class,
+        HoodConstants.class,
+        ShotMaps.class,
+        FieldLocationInstance.class,
+        Controllers.class);
 
     Sequence hardTest = new Sequence();
     hardTest.actions = new AutoAction[] {new AutoPilotAction()};
 
-    TypeScriptGenerator.generateFor(
-        hardTest,
-        Filesystem.getDeployDirectory().toPath().resolve("autos/HardTest.d.ts").toString());
+    TypeScriptGenerator.generateForObjects(
+        Filesystem.getDeployDirectory().toPath().resolve("autos/HardTest.d.ts").toString(),
+        hardTest);
   }
 
   public static RobotInfo robotInfo;
