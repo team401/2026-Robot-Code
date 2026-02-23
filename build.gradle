@@ -117,6 +117,8 @@ dependencies {
 
     def coppercoreVersion = "2026.2.11"
 
+    implementation "com.google.code.gson:gson:2.11.0"
+
     implementation "io.github.team401.coppercore:controls:$coppercoreVersion"
     implementation "io.github.team401.coppercore:geometry:$coppercoreVersion"
     implementation "io.github.team401.coppercore:math:$coppercoreVersion"
