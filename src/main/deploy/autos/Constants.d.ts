@@ -1,23 +1,20 @@
-export interface JSONMeasure {
-  value: number;
-  unit: string;
-}
+import * as Units from './Units';
 
-export interface JSONRotation3d {
+export interface Rotation3d {
   roll: number;
   pitch: number;
   yaw: number;
 }
 
-export interface JSONTranslation3d {
+export interface Translation3d {
   x: number;
   y: number;
   z: number;
 }
 
-export interface JSONTransform3d {
-  rotation: JSONRotation3d;
-  translation: JSONTranslation3d;
+export interface Transform3d {
+  rotation: Rotation3d;
+  translation: Translation3d;
 }
 
 export type CANdiSignal = "S1" | "S2";
@@ -25,11 +22,11 @@ export type CANdiSignal = "S1" | "S2";
 export interface RobotInfo {
   canivoreBusName: string;
   logFilePath: string;
-  robotMass: JSONMeasure;
-  robotMOI: JSONMeasure;
+  robotMass: Units.Mass;
+  robotMOI: Units.MomentOfInertia;
   wheelCof: number;
-  robotPeriod: JSONMeasure;
-  robotToShooter: JSONTransform3d;
+  robotPeriod: Units.Time;
+  robotToShooter: Transform3d;
   homingSwitchSignal: CANdiSignal;
 }
 
@@ -91,24 +88,24 @@ export interface PIDGains {
 }
 
 export interface DriveConstants {
-  maxLinearSpeed: JSONMeasure;
-  maxAngularSpeed: JSONMeasure;
+  maxLinearSpeed: Units.LinearVelocity;
+  maxAngularSpeed: Units.AngularVelocity;
   joystickDeadband: number;
   joystickMagnitudeExponent: number;
-  linearDriveProfileMaxLinearVelocity: JSONMeasure;
-  linearDriveProfileMaxAngularVelocity: JSONMeasure;
-  linearDriveProfileMaxLinearAcceleration: JSONMeasure;
-  linearDriveProfileMaxAngularAcceleration: JSONMeasure;
-  linearDriveMaxAngularError: JSONMeasure;
-  linearDriveMaxPositionError: JSONMeasure;
-  linearDriveMaxLinearVelocityError: JSONMeasure;
-  linearDriveMaxAngularVelocityError: JSONMeasure;
+  linearDriveProfileMaxLinearVelocity: Units.LinearVelocity;
+  linearDriveProfileMaxAngularVelocity: Units.AngularVelocity;
+  linearDriveProfileMaxLinearAcceleration: Units.LinearAcceleration;
+  linearDriveProfileMaxAngularAcceleration: Units.AngularAcceleration;
+  linearDriveMaxAngularError: Units.Angle;
+  linearDriveMaxPositionError: Units.Distance;
+  linearDriveMaxLinearVelocityError: Units.LinearVelocity;
+  linearDriveMaxAngularVelocityError: Units.AngularVelocity;
   steerGains: PIDGains;
   driveGains: PIDGains;
   defaultAutoPilotHeadingGains: PIDGains;
-  defaultAutoPilotBeelineRadius: JSONMeasure;
-  defaultAutoPilotHeadingTolerance: JSONMeasure;
-  defaultAutoPilotXYTolerance: JSONMeasure;
+  defaultAutoPilotBeelineRadius: Units.Distance;
+  defaultAutoPilotHeadingTolerance: Units.Angle;
+  defaultAutoPilotXYTolerance: Units.Distance;
 }
 
 export interface VisionGainConstants {
@@ -124,13 +121,13 @@ export interface VisionConstants {
   gainConstants: VisionGainConstants;
   camera0Index: number;
   camera0Name: string;
-  camera0Transform: JSONTransform3d;
+  camera0Transform: Transform3d;
   camera1Index: number;
   camera1Name: string;
-  camera1Transform: JSONTransform3d;
+  camera1Transform: Transform3d;
   camera2Index: number;
   camera2Name: string;
-  camera2Transform: JSONTransform3d;
+  camera2Transform: Transform3d;
 }
 
 export type ClosedLoopOutputType = "Voltage" | "TorqueCurrentFOC";
@@ -140,8 +137,8 @@ export type StaticFeedforwardSignValue = "UseVelocitySign" | "UseClosedLoopSign"
 export interface DrivetrainMotorConfig {
   closedLoopOutputType: ClosedLoopOutputType;
   gearRatio: number;
-  momentOfInertia: JSONMeasure;
-  frictionVoltage: JSONMeasure;
+  momentOfInertia: Units.MomentOfInertia;
+  frictionVoltage: Units.Voltage;
   staticFeedforwardSignValue: StaticFeedforwardSignValue;
 }
 
@@ -152,15 +149,15 @@ export type DriveMotorArrangement = "TalonFX_Integrated" | "TalonFXS_NEO_JST" | 
 export type SteerMotorArrangement = "TalonFX_Integrated" | "TalonFXS_Minion_JST" | "TalonFXS_NEO_JST" | "TalonFXS_VORTEX_JST" | "TalonFXS_NEO550_JST" | "TalonFXS_Brushed_AB" | "TalonFXS_Brushed_AC" | "TalonFXS_Brushed_BC";
 
 export interface ModuleConfig {
-  encoderOffset: JSONMeasure;
+  encoderOffset: Units.Angle;
   steerMotorInverted: boolean;
   encoderInverted: boolean;
-  xPos: JSONMeasure;
-  yPos: JSONMeasure;
+  xPos: Units.Distance;
+  yPos: Units.Distance;
 }
 
 export interface PhysicalDriveConstants {
-  wheelRadius: JSONMeasure;
+  wheelRadius: Units.Distance;
   driveMotorConfig: DrivetrainMotorConfig;
   steerMotorConfig: DrivetrainMotorConfig;
   kSteerFeedbackType: SteerFeedbackType;
@@ -170,8 +167,8 @@ export interface PhysicalDriveConstants {
   frontRightModule: ModuleConfig;
   backLeftModule: ModuleConfig;
   backRightModule: ModuleConfig;
-  kSlipCurrent: JSONMeasure;
-  kSpeedAt12Volts: JSONMeasure;
+  kSlipCurrent: Units.Current;
+  kSpeedAt12Volts: Units.LinearVelocity;
   kCoupleRatio: number;
   kInvertLeftSide: boolean;
   kInvertRightSide: boolean;
@@ -184,10 +181,10 @@ export interface OperatorConstants {
 export type InvertedValue = "CounterClockwise_Positive" | "Clockwise_Positive";
 
 export interface HopperConstants {
-  dejamVoltage: JSONMeasure;
+  dejamVoltage: Units.Voltage;
   hopperDemoMode: boolean;
   hopperReduction: number;
-  spinningMovementThreshold: JSONMeasure;
+  spinningMovementThreshold: Units.AngularVelocity;
   hopperKP: number;
   hopperKI: number;
   hopperKD: number;
@@ -197,11 +194,11 @@ export interface HopperConstants {
   hopperKA: number;
   hopperMaxAccelerationRotationsPerSecondSquared: number;
   hopperMaxJerkRotationsPerSecondCubed: number;
-  hopperSupplyCurrentLimit: JSONMeasure;
-  hopperStatorCurrentLimit: JSONMeasure;
-  dejamCurrentThreshold: JSONMeasure;
+  hopperSupplyCurrentLimit: Units.Current;
+  hopperStatorCurrentLimit: Units.Current;
+  dejamCurrentThreshold: Units.Current;
   hopperMotorDirection: InvertedValue;
-  simHopperMOI: JSONMeasure;
+  simHopperMOI: Units.MomentOfInertia;
 }
 
 export interface IndexerConstants {
@@ -216,18 +213,18 @@ export interface IndexerConstants {
   indexerKA: number;
   indexerMaxAccelerationRotationsPerSecondSquared: number;
   indexerMaxJerkRotationsPerSecondCubed: number;
-  indexerSupplyCurrentLimit: JSONMeasure;
-  indexerStatorCurrentLimit: JSONMeasure;
-  simIndexerMOI: JSONMeasure;
+  indexerSupplyCurrentLimit: Units.Current;
+  indexerStatorCurrentLimit: Units.Current;
+  simIndexerMOI: Units.MomentOfInertia;
   indexerMotorDirection: InvertedValue;
 }
 
 export interface TurretConstants {
-  homingVoltage: JSONMeasure;
+  homingVoltage: Units.Voltage;
   turretReduction: number;
-  homingMovementThreshold: JSONMeasure;
-  homingMaxUnmovingTime: JSONMeasure;
-  homingAngle: JSONMeasure;
+  homingMovementThreshold: Units.AngularVelocity;
+  homingMaxUnmovingTime: Units.Time;
+  homingAngle: Units.Angle;
   turretKP: number;
   turretKI: number;
   turretKD: number;
@@ -237,36 +234,36 @@ export interface TurretConstants {
   turretKA: number;
   turretExpoKV: number;
   turretExpoKA: number;
-  turretSupplyCurrentLimit: JSONMeasure;
-  turretStatorCurrentLimit: JSONMeasure;
+  turretSupplyCurrentLimit: Units.Current;
+  turretStatorCurrentLimit: Units.Current;
   turretMotorDirection: InvertedValue;
-  simTurretMOI: JSONMeasure;
-  minTurretAngle: JSONMeasure;
-  maxTurretAngle: JSONMeasure;
-  headingToTurretAngle: JSONMeasure;
+  simTurretMOI: Units.MomentOfInertia;
+  minTurretAngle: Units.Angle;
+  maxTurretAngle: Units.Angle;
+  headingToTurretAngle: Units.Angle;
 }
 
 export interface IntakeConstants {
   pivotReduction: number;
   rollersReduction: number;
-  armLength: JSONMeasure;
-  minPivotAngle: JSONMeasure;
-  maxPivotAngle: JSONMeasure;
-  pivotStartingAngle: JSONMeasure;
-  rollersInertia: JSONMeasure;
-  pivotInertia: JSONMeasure;
-  intakePositionAngle: JSONMeasure;
-  stowPositionAngle: JSONMeasure;
-  intakeRollerSpeed: JSONMeasure;
-  homingMovementThreshold: JSONMeasure;
-  homingTimeoutSeconds: JSONMeasure;
-  homingVoltage: JSONMeasure;
+  armLength: Units.Distance;
+  minPivotAngle: Units.Angle;
+  maxPivotAngle: Units.Angle;
+  pivotStartingAngle: Units.Angle;
+  rollersInertia: Units.MomentOfInertia;
+  pivotInertia: Units.MomentOfInertia;
+  intakePositionAngle: Units.Angle;
+  stowPositionAngle: Units.Angle;
+  intakeRollerSpeed: Units.AngularVelocity;
+  homingMovementThreshold: Units.AngularVelocity;
+  homingTimeoutSeconds: Units.Time;
+  homingVoltage: Units.Voltage;
   pivotPIDGains: PIDGains;
   rollersPIDGains: PIDGains;
-  pivotSupplyCurrentLimit: JSONMeasure;
-  pivotStatorCurrentLimit: JSONMeasure;
-  rollersStatorCurrentLimit: JSONMeasure;
-  rollersSupplyCurrentLimit: JSONMeasure;
+  pivotSupplyCurrentLimit: Units.Current;
+  pivotStatorCurrentLimit: Units.Current;
+  rollersStatorCurrentLimit: Units.Current;
+  rollersSupplyCurrentLimit: Units.Current;
 }
 
 export type NeutralModeValue = "Coast" | "Brake";
@@ -282,19 +279,19 @@ export interface ShooterConstants {
   shooterKV: number;
   shooterKA: number;
   shooterReduction: number;
-  shooterSupplyCurrentLimit: JSONMeasure;
-  shooterStatorCurrentLimit: JSONMeasure;
+  shooterSupplyCurrentLimit: Units.Current;
+  shooterStatorCurrentLimit: Units.Current;
   shooterMotorDirection: InvertedValue;
   invertFollower: boolean;
   defaultShooterNeutralMode: NeutralModeValue;
-  shooterMaxVelocity: JSONMeasure;
-  shooterMaxAcceleration: JSONMeasure;
-  shooterMOI: JSONMeasure;
+  shooterMaxVelocity: Units.AngularVelocity;
+  shooterMaxAcceleration: Units.AngularAcceleration;
+  shooterMOI: Units.MomentOfInertia;
 }
 
 export interface HoodConstants {
   disconnectedDebounceTimeSeconds: number;
-  mechanismAngleToExitAngle: JSONMeasure;
+  mechanismAngleToExitAngle: Units.Angle;
   hoodKP: number;
   hoodKI: number;
   hoodKD: number;
@@ -305,50 +302,50 @@ export interface HoodConstants {
   hoodExpoKV: number;
   hoodExpoKA: number;
   hoodReduction: number;
-  hoodSupplyCurrentLimit: JSONMeasure;
-  hoodStatorCurrentLimit: JSONMeasure;
+  hoodSupplyCurrentLimit: Units.Current;
+  hoodStatorCurrentLimit: Units.Current;
   hoodMotorDirection: InvertedValue;
-  minHoodAngle: JSONMeasure;
-  maxHoodAngle: JSONMeasure;
-  homingVoltage: JSONMeasure;
-  homingMovementThreshold: JSONMeasure;
-  homingMaxUnmovingTime: JSONMeasure;
-  simHoodMOI: JSONMeasure;
-  simHoodArmLength: JSONMeasure;
+  minHoodAngle: Units.Angle;
+  maxHoodAngle: Units.Angle;
+  homingVoltage: Units.Voltage;
+  homingMovementThreshold: Units.AngularVelocity;
+  homingMaxUnmovingTime: Units.Time;
+  simHoodMOI: Units.MomentOfInertia;
+  simHoodArmLength: Units.Distance;
 }
 
 export interface ShotMapDataPoint {
-  distance: JSONMeasure;
+  distance: Units.Distance;
   shooterRPM: number;
-  hoodAngle: JSONMeasure;
-  flightTime: JSONMeasure;
+  hoodAngle: Units.Angle;
+  flightTime: Units.Time;
 }
 
 export interface ShotMaps {
   hubDataPoints: ShotMapDataPoint[];
   passDataPoints: ShotMapDataPoint[];
-  mechanismCompensationDelay: JSONMeasure;
+  mechanismCompensationDelay: Units.Time;
 }
 
-export interface JSONRotation2d {
+export interface Rotation2d {
   radians: number;
 }
 
-export interface JSONTranslation2d {
+export interface Translation2d {
   x: number;
   y: number;
 }
 
-export interface JSONPose2d {
-  rotation: JSONRotation2d;
-  translation: JSONTranslation2d;
+export interface Pose2d {
+  rotation: Rotation2d;
+  translation: Translation2d;
 }
 
 export interface FieldLocationInstance {
-  leftPassingTarget: JSONTranslation3d;
-  rightPassingTarget: JSONTranslation3d;
-  leftClimbLocation: JSONPose2d;
-  rightClimbLocation: JSONPose2d;
+  leftPassingTarget: Translation3d;
+  rightPassingTarget: Translation3d;
+  leftClimbLocation: Pose2d;
+  rightClimbLocation: Pose2d;
 }
 
 export interface LowLevelButton {
@@ -418,7 +415,7 @@ export interface POV {
 
 export type ControlElement = Button | Axis | POV;
 
-export interface ControllerJsonRepresentation {
+export interface Controller {
   port: number;
   type: string;
   controlElements: ControlElement[];
@@ -428,6 +425,6 @@ export interface ControllerJsonRepresentation {
 }
 
 export interface Controllers {
-  controllers: ControllerJsonRepresentation[];
+  controllers: Controller[];
 }
 

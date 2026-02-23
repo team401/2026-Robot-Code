@@ -11,8 +11,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.auto.AutoAction;
-import frc.robot.auto.drive.AutoPilotAction;
-import frc.robot.auto.general.Sequence;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.JSONAPTarget;
@@ -127,12 +125,9 @@ public class JsonConstants {
         FieldLocationInstance.class,
         Controllers.class);
 
-    Sequence hardTest = new Sequence();
-    hardTest.actions = new AutoAction[] {new AutoPilotAction()};
-
-    TypeScriptGenerator.generateForObjects(
+    TypeScriptGenerator.generateForClasses(
         Filesystem.getDeployDirectory().toPath().resolve("autos/HardTest.d.ts").toString(),
-        hardTest);
+        AutoAction.class);
   }
 
   public static RobotInfo robotInfo;

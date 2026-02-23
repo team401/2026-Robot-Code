@@ -9,6 +9,11 @@ export interface Deadline {
   others: AutoAction[];
 }
 
+export interface Sequence {
+  type: "Sequence";
+  actions: AutoAction[];
+}
+
 export interface Parallel {
   type: "Parallel";
   actions: AutoAction[];
@@ -19,30 +24,27 @@ export interface Race {
   actions: AutoAction[];
 }
 
-export interface JSONRotation2d {
+export interface Rotation2d {
   radians: number;
 }
 
-export interface JSONTranslation2d {
+export interface Translation2d {
   x: number;
   y: number;
 }
 
-export interface JSONPose2d {
-  rotation: JSONRotation2d;
-  translation: JSONTranslation2d;
+export interface Pose2d {
+  rotation: Rotation2d;
+  translation: Translation2d;
 }
 
-export interface JSONMeasure {
-  value: number;
-  unit: string;
-}
+import * as Units from './Units';
 
-export interface JSONAPTarget {
-  reference: JSONPose2d;
-  entryAngle: JSONRotation2d;
+export interface APTarget {
+  reference: Pose2d;
+  entryAngle: Rotation2d;
   velocity: number;
-  rotationRadius: JSONMeasure;
+  rotationRadius: Units.Distance;
 }
 
 export interface APConstraints {
@@ -53,9 +55,9 @@ export interface APConstraints {
 
 export interface APProfile {
   constraints: APConstraints;
-  errorXY: JSONMeasure;
-  errorTheta: JSONMeasure;
-  beelineRadius: JSONMeasure;
+  errorXY: Units.Distance;
+  errorTheta: Units.Angle;
+  beelineRadius: Units.Distance;
 }
 
 export interface PIDGains {
@@ -70,15 +72,11 @@ export interface PIDGains {
 
 export interface AutoPilotAction {
   type: "AutoPilotAction";
-  target: JSONAPTarget;
+  target: APTarget;
   profile: APProfile;
   constraints: APConstraints;
   pidGains: PIDGains;
 }
 
 export type AutoAction = RoutineCall | Deadline | Sequence | Parallel | Race | AutoPilotAction;
-
-export interface Sequence {
-  actions: AutoAction[];
-}
 

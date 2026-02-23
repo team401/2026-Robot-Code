@@ -3,6 +3,7 @@ package frc.robot.util.ts;
 import com.google.gson.FieldNamingStrategy;
 import coppercore.parameter_tools.json.JSONSyncConfig;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
+import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.parameter_tools.json.annotations.JsonSubtype;
 import coppercore.parameter_tools.json.annotations.JsonType;
@@ -11,6 +12,9 @@ import coppercore.parameter_tools.json.helpers.JSONConverter.ConversionException
 import coppercore.parameter_tools.json.helpers.JSONObject;
 import coppercore.parameter_tools.json.strategies.JSONNamingStrategy;
 import coppercore.parameter_tools.json.strategies.JSONPrimitiveCheckStrategy;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.wpilibj.Filesystem;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.*;
@@ -31,12 +35,82 @@ public final class TypeScriptGenerator {
   private static final Map<Class<?>, String> primitiveMap = new HashMap<>();
   private static final Set<Class<?>> generated = new HashSet<>();
   private static final StringBuilder output = new StringBuilder();
+  private static boolean hasGeneratedUnits = false;
+  private static String unitFilePath = "Units.ts";
+  private static boolean hasImportedUnits = false;
+
   public static Set<Class<?>> emitted = new HashSet<>();
 
   private static final boolean shouldSkipField(Field field) {
     return Modifier.isStatic(field.getModifiers())
         || Modifier.isTransient(field.getModifiers())
         || field.isAnnotationPresent(JSONExclude.class);
+  }
+
+  public static void setUnitFilePath(String path) {
+    unitFilePath = path;
+  }
+
+  public static void generateUnitsFile(String filePath) {
+    if (hasGeneratedUnits) return;
+    hasGeneratedUnits = true;
+    StringBuilder sb = new StringBuilder();
+    sb.append("export type Measure = {\n");
+    sb.append("  value: number;\n");
+    sb.append("  unit: string;\n");
+    sb.append("};\n\n");
+
+    sb.append("export class Unit<M extends Measure>{\n");
+    sb.append("\tconstructor(public name: string) {}\n");
+    sb.append("\tof(value: number): M {\n");
+    sb.append("\t\treturn { value, unit: this.name } as M;\n");
+    sb.append("\t}\n");
+    sb.append("}\n");
+
+    Set<Unit> units = new HashSet<>();
+    HashMap<Unit, String> baseUnits = new HashMap<>();
+    JSONMeasure.unitMap.forEach(
+        (name, unitFunc) -> {
+          var measure = unitFunc.apply(1.0);
+          var unit = measure.unit();
+          var baseUnit = unit.getBaseUnit();
+          if (baseUnit == null) return;
+          if (!baseUnits.containsKey(baseUnit)) {
+            var measureName = baseUnit.getClass().getSimpleName();
+            if (measureName.equals("PerUnit")) return;
+            // remove Unit suffix if it exists
+            if (measureName.endsWith("Unit")) {
+              measureName = measureName.substring(0, measureName.length() - 4);
+            }
+            sb.append("export type ").append(measureName).append(" = Measure;\n");
+            baseUnits.put(baseUnit, measureName);
+          }
+          if (units.contains(unit)) return;
+          units.add(unit);
+          var unitName = unit.name().replace(" ", "_").replace("-", "_");
+          if (unitName.equals("<?>")) unitName = "Unitless";
+          sb.append("export const ")
+              .append(unitName)
+              .append(" = new Unit<")
+              .append(baseUnits.get(baseUnit))
+              .append(">(\"")
+              .append(unit.name())
+              .append("\");\n");
+        });
+
+    System.out.println("Generated TypeScript definitions for " + units.size() + " units.");
+
+    try (FileWriter writer =
+        new FileWriter(
+            Filesystem.getDeployDirectory()
+                .toPath()
+                .resolve("autos")
+                .resolve(unitFilePath)
+                .toString())) {
+      writer.write(sb.toString());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   static {
@@ -65,19 +139,18 @@ public final class TypeScriptGenerator {
   // Public Entry
   // ============================================
 
-  public static void generateForObjects(String filePath, Object... roots) {
+  private static void initGenerator() {
     generated.clear();
     emitted.clear();
     output.setLength(0);
+    hasImportedUnits = false;
 
     namingStrategy =
         JSONPrimitiveCheckStrategy.checkForPrimitives(
             new JSONNamingStrategy(defaultConfig.namingPolicy(), defaultConfig), defaultConfig);
+  }
 
-    for (Object root : roots) {
-      generateType(root.getClass());
-    }
-
+  private static void writeOutput(String filePath) {
     try (FileWriter writer = new FileWriter(filePath)) {
       writer.write(output.toString());
     } catch (IOException e) {
@@ -85,24 +158,24 @@ public final class TypeScriptGenerator {
     }
   }
 
-  public static void generateForClasses(String filePath, Class<?>... rootClasses) {
-    generated.clear();
-    emitted.clear();
-    output.setLength(0);
+  public static void generateForObjects(String filePath, Object... roots) {
+    initGenerator();
 
-    namingStrategy =
-        JSONPrimitiveCheckStrategy.checkForPrimitives(
-            new JSONNamingStrategy(defaultConfig.namingPolicy(), defaultConfig), defaultConfig);
+    for (Object root : roots) {
+      generateType(root.getClass());
+    }
+
+    writeOutput(filePath);
+  }
+
+  public static void generateForClasses(String filePath, Class<?>... rootClasses) {
+    initGenerator();
 
     for (Class<?> rootClass : rootClasses) {
       generateType(rootClass);
     }
 
-    try (FileWriter writer = new FileWriter(filePath)) {
-      writer.write(output.toString());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    writeOutput(filePath);
   }
 
   // ============================================
@@ -110,6 +183,10 @@ public final class TypeScriptGenerator {
   // ============================================
 
   private static void generateType(Class<?> clazz) {
+    generateType(clazz, clazz.getSimpleName());
+  }
+
+  private static void generateType(Class<?> clazz, String suggestedName) {
 
     if (generated.contains(clazz)) return;
     if (isPrimitive(clazz)) return;
@@ -126,24 +203,26 @@ public final class TypeScriptGenerator {
       return;
     }
 
-    generateInterface(clazz);
+    generateInterface(clazz, suggestedName);
   }
 
   // ============================================
   // Interfaces
   // ============================================
 
-  public static void generateInterface(Class<?> clazz) {
+  public static void generateInterface(Class<?> clazz, String suggestedName) {
+    suggestedName = suggestedName != null ? suggestedName : clazz.getSimpleName();
     if (emitted.contains(clazz)) return;
     emitted.add(clazz);
 
     StringBuilder sb = new StringBuilder();
-    sb.append("export interface ").append(clazz.getSimpleName()).append(" {\n");
+    sb.append("export interface ").append(suggestedName).append(" {\n");
 
     for (Field field : clazz.getDeclaredFields()) {
       if (shouldSkipField(field)) continue;
 
       Class<?> fieldType = field.getType();
+      Class<?> originalFieldType = fieldType;
 
       // Use JSONConverter if available
       try {
@@ -151,7 +230,7 @@ public final class TypeScriptGenerator {
       } catch (ConversionException ignored) {
       }
 
-      String tsType = resolveType(field.getGenericType());
+      String tsType = resolveType(field.getGenericType(), originalFieldType.getSimpleName());
 
       sb.append("  ").append(field.getName()).append(": ").append(tsType).append(";\n");
     }
@@ -220,12 +299,22 @@ public final class TypeScriptGenerator {
   // ============================================
 
   private static String resolveType(Type type) {
+    return resolveType(type, null);
+  }
+
+  private static String resolveType(Type type, String suggestedName) {
     if (type instanceof Class<?> clazz) {
+
+      boolean isUnit = isUnitType(clazz);
+      if (isUnit) {
+        ensureUnitsIncluded();
+      }
 
       // Check if class has a JSON wrapper
       try {
         Class<? extends JSONObject<?>> wrapper = JSONConverter.convert(clazz);
         if (wrapper != null) {
+          suggestedName = clazz.getSimpleName();
           clazz = wrapper; // Use the wrapper for generating TypeScript
         }
       } catch (JSONConverter.ConversionException ignored) {
@@ -243,15 +332,26 @@ public final class TypeScriptGenerator {
       if (Map.class.isAssignableFrom(clazz)) {
         return "{ [key: string]: any }";
       }
-
-      generateType(clazz);
-      return clazz.getSimpleName();
+      suggestedName = suggestedName != null ? suggestedName : clazz.getSimpleName();
+      if (isUnit) {
+        // For units, we want to return the Measure type instead of the wrapper interface
+        // Maybe still call generateType in case of Per Units
+        return "Units." + suggestedName;
+      }
+      generateType(clazz, suggestedName);
+      return suggestedName;
     }
 
     if (type instanceof ParameterizedType pt) {
       Type raw = pt.getRawType();
       Type[] args = pt.getActualTypeArguments();
       if (raw instanceof Class<?> rawClass) {
+
+        boolean isUnit = isUnitType(rawClass);
+
+        if (isUnit) {
+          ensureUnitsIncluded();
+        }
 
         // List<T>
         if (Collection.class.isAssignableFrom(rawClass)) {
@@ -267,13 +367,24 @@ public final class TypeScriptGenerator {
         try {
           Class<? extends JSONObject<?>> wrapper = JSONConverter.convert(rawClass);
           if (wrapper != null) {
+            suggestedName = rawClass.getSimpleName();
             rawClass = wrapper;
           }
         } catch (JSONConverter.ConversionException ignored) {
         }
 
-        generateType(rawClass);
-        return rawClass.getSimpleName();
+        if (isUnitType(rawClass)) {
+          isUnit = true;
+          ensureUnitsIncluded();
+        }
+
+        suggestedName = suggestedName != null ? suggestedName : rawClass.getSimpleName();
+        generateType(rawClass, suggestedName);
+        if (isUnit) {
+          // For units, we want to return the Measure type instead of the wrapper interface
+          return "Units." + suggestedName;
+        }
+        return suggestedName;
       }
     }
 
@@ -316,5 +427,25 @@ public final class TypeScriptGenerator {
       clazz = clazz.getSuperclass();
     }
     return fields;
+  }
+
+  private static boolean isUnitType(Class<?> clazz) {
+    return Measure.class.isAssignableFrom(clazz) || Unit.class.isAssignableFrom(clazz);
+  }
+
+  private static void ensureUnitsFile() {
+    if (hasGeneratedUnits) return;
+    generateUnitsFile(unitFilePath);
+  }
+
+  private static void ensureUnitsIncluded() {
+    ensureUnitsFile();
+    if (hasImportedUnits) return;
+    hasImportedUnits = true;
+    // TODO: add import statement to the output for the units file if it hasn't been added already
+    output
+        .append("import * as Units from './")
+        .append(unitFilePath.replace(".ts", ""))
+        .append("';\n\n");
   }
 }
