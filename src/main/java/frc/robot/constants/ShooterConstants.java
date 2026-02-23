@@ -108,7 +108,7 @@ public class ShooterConstants {
 
   @JSONExclude
   public final int shooterMediumPrioritySignals =
-      MotorIOTalonFX.DEFAULT_MEDIUM_PRIORITY_SIGNALS | MotorIOTalonFX.DEFAULT_HIGH_PRIORITY_SIGNALS;
+      MotorIOTalonFX.DEFAULT_MEDIUM_PRIORITY_SIGNALS | MotorIOTalonFX.DEFAULT_HIGH_PRIORITY_SIGNALS & ~MotorIOTalonFX.SIGNAL_VELOCITY;
 
   @JSONExclude public final int shooterHighPrioritySignals = MotorIOTalonFX.SIGNAL_VELOCITY;
   @JSONExclude public final int shooterOutputSignals = MotorIOTalonFX.DEFAULT_OUTPUT_SIGNALS;
