@@ -1,7 +1,15 @@
 package frc.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
+import com.therekrab.autopilot.APProfile;
+import com.therekrab.autopilot.APTarget;
+import com.therekrab.autopilot.Autopilot;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -173,9 +181,19 @@ public class DriveCoordinator extends SubsystemBase {
             ? FieldLocations.leftClimbLocation()
             : FieldLocations.rightClimbLocation();
 
-    // TODO: Enhance this to not just use the default settings
+    APTarget target =
+        new APTarget(targetPose)
+            .withEntryAngle(new Rotation2d())
+            .withRotationRadius(Meters.of(1.5));
+    APProfile profile =
+        DriveCoordinatorCommands.createDefaultAPProfile()
+            .withConstraints(
+                DriveCoordinatorCommands.createDefaltAPConstraints().withAcceleration(6.0))
+            .withErrorXY(Centimeters.of(2.0))
+            .withErrorTheta(Degrees.of(15));
+    Autopilot ap = new Autopilot(profile);
 
-    return DriveCoordinatorCommands.autoPilotToPoseCommand(this, targetPose);
+    return DriveCoordinatorCommands.autoPilotCommand(this, ap, target);
   }
 
   public void driveToClimbLocation(ClimbLocations climbLocation) {

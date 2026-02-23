@@ -60,7 +60,7 @@
     "kA": 0.0
   },
   "defaultAutoPilotHeadingGains": {
-    "kP": 3.0,
+    "kP": 6.0,
     "kI": 0.0,
     "kD": 0.0,
     "kS": 0.0,
