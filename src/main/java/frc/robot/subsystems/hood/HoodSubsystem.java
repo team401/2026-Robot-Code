@@ -112,6 +112,12 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
   private MutAngle goalAngle = JsonConstants.hoodConstants.minHoodAngle.mutableCopy();
 
+  /**
+   * Whether or not the hood should currently stow for the trench. Set by the CoordinationLayer
+   * using setShouldStowForTrench
+   */
+  private boolean shouldStowForTrench = false;
+
   public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
 
@@ -327,6 +333,18 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /**
+   * Updates the hood subsystem on whether it should stow to go under the trench. This should only
+   * be called by the coordination layer.
+   *
+   * @param shouldStowForTrench {@code true} if the hood should stow to go under the trench, {@code
+   *     false} otherwise.
+   */
+  public void setShouldStowForTrench(boolean shouldStowForTrench) {
+    Logger.recordOutput("Hood/shouldStowForTrench", shouldStowForTrench);
+    this.shouldStowForTrench = shouldStowForTrench;
+  }
+
+  /**
    * Returns whether or not the homing switch is currently pressed (or was pressed when its inputs
    * were last read from hardware.)
    *
@@ -381,11 +399,13 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * @param goalAngle The Angle to target
    */
   private void clampAndControlToAngle(Angle goalAngle) {
+    // If we need to stow for the trench, clamp angle to always be set to minHoodAngle.
+    Angle maxAngle =
+        shouldStowForTrench
+            ? JsonConstants.hoodConstants.minHoodAngle
+            : JsonConstants.hoodConstants.maxHoodAngle;
     Angle clampedGoalAngle =
-        UnitUtils.clampMeasure(
-            goalAngle,
-            JsonConstants.hoodConstants.minHoodAngle,
-            JsonConstants.hoodConstants.maxHoodAngle);
+        UnitUtils.clampMeasure(goalAngle, JsonConstants.hoodConstants.minHoodAngle, maxAngle);
     Logger.recordOutput("Hood/clampedGoalAngleRadians", goalAngle.in(Radians));
     motor.controlToPositionExpoProfiled(clampedGoalAngle);
   }

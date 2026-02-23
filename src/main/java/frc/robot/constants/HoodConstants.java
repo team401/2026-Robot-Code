@@ -96,6 +96,13 @@ public class HoodConstants {
 
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
 
+  /**
+   * The amount of time it takes the hood to stow from its highest position. If the
+   * CoordinationLayer detects that the robot will hit the trench in this amount of time, it should
+   * tell the hood to stow.
+   */
+  public final Time timeToStowHood = Seconds.of(0.5); // TODO: Real value
+
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
         .withSlot0(

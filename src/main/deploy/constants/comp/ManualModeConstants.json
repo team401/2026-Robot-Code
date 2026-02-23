@@ -1,0 +1,12 @@
+{
+  "assumedPassDistance": {
+    "value": 4.0,
+    "unit": "Meter"
+  },
+  "bluePassHeading": {
+    "radians": 0.0
+  },
+  "redPassHeading": {
+    "radians": 3.141592653589793
+  }
+}

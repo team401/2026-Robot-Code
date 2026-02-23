@@ -7,7 +7,7 @@
   "runTurret": false,
   "runShooter": false,
   "runIntake": false,
-  "runHood": false,
+  "runHood": true,
   "useHomingSwitch": false,
   "useTuningServer": true,
   "pretendCamerasAreMobile": false

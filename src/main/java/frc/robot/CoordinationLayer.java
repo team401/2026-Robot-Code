@@ -44,6 +44,8 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
+import frc.robot.util.OptionalUtil;
+import frc.robot.util.geometry.EnhancedLine2d;
 import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -644,7 +646,14 @@ public class CoordinationLayer {
       }
     }
 
-    // TODO: Add stow hood for trench/go under trench functionality
+    boolean shouldStowHoodBasedOnMovement =
+        OptionalUtil.map(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
+    Logger.recordOutput(
+        "CoordinationLayer/shouldStowHoodBasedOnMovement", shouldStowHoodBasedOnMovement);
+    boolean shouldStowHood =
+        isOperatorStowHoodForTrenchPressed.getAsBoolean() || shouldStowHoodBasedOnMovement;
+    // Don't need to log shouldStowHood here as it's logged in the hood subsystem
+    hood.ifPresent(hood -> hood.setShouldStowForTrench(shouldStowHood));
 
     // TODO: Add checks if we can shoot (subsystems are at target position), if we'd hit net (when
     // passing), and then command the spindexer/balltower to shoot.
@@ -678,6 +687,57 @@ public class CoordinationLayer {
         turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
       }
     }
+  }
+
+  private final EnhancedLine2d leftBlueTrench =
+      new EnhancedLine2d(
+          FieldConstants.LeftTrench.openingTopLeft(), FieldConstants.LeftTrench.openingTopRight());
+  private final EnhancedLine2d rightRedTrench =
+      new EnhancedLine2d(
+          FieldConstants.LeftTrench.oppOpeningTopLeft(),
+          FieldConstants.LeftTrench.oppOpeningTopRight());
+  private final EnhancedLine2d rightBlueTrench =
+      new EnhancedLine2d(
+          FieldConstants.RightTrench.openingTopLeft(),
+          FieldConstants.RightTrench.openingTopRight());
+  private final EnhancedLine2d leftRedTrench =
+      new EnhancedLine2d(
+          FieldConstants.RightTrench.oppOpeningTopLeft(),
+          FieldConstants.RightTrench.oppOpeningTopRight());
+  private final EnhancedLine2d[] trenches = {
+    leftBlueTrench, rightRedTrench, rightBlueTrench, leftRedTrench
+  };
+
+  private boolean shouldStowHoodBasedOnMovement(Drive drive, HoodSubsystem hood) {
+    Pose2d robotPose = drive.getPose();
+
+    ChassisSpeeds robotRelativeSpeeds = drive.getChassisSpeeds();
+    Translation2d fieldCentricSpeeds =
+        new Translation2d(
+                robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
+            .rotateBy(robotPose.getRotation());
+
+    Translation2d predictedMovement =
+        fieldCentricSpeeds.times(JsonConstants.hoodConstants.timeToStowHood.in(Seconds));
+    Translation2d shooterPose = new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation().toTranslation2d();
+
+    Translation2d movementStart = shooterPose;
+    Translation2d movementEnd = movementStart.plus(predictedMovement);
+
+    Logger.recordOutput(
+        "CoordinationLayer/ShooterTrajectory", new Translation2d[] {movementStart, movementEnd});
+    Logger.recordOutput(
+        "CoordinationLayer/HoodPredictedLocation",
+        new Pose2d(movementEnd, robotPose.getRotation()));
+    EnhancedLine2d movementLine = new EnhancedLine2d(movementStart, movementEnd);
+
+    for (var trench : trenches) {
+      if (movementLine.intersects(trench)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
