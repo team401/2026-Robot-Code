@@ -106,10 +106,12 @@ public class ShooterConstants {
    */
   public final Frequency shooterClosedLoopFrequency = Hertz.of(1000);
 
+  @JSONExclude
   public final int shooterMediumPrioritySignals =
       MotorIOTalonFX.DEFAULT_MEDIUM_PRIORITY_SIGNALS | MotorIOTalonFX.DEFAULT_HIGH_PRIORITY_SIGNALS;
-  public final int shooterHighPrioritySignals = MotorIOTalonFX.SIGNAL_VELOCITY;
-  public final int shooterOutputSignals = MotorIOTalonFX.DEFAULT_OUTPUT_SIGNALS;
+
+  @JSONExclude public final int shooterHighPrioritySignals = MotorIOTalonFX.SIGNAL_VELOCITY;
+  @JSONExclude public final int shooterOutputSignals = MotorIOTalonFX.DEFAULT_OUTPUT_SIGNALS;
 
   // Perhaps regenerative braking can improve our battery performance?
   public final NeutralModeValue defaultShooterNeutralMode = NeutralModeValue.Brake;

@@ -28,6 +28,20 @@
   "shooterMotorDirection": "Clockwise_Positive",
   "invertFollower": true,
   "defaultShooterNeutralMode": "Coast",
+  "shooterSignalRefreshRates": {
+    "highPriorityUpdateFrequency": {
+      "value": 200.0,
+      "unit": "Hertz"
+    },
+    "mediumPriorityUpdateFrequency": {
+      "value": 20.0,
+      "unit": "Hertz"
+    },
+    "outputUpdateFrequency": {
+      "value": 1000.0,
+      "unit": "Hertz"
+    }
+  },
   "shooterClosedLoopFrequency": {
     "value": 1000.0,
     "unit": "Hertz"
