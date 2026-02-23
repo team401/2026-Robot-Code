@@ -38,7 +38,7 @@ export interface Pose2d {
   translation: Translation2d;
 }
 
-import * as Units from './Units';
+import * as Units from '../Units';
 
 export interface APTarget {
   reference: Pose2d;
