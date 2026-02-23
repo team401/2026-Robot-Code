@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
@@ -354,12 +353,8 @@ public class CoordinationLayer {
 
   /** Update the MatchState each periodic loop */
   private void updateMatchState() {
-    boolean isRedOverridePressed = SmartDashboard.getBoolean("matchState/manualRedOverride", false);
-    boolean isBlueOverridePressed =
-        SmartDashboard.getBoolean("matchState/manualBlueOverride", false);
-
     if (DriverStation.isEnabled()) {
-      matchState.enabledPeriodic(isRedOverridePressed, isBlueOverridePressed);
+      matchState.enabledPeriodic(manualRedOverrideRequest, manualBlueOverrideRequest);
     }
 
     double timeLeft = matchState.getTimeLeftInCurrentShift();

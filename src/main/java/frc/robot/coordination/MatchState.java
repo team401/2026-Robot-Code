@@ -4,7 +4,11 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
 import frc.robot.constants.StrategyConstants;
 import frc.robot.util.AllianceUtil;
@@ -12,6 +16,7 @@ import java.util.Optional;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * The MatchState class handles tracking the state of the match and indicating when we can score vs.
@@ -24,12 +29,15 @@ public class MatchState {
   private MatchShift currentShift = MatchShift.Unknown;
   private boolean canScore = true;
 
+  private LoggedDashboardChooser<MatchType> matchTypeChooser;
+
   /**
    * @return {@code true} if we are in a match (FMS is attached or DriverStation.getMatchType()
    *     return Practice, Qualification, or Elimination), {@code false} otherwise
    */
   @AutoLogOutput(key = "MatchState/isInMatch")
   public boolean isInMatch() {
+    Logger.recordOutput("MatchState/matchType", DriverStation.getMatchType());
     return DriverStation.isFMSAttached()
         || DriverStation.getMatchType() == DriverStation.MatchType.Practice
         || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
@@ -106,10 +114,26 @@ public class MatchState {
 
     SmartDashboard.putBoolean("matchState/manualRedOverride", false);
     SmartDashboard.putBoolean("matchState/manualBlueOverride", false);
+
+    if (Constants.currentMode == Mode.SIM) {
+      matchTypeChooser = new LoggedDashboardChooser<>("MatchState/MatchType");
+
+      for (var matchType : MatchType.values()) {
+        if (matchType == MatchType.None) {
+          matchTypeChooser.addDefaultOption(matchType.name(), matchType);
+        } else {
+          matchTypeChooser.addOption(matchType.name(), matchType);
+        }
+      }
+    }
   }
 
   /** Must be called by the coordination layer when enabled */
   public void enabledPeriodic(boolean manualRedOverridePressed, boolean manualBlueOverridePressed) {
+    if (Constants.currentMode == Mode.SIM) {
+      DriverStationSim.setMatchType(matchTypeChooser.get());
+    }
+
     checkGameDataForAutoWinner();
     if (!wonAuto.isPresent()) {
       // Check for game data; if not present allow for manual override.

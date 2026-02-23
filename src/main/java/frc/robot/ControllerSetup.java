@@ -90,11 +90,11 @@ public class ControllerSetup {
   public static void initMatchStateBindings(CoordinationLayer coordinationLayer) {
     var controllers = getControllers();
     controllers
-        .getButton("overrideMatchStateRed")
+        .getButton("redWonAuto")
         .getTrigger()
         .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateRed));
     controllers
-        .getButton("overrideMatchStateBlue")
+        .getButton("blueWonAuto")
         .getTrigger()
         .onTrue(new InstantCommand(coordinationLayer::overrideMatchStateBlue));
   }
