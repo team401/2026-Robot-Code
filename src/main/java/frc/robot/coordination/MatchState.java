@@ -239,31 +239,19 @@ public class MatchState {
     return MatchShift.Unknown;
   }
 
+  @AutoLogOutput(key = "MatchState/timeLeftInShift")
   public double getTimeLeftInCurrentShift() {
     double matchTime = DriverStation.getMatchTime();
-    double timeLeft;
 
-    if (currentShift == MatchShift.Transition) {
-      timeLeft = Math.max(matchTime - StrategyConstants.shift1Start, 0);
-    } else if (currentShift == MatchShift.Shift1) {
-      timeLeft = Math.max(matchTime - StrategyConstants.shift2Start, 0);
-    } else if (currentShift == MatchShift.Shift2) {
-      timeLeft = Math.max(matchTime - StrategyConstants.shift3Start, 0);
-    } else if (currentShift == MatchShift.Shift3) {
-      timeLeft = Math.max(matchTime - StrategyConstants.shift4Start, 0);
-    } else if (currentShift == MatchShift.Shift4) {
-      timeLeft = Math.max(matchTime - StrategyConstants.endgameStart, 0);
-    } else if (currentShift == MatchShift.Endgame) {
-      timeLeft = Math.max(matchTime - StrategyConstants.matchEnd, 0);
-    } else {
-      timeLeft = Double.POSITIVE_INFINITY;
-    }
-
-    Logger.recordOutput("MatchState/timeLeftInShift", timeLeft);
-    Logger.recordOutput(
-        "MatchState/alliance", DriverStation.getAlliance().map(Enum::name).orElse("Unknown"));
-
-    return timeLeft;
+    return switch (currentShift) {
+      case Transition -> Math.max(matchTime - StrategyConstants.shift1Start, 0);
+      case Shift1 -> Math.max(matchTime - StrategyConstants.shift2Start, 0);
+      case Shift2 -> Math.max(matchTime - StrategyConstants.shift3Start, 0);
+      case Shift3 -> Math.max(matchTime - StrategyConstants.shift4Start, 0);
+      case Shift4 -> Math.max(matchTime - StrategyConstants.endgameStart, 0);
+      case Endgame -> Math.max(matchTime - StrategyConstants.matchEnd, 0);
+      default -> Double.POSITIVE_INFINITY;
+    };
   }
 
   /**
