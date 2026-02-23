@@ -205,8 +205,6 @@ public class MatchState {
     // The behavior of this method is determined largely by the docs here
     // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj/DriverStation.html#getMatchTime()
     if (isInMatch()) {
-      // Either FMS is attached or time is counting down. Either way, time is decreasing so we are
-      // in a "match" situation
       if (DriverStation.isAutonomous()) {
         return MatchShift.Auto;
       } else {

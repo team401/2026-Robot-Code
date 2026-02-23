@@ -72,8 +72,8 @@ public class CoordinationLayer {
   private final MatchState matchState = new MatchState();
   // Manual override requests set by controller bindings. These are cleared once consumed in
   // updateMatchState and forwarded to MatchState.enabledPeriodic as booleans.
-  private volatile boolean manualRedOverrideRequest = false;
-  private volatile boolean manualBlueOverrideRequest = false;
+  private boolean manualRedOverrideRequest = false;
+  private boolean manualBlueOverrideRequest = false;
 
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
@@ -354,6 +354,8 @@ public class CoordinationLayer {
       matchState.enabledPeriodic(manualRedOverrideRequest, manualBlueOverrideRequest);
     }
 
+    // This is temporary code left here to make it easy to integrate the time left functionality
+    // with LEDs and superstructure coordination later.
     double timeLeft = matchState.getTimeLeftInCurrentShift();
 
     boolean hasFiveSecondsLeft = timeLeft >= 5.0;
