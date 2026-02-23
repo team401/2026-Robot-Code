@@ -16,6 +16,7 @@ import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONRotation3d;
 import frc.robot.util.json.JSONTransform2d;
 import frc.robot.util.json.JSONTransform3d;
+import frc.robot.util.ts.TypescriptConverter;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -98,6 +99,9 @@ public class JsonConstants {
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
+
+      TypescriptConverter.run(
+          Filesystem.getDeployDirectory().toPath().resolve("autos/ts_types.ts").toString());
     }
 
     controllers =
