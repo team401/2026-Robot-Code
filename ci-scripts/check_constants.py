@@ -27,6 +27,7 @@ JSON_TO_CLASS = {
     "ShotMaps.json": "frc.robot.constants.ShotMaps",
     "RedFieldLocations.json": "frc.robot.constants.FieldLocationInstance",
     "BlueFieldLocations.json": "frc.robot.constants.FieldLocationInstance",
+    "StrategyConstants.json": "frc.robot.constants.StrategyConstants",
 }
 
 SKIP_FILES = {"config.json", "controllers-xbox.json"}
