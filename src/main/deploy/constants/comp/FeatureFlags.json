@@ -10,6 +10,6 @@
   "runHood": false,
   "runClimber": true,
   "useHomingSwitch": false,
-  "useTuningServer": true
+  "useTuningServer": true,
   "pretendCamerasAreMobile": false
 }
