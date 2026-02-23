@@ -5,9 +5,54 @@
   },
   "hopperDemoMode": true,
   "hopperReduction": 1.0,
-  "sensorToMechanismRatio": 1.0,
-  "hopperMotorInvertedValue": "Clockwise_Positive",
-  "hopperNeutralModeValue": "Brake",
+  "spinningMovementThreshold": {
+    "value": 3.0,
+    "unit": "Radian per Second"
+  },
+  "hopperGains": {
+    "kP": 16.0,
+    "kI": 0.0,
+    "kD": 0.0,
+    "kS": 0.0,
+    "kV": 0.0,
+    "kG": 0.0,
+    "kA": 0.0
+  },
+  "hopperMotionProfileConfig": {
+    "isMutable": false,
+    "maxVelocity": {
+      "value": 0.0,
+      "unit": "Rotation per Second"
+    },
+    "maxAcceleration": {
+      "value": 3000.0,
+      "unit": "Rotation per Second per Second"
+    },
+    "maxJerk": {
+      "value": 999.9999999999999,
+      "unit": "Rotation per Second per Second per Second"
+    },
+    "expoKV": {
+      "dividend": {
+        "value": 0.0,
+        "unit": "Volt"
+      },
+      "divisor": {
+        "value": 1.0,
+        "unit": "Rotation per Second"
+      }
+    },
+    "expoKA": {
+      "dividend": {
+        "value": 0.0,
+        "unit": "Volt"
+      },
+      "divisor": {
+        "value": 1.0,
+        "unit": "Rotation per Second per Second"
+      }
+    }
+  },
   "hopperSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
@@ -20,17 +65,9 @@
     "value": 35.0,
     "unit": "Amp"
   },
-  "peakFOCCurrent": {
-    "value": 40.0,
-    "unit": "Amp"
-  },
-  "hopperKG": 0.0,
-  "hopperKS": 0.0,
-  "hopperKV": 0.0,
-  "hopperKA": 0.0,
-  "hopperKP": 16.0,
-  "hopperKI": 0.0,
-  "hopperKD": 0.0,
-  "hopperMotionMagicCruiseVelocityRotationsPerSecond": 3.0,
-  "hopperStableDebounceTimeSeconds": 0.1
+  "hopperMotorDirection": "CounterClockwise_Positive",
+  "simHopperMOI": {
+    "value": 2.5E-4,
+    "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+  }
 }

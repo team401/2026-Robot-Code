@@ -11,4 +11,5 @@
   "runClimber": true,
   "useHomingSwitch": false,
   "useTuningServer": true
+  "pretendCamerasAreMobile": false
 }

@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { ShotMapsEditor } from '../pages/ShotMapsEditor';
+import { VisionEditor } from '../pages/VisionEditor';
 
 export interface EndpointEntry {
   name: string;
@@ -9,4 +10,5 @@ export interface EndpointEntry {
 
 export const endpoints: EndpointEntry[] = [
   { name: 'shotmaps', label: 'Shot Maps', component: ShotMapsEditor },
+  { name: 'vision', label: 'Vision', component: VisionEditor },
 ];

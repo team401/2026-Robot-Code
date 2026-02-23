@@ -12,10 +12,6 @@
     "value": 5.0,
     "unit": "Second"
   },
-  "homingMaxOverallTime": {
-    "value": 10.0,
-    "unit": "Second"
-  },
   "homingAngle": {
     "value": 0.0,
     "unit": "Degree"
@@ -48,6 +44,10 @@
   },
   "maxTurretAngle": {
     "value": 350.0,
+    "unit": "Degree"
+  },
+  "headingToTurretAngle": {
+    "value": -45.0,
     "unit": "Degree"
   }
 }
