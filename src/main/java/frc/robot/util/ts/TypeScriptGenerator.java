@@ -331,9 +331,11 @@ public final class TypeScriptGenerator {
         .append("export type ")
         .append(baseClass.getSimpleName())
         .append(" = ")
-        .append("Partial<")
         .append(String.join(" | ", subtypeNames))
-        .append(">")
+        .append(
+            "| undefined | null") // Allow null and undefined for polymorphic types objects in java
+        // can be null and need to support optional properties for
+        // subtypes that have additional fields
         .append(";\n\n");
   }
 

@@ -129,5 +129,5 @@ export class AutoPilotAction {
   }
 }
 
-export type AutoAction = Deadline | Sequence | Parallel | Race | AutoPilotAction;
+export type AutoAction = Deadline | Sequence | Parallel | Race | AutoPilotAction| undefined | null;
 
