@@ -298,6 +298,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    *
    * @return {@code true}
    */
+  @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
   public boolean isAtGoalVelocity() {
     return currentAction == ShooterAction.ControlVelocity
         && getVelocity()

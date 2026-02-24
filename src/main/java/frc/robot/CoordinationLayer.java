@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
@@ -329,7 +328,7 @@ public class CoordinationLayer {
 
     // Operator controller:
     makeTriggerFromButton(controllers.getButton("operatorToggleIntakeDeploy"))
-        .whileTrue(new RunCommand(this::toggleIntakeDeploy));
+        .onTrue(new InstantCommand(this::toggleIntakeDeploy));
 
     this.isOperatorStowHoodForTrenchPressed =
         controllers.getButton("operatorStowHood").getPrimitiveIsPressedSupplier();
@@ -343,13 +342,13 @@ public class CoordinationLayer {
     this.isLostAutoPressed = () -> lost1Supplier.getAsBoolean() || lost2Supplier.getAsBoolean();
 
     makeTriggerFromButton(controllers.getButton("operatorStartShooting"))
-        .onTrue(new RunCommand(this::startShooting));
+        .onTrue(new InstantCommand(this::startShooting));
 
     this.isForceShootPressed =
         controllers.getButton("operatorForceShoot").getPrimitiveIsPressedSupplier();
 
     makeTriggerFromButton(controllers.getButton("operatorStopShooting"))
-        .onTrue(new RunCommand(this::stopShooting));
+        .onTrue(new InstantCommand(this::stopShooting));
 
     makeTriggerFromButton(controllers.getButton("operatorEnterPassMode"))
         .onTrue(new InstantCommand(this::enterPassMode));
@@ -671,12 +670,16 @@ public class CoordinationLayer {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
 
-    // When the turret isn't enabled, assume that it's been locked into the correct location for a
-    // manual mode shot if we ever have to run "no turret"
-    if (isShotReal
-        && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
-        && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
-        && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true)) {
+    boolean canShoot =
+        isForceShootPressed.getAsBoolean()
+            || (shootingEnabled
+                && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
+                && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
+                // When the turret isn't enabled, assume that it's been locked into the correct
+                // location for a manual mode shot if we ever have to run "no turret"
+                && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
+
+    if (canShoot) {
       hopper.ifPresent(
           hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
       indexer.ifPresent(

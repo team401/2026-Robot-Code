@@ -445,6 +445,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * @return {@code true} if the hood is targeting an angle or pitch and it's at that goal, {@code
    *     false} otherwise.
    */
+  @AutoLogOutput(key = "Hood/isAimedCorrectly")
   public boolean isAimedCorrectly() {
     return switch (requestedAction) {
       case TargetAngle ->

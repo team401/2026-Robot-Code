@@ -296,6 +296,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    * @return {@code true} if the turret is targeting a robot relative heading and is at that
    *     heading, {@code false} otherwise
    */
+  @AutoLogOutput(key = "Turret/isAimedCorrectly")
   public boolean isAimedCorrectly() {
     return requestedAction == TurretAction.TrackHeading
         && Math.abs(getFieldCentricTurretHeading().getRadians() - goalTurretHeading.getRadians())
