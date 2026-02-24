@@ -693,7 +693,7 @@ public class CoordinationLayer {
 
     // If shooting isn't enabled or we're stowing hood, stop the shooter flywheels to avoid wasting
     // a ton of energy
-    if (!shootingEnabled) {
+    if (!shootingEnabled || shouldStowHood) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
 

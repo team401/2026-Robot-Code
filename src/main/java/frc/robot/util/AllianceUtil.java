@@ -40,7 +40,6 @@ public class AllianceUtil {
    * Return the opposite alliance than {@link #getAlliance()}.
    *
    * @return {@code Red} if {@link #getAlliance()} returns {@code Blue}, {@code Blue} otherwise
-   *     otherwise.
    */
   public static Alliance getOppAlliance() {
     return switch (getAlliance()) {
