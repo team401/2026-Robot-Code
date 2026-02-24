@@ -66,12 +66,6 @@ public class ControllerSetup {
 
     driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
-    AutoManager.loadAllRoutines();
-
-    var autoAction = AutoManager.loadAuto("testAuto.json");
-    autoAction.setData(driveCoordinator);
-    autoAction.setupAutoAction();
-    var autoCommand = autoAction.toCommand();
     // Temporary testing setup
     controllers
         .getButton("testClimbDrive")

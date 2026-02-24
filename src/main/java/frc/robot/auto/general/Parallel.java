@@ -9,13 +9,6 @@ public class Parallel extends AutoAction {
   public AutoAction[] actions;
 
   @Override
-  public void setupAction(AutoActionData data) {
-    for (AutoAction action : actions) {
-      action.setupAction(data);
-    }
-  }
-
-  @Override
   public Command toCommand(AutoActionData data) {
     return new ParallelCommandGroup(
         Stream.of(actions).map(action -> action.toCommand(data)).toArray(Command[]::new));
