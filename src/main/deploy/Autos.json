@@ -1,0 +1,243 @@
+{
+    "autos": {
+        "Random Auto": {
+            "type": "Sequence",
+            "actions": [
+                {
+                    "type": "AutoPilotAction",
+                    "target": {
+                        "reference": {
+                            "rotation": {
+                                "radians": 3.005820969718269
+                            },
+                            "translation": {
+                                "x": 1.5613676859790149,
+                                "y": 4.965320421561506
+                            }
+                        },
+                        "entryAngle": {
+                            "radians": 0
+                        },
+                        "velocity": 0
+                    },
+                    "profile": {
+                        "constraints": {
+                            "velocity": 0,
+                            "acceleration": 0,
+                            "jerk": 0
+                        }
+                    },
+                    "constraints": {
+                        "velocity": 0,
+                        "acceleration": 0,
+                        "jerk": 0
+                    },
+                    "pidGains": {
+                        "kP": 0,
+                        "kI": 0,
+                        "kD": 0,
+                        "kS": 0,
+                        "kG": 0,
+                        "kV": 0,
+                        "kA": 0
+                    }
+                },
+                {
+                    "type": "AutoPilotAction",
+                    "target": {
+                        "reference": {
+                            "rotation": {
+                                "radians": 2.1208832087868283
+                            },
+                            "translation": {
+                                "x": 0.3180715908086329,
+                                "y": 4.524752827312452
+                            }
+                        },
+                        "entryAngle": {
+                            "radians": 0
+                        },
+                        "velocity": 0
+                    },
+                    "profile": {
+                        "constraints": {
+                            "velocity": 0,
+                            "acceleration": 0,
+                            "jerk": 0
+                        }
+                    },
+                    "constraints": {
+                        "velocity": 0,
+                        "acceleration": 0,
+                        "jerk": 0
+                    },
+                    "pidGains": {
+                        "kP": 0,
+                        "kI": 0,
+                        "kD": 0,
+                        "kS": 0,
+                        "kG": 0,
+                        "kV": 0,
+                        "kA": 0
+                    }
+                },
+                {
+                    "type": "AutoPilotAction",
+                    "target": {
+                        "reference": {
+                            "rotation": {
+                                "radians": 0.2645883470649162
+                            },
+                            "translation": {
+                                "x": 3.5468101602948336,
+                                "y": 2.039754119744953
+                            }
+                        },
+                        "entryAngle": {
+                            "radians": 0
+                        },
+                        "velocity": 0
+                    },
+                    "profile": {
+                        "constraints": {
+                            "velocity": 0,
+                            "acceleration": 0,
+                            "jerk": 0
+                        }
+                    },
+                    "constraints": {
+                        "velocity": 0,
+                        "acceleration": 0,
+                        "jerk": 0
+                    },
+                    "pidGains": {
+                        "kP": 0,
+                        "kI": 0,
+                        "kD": 0,
+                        "kS": 0,
+                        "kG": 0,
+                        "kV": 0,
+                        "kA": 0
+                    }
+                },
+                {
+                    "type": "AutoPilotAction",
+                    "target": {
+                        "reference": {
+                            "rotation": {
+                                "radians": 5.709995261171353
+                            },
+                            "translation": {
+                                "x": 2.948019477414619,
+                                "y": 4.458772820633446
+                            }
+                        },
+                        "entryAngle": {
+                            "radians": 0
+                        },
+                        "velocity": 0
+                    },
+                    "profile": {
+                        "constraints": {
+                            "velocity": 0,
+                            "acceleration": 0,
+                            "jerk": 0
+                        }
+                    },
+                    "constraints": {
+                        "velocity": 0,
+                        "acceleration": 0,
+                        "jerk": 0
+                    },
+                    "pidGains": {
+                        "kP": 0,
+                        "kI": 0,
+                        "kD": 0,
+                        "kS": 0,
+                        "kG": 0,
+                        "kV": 0,
+                        "kA": 0
+                    }
+                },
+                {
+                    "type": "AutoPilotAction",
+                    "target": {
+                        "reference": {
+                            "rotation": {
+                                "radians": 2.706791266182579
+                            },
+                            "translation": {
+                                "x": 2.8137949784246774,
+                                "y": 1.4988465328497858
+                            }
+                        },
+                        "entryAngle": {
+                            "radians": 0
+                        },
+                        "velocity": 0
+                    },
+                    "profile": {
+                        "constraints": {
+                            "velocity": 0,
+                            "acceleration": 0,
+                            "jerk": 0
+                        }
+                    },
+                    "constraints": {
+                        "velocity": 0,
+                        "acceleration": 0,
+                        "jerk": 0
+                    },
+                    "pidGains": {
+                        "kP": 0,
+                        "kI": 0,
+                        "kD": 0,
+                        "kS": 0,
+                        "kG": 0,
+                        "kV": 0,
+                        "kA": 0
+                    }
+                },
+                {
+                    "type": "AutoPilotAction",
+                    "target": {
+                        "reference": {
+                            "rotation": {
+                                "radians": 2.2493745587215033
+                            },
+                            "translation": {
+                                "x": 0.1737988974798632,
+                                "y": 3.1504987363665258
+                            }
+                        },
+                        "entryAngle": {
+                            "radians": 0
+                        },
+                        "velocity": 0
+                    },
+                    "profile": {
+                        "constraints": {
+                            "velocity": 0,
+                            "acceleration": 0,
+                            "jerk": 0
+                        }
+                    },
+                    "constraints": {
+                        "velocity": 0,
+                        "acceleration": 0,
+                        "jerk": 0
+                    },
+                    "pidGains": {
+                        "kP": 0,
+                        "kI": 0,
+                        "kD": 0,
+                        "kS": 0,
+                        "kG": 0,
+                        "kV": 0,
+                        "kA": 0
+                    }
+                }
+            ]
+        }
+    }
+}

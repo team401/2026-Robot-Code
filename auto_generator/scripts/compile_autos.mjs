@@ -3,8 +3,8 @@
  *
  * 1. Compiles all TypeScript sources via `tsc`.
  * 2. Finds all compiled auto files (everything in dist/auto_generator/src/
- *    except AutoLib.js).
- * 3. Runs run_autos.mjs to write JSON files into src/main/deploy/autos/.
+ *    except helper modules like AutoLib.js and Shorthands.js).
+ * 3. Runs run_autos.mjs to write a single Autos.json into src/main/deploy/.
  *
  * Usage (from auto_generator/):
  *   node scripts/compile_autos.mjs
@@ -18,15 +18,19 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 
+// Helper modules that should not be treated as auto files
+const EXCLUDED_FILES = new Set(["AutoLib.js", "Shorthands.js"]);
+
 // Step 1: Compile TypeScript
 console.log("Compiling TypeScript...");
-execSync("npx tsc", { cwd: rootDir, stdio: "inherit" });
+// Run TypeScript compilation then rewrite path aliases in emitted JS so Node can run imports like '@/typescript/...'
+execSync("npx tsc && npx tsc-alias", { cwd: rootDir, stdio: "inherit" });
 
-// Step 2: Find all compiled auto files (exclude AutoLib.js)
+// Step 2: Find all compiled auto files (exclude helper modules)
 const distSrcDir = path.join(rootDir, "dist", "auto_generator", "src");
 const autoFiles = fs
   .readdirSync(distSrcDir)
-  .filter((f) => f.endsWith(".js") && f !== "AutoLib.js")
+  .filter((f) => f.endsWith(".js") && !EXCLUDED_FILES.has(f))
   .map((f) => path.join(distSrcDir, f));
 
 if (autoFiles.length === 0) {
@@ -36,7 +40,7 @@ if (autoFiles.length === 0) {
 
 console.log(`Found ${autoFiles.length} auto file(s):`, autoFiles.map((f) => path.basename(f)));
 
-// Step 3: Run the autos and write JSON output
+// Step 3: Run the autos and write a single Autos.json
 const runnerPath = path.join(__dirname, "run_autos.mjs");
 execSync(`node "${runnerPath}" ${autoFiles.map((f) => `"${f}"`).join(" ")}`, {
   cwd: rootDir,

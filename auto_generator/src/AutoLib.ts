@@ -1,4 +1,5 @@
-import type { AutoAction as AutoCommand } from "@/autos/AutoAction.js";
+import * as AutoAction  from "@/typescript/AutoAction.js";
+import { type AutoAction as AutoCommand } from "@/typescript/AutoAction.js";
 
 let command_pointers: AutoCommand[][] = [];
 let autos = new Map<string, AutoCommand>();
@@ -15,6 +16,14 @@ export function popPointer() {
   command_pointers.pop();
 }
 
+export function getLastCommand(): AutoCommand | undefined {
+  const pointer = getPointer();
+  if (pointer && pointer.length > 0) {
+    return pointer[pointer.length - 1];
+  }
+  return undefined;
+}
+
 export function clearPointers() {
   command_pointers = [];
 }
@@ -28,11 +37,8 @@ export function addCommand(command: AutoCommand) {
 
 export function auto(name: string, commands: () => void) {
   clearPointers();
-  const auto: AutoCommand = {
-    "type": "Sequence",
-    "actions": []
-  }
-  const firstPointer = auto.actions;
+  const auto: AutoCommand = new AutoAction.Sequence({});
+  const firstPointer = auto.actions as AutoCommand[];
   pushPointer(firstPointer);
   commands();
   if (command_pointers.length !== 1) {
@@ -61,3 +67,4 @@ export function serializeAutos(): string {
   });
   return JSON.stringify(obj, null, 4);
 }
+

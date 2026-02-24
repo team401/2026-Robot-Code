@@ -2,8 +2,11 @@
  * run_autos.mjs
  *
  * Imports all compiled auto JS files (passed as CLI args), then reads the
- * accumulated autos from AutoLib and writes one JSON file per auto into
- * src/main/deploy/autos/.
+ * accumulated autos from AutoLib and writes a single Autos.json file into
+ * src/main/deploy/Autos.json.
+ *
+ * The output format matches the Java Autos class:
+ *   { "autos": { "AutoName": { ... AutoAction ... }, ... } }
  *
  * Usage (from auto_generator/):
  *   node scripts/run_autos.mjs dist/auto_generator/src/newTestAuto.js [...]
@@ -14,7 +17,7 @@ import * as path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUTPUT_DIR = path.resolve(__dirname, "../../src/main/deploy/autos");
+const OUTPUT_FILE = path.resolve(__dirname, "../../src/main/deploy/Autos.json");
 
 const autoFiles = process.argv.slice(2);
 
@@ -43,12 +46,17 @@ const autos = AutoLib.getAutos();
 if (autos.size === 0) {
   console.warn("No autos were registered.");
 } else {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-  for (const [name, commands] of autos.entries()) {
-    const fileName = name.replace(/\s+/g, "_") + ".json";
-    const outputPath = path.join(OUTPUT_DIR, fileName);
-    const content = JSON.stringify({ auto: commands }, null, 4);
-    fs.writeFileSync(outputPath, content, "utf-8");
-    console.log(`Written: ${outputPath}`);
+  // Build the object matching the Java Autos class: { "autos": { name: AutoAction, ... } }
+  const autosObj = {};
+  for (const [name, action] of autos.entries()) {
+    autosObj[name] = action;
   }
+
+  const output = { autos: autosObj };
+  const content = JSON.stringify(output, null, 4);
+
+  // Ensure the parent directory exists
+  fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
+  fs.writeFileSync(OUTPUT_FILE, content, "utf-8");
+  console.log(`Written ${autos.size} auto(s) to: ${OUTPUT_FILE}`);
 }

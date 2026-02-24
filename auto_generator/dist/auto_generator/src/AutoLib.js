@@ -1,3 +1,5 @@
+import * as AutoAction from "../../src/main/deploy/typescript/AutoAction.js";
+import {} from "../../src/main/deploy/typescript/AutoAction.js";
 let command_pointers = [];
 let autos = new Map();
 export function getPointer() {
@@ -8,6 +10,13 @@ export function pushPointer(pointer) {
 }
 export function popPointer() {
     command_pointers.pop();
+}
+export function getLastCommand() {
+    const pointer = getPointer();
+    if (pointer && pointer.length > 0) {
+        return pointer[pointer.length - 1];
+    }
+    return undefined;
 }
 export function clearPointers() {
     command_pointers = [];
@@ -20,10 +29,7 @@ export function addCommand(command) {
 }
 export function auto(name, commands) {
     clearPointers();
-    const auto = {
-        "type": "Sequence",
-        "actions": []
-    };
+    const auto = new AutoAction.Sequence({});
     const firstPointer = auto.actions;
     pushPointer(firstPointer);
     commands();
