@@ -18,7 +18,7 @@ public class FeatureFlags {
   public final Boolean runTurret = false;
   public final Boolean runIntake = false;
   public final Boolean runHood = false;
-  public final Boolean runClimber = false;
+  public final Boolean runClimber = true;
   public final Boolean useHomingSwitch = false;
   public final Boolean useTuningServer = false;
   public final Boolean pretendCamerasAreMobile = false;

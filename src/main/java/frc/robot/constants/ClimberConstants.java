@@ -3,6 +3,7 @@ package frc.robot.constants;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
@@ -48,7 +49,9 @@ public class ClimberConstants {
 
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
   public final Angle upperClimbAngle =
-      homingAngle.plus(Degrees.of(90.0)); // TODO: Find actual value for thi
+      homingAngle.plus(Degrees.of(22700.0)); // TODO: Find actual value for this
+  public final Angle hangClimbAngle = 
+      homingAngle.plus(Degrees.of(15000.0)); // TODO: Find actual value for this
 
   public final Distance climberToMechanismRatio = Meters.of(0.005); // TODO: Find real value
 
@@ -81,15 +84,8 @@ public class ClimberConstants {
 
   public final InvertedValue climberMotorDirection = InvertedValue.CounterClockwise_Positive;
 
-  // According to Shorya, 422 alum/mentor:
-  // "we usually just figure out what we expect out of the subsystems
-  // and just tune the moi as a magic constant"
-  public final MomentOfInertia simClimberMOI = KilogramSquareMeters.of(0.025);
-  // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
-  // 0.0508^2. These calculations seemed to create a VERY heavy object
-
   public final Mass simClimberWeight = Kilograms.of(1.0);
-  public final Distance simClimberRadius = Meters.of(1.0);
+  public final Distance simClimberRadius = Inches.of(1.0);
 
   public final Distance minClimberHeightMeters = Meters.of(0.0);
   public final Distance maxClimberHeightMeters = Meters.of(1.0); // TODO: Find actual value

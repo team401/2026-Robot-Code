@@ -43,7 +43,7 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     }
   }
 
-  public static class IdleState extends ClimberState {
+  public static class StowState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.coast();
@@ -57,10 +57,17 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     }
   }
 
-  public static class SearchingState extends ClimberState {
+  public static class SearchState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToUpperClimbPosition();
     }
   }
+
+  public static class HangState extends ClimberState {
+    @Override
+    public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
+      climber.setToHangClimbPosition();
+    }
+}
 }

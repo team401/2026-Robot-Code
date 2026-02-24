@@ -21,11 +21,22 @@ import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
+
+import org.checkerframework.checker.units.qual.s;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 // Copilot autocomplete was used to help write this file
 public class ClimberSubsystem extends MonitoredSubsystem {
+
+  private enum ClimberAction {
+    Wait,
+    Home,
+    Search,
+    Hang,
+    Stow
+  }
+
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
@@ -34,7 +45,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   private final ClimberState waitForHomingState;
   private final ClimberState homingWaitForMovementState;
   private final ClimberState homingWaitForStoppingState;
-  private final ClimberState idleState;
+  private final ClimberState stowState; // the armless state
+  private final ClimberState searchState; // the big arms boi state
+  private final ClimberState hangState; // the t-rex arms state
   private final ClimberState testModeState;
 
   LoggedTunableNumber climberKP;
@@ -63,7 +76,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     waitForHomingState = stateMachine.registerState(new ClimberState.WaitForHomingState());
     homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
     homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
-    idleState = stateMachine.registerState(new ClimberState.IdleState());
+    stowState = stateMachine.registerState(new ClimberState.StowState());
+    searchState = stateMachine.registerState(new ClimberState.SearchState());
+    hangState = stateMachine.registerState(new ClimberState.HangState());
     testModeState = stateMachine.registerState(new ClimberState.TestModeState());
 
     waitForHomingState
@@ -77,14 +92,19 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     homingWaitForMovementState
         .whenTimeout(JsonConstants.climberConstants.homingMaxUnmovingTime)
         .transitionTo(homingWaitForStoppingState);
-    homingWaitForStoppingState.whenFinished("Stopped").transitionTo(idleState);
+    homingWaitForStoppingState.whenFinished("Stopped").transitionTo(stowState);
+    //stowState.when(climber -> climber.shouldClimb(), "Should climb").transitionTo(searchState);
+    hangState
+        .when(climber -> climber.shouldDeClimb(), "Should declimb").transitionTo(searchState);
+    searchState
+        .when(climber -> climber.shouldStow(), "Should stow").transitionTo(stowState);
 
-    idleState
+    stowState
         .when(climber -> climber.isClimberTestMode(), "In climber test mode")
         .transitionTo(testModeState);
     testModeState
         .when(climber -> !climber.isClimberTestMode(), "Not in climber test mode")
-        .transitionTo(idleState);
+        .transitionTo(stowState);
 
     stateMachine.setState(waitForHomingState);
     stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
@@ -228,6 +248,11 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.upperClimbAngle);
   }
 
+  public void setToHangClimbPosition() {
+    motor.controlToPositionExpoProfiled(
+        JsonConstants.climberConstants.hangClimbAngle); // TODO: Find
+  }
+
   public boolean shouldDeClimb() {
     if (!getClimberInUpPosition()) { // TODO: Find how to determine this, need to be able to climb
       // down depending on match stage, but I don't know how that is
@@ -235,6 +260,14 @@ public class ClimberSubsystem extends MonitoredSubsystem {
       return true;
     }
     return false;
+  }
+
+  public boolean shouldSearch() {
+    return true; // TODO: Ask Aiden when we should be big armed
+  }
+ 
+  public boolean shouldStow(){
+    return true; // TODO: Ask Aiden when we should be armless
   }
 
   public boolean getClimberInLowerPosition() {
