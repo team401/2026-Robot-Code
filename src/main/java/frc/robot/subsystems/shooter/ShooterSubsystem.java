@@ -75,8 +75,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   // State variables
   private final MutAngularVelocity targetVelocity = RPM.mutable(0.0);
 
-  @AutoLogOutput(key = "Shooter/currentAction")
-  private ShooterAction currentAction = ShooterAction.Coast;
+  @AutoLogOutput(key = "Shooter/requestedAction")
+  private ShooterAction requestedAction = ShooterAction.Coast;
 
   public ShooterSubsystem(
       DependencyOrderedExecutor dependencyOrderedExecutor,
@@ -97,8 +97,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
     coastState
         .when(
-            () -> currentAction == ShooterAction.ControlVelocity,
-            "currentAction == ControlVelocity")
+            () -> requestedAction == ShooterAction.ControlVelocity,
+            "requestedAction == ControlVelocity")
         .transitionTo(velocityControlState);
 
     coastState
@@ -106,7 +106,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         .transitionTo(testModeState);
 
     velocityControlState
-        .when(() -> currentAction == ShooterAction.Coast, "currentAction == Coast")
+        .when(() -> requestedAction == ShooterAction.Coast, "requestedAction == Coast")
         .transitionTo(coastState);
 
     velocityControlState
@@ -114,8 +114,17 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         .transitionTo(testModeState);
 
     testModeState
-        .when(() -> !testModeManager.isInTestMode(), "Is not shooter test mode")
+        .when(
+            () ->
+                !testModeManager.isInTestMode() && requestedAction == ShooterAction.ControlVelocity,
+            "Is not shooter test mode and requestedAction == ControlVelocity")
         .transitionTo(velocityControlState);
+
+    testModeState
+        .when(
+            () -> !testModeManager.isInTestMode() && requestedAction == ShooterAction.Coast,
+            "Is not shooter test mode and requestedAction == Coast")
+        .transitionTo(coastState);
 
     stateMachine.setState(velocityControlState);
 
@@ -262,12 +271,12 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    */
   public void setTargetVelocityRPM(double velocityRPM) {
     targetVelocity.mut_replace(velocityRPM, RPM);
-    currentAction = ShooterAction.ControlVelocity;
+    requestedAction = ShooterAction.ControlVelocity;
   }
 
   /**
-   * Get the current velocity of the shooter, as reported by average of the the leader and follower
-   * motor's internal encoder velocity values.
+   * Get the current velocity of the shooter, as reported by the leader and follower motors'
+   * internal encoder velocity values.
    *
    * @return The arithmetic mean of the two shooter motors' velocity estimates in radians per second
    */
@@ -288,7 +297,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    * <p>This method should only be called by the coordination layer.
    */
   public void stopShooter() {
-    currentAction = ShooterAction.Coast;
+    requestedAction = ShooterAction.Coast;
   }
 
   /**
@@ -301,7 +310,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    */
   @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
   public boolean isAtGoalVelocity() {
-    return currentAction == ShooterAction.ControlVelocity
+    return requestedAction == ShooterAction.ControlVelocity
         && getVelocity()
             .isNear(targetVelocity, JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon);
   }
