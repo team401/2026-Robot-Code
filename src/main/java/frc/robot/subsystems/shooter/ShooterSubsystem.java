@@ -269,7 +269,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    * Get the current velocity of the shooter, as reported by average of the the leader and follower
    * motor's internal encoder velocity values.
    *
-   * @return
+   * @return The arithmetic mean of the two shooter motors' velocity estimates in radians per second
    */
   public double getVelocityRadiansPerSecond() {
     return (leadMotorInputs.velocityRadiansPerSecond + followerMotorInputs.velocityRadiansPerSecond)
@@ -296,7 +296,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    *
    * <p>Returns false if the shooter is commanded to stop.
    *
-   * @return {@code true}
+   * @return {@code true} if the shooter is controlling to a velocity and its measured velocity is within the threshold of its target velocity, {@code false} otherwise.
    */
   @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
   public boolean isAtGoalVelocity() {

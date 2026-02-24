@@ -187,6 +187,7 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                intake.ifPresent(IntakeSubsystem::stopRollers);
                 // TODO: Add climber stow method call when it is defined
               }
             });
@@ -198,6 +199,12 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
+                if (runningIntakeRollers) {
+                  intake.ifPresent(
+                      intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
+                } else {
+                  intake.ifPresent(IntakeSubsystem::stopRollers);
+                }
                 // TODO: Add climber stow method call when it is defined
               }
             });
@@ -209,6 +216,7 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                intake.ifPresent(IntakeSubsystem::stopRollers);
                 // TODO: Add climber stow method call when it is defined
 
                 // Assume the intake is stowed if it is disabled
@@ -225,6 +233,7 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                intake.ifPresent(IntakeSubsystem::stopRollers);
                 // TODO: Add climber extend method call when it is defined
               }
             });
@@ -236,6 +245,7 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+                intake.ifPresent(IntakeSubsystem::stopRollers);
                 // TODO: Add climber stow method call when it is defined
 
                 // TODO: Add check for whether or not the climber is stowed
@@ -656,11 +666,15 @@ public class CoordinationLayer {
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
 
     boolean shouldStowHoodBasedOnMovement =
-        OptionalUtil.map(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
+        autonomyLevel == AutonomyLevel.Smart
+            && OptionalUtil.map(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
     Logger.recordOutput(
         "CoordinationLayer/shouldStowHoodBasedOnMovement", shouldStowHoodBasedOnMovement);
-    boolean shouldStowHood =
-        isOperatorStowHoodForTrenchPressed.getAsBoolean() || shouldStowHoodBasedOnMovement;
+    boolean shouldStowHoodBasedOnButtons =
+        isDriverGoUnderTrenchPressed.getAsBoolean()
+            || isOperatorStowHoodForTrenchPressed.getAsBoolean();
+
+    boolean shouldStowHood = shouldStowHoodBasedOnButtons || shouldStowHoodBasedOnMovement;
     // Don't need to log shouldStowHood here as it's logged in the hood subsystem
     hood.ifPresent(hood -> hood.setShouldStowForTrench(shouldStowHood));
 
@@ -697,7 +711,9 @@ public class CoordinationLayer {
    */
   private boolean aimForManualShot() {
     switch (shotMode) {
-      case Hub -> {}
+      case Hub -> {
+        // TODO: Add a fixed heading/distance-based shot for manual
+      }
       case Pass -> {
         double distanceMeters = JsonConstants.manualModeConstants.assumedPassDistance.in(Meters);
 

@@ -232,6 +232,7 @@
         {
           "command": "operatorEnterHubMode",
           "commandType": "button",
+          "threshold": 0.5,
           "hapticControlElement": {
             "elementType": "axis",
             "id": "leftTrigger"

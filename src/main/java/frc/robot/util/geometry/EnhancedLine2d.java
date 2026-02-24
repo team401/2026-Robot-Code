@@ -58,7 +58,7 @@ public class EnhancedLine2d {
 
   public boolean intersects(EnhancedLine2d other) {
     return intersectionParameters(other)
-        .map(params -> params.s >= 0.0 && params.s <= 1 && params.t >= 0.0 && params.t <= 1.0)
+        .map(params -> params.s >= 0.0 && params.s <= 1.0 && params.t >= 0.0 && params.t <= 1.0)
         .orElse(false);
   }
 }
