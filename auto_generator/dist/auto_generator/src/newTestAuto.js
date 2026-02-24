@@ -15,6 +15,4 @@ AutoLib.auto("Test Auto", () => {
         }
     });
 });
-console.log("Autos:", AutoLib.getAutos());
-console.log("Json Autos", AutoLib.serializeAutos());
 //# sourceMappingURL=newTestAuto.js.map

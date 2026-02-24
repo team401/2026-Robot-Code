@@ -19,6 +19,3 @@ AutoLib.auto("Test Auto", () => {
     } as unknown as AutoPilotAction
   );
 });
-
-console.log("Autos:", AutoLib.getAutos());
-console.log("Json Autos", AutoLib.serializeAutos());

@@ -1,7 +1,7 @@
 import type { AutoAction as AutoCommand } from "@/autos/AutoAction.js";
 
 let command_pointers: AutoCommand[][] = [];
-let autos = new Map<string, AutoCommand[]>();
+let autos = new Map<string, AutoCommand>();
 
 export function getPointer() {
   return command_pointers[command_pointers.length - 1];
@@ -28,8 +28,11 @@ export function addCommand(command: AutoCommand) {
 
 export function auto(name: string, commands: () => void) {
   clearPointers();
-  const auto: AutoCommand[] = [];
-  const firstPointer = auto;
+  const auto: AutoCommand = {
+    "type": "Sequence",
+    "actions": []
+  }
+  const firstPointer = auto.actions;
   pushPointer(firstPointer);
   commands();
   if (command_pointers.length !== 1) {
@@ -43,16 +46,16 @@ export function auto(name: string, commands: () => void) {
   autos.set(name, auto);
 }
 
-export function getAuto(name: string): AutoCommand[] | undefined {
+export function getAuto(name: string): AutoCommand | undefined {
   return autos.get(name);
 }
 
-export function getAutos(): Map<string, AutoCommand[]> {
+export function getAutos(): Map<string, AutoCommand> {
   return autos;
 }
 
 export function serializeAutos(): string {
-  const obj: { [key: string]: AutoCommand[] } = {};
+  const obj: { [key: string]: AutoCommand } = {};
   autos.forEach((commands, name) => {
     obj[name] = commands;
   });

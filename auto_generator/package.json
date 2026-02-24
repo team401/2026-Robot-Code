@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node dist/auto_generator/src/newTestAuto.js"
+    "dev": "node dist/auto_generator/src/newTestAuto.js",
+    "compile-auto": "node scripts/compile_autos.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

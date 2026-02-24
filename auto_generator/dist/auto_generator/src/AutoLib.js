@@ -20,8 +20,11 @@ export function addCommand(command) {
 }
 export function auto(name, commands) {
     clearPointers();
-    const auto = [];
-    const firstPointer = auto;
+    const auto = {
+        "type": "Sequence",
+        "actions": []
+    };
+    const firstPointer = auto.actions;
     pushPointer(firstPointer);
     commands();
     if (command_pointers.length !== 1) {

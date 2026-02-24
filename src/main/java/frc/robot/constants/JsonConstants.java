@@ -106,26 +106,6 @@ public class JsonConstants {
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
     TypeScriptGenerator.generateForClasses(
-        Filesystem.getDeployDirectory().toPath().resolve("autos/Constants.d.ts").toString(),
-        RobotInfo.class,
-        AprilTagConstants.class,
-        CANBusAssignment.class,
-        FeatureFlags.class,
-        DriveConstants.class,
-        VisionConstants.class,
-        PhysicalDriveConstants.class,
-        OperatorConstants.class,
-        HopperConstants.class,
-        IndexerConstants.class,
-        TurretConstants.class,
-        IntakeConstants.class,
-        ShooterConstants.class,
-        HoodConstants.class,
-        ShotMaps.class,
-        FieldLocationInstance.class,
-        Controllers.class);
-
-    TypeScriptGenerator.generateForClasses(
         Filesystem.getDeployDirectory().toPath().resolve("autos/AutoAction.ts").toString(),
         AutoAction.class);
   }
