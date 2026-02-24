@@ -343,13 +343,13 @@ public class CoordinationLayer {
     this.isLostAutoPressed = () -> lost1Supplier.getAsBoolean() || lost2Supplier.getAsBoolean();
 
     makeTriggerFromButton(controllers.getButton("operatorStartShooting"))
-        .whileTrue(new RunCommand(this::startShooting));
+        .onTrue(new RunCommand(this::startShooting));
 
     this.isForceShootPressed =
         controllers.getButton("operatorForceShoot").getPrimitiveIsPressedSupplier();
 
     makeTriggerFromButton(controllers.getButton("operatorStopShooting"))
-        .whileTrue(new RunCommand(this::stopShooting));
+        .onTrue(new RunCommand(this::stopShooting));
 
     makeTriggerFromButton(controllers.getButton("operatorEnterPassMode"))
         .onTrue(new InstantCommand(this::enterPassMode));
