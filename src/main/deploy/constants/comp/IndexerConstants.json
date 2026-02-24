@@ -2,14 +2,50 @@
   "indexerReduction": 1.0,
   "indexerMaximumRelativeVelocityError": 0.01,
   "indexerDemoMode": false,
-  "indexerKP": 10.0,
-  "indexerKI": 5.0,
-  "indexerKD": 0.0,
-  "indexerKS": 0.0,
-  "indexerKV": 0.0,
-  "indexerKA": 0.0,
-  "indexerMaxAccelerationRotationsPerSecondSquared": 3000.0,
-  "indexerMaxJerkRotationsPerSecondCubed": 1000.0,
+  "indexerGains": {
+    "kP": 10.0,
+    "kI": 5.0,
+    "kD": 0.0,
+    "kS": 0.0,
+    "kG": 0.0,
+    "kV": 0.0,
+    "kA": 0.0
+  },
+  "indexerMotionProfileConfig": {
+    "isMutable": false,
+    "maxVelocity": {
+      "value": 0.0,
+      "unit": "Rotation per Second"
+    },
+    "maxAcceleration": {
+      "value": 3000.0,
+      "unit": "Rotation per Second per Second"
+    },
+    "maxJerk": {
+      "value": 999.9999999999999,
+      "unit": "Rotation per Second per Second per Second"
+    },
+    "expoKV": {
+      "dividend": {
+        "value": 0.0,
+        "unit": "Volt"
+      },
+      "divisor": {
+        "value": 1.0,
+        "unit": "Rotation per Second"
+      }
+    },
+    "expoKA": {
+      "dividend": {
+        "value": 0.0,
+        "unit": "Volt"
+      },
+      "divisor": {
+        "value": 1.0,
+        "unit": "Rotation per Second per Second"
+      }
+    }
+  },
   "indexerSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
