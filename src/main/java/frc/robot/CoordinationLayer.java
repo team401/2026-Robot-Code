@@ -14,12 +14,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
+import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
@@ -30,6 +32,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * The coordination layer is responsible for updating subsystem dependencies, running the shot
@@ -61,14 +64,25 @@ public class CoordinationLayer {
       new ActionKey("CoordinationLayer::runShotCalculator");
   public static final ActionKey RUN_DEMO_MODES =
       new ActionKey("CoordinationLayer::runSubsystemDemoModes");
+  public static final ActionKey UPDATE_MATCH_STATE =
+      new ActionKey("CoordinationLayer::updateMatchState");
 
   // State variables (these will be updated by various methods and then their values will be passed
   // to subsystems during the execution of a cycle)
+  private final MatchState matchState = new MatchState();
+  // Manual override requests set by controller bindings. These are cleared once consumed in
+  // updateMatchState and forwarded to MatchState.enabledPeriodic as booleans.
+  private boolean manualRedOverrideRequest = false;
+  private boolean manualBlueOverrideRequest = false;
+
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
 
+    dependencyOrderedExecutor.registerAction(UPDATE_MATCH_STATE, this::updateMatchState);
     dependencyOrderedExecutor.registerAction(RUN_SHOT_CALCULATOR, this::runShotCalculator);
     dependencyOrderedExecutor.registerAction(RUN_DEMO_MODES, this::runSubsystemDemoModes);
+
+    dependencyOrderedExecutor.addDependencies(RUN_SHOT_CALCULATOR, UPDATE_MATCH_STATE);
   }
 
   /**
@@ -211,6 +225,9 @@ public class CoordinationLayer {
   }
 
   // Coordination and processing
+  /** Coordinates subsystem actions based on the desired action and subsystem inputs */
+  public void coordinateSubsystemActions() {}
+
   /**
    * Runs the shot calculator and logs the resulting trajectories for debugging. Eventually, this
    * method should also command the subsystems to take their actinos.
@@ -329,6 +346,35 @@ public class CoordinationLayer {
                 });
           });
     }
+  }
+
+  /** Update the MatchState each periodic loop */
+  private void updateMatchState() {
+    if (DriverStation.isEnabled()) {
+      matchState.enabledPeriodic(manualRedOverrideRequest, manualBlueOverrideRequest);
+    }
+
+    // This is temporary code left here to make it easy to integrate the time left functionality
+    // with LEDs and superstructure coordination later.
+    double timeLeft = matchState.getTimeLeftInCurrentShift();
+
+    boolean hasFiveSecondsLeft = timeLeft >= 5.0;
+    Logger.recordOutput("MatchState/has5sLeft", hasFiveSecondsLeft);
+  }
+
+  /**
+   * Called by a controller binding or DOE action to request that the match state be overridden to
+   * red for the next enabledPeriodic call. This sets a one-shot request which is consumed by
+   * updateMatchState.
+   */
+  public void overrideMatchStateRed() {
+    manualRedOverrideRequest = true;
+    manualBlueOverrideRequest = false;
+  }
+
+  public void overrideMatchStateBlue() {
+    manualBlueOverrideRequest = true;
+    manualRedOverrideRequest = false;
   }
 
   /**

@@ -1,11 +1,15 @@
 package frc.robot.constants;
 
 import com.therekrab.autopilot.APTarget;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
+import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -14,6 +18,7 @@ import frc.robot.auto.AutoAction;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.JSONAPTarget;
+import frc.robot.util.json.JSONMotionProfileConfig;
 import frc.robot.util.json.JSONRotation3d;
 import frc.robot.util.json.JSONTransform2d;
 import frc.robot.util.json.JSONTransform3d;
@@ -27,7 +32,13 @@ public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
   public static JSONHandler jsonHandler;
 
+  // TODO: Figure out a better way to serialize the MotionProfileConfig
   static {
+    JSONMeasure.registerUnit(RotationsPerSecondPerSecond.per(Second));
+    // This should be replaced with a polymorphic adapter in the future
+    // But that requires changes to the coppercore library
+    JSONConverter.addConversion(MotionProfileConfig.class, JSONMotionProfileConfig.class);
+
     JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
     JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
     JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
@@ -72,6 +83,7 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
+    strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -127,6 +139,7 @@ public class JsonConstants {
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
+  public static StrategyConstants strategyConstants;
 
   public static Controllers controllers;
 }

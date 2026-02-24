@@ -71,6 +71,28 @@
           }
         }
       ]
+    },
+    {
+      "port": 1,
+      "type": "xbox",
+      "controlElements": [
+        {
+          "command": "redWonAuto",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "b"
+          }
+        },
+        {
+          "command": "blueWonAuto",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "x"
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "shiftStartGracePeriod": {
+    "value": 2.0,
+    "unit": "Second"
+  },
+  "shiftEndGracePeriod": {
+    "value": 2.0,
+    "unit": "Second"
+  }
+}

@@ -73,6 +73,10 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     this.leadMotor = leadMotor;
     this.followerMotor = followerMotor;
 
+    leadMotor.setRequestUpdateFrequency(JsonConstants.shooterConstants.shooterClosedLoopFrequency);
+    followerMotor.setRequestUpdateFrequency(
+        JsonConstants.shooterConstants.shooterClosedLoopFrequency);
+
     stateMachine = new StateMachine<>(this);
 
     velocityControlState = stateMachine.registerState(new VelocityControlState());
@@ -146,6 +150,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Shooter/TargetVelocityRadPerSec", targetVelocity.in(RadiansPerSecond));
 
     stateMachine.periodic();
+    followerMotor.follow(
+        JsonConstants.canBusAssignment.shooterLeaderId,
+        JsonConstants.shooterConstants.invertFollower);
   }
 
   protected void testPeriodic() {
