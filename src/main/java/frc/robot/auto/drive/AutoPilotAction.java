@@ -1,5 +1,7 @@
 package frc.robot.auto.drive;
 
+import java.util.Objects;
+
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
@@ -20,13 +22,8 @@ public class AutoPilotAction extends AutoAction {
 
   @Override
   public Command toCommand(AutoActionData data) {
-    if (target == null) {
-      return null;
-    }
-
-    if (target.getReference() == null) {
-      return null;
-    }
+    Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");
+    Objects.requireNonNull(target.getReference(), "Target Pose cannot be null for AutoPilot Action");
 
     if (profile == null) {
       profile = DriveCoordinatorCommands.createDefaultAPProfile();

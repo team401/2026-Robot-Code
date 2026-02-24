@@ -57,7 +57,7 @@ public class DriveCoordinator extends SubsystemBase {
   public void setDriveWithJoysticksCommand(DriveWithJoysticks command) {
     this.joystickCommand = command;
     // Maybe temporary
-    this.defaultCommand = joystickCommand;
+    setDefaultCommand(command);
   }
 
   /**
@@ -92,7 +92,7 @@ public class DriveCoordinator extends SubsystemBase {
     }
     var activeCommand = getCurrentActiveCommand();
     if (defaultCommand == activeCommand) {
-      activeCommand.end(activeCommand.isFinished());
+      activeCommand.end(!activeCommand.isFinished());
       if (newDefaultCommand != null) {
         newDefaultCommand.initialize();
       }
@@ -120,9 +120,9 @@ public class DriveCoordinator extends SubsystemBase {
     var nextCommand = command == null ? defaultCommand : command;
     if (activeCommand != nextCommand) {
       if (activeCommand != null) {
-        activeCommand.end(activeCommand.isFinished());
+        activeCommand.end(!activeCommand.isFinished());
       }
-      currentCommand = command;
+      currentCommand = nextCommand;
       if (currentCommand != null) {
         currentCommand.initialize();
       }
@@ -144,18 +144,20 @@ public class DriveCoordinator extends SubsystemBase {
   public void forceRestartCurrentCommand() {
     var activeCommand = getCurrentActiveCommand();
     if (activeCommand != null) {
-      activeCommand.end(activeCommand.isFinished());
+      activeCommand.end(!activeCommand.isFinished());
       activeCommand.initialize();
     }
   }
 
   private void finishCurrentCommandIfFinished() {
     if (currentCommand != null && currentCommand.isFinished()) {
-      currentCommand.end(true);
+      currentCommand.end(false);
       currentCommand = null;
+      defaultCommand.initialize();
     } else {
       if (defaultCommand != null && defaultCommand.isFinished()) {
-        defaultCommand.end(true);
+        defaultCommand.end(false);
+        defaultCommand.initialize();
       }
     }
   }
@@ -169,6 +171,7 @@ public class DriveCoordinator extends SubsystemBase {
 
     // drive.setDriveGains(JsonConstants.driveConstants.driveGains);
     // drive.setSteerGains(JsonConstants.driveConstants.steerGains);
+    initializeTestMode();
   }
 
   public void autoPilotToPose(Pose2d pose) {
@@ -188,7 +191,7 @@ public class DriveCoordinator extends SubsystemBase {
     APProfile profile =
         DriveCoordinatorCommands.createDefaultAPProfile()
             .withConstraints(
-                DriveCoordinatorCommands.createDefaltAPConstraints().withAcceleration(6.0))
+                DriveCoordinatorCommands.createDefaultAPConstraints().withAcceleration(6.0))
             .withErrorXY(Centimeters.of(2.0))
             .withErrorTheta(Degrees.of(15));
     Autopilot ap = new Autopilot(profile);

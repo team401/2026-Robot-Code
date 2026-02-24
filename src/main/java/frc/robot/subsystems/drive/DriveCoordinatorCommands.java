@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import java.security.InvalidParameterException;
+
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
@@ -118,12 +120,12 @@ public class DriveCoordinatorCommands extends Command {
     }
   }
 
-  public static APConstraints createDefaltAPConstraints() {
+  public static APConstraints createDefaultAPConstraints() {
     return new APConstraints().withAcceleration(3).withJerk(3);
   }
 
   public static APProfile createDefaultAPProfile() {
-    return new APProfile(createDefaltAPConstraints())
+    return new APProfile(createDefaultAPConstraints())
         .withErrorTheta(Degrees.of(0.05))
         .withErrorXY(Meters.of(0.01));
   }
@@ -158,7 +160,7 @@ public class DriveCoordinatorCommands extends Command {
   public static Command autoPilotToTargetsCommand(
       DriveCoordinator driveCoordinator, APProfile profile, APTarget... targets) {
     if (targets.length == 0) {
-      return null;
+      throw new InvalidParameterException("At least one target must be provided");
     }
     Autopilot autoPilot = new Autopilot(profile);
     var currentCommand = autoPilotCommand(driveCoordinator, autoPilot, targets[0]);
