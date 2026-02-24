@@ -91,6 +91,12 @@ public class TurretConstants {
   public final Angle maxTurretAngle = Degrees.of(350);
 
   /**
+   * When the turret heading is within turretSetpointEpsilon of its goal heading, it is considered
+   * to be "at the target"
+   */
+  public final Angle turretSetpointEpsilon = Degrees.of(1.0);
+
+  /**
    * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
    * headingToTurretAngle = turretRelativeAngle
    */

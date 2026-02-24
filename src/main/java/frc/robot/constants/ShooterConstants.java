@@ -120,6 +120,12 @@ public class ShooterConstants {
   public AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
   public AngularAcceleration shooterMaxAcceleration = RPM.of(3000).per(Second);
 
+  /**
+   * When the shooter's velocity is within shooterVelocitySetpointEpsilon of its target velocity, it
+   * is considered "at its setpoint"
+   */
+  public AngularVelocity shooterVelocitySetpointEpsilon = RPM.of(50);
+
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
         .withSlot0(

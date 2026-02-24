@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -648,12 +649,12 @@ public class CoordinationLayer {
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
     // Aim for a shot based on the current autonomy level
-    switch (effectiveAutonomyLevel) {
-      case Smart -> drive.ifPresent(this::runShotCalculatorWithDrive);
-      case Manual -> {
-        aimForManualShot();
-      }
-    }
+    boolean isShotReal =
+        switch (effectiveAutonomyLevel) {
+          case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
+          case Manual -> aimForManualShot();
+        };
+    Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
 
     boolean shouldStowHoodBasedOnMovement =
         OptionalUtil.map(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
@@ -664,12 +665,34 @@ public class CoordinationLayer {
     // Don't need to log shouldStowHood here as it's logged in the hood subsystem
     hood.ifPresent(hood -> hood.setShouldStowForTrench(shouldStowHood));
 
-    // TODO: Add checks if we can shoot (subsystems are at target position), if we'd hit net (when
-    // passing), and then command the spindexer/balltower to shoot.
+    // If shooting isn't enabled or we're stowing hood, stop the shooter flywheels to avoid wasting
+    // a ton of energy
+    if (!shootingEnabled) {
+      shooter.ifPresent(shooter -> shooter.stopShooter());
+    }
+
+    // When the turret isn't enabled, assume that it's been locked into the correct location for a
+    // manual mode shot if we ever have to run "no turret"
+    if (isShotReal
+        && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
+        && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
+        && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true)) {
+      hopper.ifPresent(
+          hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
+      indexer.ifPresent(
+          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
+    } else {
+      hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
+      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+    }
   }
 
-  /** Aim for either passing or scoring in manual mode */
-  private void aimForManualShot() {
+  /**
+   * Aim for either passing or scoring in manual mode
+   *
+   * @return {@code true} to indicate that this shot is "real"
+   */
+  private boolean aimForManualShot() {
     switch (shotMode) {
       case Hub -> {}
       case Pass -> {
@@ -696,6 +719,8 @@ public class CoordinationLayer {
         turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
       }
     }
+
+    return true;
   }
 
   private final EnhancedLine2d leftBlueTrench =
@@ -795,8 +820,11 @@ public class CoordinationLayer {
    * use of optionals
    *
    * @param drive A Drive instance
+   * @return whether or not the shot currently being aimed for is "attainable": {@code true} if
+   *     there is a possible shot and the robot is aiming for it, {@code false} if the calculator
+   *     couldn't find a possible shot and so is aiming for the "closest thing" to a possible shot.
    */
-  private void runShotCalculatorWithDrive(Drive driveInstance) {
+  private boolean runShotCalculatorWithDrive(Drive driveInstance) {
     Pose2d robotPose = driveInstance.getPose();
     Translation3d shooterPosition =
         new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
@@ -847,26 +875,25 @@ public class CoordinationLayer {
             fieldCentricSpeeds.vxMetersPerSecond + vRot.get(0),
             fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
 
-    Optional<MapBasedShotInfo> maybeShot =
+    MapBasedShotInfo shot =
         ShotCalculations.calculateShotFromMap(shooterPosition, shooterVelocity, target);
 
-    maybeShot.ifPresent(
-        shot -> {
-          turret.ifPresent(
-              turret -> {
-                turret.targetGoalHeading(new Rotation2d(shot.yawRadians()));
-              });
-
-          hood.ifPresent(
-              hood -> {
-                hood.targetAngleRadians(shot.hoodAngleRadians());
-              });
-
-          shooter.ifPresent(
-              shooter -> {
-                shooter.setTargetVelocityRPM(shot.shooterRPM());
-              });
+    turret.ifPresent(
+        turret -> {
+          turret.targetGoalHeading(new Rotation2d(shot.yawRadians()));
         });
+
+    hood.ifPresent(
+        hood -> {
+          hood.targetAngleRadians(shot.hoodAngleRadians());
+        });
+
+    shooter.ifPresent(
+        shooter -> {
+          shooter.setTargetVelocityRPM(shot.shooterRPM());
+        });
+
+    return shot.isReal();
   }
 
   /** Update the MatchState each periodic loop */

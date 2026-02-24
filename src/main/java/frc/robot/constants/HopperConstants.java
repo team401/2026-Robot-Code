@@ -3,6 +3,7 @@ package frc.robot.constants;
 import static edu.wpi.first.units.Units.Amps;
 // import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -59,6 +60,8 @@ public class HopperConstants {
                 JsonConstants.robotInfo.CANBus, JsonConstants.canBusAssignment.hopperKrakenId))
         .build();
   }
+
+  public final AngularVelocity indexingVelocity = RPM.of(2000);
 
   public final Current hopperSupplyCurrentLimit = Amps.of(60.0);
   public final Current hopperStatorCurrentLimit = Amps.of(40.0);

@@ -292,6 +292,16 @@ public class TurretSubsystem extends MonitoredSubsystem {
     return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
   }
 
+  /**
+   * @return {@code true} if the turret is targeting a robot relative heading and is at that
+   *     heading, {@code false} otherwise
+   */
+  public boolean isAimedCorrectly() {
+    return requestedAction == TurretAction.TrackHeading
+        && Math.abs(getFieldCentricTurretHeading().getRadians() - goalTurretHeading.getRadians())
+            < JsonConstants.turretConstants.turretSetpointEpsilon.in(Radians);
+  }
+
   protected void setPositionToHomedPosition() {
     motor.setCurrentPosition(JsonConstants.turretConstants.homingAngle);
   }

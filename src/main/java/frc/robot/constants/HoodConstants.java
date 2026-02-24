@@ -95,6 +95,12 @@ public class HoodConstants {
 
   public final Frequency hoodRequestUpdateFrequency = Hertz.of(1000);
 
+  /**
+   * When the hood angle is within hoodSetpointEpsilon of its goal angle or the exit angle is within
+   * hoodSetpointEpsilon of the goal pitch, the hood is considered "at its setpoint"
+   */
+  public final Angle hoodSetpointEpsilon = Degrees.of(1.0);
+
   public final Voltage homingVoltage = Volts.of(-3.0);
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 

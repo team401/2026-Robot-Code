@@ -48,7 +48,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private enum HoodAction {
     /** Coasts the hood and waits for input */
     Idle,
-    /** Targets a certain pitch, commanded by the supervisor layer */
+    /** Targets a certain pitch (exit angle), commanded by the supervisor layer */
     TargetPitch,
     /** Targets a certain angle, commanded by the supervisor layer */
     TargetAngle,
@@ -417,19 +417,42 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /**
+   * Get the current position of the hood (NOT EXIT ANGLE) in radians
+   *
+   * @return An Angle containing the current angle of the hood (in terms of center of mass).
+   */
+  public Angle getCurrentAngle() {
+    return Radians.of(inputs.positionRadians);
+  }
+
+  /**
    * Get the current fuel exit angle based on the position of the hood
    *
    * @return An Angle representing the current exit angle of a fuel being shot from the hood.
    */
   public Angle getCurrentExitAngle() {
     return Degrees.of(90)
-        .minus(
-            Radians.of(inputs.positionRadians)
-                .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle));
+        .minus(getCurrentAngle().plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle));
   }
 
   public boolean isHoodTestMode() {
     return testModeManager.isInTestMode();
+  }
+
+  /**
+   * Returns whether or not the hood is currently aimed at its goal angle
+   *
+   * @return {@code true} if the hood is targeting an angle or pitch and it's at that goal, {@code
+   *     false} otherwise.
+   */
+  public boolean isAimedCorrectly() {
+    return switch (requestedAction) {
+      case TargetAngle ->
+          getCurrentAngle().isNear(goalAngle, JsonConstants.hoodConstants.hoodSetpointEpsilon);
+      case TargetPitch ->
+          getCurrentExitAngle().isNear(goalPitch, JsonConstants.hoodConstants.hoodSetpointEpsilon);
+      case Idle -> false;
+    };
   }
 
   /**
