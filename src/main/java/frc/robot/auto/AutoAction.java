@@ -8,6 +8,7 @@ import frc.robot.auto.general.Deadline;
 import frc.robot.auto.general.Parallel;
 import frc.robot.auto.general.Race;
 import frc.robot.auto.general.Sequence;
+import frc.robot.auto.general.Wait;
 import frc.robot.subsystems.drive.DriveCoordinator;
 
 @JsonType(
@@ -18,6 +19,7 @@ import frc.robot.subsystems.drive.DriveCoordinator;
       @JsonSubtype(clazz = Sequence.class, name = "Sequence"),
       @JsonSubtype(clazz = Parallel.class, name = "Parallel"),
       @JsonSubtype(clazz = Race.class, name = "Race"),
+      @JsonSubtype(clazz = Wait.class, name = "Wait"),
       // Drive actions
       @JsonSubtype(clazz = AutoPilotAction.class, name = "AutoPilotAction"),
     })

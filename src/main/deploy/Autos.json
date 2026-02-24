@@ -8,38 +8,14 @@
                     "target": {
                         "reference": {
                             "rotation": {
-                                "radians": 3.005820969718269
+                                "radians": 4.801267668911884
                             },
                             "translation": {
-                                "x": 1.5613676859790149,
-                                "y": 4.965320421561506
+                                "x": 0.8185911422496883,
+                                "y": 0.05720405044515153
                             }
                         },
-                        "entryAngle": {
-                            "radians": 0
-                        },
                         "velocity": 0
-                    },
-                    "profile": {
-                        "constraints": {
-                            "velocity": 0,
-                            "acceleration": 0,
-                            "jerk": 0
-                        }
-                    },
-                    "constraints": {
-                        "velocity": 0,
-                        "acceleration": 0,
-                        "jerk": 0
-                    },
-                    "pidGains": {
-                        "kP": 0,
-                        "kI": 0,
-                        "kD": 0,
-                        "kS": 0,
-                        "kG": 0,
-                        "kV": 0,
-                        "kA": 0
                     }
                 },
                 {
@@ -47,38 +23,14 @@
                     "target": {
                         "reference": {
                             "rotation": {
-                                "radians": 2.1208832087868283
+                                "radians": 5.081440452897594
                             },
                             "translation": {
-                                "x": 0.3180715908086329,
-                                "y": 4.524752827312452
+                                "x": 4.081575315291542,
+                                "y": 1.3710286220100039
                             }
                         },
-                        "entryAngle": {
-                            "radians": 0
-                        },
                         "velocity": 0
-                    },
-                    "profile": {
-                        "constraints": {
-                            "velocity": 0,
-                            "acceleration": 0,
-                            "jerk": 0
-                        }
-                    },
-                    "constraints": {
-                        "velocity": 0,
-                        "acceleration": 0,
-                        "jerk": 0
-                    },
-                    "pidGains": {
-                        "kP": 0,
-                        "kI": 0,
-                        "kD": 0,
-                        "kS": 0,
-                        "kG": 0,
-                        "kV": 0,
-                        "kA": 0
                     }
                 },
                 {
@@ -86,38 +38,14 @@
                     "target": {
                         "reference": {
                             "rotation": {
-                                "radians": 0.2645883470649162
+                                "radians": 6.20197298399084
                             },
                             "translation": {
-                                "x": 3.5468101602948336,
-                                "y": 2.039754119744953
+                                "x": 2.3613792328645404,
+                                "y": 4.250642914085617
                             }
                         },
-                        "entryAngle": {
-                            "radians": 0
-                        },
                         "velocity": 0
-                    },
-                    "profile": {
-                        "constraints": {
-                            "velocity": 0,
-                            "acceleration": 0,
-                            "jerk": 0
-                        }
-                    },
-                    "constraints": {
-                        "velocity": 0,
-                        "acceleration": 0,
-                        "jerk": 0
-                    },
-                    "pidGains": {
-                        "kP": 0,
-                        "kI": 0,
-                        "kD": 0,
-                        "kS": 0,
-                        "kG": 0,
-                        "kV": 0,
-                        "kA": 0
                     }
                 },
                 {
@@ -125,38 +53,14 @@
                     "target": {
                         "reference": {
                             "rotation": {
-                                "radians": 5.709995261171353
+                                "radians": 5.319185267849421
                             },
                             "translation": {
-                                "x": 2.948019477414619,
-                                "y": 4.458772820633446
+                                "x": 0.47984554784842204,
+                                "y": 2.257277126658649
                             }
                         },
-                        "entryAngle": {
-                            "radians": 0
-                        },
                         "velocity": 0
-                    },
-                    "profile": {
-                        "constraints": {
-                            "velocity": 0,
-                            "acceleration": 0,
-                            "jerk": 0
-                        }
-                    },
-                    "constraints": {
-                        "velocity": 0,
-                        "acceleration": 0,
-                        "jerk": 0
-                    },
-                    "pidGains": {
-                        "kP": 0,
-                        "kI": 0,
-                        "kD": 0,
-                        "kS": 0,
-                        "kG": 0,
-                        "kV": 0,
-                        "kA": 0
                     }
                 },
                 {
@@ -164,38 +68,14 @@
                     "target": {
                         "reference": {
                             "rotation": {
-                                "radians": 2.706791266182579
+                                "radians": 6.2049307171339985
                             },
                             "translation": {
-                                "x": 2.8137949784246774,
-                                "y": 1.4988465328497858
+                                "x": 4.246688751208547,
+                                "y": 0.43777530952118004
                             }
                         },
-                        "entryAngle": {
-                            "radians": 0
-                        },
                         "velocity": 0
-                    },
-                    "profile": {
-                        "constraints": {
-                            "velocity": 0,
-                            "acceleration": 0,
-                            "jerk": 0
-                        }
-                    },
-                    "constraints": {
-                        "velocity": 0,
-                        "acceleration": 0,
-                        "jerk": 0
-                    },
-                    "pidGains": {
-                        "kP": 0,
-                        "kI": 0,
-                        "kD": 0,
-                        "kS": 0,
-                        "kG": 0,
-                        "kV": 0,
-                        "kA": 0
                     }
                 },
                 {
@@ -203,38 +83,14 @@
                     "target": {
                         "reference": {
                             "rotation": {
-                                "radians": 2.2493745587215033
+                                "radians": 4.883854723491636
                             },
                             "translation": {
-                                "x": 0.1737988974798632,
-                                "y": 3.1504987363665258
+                                "x": 2.887229010146293,
+                                "y": 3.610168005795791
                             }
                         },
-                        "entryAngle": {
-                            "radians": 0
-                        },
                         "velocity": 0
-                    },
-                    "profile": {
-                        "constraints": {
-                            "velocity": 0,
-                            "acceleration": 0,
-                            "jerk": 0
-                        }
-                    },
-                    "constraints": {
-                        "velocity": 0,
-                        "acceleration": 0,
-                        "jerk": 0
-                    },
-                    "pidGains": {
-                        "kP": 0,
-                        "kI": 0,
-                        "kD": 0,
-                        "kS": 0,
-                        "kG": 0,
-                        "kV": 0,
-                        "kA": 0
                     }
                 }
             ]

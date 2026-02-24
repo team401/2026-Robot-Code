@@ -32,6 +32,16 @@ export class Race {
   }
 }
 
+import * as Units from './Units.js';
+
+export class Wait {
+  type: "Wait" = "Wait";
+  delay?: Units.Time;
+	constructor({delay = undefined}: Partial<{delay: Units.Time}>) {
+    this.delay = delay;
+  }
+}
+
 export class Rotation2d {
   radians?: number;
 	constructor({radians = 0}: Partial<{radians: number}>) {
@@ -57,14 +67,12 @@ export class Pose2d {
   }
 }
 
-import * as Units from './Units.js';
-
 export class APTarget {
   reference?: Pose2d;
-  entryAngle?: Rotation2d;
+  entryAngle?: Rotation2d | undefined;
   velocity?: number;
-  rotationRadius?: Units.Distance;
-	constructor({reference = new Pose2d({}), entryAngle = new Rotation2d({}), velocity = 0, rotationRadius = undefined}: Partial<{reference: Pose2d; entryAngle: Rotation2d; velocity: number; rotationRadius: Units.Distance}>) {
+  rotationRadius?: Units.Distance | undefined;
+	constructor({reference = new Pose2d({}), entryAngle = undefined, velocity = 0, rotationRadius = undefined}: Partial<{reference: Pose2d; entryAngle: Rotation2d; velocity: number; rotationRadius: Units.Distance}>) {
     this.reference = reference;
     this.entryAngle = entryAngle;
     this.velocity = velocity;
@@ -118,10 +126,10 @@ export class PIDGains {
 export class AutoPilotAction {
   type: "AutoPilotAction" = "AutoPilotAction";
   target?: APTarget;
-  profile?: APProfile;
-  constraints?: APConstraints;
-  pidGains?: PIDGains;
-	constructor({target = new APTarget({}), profile = new APProfile({}), constraints = new APConstraints({}), pidGains = new PIDGains({})}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains}>) {
+  profile?: APProfile | undefined;
+  constraints?: APConstraints | undefined;
+  pidGains?: PIDGains | undefined;
+	constructor({target = new APTarget({}), profile = undefined, constraints = undefined, pidGains = undefined}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains}>) {
     this.target = target;
     this.profile = profile;
     this.constraints = constraints;
@@ -129,5 +137,5 @@ export class AutoPilotAction {
   }
 }
 
-export type AutoAction = Deadline | Sequence | Parallel | Race | AutoPilotAction| undefined | null;
+export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | AutoPilotAction | undefined | null;
 

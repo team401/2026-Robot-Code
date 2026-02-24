@@ -9,13 +9,14 @@ import frc.robot.auto.AutoAction;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import frc.robot.util.PIDGains;
+import frc.robot.util.ts.TypeScriptOptional;
 
 public class AutoPilotAction extends AutoAction {
 
   public APTarget target = null;
-  public APProfile profile = null;
-  public APConstraints constraints = null;
-  public PIDGains pidGains = null;
+  @TypeScriptOptional public APProfile profile = null;
+  @TypeScriptOptional public APConstraints constraints = null;
+  @TypeScriptOptional public PIDGains pidGains = null;
 
   @Override
   public Command toCommand(AutoActionData data) {

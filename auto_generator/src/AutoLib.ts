@@ -65,6 +65,6 @@ export function serializeAutos(): string {
   autos.forEach((commands, name) => {
     obj[name] = commands;
   });
-  return JSON.stringify(obj, null, 4);
+  return JSON.stringify(obj, null, 2);
 }
 

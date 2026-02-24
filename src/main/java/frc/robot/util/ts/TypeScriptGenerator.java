@@ -215,7 +215,8 @@ public final class TypeScriptGenerator {
   // Interfaces
   // ============================================
 
-  private record TypeScriptField(String name, String type, Class<?> originalType) {}
+  private record TypeScriptField(
+      String name, String type, Class<?> originalType, boolean isTypeScriptOptional) {}
 
   public static void generateInterface(Class<?> clazz, String suggestedName) {
     suggestedName = suggestedName != null ? suggestedName : clazz.getSimpleName();
@@ -244,7 +245,10 @@ public final class TypeScriptGenerator {
 
       String name = namingStrategy.translateName(field);
 
-      fields.add(new TypeScriptField(name, tsType, originalFieldType));
+      boolean isOptional = field.isAnnotationPresent(TypeScriptOptional.class);
+      isOptional = isOptional || Optional.class.isAssignableFrom(fieldType);
+
+      fields.add(new TypeScriptField(name, tsType, originalFieldType, isOptional));
     }
 
     boolean supportsDefault = supportsDefaultValue(clazz);
@@ -254,7 +258,11 @@ public final class TypeScriptGenerator {
       if (supportsDefault) {
         sb.append("?");
       }
-      sb.append(": ").append(field.type).append(";\n");
+      sb.append(": ").append(field.type);
+      if (field.isTypeScriptOptional) {
+        sb.append(" | undefined");
+      }
+      sb.append(";\n");
     }
 
     sb.append("\tconstructor({");
@@ -264,6 +272,10 @@ public final class TypeScriptGenerator {
       sb.append(field.name);
       if (supportsDefault) {
         String defaultValue = getDefaultValue(field.originalType);
+        if (field.isTypeScriptOptional) {
+          defaultValue = "undefined";
+        }
+        ;
         sb.append(" = ").append(defaultValue);
       }
       if (i < fields.size() - 1) {
@@ -333,7 +345,7 @@ public final class TypeScriptGenerator {
         .append(" = ")
         .append(String.join(" | ", subtypeNames))
         .append(
-            "| undefined | null") // Allow null and undefined for polymorphic types objects in java
+            " | undefined | null") // Allow null and undefined for polymorphic types objects in java
         // can be null and need to support optional properties for
         // subtypes that have additional fields
         .append(";\n\n");
@@ -375,7 +387,10 @@ public final class TypeScriptGenerator {
       String tsType = resolveType(field.getGenericType(), originalFieldType.getSimpleName());
       String name = namingStrategy.translateName(field);
 
-      fields.add(new TypeScriptField(name, tsType, originalFieldType));
+      boolean isOptional = field.isAnnotationPresent(TypeScriptOptional.class);
+      isOptional = isOptional || Optional.class.isAssignableFrom(fieldType);
+
+      fields.add(new TypeScriptField(name, tsType, originalFieldType, isOptional));
     }
 
     boolean supportsDefault = supportsDefaultValue(clazz);
@@ -385,7 +400,11 @@ public final class TypeScriptGenerator {
       if (supportsDefault) {
         sb.append("?");
       }
-      sb.append(": ").append(field.type).append(";\n");
+      sb.append(": ").append(field.type);
+      if (field.isTypeScriptOptional) {
+        sb.append(" | undefined");
+      }
+      sb.append(";\n");
     }
 
     sb.append("\tconstructor({");
@@ -395,6 +414,9 @@ public final class TypeScriptGenerator {
       sb.append(field.name);
       if (supportsDefault) {
         String defaultValue = getDefaultValue(field.originalType);
+        if (field.isTypeScriptOptional) {
+          defaultValue = "undefined";
+        }
         sb.append(" = ").append(defaultValue);
       }
       if (i < fields.size() - 1) {
@@ -664,6 +686,7 @@ public final class TypeScriptGenerator {
       // having to write custom TypeAdapters or default value providers.
       for (Field field : getAllFields(clazz)) {
         if (shouldSkipField(field)) continue;
+        if (field.isAnnotationPresent(TypeScriptOptional.class)) continue;
         if (!supportsDefaultValue(field.getType())) {
           return null;
         }
@@ -688,7 +711,7 @@ public final class TypeScriptGenerator {
           return Optional.of("undefined");
         }
       } else {
-
+        return Optional.of(getDefaultValue(raw));
       }
     }
 

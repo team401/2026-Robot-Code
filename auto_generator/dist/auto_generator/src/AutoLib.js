@@ -54,6 +54,6 @@ export function serializeAutos() {
     autos.forEach((commands, name) => {
         obj[name] = commands;
     });
-    return JSON.stringify(obj, null, 4);
+    return JSON.stringify(obj, null, 2);
 }
 //# sourceMappingURL=AutoLib.js.map
