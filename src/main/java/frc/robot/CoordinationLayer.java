@@ -24,11 +24,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
@@ -621,6 +621,8 @@ public class CoordinationLayer {
    * methods run.
    */
   public void coordinateRobotActions() {
+    updateMatchState();
+
     // Poll buttons. This will modify state variables depending on the states of the buttons
     buttonLoop.poll();
 
@@ -726,7 +728,11 @@ public class CoordinationLayer {
 
     Translation2d predictedMovement =
         fieldCentricSpeeds.times(JsonConstants.hoodConstants.timeToStowHood.in(Seconds));
-    Translation2d shooterPose = new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation().toTranslation2d();
+    Translation2d shooterPose =
+        new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter)
+            .getTranslation()
+            .toTranslation2d();
 
     Translation2d movementStart = shooterPose;
     Translation2d movementEnd = movementStart.plus(predictedMovement);
@@ -866,7 +872,7 @@ public class CoordinationLayer {
   /** Update the MatchState each periodic loop */
   private void updateMatchState() {
     if (DriverStation.isEnabled()) {
-      matchState.enabledPeriodic(manualRedOverrideRequest, manualBlueOverrideRequest);
+      matchState.enabledPeriodic(isWonAutoPressed.getAsBoolean(), isLostAutoPressed.getAsBoolean());
     }
 
     // This is temporary code left here to make it easy to integrate the time left functionality

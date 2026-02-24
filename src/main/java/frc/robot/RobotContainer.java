@@ -174,7 +174,6 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // TODO: Create a robust and clean input/action layer.
     coordinationLayer.initBindings();
 
     // Default command, normal field-relative drive
@@ -183,7 +182,6 @@ public class RobotContainer {
           drive.ifPresent(
               (drive) -> {
                 ControllerSetup.initDriveBindings(driveCoordinator, drive);
-                ControllerSetup.initMatchStateBindings(coordinationLayer);
               });
         });
   }
