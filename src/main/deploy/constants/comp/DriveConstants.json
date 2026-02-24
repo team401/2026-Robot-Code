@@ -67,5 +67,17 @@
     "kG": 0.0,
     "kV": 0.0,
     "kA": 0.0
+  },
+  "defaultAutoPilotBeelineRadius": {
+    "value": 0.1,
+    "unit": "Meter"
+  },
+  "defaultAutoPilotHeadingTolerance": {
+    "value": 3.0,
+    "unit": "Degree"
+  },
+  "defaultAutoPilotXYTolerance": {
+    "value": 0.1,
+    "unit": "Meter"
   }
 }
