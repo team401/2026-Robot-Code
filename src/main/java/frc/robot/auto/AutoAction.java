@@ -10,7 +10,19 @@ import frc.robot.auto.general.Race;
 import frc.robot.auto.general.Sequence;
 import frc.robot.auto.general.Wait;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.util.ts.TypeScriptAppend;
+import frc.robot.util.ts.TypeScriptMethod;
 
+@TypeScriptAppend(
+    value =
+        "let _addCommandHook: ((command: NonNullable<AutoAction>) => void) | null = null;\n"
+            + "export function setAddCommandHook(hook: (command: NonNullable<AutoAction>) => void)"
+            + " { _addCommandHook = hook; }")
+@TypeScriptMethod(
+    name = "add",
+    returnType = "this",
+    body = {"_addCommandHook?.(this);", "return this;"},
+    comment = "Adds this command to the current auto and returns itself for chaining.")
 @JsonType(
     property = "type",
     subtypes = {

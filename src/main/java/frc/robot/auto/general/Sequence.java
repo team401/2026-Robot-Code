@@ -3,7 +3,6 @@ package frc.robot.auto.general;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.auto.AutoAction;
-
 import java.util.Objects;
 import java.util.stream.Stream;
 

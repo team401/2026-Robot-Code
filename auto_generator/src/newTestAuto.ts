@@ -6,12 +6,10 @@ import { pose2d } from './Shorthands.js';
 // This is purely for testing the system
 AutoLib.auto("Random Auto", () => {
     for (let i = 0; i < 6; i++) {
-        AutoLib.addCommand(
-            new AutoActions.AutoPilotAction({
-                target: new AutoActions.APTarget({
-                    reference: pose2d({ x: Math.random() * 5, y: Math.random() * 5, angle: Math.random() * 2 * Math.PI })
-                })
+        new AutoActions.AutoPilotAction({
+            target: new AutoActions.APTarget({
+                reference: pose2d({ x: Math.random() * 5, y: Math.random() * 5, angle: Math.random() * 2 * Math.PI })
             })
-        );
+        }).add();
     }
 });

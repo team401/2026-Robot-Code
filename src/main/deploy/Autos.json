@@ -1,99 +1,99 @@
 {
-    "autos": {
-        "Random Auto": {
-            "type": "Sequence",
-            "actions": [
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "radians": 4.801267668911884
-                            },
-                            "translation": {
-                                "x": 0.8185911422496883,
-                                "y": 0.05720405044515153
-                            }
-                        },
-                        "velocity": 0
-                    }
-                },
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "radians": 5.081440452897594
-                            },
-                            "translation": {
-                                "x": 4.081575315291542,
-                                "y": 1.3710286220100039
-                            }
-                        },
-                        "velocity": 0
-                    }
-                },
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "radians": 6.20197298399084
-                            },
-                            "translation": {
-                                "x": 2.3613792328645404,
-                                "y": 4.250642914085617
-                            }
-                        },
-                        "velocity": 0
-                    }
-                },
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "radians": 5.319185267849421
-                            },
-                            "translation": {
-                                "x": 0.47984554784842204,
-                                "y": 2.257277126658649
-                            }
-                        },
-                        "velocity": 0
-                    }
-                },
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "radians": 6.2049307171339985
-                            },
-                            "translation": {
-                                "x": 4.246688751208547,
-                                "y": 0.43777530952118004
-                            }
-                        },
-                        "velocity": 0
-                    }
-                },
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "radians": 4.883854723491636
-                            },
-                            "translation": {
-                                "x": 2.887229010146293,
-                                "y": 3.610168005795791
-                            }
-                        },
-                        "velocity": 0
-                    }
-                }
-            ]
+  "autos": {
+    "Random Auto": {
+      "type": "Sequence",
+      "actions": [
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "radians": 4.619905604748963
+              },
+              "translation": {
+                "x": 1.0522661236921171,
+                "y": 0.19954352272395448
+              }
+            },
+            "velocity": 0
+          }
+        },
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "radians": 3.5894403970073863
+              },
+              "translation": {
+                "x": 2.613040925405867,
+                "y": 1.267422719599668
+              }
+            },
+            "velocity": 0
+          }
+        },
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "radians": 2.368923512804117
+              },
+              "translation": {
+                "x": 2.6772465458655015,
+                "y": 3.5836283404872287
+              }
+            },
+            "velocity": 0
+          }
+        },
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "radians": 4.417097328393309
+              },
+              "translation": {
+                "x": 2.9521788676466976,
+                "y": 3.3705773092574804
+              }
+            },
+            "velocity": 0
+          }
+        },
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "radians": 5.659846600249077
+              },
+              "translation": {
+                "x": 1.079599950787028,
+                "y": 1.9798635736448071
+              }
+            },
+            "velocity": 0
+          }
+        },
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "radians": 0.6518703613029698
+              },
+              "translation": {
+                "x": 4.858185340356923,
+                "y": 2.2197874996379037
+              }
+            },
+            "velocity": 0
+          }
         }
+      ]
     }
+  }
 }

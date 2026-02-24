@@ -1,8 +1,11 @@
 import * as AutoAction  from "@/typescript/AutoAction.js";
-import { type AutoAction as AutoCommand } from "@/typescript/AutoAction.js";
+import { type AutoAction as AutoCommand, setAddCommandHook } from "@/typescript/AutoAction.js";
 
 let command_pointers: AutoCommand[][] = [];
 let autos = new Map<string, AutoCommand>();
+
+// Wire up the hook so that .add() on any AutoAction class calls addCommand
+setAddCommandHook((command) => addCommand(command));
 
 export function getPointer() {
   return command_pointers[command_pointers.length - 1];

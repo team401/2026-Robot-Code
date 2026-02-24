@@ -313,8 +313,12 @@ public final class TypeScriptGenerator {
 
     sb.append("  }\n");
 
+    emitTypeScriptMethods(clazz, sb);
+
     sb.append("}\n\n");
     output.append(sb);
+    emitTypeScriptImports(clazz);
+    emitTypeScriptAppends(clazz);
   }
 
   // ============================================
@@ -336,7 +340,7 @@ public final class TypeScriptGenerator {
 
       subtypeNames.add(subClass.getSimpleName());
 
-      generateSubtype(subClass, discriminator, name);
+      generateSubtype(subClass, discriminator, name, baseClass);
     }
 
     output
@@ -349,10 +353,14 @@ public final class TypeScriptGenerator {
         // can be null and need to support optional properties for
         // subtypes that have additional fields
         .append(";\n\n");
+
+    // Emit custom code for the base class (imports, appends)
+    emitTypeScriptImports(baseClass);
+    emitTypeScriptAppends(baseClass);
   }
 
   private static void generateSubtype(
-      Class<?> clazz, String discriminator, String discriminatorValue) {
+      Class<?> clazz, String discriminator, String discriminatorValue, Class<?> baseClass) {
 
     if (generated.contains(clazz)) return;
     generated.add(clazz);
@@ -454,8 +462,14 @@ public final class TypeScriptGenerator {
 
     sb.append("  }\n");
 
+    // Emit methods from both the base class and the subclass itself
+    emitTypeScriptMethods(baseClass, sb);
+    emitTypeScriptMethods(clazz, sb);
+
     sb.append("}\n\n");
     output.append(sb);
+    emitTypeScriptImports(clazz);
+    emitTypeScriptAppends(clazz);
   }
 
   // ============================================
@@ -580,6 +594,88 @@ public final class TypeScriptGenerator {
     }
 
     output.append(String.join(" | ", values)).append(";\n\n");
+  }
+
+  // ============================================
+  // Custom TypeScript Code Injection
+  // ============================================
+
+  /**
+   * Emits any @TypeScriptMethod-annotated method bodies into the class StringBuilder, before the
+   * closing brace. Assembles valid TypeScript method syntax from the structured annotation fields.
+   */
+  private static void emitTypeScriptMethods(Class<?> clazz, StringBuilder sb) {
+    TypeScriptMethod[] methods = clazz.getAnnotationsByType(TypeScriptMethod.class);
+    for (TypeScriptMethod method : methods) {
+      // JSDoc comment
+      if (!method.comment().isEmpty()) {
+        sb.append("  /** ").append(method.comment()).append(" */\n");
+      }
+      // Method signature
+      sb.append("  ");
+      if (method.isStatic()) {
+        sb.append("static ");
+      }
+      sb.append(method.name()).append("(");
+      TypeScriptParam[] params = method.params();
+      for (int i = 0; i < params.length; i++) {
+        sb.append(params[i].name());
+        if (params[i].optional()) {
+          sb.append("?");
+        }
+        sb.append(": ").append(params[i].type());
+        if (i < params.length - 1) {
+          sb.append(", ");
+        }
+      }
+      sb.append("): ").append(method.returnType()).append(" {\n");
+      // Body
+      for (String line : method.body()) {
+        sb.append("    ").append(line).append("\n");
+      }
+      sb.append("  }\n");
+    }
+  }
+
+  /**
+   * Emits any @TypeScriptImport-annotated import statements at the top of the output. Supports
+   * namespace imports ({@code import * as X from '...'}) and named imports ({@code import { a, b }
+   * from '...'}).
+   */
+  private static void emitTypeScriptImports(Class<?> clazz) {
+    TypeScriptImport[] imports = clazz.getAnnotationsByType(TypeScriptImport.class);
+    for (TypeScriptImport imp : imports) {
+      StringBuilder sb = new StringBuilder();
+      if (!imp.alias().isEmpty()) {
+        sb.append("import * as ")
+            .append(imp.alias())
+            .append(" from '")
+            .append(imp.module())
+            .append("';\n");
+      } else if (imp.members().length > 0) {
+        sb.append("import { ")
+            .append(String.join(", ", imp.members()))
+            .append(" } from '")
+            .append(imp.module())
+            .append("';\n");
+      }
+      output.insert(0, sb.toString());
+    }
+  }
+
+  /**
+   * Emits any @TypeScriptAppend-annotated code blocks. Code marked atTop=true is prepended to
+   * output; otherwise it is appended after the class.
+   */
+  private static void emitTypeScriptAppends(Class<?> clazz) {
+    TypeScriptAppend[] appends = clazz.getAnnotationsByType(TypeScriptAppend.class);
+    for (TypeScriptAppend append : appends) {
+      if (append.atTop()) {
+        output.insert(0, append.value() + "\n");
+      } else {
+        output.append(append.value()).append("\n");
+      }
+    }
   }
 
   // ============================================

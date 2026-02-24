@@ -6,6 +6,11 @@ export class Deadline {
     this.deadline = deadline;
     this.others = others;
   }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
 }
 
 export class Sequence {
@@ -13,6 +18,11 @@ export class Sequence {
   actions?: AutoAction[];
 	constructor({actions = []}: Partial<{actions: AutoAction[]}>) {
     this.actions = actions;
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
   }
 }
 
@@ -22,6 +32,11 @@ export class Parallel {
 	constructor({actions = []}: Partial<{actions: AutoAction[]}>) {
     this.actions = actions;
   }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
 }
 
 export class Race {
@@ -29,6 +44,11 @@ export class Race {
   actions?: AutoAction[];
 	constructor({actions = []}: Partial<{actions: AutoAction[]}>) {
     this.actions = actions;
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
   }
 }
 
@@ -39,6 +59,11 @@ export class Wait {
   delay?: Units.Time;
 	constructor({delay = undefined}: Partial<{delay: Units.Time}>) {
     this.delay = delay;
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
   }
 }
 
@@ -135,7 +160,14 @@ export class AutoPilotAction {
     this.constraints = constraints;
     this.pidGains = pidGains;
   }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
 }
 
 export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | AutoPilotAction | undefined | null;
 
+let _addCommandHook: ((command: NonNullable<AutoAction>) => void) | null = null;
+export function setAddCommandHook(hook: (command: NonNullable<AutoAction>) => void) { _addCommandHook = hook; }
