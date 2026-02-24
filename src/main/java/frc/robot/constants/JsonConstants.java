@@ -106,7 +106,7 @@ public class JsonConstants {
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
     TypeScriptGenerator.generateForClasses(
-        Filesystem.getDeployDirectory().toPath().resolve("autos/AutoAction.ts").toString(),
+        "AutoAction.ts",
         AutoAction.class);
   }
 

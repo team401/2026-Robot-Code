@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.*;
+import java.nio.file.Path;
 import java.util.*;
 
 // Written with the help of ChatGPT.
@@ -36,6 +37,8 @@ public final class TypeScriptGenerator {
   private static final Set<Class<?>> generated = new HashSet<>();
   private static final StringBuilder output = new StringBuilder();
   private static boolean hasGeneratedUnits = false;
+  private static final String BASE_FILE_PATH = "typescript";
+  private static final Path BASE_PATH = Filesystem.getDeployDirectory().toPath().resolve(BASE_FILE_PATH);
   private static String unitFilePath = "Units.ts";
   private static boolean hasImportedUnits = false;
 
@@ -51,7 +54,7 @@ public final class TypeScriptGenerator {
     unitFilePath = path;
   }
 
-  public static void generateUnitsFile(String filePath) {
+  public static void generateUnitsFile() {
     if (hasGeneratedUnits) return;
     hasGeneratedUnits = true;
     StringBuilder sb = new StringBuilder();
@@ -102,9 +105,7 @@ public final class TypeScriptGenerator {
 
     try (FileWriter writer =
         new FileWriter(
-            Filesystem.getDeployDirectory()
-                .toPath()
-                .resolve("autos")
+            BASE_PATH
                 .resolve(unitFilePath)
                 .toString())) {
       writer.write(sb.toString());
@@ -151,7 +152,7 @@ public final class TypeScriptGenerator {
   }
 
   private static void writeOutput(String filePath) {
-    try (FileWriter writer = new FileWriter(filePath)) {
+    try (FileWriter writer = new FileWriter(BASE_PATH.resolve(filePath).toString())) {
       writer.write(output.toString());
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -435,7 +436,7 @@ public final class TypeScriptGenerator {
 
   private static void ensureUnitsFile() {
     if (hasGeneratedUnits) return;
-    generateUnitsFile(unitFilePath);
+    generateUnitsFile();
   }
 
   private static void ensureUnitsIncluded() {

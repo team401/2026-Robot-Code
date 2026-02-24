@@ -7,7 +7,6 @@ import frc.robot.auto.drive.AutoPilotAction;
 import frc.robot.auto.general.Deadline;
 import frc.robot.auto.general.Parallel;
 import frc.robot.auto.general.Race;
-import frc.robot.auto.general.RoutineCall;
 import frc.robot.auto.general.Sequence;
 import frc.robot.subsystems.drive.DriveCoordinator;
 
@@ -15,7 +14,6 @@ import frc.robot.subsystems.drive.DriveCoordinator;
     property = "type",
     subtypes = {
       // General actions
-      @JsonSubtype(clazz = RoutineCall.class, name = "RoutineCall"),
       @JsonSubtype(clazz = Deadline.class, name = "Deadline"),
       @JsonSubtype(clazz = Sequence.class, name = "Sequence"),
       @JsonSubtype(clazz = Parallel.class, name = "Parallel"),
@@ -27,7 +25,7 @@ public abstract class AutoAction {
 
   public String type;
 
-  public record AutoActionData(DriveCoordinator driveCoordinator, Auto auto) {}
+  public record AutoActionData(DriveCoordinator driveCoordinator, Autos auto) {}
 
   public abstract Command toCommand(AutoActionData data);
 }
