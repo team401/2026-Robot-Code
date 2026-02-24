@@ -28,12 +28,14 @@ import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
+import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
@@ -167,6 +169,8 @@ public class CoordinationLayer {
    */
   @AutoLogOutput(key = "CoordinationLayer/shootingEnabled")
   private boolean shootingEnabled = false;
+
+  private final MatchState matchState = new MatchState();
 
   public CoordinationLayer(DependencyOrderedExecutor dependencyOrderedExecutor) {
     this.dependencyOrderedExecutor = dependencyOrderedExecutor;
@@ -605,6 +609,9 @@ public class CoordinationLayer {
   }
 
   // Coordination and processing
+  /** Coordinates subsystem actions based on the desired action and subsystem inputs */
+  public void coordinateSubsystemActions() {}
+
   /**
    * This method is like the "periodic" of the CoordinationLayer. It is run by the
    * DependencyOrderedExecutor and is responsible for polling our custom button loop, reading robot
@@ -854,6 +861,20 @@ public class CoordinationLayer {
                 shooter.setTargetVelocityRPM(shot.shooterRPM());
               });
         });
+  }
+
+  /** Update the MatchState each periodic loop */
+  private void updateMatchState() {
+    if (DriverStation.isEnabled()) {
+      matchState.enabledPeriodic(manualRedOverrideRequest, manualBlueOverrideRequest);
+    }
+
+    // This is temporary code left here to make it easy to integrate the time left functionality
+    // with LEDs and superstructure coordination later.
+    double timeLeft = matchState.getTimeLeftInCurrentShift();
+
+    boolean hasFiveSecondsLeft = timeLeft >= 5.0;
+    Logger.recordOutput("MatchState/has5sLeft", hasFiveSecondsLeft);
   }
 
   /**

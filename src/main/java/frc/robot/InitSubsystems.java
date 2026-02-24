@@ -313,7 +313,13 @@ public class InitSubsystems {
         // Real robot, instantiate hardware IO implementations
         return new ShooterSubsystem(
             dependencyOrderedExecutor,
-            MotorIOTalonFX.newLeader(mechanismConfig, talonFXConfigs),
+            MotorIOTalonFX.newLeader(
+                mechanismConfig,
+                talonFXConfigs,
+                JsonConstants.shooterConstants.shooterSignalRefreshRates,
+                JsonConstants.shooterConstants.shooterMediumPrioritySignals,
+                JsonConstants.shooterConstants.shooterHighPrioritySignals,
+                JsonConstants.shooterConstants.shooterOutputSignals),
             MotorIOTalonFX.newFollower(mechanismConfig, 0, talonFXConfigs));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations

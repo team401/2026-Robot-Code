@@ -183,6 +183,7 @@ public class RobotContainer {
           drive.ifPresent(
               (drive) -> {
                 ControllerSetup.initDriveBindings(driveCoordinator, drive);
+                ControllerSetup.initMatchStateBindings(coordinationLayer);
               });
         });
   }
