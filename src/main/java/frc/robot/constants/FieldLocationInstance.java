@@ -1,6 +1,5 @@
 package frc.robot.constants;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 /**
@@ -21,7 +20,4 @@ public class FieldLocationInstance {
    * perspective)
    */
   public final Translation3d rightPassingTarget = new Translation3d();
-
-  /** The translation to pretend the robot is at in order to shoot while shooting at the hub */
-  public final Pose2d manualHubShootingPosition = new Pose2d();
 }

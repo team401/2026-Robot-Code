@@ -8,6 +8,10 @@
     "value": 3.0,
     "unit": "Radian per Second"
   },
+  "indexingVelocity": {
+    "value": 2000,
+    "unit": "RPM"
+  },
   "hopperGains": {
     "kP": 0.5,
     "kI": 0.0,

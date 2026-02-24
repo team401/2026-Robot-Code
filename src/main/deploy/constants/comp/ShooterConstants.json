@@ -50,6 +50,10 @@
     "value": 2900.0,
     "unit": "Rotation per Minute"
   },
+  "shooterVelocitySetpointEpsilon": {
+    "value": 50.0,
+    "unit": "RPM"
+  },
   "shooterMaxAcceleration": {
     "value": 10,
     "unit": "Radian per Second per Second"
