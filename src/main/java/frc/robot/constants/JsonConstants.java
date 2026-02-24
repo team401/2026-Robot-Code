@@ -17,11 +17,13 @@ import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.auto.AutoAction;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.json.FixedJSONSyncConfigBuilder;
 import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONMotionProfileConfig;
 import frc.robot.util.json.JSONRotation3d;
 import frc.robot.util.json.JSONTransform2d;
 import frc.robot.util.json.JSONTransform3d;
+import frc.robot.util.json.OptionalTypeAdapterFactory;
 import frc.robot.util.ts.TypeScriptGenerator;
 
 /**
@@ -50,9 +52,11 @@ public class JsonConstants {
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
-    var jsonSyncSettings = new JSONSyncConfigBuilder();
+    var jsonSyncSettings = new FixedJSONSyncConfigBuilder();
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
+
+    jsonSyncSettings.addJsonTypeAdapterFactory(new OptionalTypeAdapterFactory());
 
     var pathProvider = environmentHandler.getEnvironmentPathProvider();
 

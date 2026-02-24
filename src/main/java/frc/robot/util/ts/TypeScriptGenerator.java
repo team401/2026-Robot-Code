@@ -211,13 +211,17 @@ public final class TypeScriptGenerator {
   // Interfaces
   // ============================================
 
+  private record TypeScriptField(String name, String type) {}
+
   public static void generateInterface(Class<?> clazz, String suggestedName) {
     suggestedName = suggestedName != null ? suggestedName : clazz.getSimpleName();
     if (emitted.contains(clazz)) return;
     emitted.add(clazz);
 
     StringBuilder sb = new StringBuilder();
-    sb.append("export interface ").append(suggestedName).append(" {\n");
+    sb.append("export class ").append(suggestedName).append(" {\n");
+
+    ArrayList<TypeScriptField> fields = new ArrayList<>();
 
     for (Field field : clazz.getDeclaredFields()) {
       if (shouldSkipField(field)) continue;
@@ -233,7 +237,13 @@ public final class TypeScriptGenerator {
 
       String tsType = resolveType(field.getGenericType(), originalFieldType.getSimpleName());
 
-      sb.append("  ").append(field.getName()).append(": ").append(tsType).append(";\n");
+      String name = namingStrategy.translateName(field);
+
+      fields.add(new TypeScriptField(name, tsType));
+    }
+
+    for (TypeScriptField field : fields) {
+      sb.append("  ").append(field.name).append(": ").append(field.type).append(";\n");
     }
 
     sb.append("}\n\n");
