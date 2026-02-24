@@ -34,11 +34,15 @@ public final class TypeScriptGenerator {
   private static FieldNamingStrategy namingStrategy;
 
   private static final Map<Class<?>, String> primitiveMap = new HashMap<>();
+  private static final Map<Type, String> typeScriptTypeMap = new HashMap<>();
   private static final Set<Class<?>> generated = new HashSet<>();
+  private static final Set<Type> defaultChecked = new HashSet<>(primitiveMap.keySet());
+  private static final Set<Type> defaultSupported = new HashSet<>(primitiveMap.keySet());
   private static final StringBuilder output = new StringBuilder();
   private static boolean hasGeneratedUnits = false;
   private static final String BASE_FILE_PATH = "typescript";
-  private static final Path BASE_PATH = Filesystem.getDeployDirectory().toPath().resolve(BASE_FILE_PATH);
+  private static final Path BASE_PATH =
+      Filesystem.getDeployDirectory().toPath().resolve(BASE_FILE_PATH);
   private static String unitFilePath = "Units.ts";
   private static boolean hasImportedUnits = false;
 
@@ -61,7 +65,7 @@ public final class TypeScriptGenerator {
     sb.append("export type Measure = {\n");
     sb.append("  value: number;\n");
     sb.append("  unit: string;\n");
-    sb.append("};\n\n");
+    sb.append("} | null | undefined;\n\n");
 
     sb.append("export class Unit<M extends Measure>{\n");
     sb.append("\tconstructor(public name: string) {}\n");
@@ -86,10 +90,12 @@ public final class TypeScriptGenerator {
               measureName = measureName.substring(0, measureName.length() - 4);
             }
             sb.append("export type ").append(measureName).append(" = Measure;\n");
+            typeScriptTypeMap.put(baseUnit.getClass(), measureName);
             baseUnits.put(baseUnit, measureName);
           }
           if (units.contains(unit)) return;
           units.add(unit);
+          typeScriptTypeMap.put(unit.getClass(), baseUnits.get(baseUnit));
           var unitName = unit.name().replace(" ", "_").replace("-", "_");
           if (unitName.equals("<?>")) unitName = "Unitless";
           sb.append("export const ")
@@ -103,11 +109,7 @@ public final class TypeScriptGenerator {
 
     System.out.println("Generated TypeScript definitions for " + units.size() + " units.");
 
-    try (FileWriter writer =
-        new FileWriter(
-            BASE_PATH
-                .resolve(unitFilePath)
-                .toString())) {
+    try (FileWriter writer = new FileWriter(BASE_PATH.resolve(unitFilePath).toString())) {
       writer.write(sb.toString());
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -134,6 +136,8 @@ public final class TypeScriptGenerator {
     primitiveMap.put(String.class, "string");
     primitiveMap.put(char.class, "string");
     primitiveMap.put(Character.class, "string");
+
+    typeScriptTypeMap.putAll(primitiveMap);
   }
 
   // ============================================
@@ -211,12 +215,13 @@ public final class TypeScriptGenerator {
   // Interfaces
   // ============================================
 
-  private record TypeScriptField(String name, String type) {}
+  private record TypeScriptField(String name, String type, Class<?> originalType) {}
 
   public static void generateInterface(Class<?> clazz, String suggestedName) {
     suggestedName = suggestedName != null ? suggestedName : clazz.getSimpleName();
     if (emitted.contains(clazz)) return;
     emitted.add(clazz);
+    typeScriptTypeMap.put(clazz, suggestedName);
 
     StringBuilder sb = new StringBuilder();
     sb.append("export class ").append(suggestedName).append(" {\n");
@@ -239,12 +244,62 @@ public final class TypeScriptGenerator {
 
       String name = namingStrategy.translateName(field);
 
-      fields.add(new TypeScriptField(name, tsType));
+      fields.add(new TypeScriptField(name, tsType, originalFieldType));
     }
 
+    boolean supportsDefault = supportsDefaultValue(clazz);
+
     for (TypeScriptField field : fields) {
-      sb.append("  ").append(field.name).append(": ").append(field.type).append(";\n");
+      sb.append("  ").append(field.name);
+      if (supportsDefault) {
+        sb.append("?");
+      }
+      sb.append(": ").append(field.type).append(";\n");
     }
+
+    sb.append("\tconstructor({");
+
+    for (int i = 0; i < fields.size(); i++) {
+      TypeScriptField field = fields.get(i);
+      sb.append(field.name);
+      if (supportsDefault) {
+        String defaultValue = getDefaultValue(field.originalType);
+        sb.append(" = ").append(defaultValue);
+      }
+      if (i < fields.size() - 1) {
+        sb.append(", ");
+      }
+    }
+
+    sb.append("}: ");
+
+    if (supportsDefault) {
+      sb.append("Partial<");
+    }
+
+    sb.append("{");
+
+    for (int i = 0; i < fields.size(); i++) {
+      TypeScriptField field = fields.get(i);
+      sb.append(field.name).append(": ").append(field.type);
+      if (i < fields.size() - 1) {
+        sb.append("; ");
+      }
+    }
+
+    sb.append("}");
+
+    if (supportsDefault) {
+      sb.append(">");
+    }
+
+    sb.append(") {\n");
+
+    for (TypeScriptField field : fields) {
+      sb.append("    this.").append(field.name).append(" = ").append(field.name).append(";\n");
+    }
+
+    sb.append("  }\n");
 
     sb.append("}\n\n");
     output.append(sb);
@@ -260,6 +315,8 @@ public final class TypeScriptGenerator {
     String discriminator = typeAnnotation.property();
 
     List<String> subtypeNames = new ArrayList<>();
+
+    typeScriptTypeMap.put(baseClass, baseClass.getSimpleName());
 
     for (JsonSubtype subtype : typeAnnotation.subtypes()) {
       Class<?> subClass = subtype.clazz();
@@ -283,6 +340,8 @@ public final class TypeScriptGenerator {
 
     if (generated.contains(clazz)) return;
     generated.add(clazz);
+
+    typeScriptTypeMap.put(clazz, clazz.getSimpleName());
 
     StringBuilder sb = new StringBuilder();
 
@@ -343,6 +402,7 @@ public final class TypeScriptGenerator {
       if (Map.class.isAssignableFrom(clazz)) {
         return "{ [key: string]: any }";
       }
+
       suggestedName = suggestedName != null ? suggestedName : clazz.getSimpleName();
       if (isUnit) {
         // For units, we want to return the Measure type instead of the wrapper interface
@@ -372,6 +432,10 @@ public final class TypeScriptGenerator {
         // Map<String, T>
         if (Map.class.isAssignableFrom(rawClass)) {
           return "{ [key: string]: " + resolveType(args[1]) + " }";
+        }
+
+        if (Optional.class.isAssignableFrom(rawClass)) {
+          return "Partial<" + resolveType(args[0]) + ">";
         }
 
         // Check wrapper for raw class
@@ -410,6 +474,7 @@ public final class TypeScriptGenerator {
 
     if (generated.contains(clazz)) return;
     generated.add(clazz);
+    typeScriptTypeMap.put(clazz, clazz.getSimpleName());
 
     output.append("export type ").append(clazz.getSimpleName()).append(" = ");
 
@@ -447,6 +512,104 @@ public final class TypeScriptGenerator {
   private static void ensureUnitsFile() {
     if (hasGeneratedUnits) return;
     generateUnitsFile();
+  }
+
+  private static boolean supportsDefaultValue(Type type) {
+    if (!defaultChecked.contains(type)) {
+      getDefaultValue(type); // This will populate defaultChecked and defaultSupported
+    }
+    return defaultSupported.contains(type);
+  }
+
+  private static String getDefaultValue(Type type) {
+    Optional<String> defaultValue = _getDefaultValue(type);
+    if (!defaultChecked.contains(type)) {
+      defaultChecked.add(type);
+      if (defaultValue != null) {
+        defaultSupported.add(type);
+      }
+    }
+    defaultValue = defaultValue != null ? defaultValue : Optional.empty();
+    return defaultValue.orElse("undefined");
+  }
+
+  // Is using the fact I can return null to distinguish between should default to null, and should
+  // not have a default value at all. A bit hacky but it works.
+  private static Optional<String> _getDefaultValue(Type type) {
+    if (defaultChecked.contains(type) && !defaultSupported.contains(type)) {
+      return null;
+    }
+    if (primitiveMap.containsKey(type)) {
+      String tsType = primitiveMap.get(type);
+      switch (tsType) {
+        case "number":
+          return Optional.of("0");
+        case "boolean":
+          return Optional.of("false");
+        case "string":
+          return Optional.of("\"\"");
+        default:
+          return Optional.of("undefined");
+      }
+    }
+
+    if (type instanceof Class<?> clazz) {
+      if (clazz.isEnum()) {
+        Object[] constants = clazz.getEnumConstants();
+        if (constants.length > 0) {
+          return Optional.of("\"" + constants[0].toString() + "\"");
+        }
+      }
+
+      if (isUnitType(clazz)) {
+        ensureUnitsIncluded();
+        return Optional.of("null"); // Units don't have a reasonable default value, so we should just default to null
+      }
+
+      try {
+        var wrapper = JSONConverter.convert(clazz);
+        if (wrapper != null) {
+          return Optional.of(getDefaultValue(wrapper));
+        }
+      } catch (ConversionException e) {
+      }
+
+      // Test if all sub fields can have default values, if so we can default to an object with all
+      // default values.
+      // This is a bit of a stretch but it allows us to have reasonable defaults for simple data
+      // classes without
+      // having to write custom TypeAdapters or default value providers.
+      for (Field field : getAllFields(clazz)) {
+        if (shouldSkipField(field)) continue;
+        if (!supportsDefaultValue(field.getType())) {
+          return null;
+        }
+      }
+
+      // If we got here, it means all fields support default values, so we can return an object with
+      // all default values.
+      // So we should just be able to call a empty constructor
+      return Optional.of("new " + typeScriptTypeMap.get(clazz) + "({})");
+    }
+
+    if (type instanceof ParameterizedType pt) {
+      Type raw = pt.getRawType();
+      if (raw instanceof Class<?> rawClass) {
+        if (Collection.class.isAssignableFrom(rawClass)) {
+          return Optional.of("[]");
+        }
+        if (Map.class.isAssignableFrom(rawClass)) {
+          return Optional.of("{}");
+        }
+        if (Optional.class.isAssignableFrom(rawClass)) {
+          return Optional.of("undefined");
+        }
+      } else {
+
+      }
+    }
+
+    return null;
   }
 
   private static void ensureUnitsIncluded() {

@@ -230,7 +230,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   protected void zeroPositionIfBelowZero() {
     // Commented out because the intake can actually go down to ~-8 degrees now.
     // if (pivotInputs.positionRadians < 0) {
-      // pivotMotorIO.setCurrentPositionAsZero();
+    // pivotMotorIO.setCurrentPositionAsZero();
     // }
   }
 }

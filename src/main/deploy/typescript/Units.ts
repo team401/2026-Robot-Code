@@ -91,3 +91,5 @@ export const Unitless = new Unit<Dimensionless>("<?>");
 export const Ohm = new Unit<Resistance>("Ohm");
 export const Ounce_force = new Unit<Force>("Ounce-force");
 export const Pound_force = new Unit<Force>("Pound-force");
+export type Velocity = Measure;
+export const Rotation_per_Second_per_Second_per_Second = new Unit<Velocity>("Rotation per Second per Second per Second");

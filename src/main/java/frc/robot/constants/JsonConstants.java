@@ -1,10 +1,10 @@
 package frc.robot.constants;
 
-import com.therekrab.autopilot.APTarget;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
+
+import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.JSONHandler;
-import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
@@ -121,9 +121,7 @@ public class JsonConstants {
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
-    TypeScriptGenerator.generateForClasses(
-        "AutoAction.ts",
-        AutoAction.class);
+    TypeScriptGenerator.generateForClasses("AutoAction.ts", AutoAction.class);
   }
 
   public static RobotInfo robotInfo;

@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 public class Race extends AutoAction {
   public AutoAction[] actions;
 
-
   @Override
   public Command toCommand(AutoActionData data) {
     return new ParallelRaceGroup(
