@@ -1,7 +1,7 @@
 export type Measure = {
   value: number;
   unit: string;
-};
+} | null | undefined;
 
 export class Unit<M extends Measure>{
 	constructor(public name: string) {}

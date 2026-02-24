@@ -331,7 +331,9 @@ public final class TypeScriptGenerator {
         .append("export type ")
         .append(baseClass.getSimpleName())
         .append(" = ")
+        .append("Partial<")
         .append(String.join(" | ", subtypeNames))
+        .append(">")
         .append(";\n\n");
   }
 
@@ -345,20 +347,88 @@ public final class TypeScriptGenerator {
 
     StringBuilder sb = new StringBuilder();
 
-    sb.append("export interface ").append(clazz.getSimpleName()).append(" {\n");
+    sb.append("export class ").append(clazz.getSimpleName()).append(" {\n");
+    sb.append("  ")
+        .append(discriminator)
+        .append(": \"")
+        .append(discriminatorValue)
+        .append("\" = \"")
+        .append(discriminatorValue)
+        .append("\";\n");
 
-    sb.append("  ").append(discriminator).append(": \"").append(discriminatorValue).append("\";\n");
+    ArrayList<TypeScriptField> fields = new ArrayList<>();
 
     for (Field field : getAllFields(clazz)) {
-
       if (shouldSkipField(field)) continue;
       if (field.getName().equals(discriminator)) continue;
 
-      String fieldName = namingStrategy.translateName(field);
-      String tsType = resolveType(field.getGenericType());
+      Class<?> fieldType = field.getType();
+      Class<?> originalFieldType = fieldType;
 
-      sb.append("  ").append(fieldName).append(": ").append(tsType).append(";\n");
+      try {
+        fieldType = JSONConverter.convert(fieldType);
+      } catch (ConversionException ignored) {
+      }
+
+      String tsType = resolveType(field.getGenericType(), originalFieldType.getSimpleName());
+      String name = namingStrategy.translateName(field);
+
+      fields.add(new TypeScriptField(name, tsType, originalFieldType));
     }
+
+    boolean supportsDefault = supportsDefaultValue(clazz);
+
+    for (TypeScriptField field : fields) {
+      sb.append("  ").append(field.name);
+      if (supportsDefault) {
+        sb.append("?");
+      }
+      sb.append(": ").append(field.type).append(";\n");
+    }
+
+    sb.append("\tconstructor({");
+
+    for (int i = 0; i < fields.size(); i++) {
+      TypeScriptField field = fields.get(i);
+      sb.append(field.name);
+      if (supportsDefault) {
+        String defaultValue = getDefaultValue(field.originalType);
+        sb.append(" = ").append(defaultValue);
+      }
+      if (i < fields.size() - 1) {
+        sb.append(", ");
+      }
+    }
+
+    sb.append("}: ");
+
+    if (supportsDefault) {
+      sb.append("Partial<");
+    }
+
+    sb.append("{");
+
+    for (int i = 0; i < fields.size(); i++) {
+      TypeScriptField field = fields.get(i);
+      sb.append(field.name).append(": ").append(field.type);
+      if (i < fields.size() - 1) {
+        sb.append("; ");
+      }
+    }
+
+    sb.append("}");
+
+    if (supportsDefault) {
+      sb.append(">");
+    }
+
+    sb.append(") {\n");
+
+    for (TypeScriptField field : fields) {
+      sb.append("    this.").append(field.name).append(" = ").append(field.name).append(";\n");
+    }
+
+    sb.append("  }\n");
 
     sb.append("}\n\n");
     output.append(sb);
@@ -554,6 +624,11 @@ public final class TypeScriptGenerator {
     }
 
     if (type instanceof Class<?> clazz) {
+
+      if (clazz.isArray()) {
+        return Optional.of("[]");
+      }
+
       if (clazz.isEnum()) {
         Object[] constants = clazz.getEnumConstants();
         if (constants.length > 0) {
@@ -561,9 +636,15 @@ public final class TypeScriptGenerator {
         }
       }
 
+      if (Modifier.isAbstract(clazz.getModifiers())) {
+        return Optional.of("undefined");
+      }
+
       if (isUnitType(clazz)) {
         ensureUnitsIncluded();
-        return Optional.of("null"); // Units don't have a reasonable default value, so we should just default to null
+        return Optional.of(
+            "null"); // Units don't have a reasonable default value, so we should just default to
+        // null
       }
 
       try {

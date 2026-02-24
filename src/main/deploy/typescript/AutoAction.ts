@@ -1,22 +1,35 @@
-export interface Deadline {
-  type: "Deadline";
-  deadline: AutoAction;
-  others: AutoAction[];
+export class Deadline {
+  type: "Deadline" = "Deadline";
+  deadline?: AutoAction;
+  others?: AutoAction[];
+	constructor({deadline = undefined, others = []}: Partial<{deadline: AutoAction; others: AutoAction[]}>) {
+    this.deadline = deadline;
+    this.others = others;
+  }
 }
 
-export interface Sequence {
-  type: "Sequence";
-  actions: AutoAction[];
+export class Sequence {
+  type: "Sequence" = "Sequence";
+  actions?: AutoAction[];
+	constructor({actions = []}: Partial<{actions: AutoAction[]}>) {
+    this.actions = actions;
+  }
 }
 
-export interface Parallel {
-  type: "Parallel";
-  actions: AutoAction[];
+export class Parallel {
+  type: "Parallel" = "Parallel";
+  actions?: AutoAction[];
+	constructor({actions = []}: Partial<{actions: AutoAction[]}>) {
+    this.actions = actions;
+  }
 }
 
-export interface Race {
-  type: "Race";
-  actions: AutoAction[];
+export class Race {
+  type: "Race" = "Race";
+  actions?: AutoAction[];
+	constructor({actions = []}: Partial<{actions: AutoAction[]}>) {
+    this.actions = actions;
+  }
 }
 
 export class Rotation2d {
@@ -50,8 +63,8 @@ export class APTarget {
   reference?: Pose2d;
   entryAngle?: Rotation2d;
   velocity?: number;
-  rotationRadius?: Units.Distance | undefined;
-  constructor({reference = new Pose2d({}), entryAngle = new Rotation2d({}), velocity = 0, rotationRadius = undefined}: Partial<{reference: Pose2d; entryAngle: Rotation2d; velocity: number; rotationRadius: Units.Distance}>) {
+  rotationRadius?: Units.Distance;
+	constructor({reference = new Pose2d({}), entryAngle = new Rotation2d({}), velocity = 0, rotationRadius = undefined}: Partial<{reference: Pose2d; entryAngle: Rotation2d; velocity: number; rotationRadius: Units.Distance}>) {
     this.reference = reference;
     this.entryAngle = entryAngle;
     this.velocity = velocity;
@@ -75,7 +88,7 @@ export class APProfile {
   errorXY?: Units.Distance;
   errorTheta?: Units.Angle;
   beelineRadius?: Units.Distance;
-	constructor({constraints = new APConstraints({}), errorXY = null, errorTheta = null, beelineRadius = null}: Partial<{constraints: APConstraints; errorXY: Units.Distance; errorTheta: Units.Angle; beelineRadius: Units.Distance}>) {
+	constructor({constraints = new APConstraints({}), errorXY = undefined, errorTheta = undefined, beelineRadius = undefined}: Partial<{constraints: APConstraints; errorXY: Units.Distance; errorTheta: Units.Angle; beelineRadius: Units.Distance}>) {
     this.constraints = constraints;
     this.errorXY = errorXY;
     this.errorTheta = errorTheta;
@@ -102,12 +115,18 @@ export class PIDGains {
   }
 }
 
-export interface AutoPilotAction {
-  type: "AutoPilotAction";
-  target: APTarget;
-  profile: APProfile;
-  constraints: APConstraints;
-  pidGains: PIDGains;
+export class AutoPilotAction {
+  type: "AutoPilotAction" = "AutoPilotAction";
+  target?: APTarget;
+  profile?: APProfile;
+  constraints?: APConstraints;
+  pidGains?: PIDGains;
+	constructor({target = new APTarget({}), profile = new APProfile({}), constraints = new APConstraints({}), pidGains = new PIDGains({})}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains}>) {
+    this.target = target;
+    this.profile = profile;
+    this.constraints = constraints;
+    this.pidGains = pidGains;
+  }
 }
 
 export type AutoAction = Deadline | Sequence | Parallel | Race | AutoPilotAction;
