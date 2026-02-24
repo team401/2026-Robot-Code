@@ -445,7 +445,7 @@ public final class TypeScriptGenerator {
     // TODO: add import statement to the output for the units file if it hasn't been added already
     output
         .append("import * as Units from './")
-        .append(unitFilePath.replace(".ts", ""))
+        .append(unitFilePath.replace(".ts", ".js"))
         .append("';\n\n");
   }
 }

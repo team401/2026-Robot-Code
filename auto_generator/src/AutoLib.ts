@@ -1,6 +1,4 @@
-import { AutoAction } from "./HardTest";
-
-type AutoCommand = AutoAction;
+import type { AutoAction as AutoCommand } from "@/autos/AutoAction.js";
 
 let command_pointers: AutoCommand[][] = [];
 let autos = new Map<string, AutoCommand[]>();
@@ -58,5 +56,5 @@ export function serializeAutos(): string {
   autos.forEach((commands, name) => {
     obj[name] = commands;
   });
-  return JSON.stringify(obj);
+  return JSON.stringify(obj, null, 4);
 }

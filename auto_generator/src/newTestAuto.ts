@@ -1,5 +1,5 @@
-import { AutoPilotAction } from './libs/HardTest';
-import * as AutoLib from './libs/NewAutoLib';
+import type { AutoPilotAction } from '@/autos/AutoAction.js';
+import * as AutoLib from './AutoLib.js';
 
 AutoLib.auto("Test Auto", () => {
   AutoLib.addCommand(
@@ -21,3 +21,4 @@ AutoLib.auto("Test Auto", () => {
 });
 
 console.log("Autos:", AutoLib.getAutos());
+console.log("Json Autos", AutoLib.serializeAutos());

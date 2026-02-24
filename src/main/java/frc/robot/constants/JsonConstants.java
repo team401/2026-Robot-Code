@@ -126,7 +126,7 @@ public class JsonConstants {
         Controllers.class);
 
     TypeScriptGenerator.generateForClasses(
-        Filesystem.getDeployDirectory().toPath().resolve("autos/HardTest.d.ts").toString(),
+        Filesystem.getDeployDirectory().toPath().resolve("autos/AutoAction.ts").toString(),
         AutoAction.class);
   }
 
