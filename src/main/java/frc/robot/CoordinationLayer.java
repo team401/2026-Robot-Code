@@ -33,6 +33,7 @@ import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
+import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.coordination.MatchState;
@@ -631,6 +632,18 @@ public class CoordinationLayer {
    * methods run.
    */
   public void coordinateRobotActions() {
+    if (DriverStation.isTest()) {
+      // Log distance to hub for test modes
+      drive.ifPresent(
+          drive -> {
+            Logger.recordOutput(
+                "CoordinationLayer/distanceToHub",
+                AllianceBasedFieldConstants.hubInnerCenterPoint()
+                    .toTranslation2d()
+                    .getDistance(drive.getPose().getTranslation()));
+          });
+    }
+
     updateMatchState();
 
     // Poll buttons. This will modify state variables depending on the states of the buttons
@@ -712,7 +725,24 @@ public class CoordinationLayer {
   private boolean aimForManualShot() {
     switch (shotMode) {
       case Hub -> {
-        // TODO: Add a fixed heading/distance-based shot for manual
+        double distanceMeters = JsonConstants.manualModeConstants.assumedHubDistance.in(Meters);
+
+        double hoodAngleRadians =
+            JsonConstants.shotMaps.hubMap.hoodAngleRadiansByDistanceMeters().get(distanceMeters);
+        hood.ifPresent(
+            hood -> {
+              hood.targetAngleRadians(hoodAngleRadians);
+            });
+
+        double shooterRPM =
+            JsonConstants.shotMaps.passingMap.rpmByDistanceMeters().get(distanceMeters);
+        shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
+
+        Rotation2d turretHeading =
+            AllianceUtil.isRed()
+                ? JsonConstants.manualModeConstants.redHubHeading
+                : JsonConstants.manualModeConstants.blueHubHeading;
+        turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
       }
       case Pass -> {
         double distanceMeters = JsonConstants.manualModeConstants.assumedPassDistance.in(Meters);

@@ -3,10 +3,20 @@
     "value": 4.0,
     "unit": "Meter"
   },
+  "assumedHubDistance": {
+    "value": 3.1,
+    "unit": "Meter"
+  },
   "bluePassHeading": {
     "radians": 0.0
   },
   "redPassHeading": {
     "radians": 3.141592653589793
+  },
+  "blueHubHeading": {
+    "radians": 3.141592653589793
+  },
+  "redHubHeading": {
+    "radians": 0.0
   }
 }

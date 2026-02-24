@@ -296,7 +296,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    *
    * <p>Returns false if the shooter is commanded to stop.
    *
-   * @return {@code true} if the shooter is controlling to a velocity and its measured velocity is within the threshold of its target velocity, {@code false} otherwise.
+   * @return {@code true} if the shooter is controlling to a velocity and its measured velocity is
+   *     within the threshold of its target velocity, {@code false} otherwise.
    */
   @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
   public boolean isAtGoalVelocity() {

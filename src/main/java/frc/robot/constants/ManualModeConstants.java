@@ -11,4 +11,9 @@ public class ManualModeConstants {
 
   public final Rotation2d bluePassHeading = Rotation2d.kZero;
   public final Rotation2d redPassHeading = Rotation2d.k180deg;
+
+  public final Distance assumedHubDistance = Meters.of(3.1);
+
+  public final Rotation2d blueHubHeading = Rotation2d.k180deg;
+  public final Rotation2d redHubHeading = Rotation2d.kZero;
 }
