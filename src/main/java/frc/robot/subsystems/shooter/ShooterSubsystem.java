@@ -14,7 +14,10 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
@@ -65,6 +68,14 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   // State variables
   private final MutAngularVelocity targetVelocity = RPM.mutable(0.0);
+
+  // State variables for FF characterization
+  private int sampleCount = 0;
+  private double sumX = 0.0;
+  private double sumY = 0.0;
+  private double sumXY = 0.0;
+  private double sumX2 = 0.0;
+  private final Timer characterizationTimer = new Timer();
 
   public ShooterSubsystem(
       DependencyOrderedExecutor dependencyOrderedExecutor,
@@ -155,6 +166,24 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         JsonConstants.shooterConstants.invertFollower);
   }
 
+  /** Runs when test mode is entered. Should be called by the test mode state. */
+  protected void testInit() {
+    switch (testModeManager.getTestMode()) {
+      case ShooterFFCharacterization -> {
+        this.sampleCount = 0;
+        this.sumX = 0.0;
+        this.sumY = 0.0;
+        this.sumXY = 0.0;
+        this.sumX2 = 0.0;
+        this.characterizationTimer.restart();
+
+        Logger.recordOutput("Shooter/Characterization/kS", 0.0);
+        Logger.recordOutput("Shooter/Characterization/kV", 0.0);
+      }
+      default -> {}
+    }
+  }
+
   protected void testPeriodic() {
     switch (testModeManager.getTestMode()) {
       case ShooterClosedLoopTuning -> {
@@ -209,6 +238,34 @@ public class ShooterSubsystem extends MonitoredSubsystem {
       }
       case ShooterVoltageTuning -> {
         leadMotor.controlOpenLoopVoltage(Volts.of(shooterTuningVolts.getAsDouble()));
+      }
+      case ShooterFFCharacterization -> {
+        sampleCount++;
+
+        Current characterizationCurrent =
+            (Current)
+                JsonConstants.shooterConstants.characterizationRampRate.times(
+                    Seconds.of(characterizationTimer.get()));
+        double characterizationCurrentAmps = characterizationCurrent.in(Amps);
+
+        // TODO: Figure out why velocity is negative in sim
+        double velocityRotationsPerSecond =
+            Math.abs(Units.radiansToRotations(leadMotorInputs.velocityRadiansPerSecond));
+
+        sumX += velocityRotationsPerSecond;
+        sumY += characterizationCurrentAmps;
+        sumXY += velocityRotationsPerSecond * characterizationCurrentAmps;
+        sumX2 += velocityRotationsPerSecond * velocityRotationsPerSecond;
+
+        double kS = (sumY * sumX2 - sumX * sumXY) / (sampleCount * sumX2 - sumX * sumX);
+        double kV = (sampleCount * sumXY - sumX * sumY) / (sampleCount * sumX2 - sumX * sumX);
+
+        Logger.recordOutput("Shooter/Characterization/sampleCount", sampleCount);
+        Logger.recordOutput("Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
+        Logger.recordOutput("Shooter/Characterization/kS", kS);
+        Logger.recordOutput("Shooter/Characterization/kV", kV);
+
+        leadMotor.controlOpenLoopCurrent(characterizationCurrent);
       }
       default -> {}
     }

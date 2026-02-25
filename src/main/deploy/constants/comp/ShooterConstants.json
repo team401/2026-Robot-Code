@@ -17,6 +17,10 @@
   "shooterKV": 0.0,
   "shooterKA": 0.0,
   "shooterReduction": 0.625,
+  "characterizationRampRate": {
+    "value": 0.1,
+    "unit": "Amp per Second"
+  },
   "shooterSupplyCurrentLimit": {
     "value": 40.0,
     "unit": "Amp"

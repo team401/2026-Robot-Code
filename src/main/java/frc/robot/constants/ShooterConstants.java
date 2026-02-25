@@ -27,11 +27,13 @@ import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.CurrentUnit;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.util.sim.FlywheelSimAdapter;
 
@@ -119,6 +121,8 @@ public class ShooterConstants {
 
   public AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
   public AngularAcceleration shooterMaxAcceleration = RPM.of(3000).per(Second);
+
+  public Velocity<CurrentUnit> characterizationRampRate = Amps.of(0.1).per(Second);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
