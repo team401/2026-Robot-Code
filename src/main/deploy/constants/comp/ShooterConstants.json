@@ -13,7 +13,7 @@
   "shooterKP": 7.0,
   "shooterKI": 0.0,
   "shooterKD": 0.0,
-  "shooterKS": 0.0,
+  "shooterKS": 12.0,
   "shooterKV": 0.0,
   "shooterKA": 0.0,
   "shooterReduction": 0.625,
