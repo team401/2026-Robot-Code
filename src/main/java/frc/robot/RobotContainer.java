@@ -7,11 +7,15 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import coppercore.metadata.CopperCoreMetadata;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -153,20 +157,55 @@ public class RobotContainer {
   }
 
   public void updateRobotModel() {
+    Angle turretAngle =
+        coordinationLayer
+            .getTurret()
+            .map(TurretSubsystem::getTurretAngleRobotRelative)
+            .orElse(Radians.zero());
+    Angle hoodAngle =
+        coordinationLayer.getHood().map(HoodSubsystem::getCurrentExitAngle).orElse(Radians.zero());
+
+    var shooterBasePosition =
+        new Pose3d(new Translation3d(0.058, -0.245, 0.37), new Rotation3d(0.0, 0.0, Math.PI / 2));
+    var shooterOffsetFromReferencePoint =
+        new Transform3d(0.1045, -0.039, 0, new Rotation3d(0, 0, 0));
+    var shooterWithTurretAngle =
+        shooterBasePosition
+            .plus(shooterOffsetFromReferencePoint)
+            .plus(new Transform3d(0, 0, 0, new Rotation3d(0, 0, turretAngle.in(Radians))))
+            .plus(shooterOffsetFromReferencePoint.inverse());
+    var hoodOffsetFromShooter =
+        new Transform3d(0.1875, -0.032, 0.0165, new Rotation3d(Math.PI / 2, 0, 0));
+    var hoodOffsetFromReferencePoint = new Transform3d(0, 0.021, 0.101, new Rotation3d(0, 0, 0));
+    // The order of these components are described in
+    // advantagekit_config/Robot_401_2026/reference.txt
     Logger.recordOutput(
         "componentPositions",
         new Pose3d[] {
-          new Pose3d(new Translation3d(0.058, -0.245, 0.37), new Rotation3d(0.0, 0.0, Math.PI / 2)),
+          // Shooter base
+          shooterWithTurretAngle,
+          // Indexer + hopper
           new Pose3d(
               new Translation3d(-0.121, -0.025, 0.0),
               new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2)),
+          // Intake
           new Pose3d(
               new Translation3d(-0.35, 0.0, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
+          // Turret
           new Pose3d(
               new Translation3d(0.099, -0.138, 0.331),
               new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
+          // Climb
           new Pose3d(
-              new Translation3d(0.028, 0.259, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI))
+              new Translation3d(0.028, 0.259, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI)),
+          // Hood
+          shooterWithTurretAngle
+              .plus(hoodOffsetFromShooter)
+              .plus(hoodOffsetFromReferencePoint)
+              .plus(
+                  new Transform3d(
+                      0, 0, 0, new Rotation3d(-hoodAngle.in(Radians) + Math.PI / 3 + Math.PI / 12, 0, 0)))
+              .plus(hoodOffsetFromReferencePoint.inverse())
         });
   }
 

@@ -370,4 +370,12 @@ public class CoordinationLayer {
             .orElse(idealShot.yawRadians()),
         idealShot.timeSeconds());
   }
+
+  public Optional<TurretSubsystem> getTurret() {
+    return turret;
+  }
+
+  public Optional<HoodSubsystem> getHood() {
+    return hood;
+  }
 }
