@@ -261,7 +261,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         double kV = (sampleCount * sumXY - sumX * sumY) / (sampleCount * sumX2 - sumX * sumX);
 
         Logger.recordOutput("Shooter/Characterization/sampleCount", sampleCount);
-        Logger.recordOutput("Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
+        Logger.recordOutput(
+            "Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
         Logger.recordOutput("Shooter/Characterization/kS", kS);
         Logger.recordOutput("Shooter/Characterization/kV", kV);
 
