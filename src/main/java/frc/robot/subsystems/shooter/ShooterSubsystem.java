@@ -287,10 +287,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
           Current characterizationCurrent =
               (Current)
-                  JsonConstants.shooterConstants
-                      .characterizationRampRate
-                      .times(Seconds.of(characterizationTimer.get()))
-                      .plus(Amps.of(9));
+                  JsonConstants.shooterConstants.characterizationRampRate.times(
+                      Seconds.of(characterizationTimer.get()));
           double characterizationCurrentAmps = characterizationCurrent.in(Amps);
 
           // TODO: Figure out why velocity is negative in sim
