@@ -17,6 +17,7 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -240,33 +241,37 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         leadMotor.controlOpenLoopVoltage(Volts.of(shooterTuningVolts.getAsDouble()));
       }
       case ShooterFFCharacterization -> {
-        sampleCount++;
+        if (DriverStation.isEnabled()) {
+          sampleCount++;
 
-        Current characterizationCurrent =
-            (Current)
-                JsonConstants.shooterConstants.characterizationRampRate.times(
-                    Seconds.of(characterizationTimer.get()));
-        double characterizationCurrentAmps = characterizationCurrent.in(Amps);
+          Current characterizationCurrent =
+              (Current)
+                  JsonConstants.shooterConstants
+                      .characterizationRampRate
+                      .times(Seconds.of(characterizationTimer.get()))
+                      .plus(Amps.of(9));
+          double characterizationCurrentAmps = characterizationCurrent.in(Amps);
 
-        // TODO: Figure out why velocity is negative in sim
-        double velocityRotationsPerSecond =
-            Math.abs(Units.radiansToRotations(leadMotorInputs.velocityRadiansPerSecond));
+          // TODO: Figure out why velocity is negative in sim
+          double velocityRotationsPerSecond =
+              Math.abs(Units.radiansToRotations(leadMotorInputs.velocityRadiansPerSecond));
 
-        sumX += velocityRotationsPerSecond;
-        sumY += characterizationCurrentAmps;
-        sumXY += velocityRotationsPerSecond * characterizationCurrentAmps;
-        sumX2 += velocityRotationsPerSecond * velocityRotationsPerSecond;
+          sumX += velocityRotationsPerSecond;
+          sumY += characterizationCurrentAmps;
+          sumXY += velocityRotationsPerSecond * characterizationCurrentAmps;
+          sumX2 += velocityRotationsPerSecond * velocityRotationsPerSecond;
 
-        double kS = (sumY * sumX2 - sumX * sumXY) / (sampleCount * sumX2 - sumX * sumX);
-        double kV = (sampleCount * sumXY - sumX * sumY) / (sampleCount * sumX2 - sumX * sumX);
+          double kS = (sumY * sumX2 - sumX * sumXY) / (sampleCount * sumX2 - sumX * sumX);
+          double kV = (sampleCount * sumXY - sumX * sumY) / (sampleCount * sumX2 - sumX * sumX);
 
-        Logger.recordOutput("Shooter/Characterization/sampleCount", sampleCount);
-        Logger.recordOutput(
-            "Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
-        Logger.recordOutput("Shooter/Characterization/kS", kS);
-        Logger.recordOutput("Shooter/Characterization/kV", kV);
+          Logger.recordOutput("Shooter/Characterization/sampleCount", sampleCount);
+          Logger.recordOutput(
+              "Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
+          Logger.recordOutput("Shooter/Characterization/kS", kS);
+          Logger.recordOutput("Shooter/Characterization/kV", kV);
 
-        leadMotor.controlOpenLoopCurrent(characterizationCurrent);
+          leadMotor.controlOpenLoopCurrent(characterizationCurrent);
+        }
       }
       default -> {}
     }

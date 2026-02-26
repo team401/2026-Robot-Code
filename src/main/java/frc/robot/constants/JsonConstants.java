@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
@@ -41,6 +42,7 @@ public class JsonConstants {
     JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
 
     JSONMeasure.registerUnit(Amp.per(Second));
+    JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
   public static void loadConstants() {

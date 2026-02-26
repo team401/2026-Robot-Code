@@ -10,15 +10,15 @@
     7.5
   ],
   "defaultViMetersPerSecond": 9.0,
-  "shooterKP": 7.0,
+  "shooterKP": 14.0,
   "shooterKI": 0.0,
   "shooterKD": 0.0,
-  "shooterKS": 12.0,
-  "shooterKV": 0.0,
+  "shooterKS": 0.0,
+  "shooterKV": 0.46,
   "shooterKA": 0.0,
   "shooterReduction": 0.625,
   "characterizationRampRate": {
-    "value": 0.1,
+    "value": 0.5,
     "unit": "Amp per Second"
   },
   "shooterSupplyCurrentLimit": {
@@ -28,6 +28,10 @@
   "shooterStatorCurrentLimit": {
     "value": 80.0,
     "unit": "Amp"
+  },
+  "velocityFilterTime": {
+    "value": 0.01,
+    "unit": "Second"
   },
   "shooterMotorDirection": "Clockwise_Positive",
   "invertFollower": true,
@@ -55,7 +59,7 @@
     "unit": "Rotation per Minute"
   },
   "shooterMaxAcceleration": {
-    "value": 10,
+    "value": 607.376,
     "unit": "Radian per Second per Second"
   },
   "shooterMOI": {
