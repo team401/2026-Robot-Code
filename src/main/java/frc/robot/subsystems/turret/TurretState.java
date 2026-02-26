@@ -85,6 +85,15 @@ public abstract class TurretState extends State<TurretSubsystem> {
     }
   }
 
+  /**
+   * The WearInState is only enabled when wearInShooter is enabled in shooter constants. It drives
+   * the turret gently toward its maximum end of its range before finishing, allowing homing to
+   * happen over and over again.
+   *
+   * <p>The thinking here is to gently move the turret back and forth over and over to "wear in" the
+   * mechanism: the friction is highest during initial integration, and as we wear it in it should
+   * get easier to move and also more consistent over time.
+   */
   public static class WearInState extends TurretState {
     @Override
     public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
@@ -92,6 +101,8 @@ public abstract class TurretState extends State<TurretSubsystem> {
 
       if (turret
           .getTurretAngleRobotRelative()
+          // Stop 30 degrees away to avoid hitting the hardstop more times than we need to. This
+          // number is just a guess, but it worked decently in real life.
           .isNear(JsonConstants.turretConstants.maxTurretAngle, Degrees.of(30.0))) {
         finish();
       }
