@@ -1,5 +1,6 @@
 package frc.robot.subsystems.turret;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import coppercore.controls.state_machine.State;
@@ -80,6 +81,19 @@ public abstract class TurretState extends State<TurretSubsystem> {
       if (turret.getTurretVelocity().abs(velocityComparisonUnit)
           < JsonConstants.turretConstants.homingMovementThreshold.in(velocityComparisonUnit)) {
         zeroTurretAndFinish(turret);
+      }
+    }
+  }
+
+  public static class WearInState extends TurretState {
+    @Override
+    public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
+      turret.applyNegativeHomingVoltage();
+
+      if (turret
+          .getTurretAngleRobotRelative()
+          .isNear(JsonConstants.turretConstants.maxTurretAngle, Degrees.of(30.0))) {
+        finish();
       }
     }
   }

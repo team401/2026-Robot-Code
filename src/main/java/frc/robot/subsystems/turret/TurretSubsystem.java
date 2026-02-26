@@ -29,6 +29,7 @@ import frc.robot.subsystems.turret.TurretState.HomingWaitForStoppingState;
 import frc.robot.subsystems.turret.TurretState.IdleState;
 import frc.robot.subsystems.turret.TurretState.TestModeState;
 import frc.robot.subsystems.turret.TurretState.TrackHeadingState;
+import frc.robot.subsystems.turret.TurretState.WearInState;
 import frc.robot.util.AngleUtil;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -84,6 +85,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   private final TurretState homingWaitForButtonState;
   private final TurretState homingWaitForMovementState;
   private final TurretState homingWaitForStoppingState;
+  private final TurretState wearInState;
   private final TurretState idleState;
   private final TurretState trackHeadingState;
   private final TurretState testModeState;
@@ -131,6 +133,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     homingWaitForButtonState = stateMachine.registerState(new HomingWaitForButtonState());
     homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
     homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
+    wearInState = stateMachine.registerState(new WearInState());
     idleState = stateMachine.registerState(new IdleState());
     trackHeadingState = stateMachine.registerState(new TrackHeadingState());
     testModeState = stateMachine.registerState(new TestModeState());
@@ -148,7 +151,12 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .whenTimeout(JsonConstants.turretConstants.homingMaxUnmovingTime)
         .transitionTo(homingWaitForStoppingState);
 
-    homingWaitForStoppingState.whenFinished().transitionTo(idleState);
+    if (JsonConstants.turretConstants.wearInTurret) {
+      homingWaitForStoppingState.whenFinished().transitionTo(wearInState);
+    } else {
+      homingWaitForStoppingState.whenFinished().transitionTo(idleState);
+    }
+    wearInState.whenFinished().transitionTo(homingWaitForButtonState);
 
     idleState
         .when(
@@ -281,6 +289,10 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   protected void applyHomingVoltage() {
     motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage);
+  }
+
+  protected void applyNegativeHomingVoltage() {
+    motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage.times(-0.5));
   }
 
   @AutoLogOutput(key = "Turret/robotRelativePosition")
