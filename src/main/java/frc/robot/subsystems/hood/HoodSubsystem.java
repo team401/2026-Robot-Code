@@ -33,8 +33,8 @@ import frc.robot.subsystems.hood.HoodState.IdleState;
 import frc.robot.subsystems.hood.HoodState.TargetAngleState;
 import frc.robot.subsystems.hood.HoodState.TargetPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
-import java.io.PrintWriter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -184,9 +184,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
         .when(hood -> !hood.isHoodTestMode(), "Isn't hood test mode")
         .transitionTo(idleState);
 
-    System.out.println("Hood state machine graph:");
-    stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
     stateMachine.setState(homingWaitForButtonState);
+    StateMachineDump.write("hood", stateMachine);
 
     // Initialize tunable numbers for test modes
     hoodKP = new LoggedTunableNumber("HoodTunables/HoodKP", JsonConstants.hoodConstants.hoodKP);

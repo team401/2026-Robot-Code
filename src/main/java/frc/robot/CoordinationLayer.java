@@ -48,8 +48,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.OptionalUtil;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.geometry.EnhancedLine2d;
-import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -282,7 +282,7 @@ public class CoordinationLayer {
         .transitionTo(noExtensionState);
 
     extensionStateMachine.setState(noExtensionState);
-    extensionStateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
+    StateMachineDump.write("coordination", extensionStateMachine);
   }
 
   // Controller bindings

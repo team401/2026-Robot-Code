@@ -1,0 +1,45 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  TargetAngleState ;
+  HomingWaitForMovementState ;
+  HomingWaitForStoppingState ;
+  IdleState ;
+  TargetPitchState ;
+  TestModeState ;
+  HomingWaitForButtonState ;
+
+  // Transitions
+
+  TargetAngleState -> IdleState [label="Action != TargetAngle"];
+
+  HomingWaitForMovementState -> HomingWaitForStoppingState [label="Is moving"];
+  HomingWaitForMovementState -> HomingWaitForStoppingState [label="timeout"];
+
+  HomingWaitForStoppingState -> IdleState [label="Is not moving"];
+
+  IdleState -> TestModeState [label="Is hood test mode"];
+  IdleState -> TargetPitchState [label="Action == TargetPitch"];
+  IdleState -> TargetAngleState [label="Action == TargetAngle"];
+
+  TargetPitchState -> IdleState [label="Action != TargetPitch"];
+
+  TestModeState -> IdleState [label="Isn't hood test mode"];
+
+  HomingWaitForButtonState -> IdleState [label="Homing switch is pressed"];
+  HomingWaitForButtonState -> HomingWaitForMovementState [label="Robot is enabled"];
+
+}

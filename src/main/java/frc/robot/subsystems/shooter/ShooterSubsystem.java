@@ -22,6 +22,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.shooter.ShooterState.CoastState;
 import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -127,6 +128,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         .transitionTo(coastState);
 
     stateMachine.setState(velocityControlState);
+    StateMachineDump.write("shooter", stateMachine);
 
     // Initialize tunable numbers for test modes
     shooterKP =

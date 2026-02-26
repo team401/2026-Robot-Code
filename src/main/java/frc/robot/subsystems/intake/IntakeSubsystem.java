@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -160,6 +161,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     IntakeState.homingDoneState.whenFinished().transitionTo(IntakeState.controlToPositionState);
 
     this.intakeStateMachine.setState(IntakeState.waitForButtonState);
+    StateMachineDump.write("intake", this.intakeStateMachine);
   }
 
   public void runRollers(AngularVelocity rollerSpeed) {
