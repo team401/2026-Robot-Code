@@ -975,7 +975,7 @@ public class CoordinationLayer {
         });
     hood.ifPresent(
         hood -> {
-          hood.targetPitch(Radians.of(idealShot.pitchRadians()));
+          hood.targetExitPitch(Radians.of(idealShot.pitchRadians()));
         });
   }
 
@@ -987,7 +987,7 @@ public class CoordinationLayer {
    */
   private ShotInfo getCurrentShot(ShotInfo idealShot) {
     return new ShotInfo(
-        hood.map(hood -> hood.getCurrentExitAngle().in(Radians))
+        hood.map(hood -> hood.getCurrentExitPitch().in(Radians))
             .orElse(
                 MathUtil.clamp(
                     idealShot.pitchRadians(),

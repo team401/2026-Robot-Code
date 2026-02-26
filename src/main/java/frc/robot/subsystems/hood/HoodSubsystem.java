@@ -31,7 +31,7 @@ import frc.robot.subsystems.hood.HoodState.HomingWaitForMovementState;
 import frc.robot.subsystems.hood.HoodState.HomingWaitForStoppingState;
 import frc.robot.subsystems.hood.HoodState.IdleState;
 import frc.robot.subsystems.hood.HoodState.TargetAngleState;
-import frc.robot.subsystems.hood.HoodState.TargetPitchState;
+import frc.robot.subsystems.hood.HoodState.TargetExitPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
@@ -49,7 +49,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
     /** Coasts the hood and waits for input */
     Idle,
     /** Targets a certain pitch (exit angle), commanded by the supervisor layer */
-    TargetPitch,
+    TargetExitPitch,
     /** Targets a certain angle, commanded by the supervisor layer */
     TargetAngle,
   }
@@ -72,7 +72,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private final HoodState homingWaitForMovementState;
   private final HoodState homingWaitForStoppingState;
   private final HoodState idleState;
-  private final HoodState targetPitchState;
+  private final HoodState targetExitPitchState;
   private final HoodState targetAngleState;
   private final HoodState testModeState;
 
@@ -104,7 +104,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Hood/action")
   private HoodAction requestedAction = HoodAction.Idle;
 
-  private MutAngle goalPitch =
+  private MutAngle goalExitPitch =
       JsonConstants.hoodConstants
           .minHoodAngle
           .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle)
@@ -142,7 +142,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
     homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
     homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
     idleState = stateMachine.registerState(new IdleState());
-    targetPitchState = stateMachine.registerState(new TargetPitchState());
+    targetExitPitchState = stateMachine.registerState(new TargetExitPitchState());
     targetAngleState = stateMachine.registerState(new TargetAngleState());
     testModeState = stateMachine.registerState(new TestModeState());
 
@@ -166,14 +166,14 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
     idleState.when(hood -> hood.isHoodTestMode(), "Is hood test mode").transitionTo(testModeState);
     idleState
-        .when(hood -> hood.requestedAction == HoodAction.TargetPitch, "Action == TargetPitch")
-        .transitionTo(targetPitchState);
+        .when(hood -> hood.requestedAction == HoodAction.TargetExitPitch, "Action == TargetPitch")
+        .transitionTo(targetExitPitchState);
     idleState
         .when(hood -> hood.requestedAction == HoodAction.TargetAngle, "Action == TargetAngle")
         .transitionTo(targetAngleState);
 
-    targetPitchState
-        .when(hood -> hood.requestedAction != HoodAction.TargetPitch, "Action != TargetPitch")
+    targetExitPitchState
+        .when(hood -> hood.requestedAction != HoodAction.TargetExitPitch, "Action != TargetPitch")
         .transitionTo(idleState);
 
     targetAngleState
@@ -223,7 +223,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Hood/closedLoopReferenceSlopeRadPerSec", inputs.closedLoopReferenceSlope);
 
     // For some reason, AutoLogOutput doesn't log the unit correctly, so we have to log it here.
-    Logger.recordOutput("Hood/exitAngleRadians", getCurrentExitAngle().in(Radians));
+    Logger.recordOutput("Hood/exitAngleRadians", getCurrentExitPitch().in(Radians));
 
     Logger.recordOutput(
         "Hood/bottomAngleRadians",
@@ -382,11 +382,11 @@ public class HoodSubsystem extends MonitoredSubsystem {
     motor.controlCoast();
   }
 
-  protected void controlToGoalPitch() {
-    Logger.recordOutput("Hood/goalPitchRadians", goalPitch.in(Radians));
+  protected void controlToGoalExitPitch() {
+    Logger.recordOutput("Hood/goalPitchRadians", goalExitPitch.in(Radians));
     Angle goalAngle =
         Degrees.of(90)
-            .minus(goalPitch)
+            .minus(goalExitPitch)
             .minus(JsonConstants.hoodConstants.mechanismAngleToExitAngle);
     Logger.recordOutput("Hood/goalAngleRadians", goalAngle.in(Radians));
     clampAndControlToAngle(goalAngle);
@@ -425,11 +425,11 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Get the current fuel exit angle based on the position of the hood
+   * Get the current fuel exit pitch/exit angle based on the position of the hood
    *
    * @return An Angle representing the current exit angle of a fuel being shot from the hood.
    */
-  public Angle getCurrentExitAngle() {
+  public Angle getCurrentExitPitch() {
     return Degrees.of(90)
         .minus(getCurrentAngle().plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle));
   }
@@ -449,15 +449,16 @@ public class HoodSubsystem extends MonitoredSubsystem {
     return switch (requestedAction) {
       case TargetAngle ->
           getCurrentAngle().isNear(goalAngle, JsonConstants.hoodConstants.hoodSetpointEpsilon);
-      case TargetPitch ->
-          getCurrentExitAngle().isNear(goalPitch, JsonConstants.hoodConstants.hoodSetpointEpsilon);
+      case TargetExitPitch ->
+          getCurrentExitPitch()
+              .isNear(goalExitPitch, JsonConstants.hoodConstants.hoodSetpointEpsilon);
       case Idle -> false;
     };
   }
 
   /**
-   * Sets the goal exit angle of the hood. Note that this value is NOT the goal angle of the hood,
-   * but rather the desired fuel exit angle while shooting.
+   * Sets the goal exit pitch/exit angle of the hood. Note that this value is NOT the goal angle of
+   * the hood, but rather the desired fuel exit angle while shooting.
    *
    * <p>This method updates the hood's current action, so that as soon as homing is completed, it
    * will target the pitch requested. This means that it can safely be called at any time,
@@ -466,9 +467,9 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * @param goalPitch An Angle containing the desired angle above the horizon (zero being horizontal
    *     and 90 degrees being a vertical shot) at which a fuel should exit the hood.
    */
-  public void targetPitch(Angle goalPitch) {
-    this.requestedAction = HoodAction.TargetPitch;
-    this.goalPitch.mut_replace(goalPitch);
+  public void targetExitPitch(Angle goalPitch) {
+    this.requestedAction = HoodAction.TargetExitPitch;
+    this.goalExitPitch.mut_replace(goalPitch);
   }
 
   /**
