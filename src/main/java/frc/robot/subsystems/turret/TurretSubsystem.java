@@ -31,6 +31,7 @@ import frc.robot.subsystems.turret.TurretState.TestModeState;
 import frc.robot.subsystems.turret.TurretState.TrackHeadingState;
 import frc.robot.subsystems.turret.TurretState.WearInState;
 import frc.robot.util.AngleUtil;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -177,6 +178,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .transitionTo(idleState);
 
     stateMachine.setState(homingWaitForButtonState);
+    StateMachineDump.write("turret", stateMachine);
 
     // Initialize tunable numbers for test modes
     turretKP =
@@ -302,6 +304,17 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   public AngularVelocity getTurretVelocity() {
     return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
+  }
+
+  /**
+   * @return {@code true} if the turret is targeting a robot relative heading and is at that
+   *     heading, {@code false} otherwise
+   */
+  @AutoLogOutput(key = "Turret/isAimedCorrectly")
+  public boolean isAimedCorrectly() {
+    return requestedAction == TurretAction.TrackHeading
+        && Math.abs(getFieldCentricTurretHeading().getRadians() - goalTurretHeading.getRadians())
+            < JsonConstants.turretConstants.turretSetpointEpsilon.in(Radians);
   }
 
   protected void setPositionToHomedPosition() {

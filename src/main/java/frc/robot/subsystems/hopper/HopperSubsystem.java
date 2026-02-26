@@ -17,6 +17,7 @@ import frc.robot.subsystems.hopper.HopperState.DejamState;
 import frc.robot.subsystems.hopper.HopperState.IdleState;
 import frc.robot.subsystems.hopper.HopperState.SpinningState;
 import frc.robot.subsystems.hopper.HopperState.TestModeState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.TuningModeHelper;
 import frc.robot.util.TuningModeHelper.ControlMode;
@@ -69,6 +70,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
         .when(hopper -> !hopper.isHopperTestMode(), "Not in hopper test mode")
         .transitionTo(idleState);
     stateMachine.setState(idleState);
+    StateMachineDump.write("hopper", stateMachine);
 
     // Initialize tuning mode helper
     TunableMotor tunableMotor =

@@ -82,6 +82,8 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
+    manualModeConstants =
+        jsonHandler.getObject(new ManualModeConstants(), "ManualModeConstants.json");
     strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
     if (featureFlags.useTuningServer) {
@@ -108,6 +110,7 @@ public class JsonConstants {
               shotMaps.afterJsonLoad();
               return true;
             });
+        jsonHandler.addRoute("/manualMode", manualModeConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
@@ -134,6 +137,7 @@ public class JsonConstants {
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
+  public static ManualModeConstants manualModeConstants;
   public static StrategyConstants strategyConstants;
 
   public static Controllers controllers;
