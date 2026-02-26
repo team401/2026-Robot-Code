@@ -127,6 +127,7 @@ public class ShooterConstants {
   public Velocity<CurrentUnit> characterizationRampRate = Amps.of(0.1).per(Second);
 
   public final Time velocityFilterTime = Seconds.of(0.01);
+
   /**
    * When the shooter's velocity is within shooterVelocitySetpointEpsilon of its target velocity, it
    * is considered "at its setpoint"
