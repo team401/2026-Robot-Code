@@ -28,6 +28,7 @@ import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -84,11 +85,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   private ShooterAction requestedAction = ShooterAction.Coast;
 
   // State variables for FF characterization
-  private int sampleCount = 0;
-  private double sumX = 0.0;
-  private double sumY = 0.0;
-  private double sumXY = 0.0;
-  private double sumX2 = 0.0;
+  private SimpleRegression ffRegression = new SimpleRegression();
   private final Timer characterizationTimer = new Timer();
 
   public ShooterSubsystem(
@@ -212,11 +209,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   protected void testInit() {
     switch (testModeManager.getTestMode()) {
       case ShooterFFCharacterization -> {
-        this.sampleCount = 0;
-        this.sumX = 0.0;
-        this.sumY = 0.0;
-        this.sumXY = 0.0;
-        this.sumX2 = 0.0;
+        this.ffRegression.clear();
         this.characterizationTimer.restart();
 
         Logger.recordOutput("Shooter/Characterization/kS", 0.0);
@@ -283,8 +276,6 @@ public class ShooterSubsystem extends MonitoredSubsystem {
       }
       case ShooterFFCharacterization -> {
         if (DriverStation.isEnabled()) {
-          sampleCount++;
-
           Current characterizationCurrent =
               (Current)
                   JsonConstants.shooterConstants.characterizationRampRate.times(
@@ -295,15 +286,11 @@ public class ShooterSubsystem extends MonitoredSubsystem {
           double velocityRotationsPerSecond =
               Math.abs(Units.radiansToRotations(leadMotorInputs.velocityRadiansPerSecond));
 
-          sumX += velocityRotationsPerSecond;
-          sumY += characterizationCurrentAmps;
-          sumXY += velocityRotationsPerSecond * characterizationCurrentAmps;
-          sumX2 += velocityRotationsPerSecond * velocityRotationsPerSecond;
+          ffRegression.addData(velocityRotationsPerSecond, characterizationCurrentAmps);
+          double kS = ffRegression.getIntercept();
+          double kV = ffRegression.getSlope();
 
-          double kS = (sumY * sumX2 - sumX * sumXY) / (sampleCount * sumX2 - sumX * sumX);
-          double kV = (sampleCount * sumXY - sumX * sumY) / (sampleCount * sumX2 - sumX * sumX);
-
-          Logger.recordOutput("Shooter/Characterization/sampleCount", sampleCount);
+          Logger.recordOutput("Shooter/Characterization/sampleCount", ffRegression.getN());
           Logger.recordOutput(
               "Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
           Logger.recordOutput("Shooter/Characterization/kS", kS);
