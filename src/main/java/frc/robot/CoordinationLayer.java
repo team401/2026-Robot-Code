@@ -680,7 +680,7 @@ public class CoordinationLayer {
 
     boolean shouldStowHoodBasedOnMovement =
         autonomyLevel == AutonomyLevel.Smart
-            && OptionalUtil.map(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
+            && OptionalUtil.mapTwo(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
     Logger.recordOutput(
         "CoordinationLayer/shouldStowHoodBasedOnMovement", shouldStowHoodBasedOnMovement);
     boolean shouldStowHoodBasedOnButtons =

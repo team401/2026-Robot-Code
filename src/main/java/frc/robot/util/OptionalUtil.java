@@ -11,13 +11,13 @@ import java.util.function.BiFunction;
 public class OptionalUtil {
   private OptionalUtil() {}
 
-  public static <A, B> void ifPresent(
+  public static <A, B> void ifBothPresent(
       Optional<A> firstOptional, Optional<B> secondOptional, BiConsumer<A, B> function) {
     firstOptional.ifPresent(
         first -> secondOptional.ifPresent(second -> function.accept(first, second)));
   }
 
-  public static <A, B, C> Optional<C> map(
+  public static <A, B, C> Optional<C> mapTwo(
       Optional<A> firstOptional, Optional<B> secondOptional, BiFunction<A, B, C> mapper) {
     return firstOptional.flatMap(
         first -> secondOptional.map(second -> mapper.apply(first, second)));
