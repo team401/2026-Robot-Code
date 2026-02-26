@@ -108,7 +108,8 @@ public class ShooterConstants {
 
   @JSONExclude
   public final int shooterMediumPrioritySignals =
-      MotorIOTalonFX.DEFAULT_MEDIUM_PRIORITY_SIGNALS | MotorIOTalonFX.DEFAULT_HIGH_PRIORITY_SIGNALS & ~MotorIOTalonFX.SIGNAL_VELOCITY;
+      MotorIOTalonFX.DEFAULT_MEDIUM_PRIORITY_SIGNALS
+          | MotorIOTalonFX.DEFAULT_HIGH_PRIORITY_SIGNALS & ~MotorIOTalonFX.SIGNAL_VELOCITY;
 
   @JSONExclude public final int shooterHighPrioritySignals = MotorIOTalonFX.SIGNAL_VELOCITY;
   @JSONExclude public final int shooterOutputSignals = MotorIOTalonFX.DEFAULT_OUTPUT_SIGNALS;
@@ -118,6 +119,12 @@ public class ShooterConstants {
 
   public AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
   public AngularAcceleration shooterMaxAcceleration = RPM.of(3000).per(Second);
+
+  /**
+   * When the shooter's velocity is within shooterVelocitySetpointEpsilon of its target velocity, it
+   * is considered "at its setpoint"
+   */
+  public AngularVelocity shooterVelocitySetpointEpsilon = RPM.of(50);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

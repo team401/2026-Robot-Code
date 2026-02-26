@@ -95,10 +95,23 @@ public class HoodConstants {
 
   public final Frequency hoodRequestUpdateFrequency = Hertz.of(1000);
 
+  /**
+   * When the hood angle is within hoodSetpointEpsilon of its goal angle or the exit angle is within
+   * hoodSetpointEpsilon of the goal pitch, the hood is considered "at its setpoint"
+   */
+  public final Angle hoodSetpointEpsilon = Degrees.of(1.0);
+
   public final Voltage homingVoltage = Volts.of(-3.0);
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
+
+  /**
+   * The amount of time it takes the hood to stow from its highest position. If the
+   * CoordinationLayer detects that the robot will hit the trench in this amount of time, it should
+   * tell the hood to stow.
+   */
+  public final Time timeToStowHood = Seconds.of(0.5); // TODO: Real value
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

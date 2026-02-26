@@ -1,5 +1,5 @@
 {
-  "runDrive": false,
+  "runDrive": true,
   "useMAPoseEstimator": true,
   "runVision": false,
   "runHopper": false,
@@ -7,7 +7,7 @@
   "runTurret": false,
   "runShooter": true,
   "runIntake": false,
-  "runHood": false,
+  "runHood": true,
   "useHomingSwitch": false,
   "useTuningServer": true,
   "pretendCamerasAreMobile": false

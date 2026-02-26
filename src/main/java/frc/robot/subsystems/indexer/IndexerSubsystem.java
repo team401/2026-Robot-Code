@@ -13,13 +13,13 @@ import frc.robot.subsystems.indexer.IndexerState.IdleState;
 import frc.robot.subsystems.indexer.IndexerState.ShootingState;
 import frc.robot.subsystems.indexer.IndexerState.TestModeState;
 import frc.robot.subsystems.indexer.IndexerState.WarmupState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.TuningModeHelper;
 import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
-import java.io.PrintWriter;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends MonitoredSubsystem {
@@ -82,7 +82,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
         .transitionTo(warmupState);
 
     stateMachine.setState(idleState);
-    stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
+    StateMachineDump.write("indexer", stateMachine);
 
     // Initialize tuning mode helper
     TunableMotor tunableMotor =
