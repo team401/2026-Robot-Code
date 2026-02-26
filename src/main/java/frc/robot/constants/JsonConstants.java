@@ -77,7 +77,6 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
-    jsonHandler.saveObject(new ManualModeConstants(), "ManualModeConstants.json");
     manualModeConstants =
         jsonHandler.getObject(new ManualModeConstants(), "ManualModeConstants.json");
     strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
