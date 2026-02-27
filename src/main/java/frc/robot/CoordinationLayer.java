@@ -1006,4 +1006,8 @@ public class CoordinationLayer {
   public Optional<HoodSubsystem> getHood() {
     return hood;
   }
+
+  public Optional<IntakeSubsystem> getIntake() {
+    return intake;
+  }
 }
