@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
@@ -31,6 +32,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class TurretConstants {
+  public final Boolean wearInTurret = false;
 
   public final Voltage homingVoltage = Volts.of(-3.0);
 
@@ -112,7 +114,8 @@ public class TurretConstants {
                 .withKS(turretKS)
                 .withKV(turretKV)
                 .withKG(turretKG)
-                .withKA(turretKA))
+                .withKA(turretKA)
+                .withGravityType(GravityTypeValue.Elevator_Static))
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(turretSupplyCurrentLimit)

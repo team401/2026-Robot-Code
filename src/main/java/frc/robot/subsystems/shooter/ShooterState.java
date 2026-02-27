@@ -22,6 +22,11 @@ public abstract class ShooterState extends State<ShooterSubsystem> {
 
   public static class TestModeState extends ShooterState {
     @Override
+    public void onEntry(StateMachine<ShooterSubsystem> stateMachine, ShooterSubsystem shooter) {
+      shooter.testInit();
+    }
+
+    @Override
     public void periodic(StateMachine<ShooterSubsystem> stateMachine, ShooterSubsystem shooter) {
       shooter.testPeriodic();
     }

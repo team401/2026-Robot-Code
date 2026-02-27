@@ -14,8 +14,12 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
@@ -24,6 +28,7 @@ import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -78,6 +83,10 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
+
+  // State variables for FF characterization
+  private SimpleRegression ffRegression = new SimpleRegression();
+  private final Timer characterizationTimer = new Timer();
 
   public ShooterSubsystem(
       DependencyOrderedExecutor dependencyOrderedExecutor,
@@ -196,6 +205,20 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     }
   }
 
+  /** Runs when test mode is entered. Should be called by the test mode state. */
+  protected void testInit() {
+    switch (testModeManager.getTestMode()) {
+      case ShooterFFCharacterization -> {
+        this.ffRegression.clear();
+        this.characterizationTimer.restart();
+
+        Logger.recordOutput("Shooter/Characterization/kS", 0.0);
+        Logger.recordOutput("Shooter/Characterization/kV", 0.0);
+      }
+      default -> {}
+    }
+  }
+
   protected void testPeriodic() {
     switch (testModeManager.getTestMode()) {
       case ShooterClosedLoopTuning -> {
@@ -250,6 +273,31 @@ public class ShooterSubsystem extends MonitoredSubsystem {
       }
       case ShooterVoltageTuning -> {
         leadMotor.controlOpenLoopVoltage(Volts.of(shooterTuningVolts.getAsDouble()));
+      }
+      case ShooterFFCharacterization -> {
+        if (DriverStation.isEnabled()) {
+          Current characterizationCurrent =
+              (Current)
+                  JsonConstants.shooterConstants.characterizationRampRate.times(
+                      Seconds.of(characterizationTimer.get()));
+          double characterizationCurrentAmps = characterizationCurrent.in(Amps);
+
+          // TODO: Figure out why velocity is negative in sim
+          double velocityRotationsPerSecond =
+              Math.abs(Units.radiansToRotations(leadMotorInputs.velocityRadiansPerSecond));
+
+          ffRegression.addData(velocityRotationsPerSecond, characterizationCurrentAmps);
+          double kS = ffRegression.getIntercept();
+          double kV = ffRegression.getSlope();
+
+          Logger.recordOutput("Shooter/Characterization/sampleCount", ffRegression.getN());
+          Logger.recordOutput(
+              "Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
+          Logger.recordOutput("Shooter/Characterization/kS", kS);
+          Logger.recordOutput("Shooter/Characterization/kV", kV);
+
+          leadMotor.controlOpenLoopCurrent(characterizationCurrent);
+        }
       }
       default -> {}
     }
