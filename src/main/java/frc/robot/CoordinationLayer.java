@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.vision.VisionLocalizer;
 import coppercore.wpilib_interface.controllers.Controller.Button;
 import coppercore.wpilib_interface.controllers.Controllers;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -36,6 +38,7 @@ import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
+import frc.robot.coordination.CoordinationTestMode;
 import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -49,9 +52,12 @@ import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.OptionalUtil;
 import frc.robot.util.StateMachineDump;
+import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+
+import org.junit.Test;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -144,6 +150,11 @@ public class CoordinationLayer {
 
   @AutoLogOutput(key = "CoordinationLayer/shotMode")
   private ShotMode shotMode = ShotMode.Hub;
+
+  // Tunable numbers for shot tuning
+  private final LoggedTunableNumber hoodTuningAngleDegrees = new LoggedTunableNumber("CoordinationLayer/ShotTuning/hoodAngleDegrees", JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
+  private final LoggedTunableNumber shooterTuningRPM = new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0);
+  private final TestModeManager<CoordinationTestMode> testModeManager = new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
 
   // Logging
   private final Alert autonomyOverriddenAlert =
@@ -671,11 +682,17 @@ public class CoordinationLayer {
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
     // Aim for a shot based on the current autonomy level
-    boolean isShotReal =
-        switch (effectiveAutonomyLevel) {
+    boolean isShotReal;
+    if (testModeManager.isInTestMode()) {
+      aimForTestModeShot();
+      isShotReal = true;
+    } else {
+      isShotReal = switch (effectiveAutonomyLevel) {
           case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
           case Manual -> aimForManualShot();
         };
+    }
+
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
 
     boolean shouldStowHoodBasedOnMovement =
@@ -770,6 +787,20 @@ public class CoordinationLayer {
     }
 
     return true;
+  }
+
+  private void aimForTestModeShot() {
+    double hoodAngleRadians = Units.degreesToRadians(hoodTuningAngleDegrees.getAsDouble());
+    double shooterRPM = shooterTuningRPM.getAsDouble();
+
+    hood.ifPresent(
+        hood -> {
+          hood.targetAngleRadians(hoodAngleRadians);
+        });
+
+    shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
+
+    // Use turret closed loop mode for turret angle
   }
 
   private final EnhancedLine2d leftBlueTrench =
