@@ -20,8 +20,10 @@ import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import SendIcon from '@mui/icons-material/Send';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { useConnection } from '../contexts/ConnectionContext';
-import { getData, putData, postData } from '../services/api';
+import { getData, putData, postData, saveLocal, loadLocal } from '../services/api';
 import type { ShotMaps, ShotMapDataPoint } from '../types/ShotMaps';
 
 function defaultDataPoint(): ShotMapDataPoint {
@@ -197,6 +199,28 @@ export function ShotMapsEditor() {
     }
   };
 
+  const handleSaveLocal = async () => {
+    if (!data) return;
+    setError(null);
+    try {
+      await saveLocal(environment, 'ShotMaps.json', data);
+      setSnack({ message: 'Saved to local source tree', severity: 'success' });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save locally');
+    }
+  };
+
+  const handleLoadLocal = async () => {
+    setError(null);
+    try {
+      const result = await loadLocal<ShotMaps>(environment, 'ShotMaps.json');
+      setData(result);
+      setSnack({ message: 'Loaded from local source tree', severity: 'success' });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load from local');
+    }
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
 
   if (!data) {
@@ -213,13 +237,19 @@ export function ShotMapsEditor() {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
         <Typography variant="h5">Shot Maps</Typography>
         <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>
-          Save
+          Save to Robot
         </Button>
         <Button variant="contained" color="secondary" startIcon={<SendIcon />} onClick={handleSaveAndActivate}>
-          Save & Activate
+          Save to Robot & Activate
         </Button>
         <Button startIcon={<RefreshIcon />} onClick={fetchData}>
           Refresh
+        </Button>
+        <Button variant="outlined" startIcon={<FileUploadIcon />} onClick={handleLoadLocal} sx={{ ml: 'auto' }}>
+          Load from Local
+        </Button>
+        <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleSaveLocal}>
+          Save to Local
         </Button>
       </Box>
 

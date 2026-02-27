@@ -65,8 +65,8 @@ public class ModuleConfig {
               factory,
           boolean driveMotorInverted) {
     return factory.createModuleConstants(
-        driveMotorId,
         steerMotorId,
+        driveMotorId,
         encoderId,
         encoderOffset,
         xPos,

@@ -59,6 +59,9 @@ public class IntakeConstants {
   public final Angle intakePositionAngle = Degrees.of(0.0);
   public final Angle stowPositionAngle = Degrees.of(90.0);
 
+  /** When the intake pivot is at or above this angle, it is within the frame perimeter. */
+  public final Angle stowThresholdAngle = Degrees.of(87.0);
+
   // Roller speeds
   public AngularVelocity intakeRollerSpeed = RPM.of(1500.0);
 
@@ -68,8 +71,9 @@ public class IntakeConstants {
   public final Voltage homingVoltage = Volts.of(-2.0);
 
   // PID GAINS
-  public PIDGains pivotPIDGains = new PIDGains(0.5, 0.0, 0.1); // These values are placeholders
-  public PIDGains rollersPIDGains = new PIDGains(20.0, 10.0, 10.0); // These values are placeholders
+  public PIDGains pivotPIDGains = PIDGains.kPID(0.5, 0.0, 0.1); // These values are placeholders
+  public PIDGains rollersPIDGains =
+      PIDGains.kPID(20.0, 10.0, 10.0); // These values are placeholders
 
   // Current Limits (These current limits are placeholders and were picked randomly)
   public final Current pivotSupplyCurrentLimit = Amps.of(40.0);

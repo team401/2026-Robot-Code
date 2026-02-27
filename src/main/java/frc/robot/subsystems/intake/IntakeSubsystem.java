@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -13,6 +14,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -90,6 +92,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
             IntakeState.homingDoneState)
         .forEach(this.intakeStateMachine::registerState);
 
+    pivotMotorIO.setRequestUpdateFrequency(Hertz.of(1000));
+
     // ### Test Mode Transitions
     // Any time we finish any state and we should be in test mode, we transition to the test mode
     // state at
@@ -157,6 +161,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     IntakeState.homingDoneState.whenFinished().transitionTo(IntakeState.controlToPositionState);
 
     this.intakeStateMachine.setState(IntakeState.waitForButtonState);
+    StateMachineDump.write("intake", this.intakeStateMachine);
   }
 
   public void runRollers(AngularVelocity rollerSpeed) {
@@ -217,7 +222,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // Ensure that even if we accidentally command the follower motor to do something
     // it won't cause any issues because we always command it to follow the lead motor
     // at the end of the periodic
-    rollersFollowerMotorIO.follow(0, false);
+    rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
   }
 
   protected void controlToTargetPivotAngle() {
@@ -225,8 +230,18 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   }
 
   protected void zeroPositionIfBelowZero() {
-    if (pivotInputs.positionRadians < 0) {
-      pivotMotorIO.setCurrentPositionAsZero();
-    }
+    // Commented out because the intake can actually go down to ~-8 degrees now.
+    // if (pivotInputs.positionRadians < 0) {
+    // pivotMotorIO.setCurrentPositionAsZero();
+    // }
+  }
+
+  /**
+   * @return {@code true} if the intake's current position is above the stowed threshold, {@code
+   *     false} otherwise.
+   */
+  public boolean isStowed() {
+    return pivotInputs.positionRadians
+        >= JsonConstants.intakeConstants.stowThresholdAngle.in(Radians);
   }
 }
