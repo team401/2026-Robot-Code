@@ -11,10 +11,9 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import type { TuningAttempt } from '../../types/ShotTuning';
-import type { ShotMaps, ShotMapDataPoint } from '../../types/ShotMaps';
+import type { ShotMapDataPoint } from '../../types/ShotMaps';
 import { clipUrl } from '../../services/shotTuningStorage';
-import { useConnection } from '../../contexts/ConnectionContext';
-import { loadLocal, saveLocal } from '../../services/api';
+import { shotMapsStore } from '../../services/shotMapsStore';
 
 interface VideoReplayPlayerProps {
   attempt: TuningAttempt;
@@ -32,7 +31,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const { environment } = useConnection();
+
 
   // Webm files often report wrong duration until fully buffered.
   // Seek to a huge time to force the browser to find the real end,
@@ -157,7 +156,6 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
 
   const handleExport = async (target: 'hub' | 'pass') => {
     if (attempt.flightTimeSec === null) return;
-    const shotMaps = await loadLocal<ShotMaps>(environment, 'ShotMaps.json');
     // Use NT-reported distance if available, fall back to pose-computed
     const distance = attempt.distanceToHubMeters ?? attempt.distanceMeters;
     const newPoint: ShotMapDataPoint = {
@@ -166,12 +164,9 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
       hoodAngle: { value: attempt.hoodAngleDegrees, unit: 'Degree' },
       flightTime: { value: attempt.flightTimeSec, unit: 'Second' },
     };
-    if (target === 'hub') {
-      shotMaps.hubDataPoints.push(newPoint);
-    } else {
-      shotMaps.passDataPoints.push(newPoint);
-    }
-    await saveLocal(environment, 'ShotMaps.json', shotMaps);
+    // Push into the shared in-memory store so ShotMapsEditor reflects it immediately.
+    // No file write here — the user saves explicitly from the Shot Maps tab.
+    shotMapsStore.addPoint(newPoint, target);
 
     const updated = { ...attempt, exportedToShotMap: target };
     const next = attempts.map((a) => a.id === updated.id ? updated : a);
@@ -281,10 +276,10 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
             <Button
               size="small"
               variant="contained"
-              disabled={attempt.flightTimeSec === null || attempt.exportedToShotMap !== null}
+              disabled={attempt.flightTimeSec === null}
               onClick={() => handleExport('hub')}
             >
-              {attempt.exportedToShotMap === 'hub' ? 'Exported to Hub' : 'Add to Hub Shot Map'}
+              {attempt.exportedToShotMap === 'hub' ? '✓ Add to Hub Shot Map' : 'Add to Hub Shot Map'}
             </Button>
           </span>
         </Tooltip>
@@ -294,10 +289,10 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
               size="small"
               variant="contained"
               color="secondary"
-              disabled={attempt.flightTimeSec === null || attempt.exportedToShotMap !== null}
+              disabled={attempt.flightTimeSec === null}
               onClick={() => handleExport('pass')}
             >
-              {attempt.exportedToShotMap === 'pass' ? 'Exported to Pass' : 'Add to Pass Shot Map'}
+              {attempt.exportedToShotMap === 'pass' ? '✓ Add to Pass Shot Map' : 'Add to Pass Shot Map'}
             </Button>
           </span>
         </Tooltip>

@@ -19,9 +19,10 @@ export interface TuningAttempt {
 }
 
 // 
-// coordinates below were obtained via FieldConstants.Hub.topCenterPoint();
+// coordinates below were obtained via FieldConstants.Hub.oppInnerCenterPoint(); 
+// (red hub, blue origin)
 // - gback
 export const HUB_CENTER = { 
-    x: 4.604766,
-    y: 4.021500,
+    x: 11.894744,
+    y: 4.021500
 } as const;

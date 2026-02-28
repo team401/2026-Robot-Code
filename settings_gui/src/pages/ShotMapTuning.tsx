@@ -34,6 +34,8 @@ export function ShotMapTuning() {
   const nt4Ref = useRef<NT4Service | null>(null);
   const telemetryRef = useRef(telemetry);
   telemetryRef.current = telemetry;
+  // Snapshot taken at the moment the user presses "Start Recording"
+  const startSnapshotRef = useRef<Telemetry>(telemetry);
 
   const fetchAttempts = useCallback(async () => {
     try {
@@ -68,9 +70,13 @@ export function ShotMapTuning() {
     };
   }, []);
 
+  const handleRecordStart = useCallback(() => {
+    startSnapshotRef.current = telemetryRef.current;
+  }, []);
+
   const handleStore = useCallback(async (blob: Blob) => {
     const id = crypto.randomUUID();
-    const snap = telemetryRef.current;
+    const snap = startSnapshotRef.current;
     const attempt: TuningAttempt = {
       id,
       createdAt: new Date().toISOString(),
@@ -141,7 +147,7 @@ export function ShotMapTuning() {
           </Paper>
 
           <Paper sx={{ p: 2, mb: 2 }}>
-            <RecordingControls onStore={handleStore} onFpsChange={setRecordingFps} />
+            <RecordingControls onStore={handleStore} onFpsChange={setRecordingFps} onRecordStart={handleRecordStart} />
           </Paper>
         </Grid>
 

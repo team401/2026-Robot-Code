@@ -6,10 +6,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 
 const FPS_OPTIONS = [30, 60, 120] as const;
+const STORAGE_KEY_CAMERA = 'shot-tuning:lastCameraId';
 
 interface RecordingControlsProps {
   onStore: (blob: Blob) => Promise<void>;
   onFpsChange?: (fps: number) => void;
+  onRecordStart?: () => void;
 }
 
 function pickCodec(): string {
@@ -19,7 +21,7 @@ function pickCodec(): string {
   return 'video/webm';
 }
 
-export function RecordingControls({ onStore, onFpsChange }: RecordingControlsProps) {
+export function RecordingControls({ onStore, onFpsChange, onRecordStart }: RecordingControlsProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -63,6 +65,7 @@ export function RecordingControls({ onStore, onFpsChange }: RecordingControlsPro
         videoRef.current.srcObject = stream;
       }
       setCameraReady(true);
+      if (deviceId) setSelectedCameraId(deviceId);
 
       // Report actual frame rate
       const activeTrack = stream.getVideoTracks()[0];
@@ -76,16 +79,26 @@ export function RecordingControls({ onStore, onFpsChange }: RecordingControlsPro
       // If no deviceId was specified, figure out which one we got
       if (!deviceId && videoDevices.length > 0) {
         const activeDeviceId = settings?.deviceId;
-        if (activeDeviceId) setSelectedCameraId(activeDeviceId);
+        if (activeDeviceId) {
+          setSelectedCameraId(activeDeviceId);
+          localStorage.setItem(STORAGE_KEY_CAMERA, activeDeviceId);
+        }
       }
     } catch (err) {
-      setCameraError(err instanceof Error ? err.message : String(err));
+      if (deviceId) {
+        // Saved camera may no longer be available — retry with default
+        localStorage.removeItem(STORAGE_KEY_CAMERA);
+        openCamera(undefined, fps);
+      } else {
+        setCameraError(err instanceof Error ? err.message : String(err));
+      }
     }
   }, [enumerateCameras, selectedFps, onFpsChange]);
 
-  // Acquire default camera on mount
+  // Acquire camera on mount, preferring the last used one if available
   useEffect(() => {
-    openCamera();
+    const savedId = localStorage.getItem(STORAGE_KEY_CAMERA) ?? undefined;
+    openCamera(savedId);
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
     };
@@ -94,6 +107,7 @@ export function RecordingControls({ onStore, onFpsChange }: RecordingControlsPro
 
   const handleCameraChange = useCallback((deviceId: string) => {
     setSelectedCameraId(deviceId);
+    localStorage.setItem(STORAGE_KEY_CAMERA, deviceId);
     openCamera(deviceId);
   }, [openCamera]);
 
@@ -104,6 +118,7 @@ export function RecordingControls({ onStore, onFpsChange }: RecordingControlsPro
 
   const handleStart = useCallback(() => {
     if (!streamRef.current) return;
+    onRecordStart?.();
     chunksRef.current = [];
     const mimeType = pickCodec();
     const recorder = new MediaRecorder(streamRef.current, { mimeType });
@@ -118,7 +133,7 @@ export function RecordingControls({ onStore, onFpsChange }: RecordingControlsPro
     recorderRef.current = recorder;
     setRecording(true);
     setPendingBlob(null);
-  }, []);
+  }, [onRecordStart]);
 
   const handleStop = useCallback(() => {
     recorderRef.current?.stop();
