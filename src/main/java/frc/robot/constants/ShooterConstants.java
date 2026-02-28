@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -38,6 +40,7 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.util.PIDGains;
 import frc.robot.util.sim.FlywheelSimAdapter;
 
 public class ShooterConstants {
@@ -76,12 +79,8 @@ public class ShooterConstants {
     return distanceToVi.get(distanceMeters);
   }
 
-  public Double shooterKP = 48.0;
-  public Double shooterKI = 0.0;
-  public Double shooterKD = 0.0;
-  public Double shooterKS = 0.0;
-  public Double shooterKV = 1.85;
-  public Double shooterKA = 0.0;
+  public PIDGains shooterSlot0Gains = new PIDGains(15.0, 0, 0, 0, 0, 0.55, 0);
+  public PIDGains shooterSlot1Gains = new PIDGains(15.0, 0, 0, 0, 0, 0.55, 0);
 
   /**
    * The number of rotations the shooter motors rotate for each rotation of the output flywheels. If
@@ -135,17 +134,17 @@ public class ShooterConstants {
    */
   public AngularVelocity shooterVelocitySetpointEpsilon = RPM.of(50);
 
+  /**
+   * When the shooter less than shooterSlot0Epsilon less than its closed loop reference, it will use slot 0. When it's more than shooterSlot0Epsilon below its setpoint, it will use slot 1.
+   */
+  public AngularVelocity shooterSlot0Epsilon = RPM.of(100);
+
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
         .withSlot0(
-            new Slot0Configs()
-                .withKP(shooterKP)
-                .withKI(shooterKI)
-                .withKD(shooterKD)
-                .withKS(shooterKS)
-                .withKG(0.0)
-                .withKV(shooterKV)
-                .withKA(shooterKA))
+            shooterSlot0Gains.toSlot0Config())
+        .withSlot1(
+            shooterSlot1Gains.toSlot1Config())
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimit(shooterStatorCurrentLimit)
