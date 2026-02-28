@@ -56,9 +56,8 @@ import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-
-import org.junit.Test;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -152,9 +151,14 @@ public class CoordinationLayer {
   private ShotMode shotMode = ShotMode.Hub;
 
   // Tunable numbers for shot tuning
-  private final LoggedTunableNumber hoodTuningAngleDegrees = new LoggedTunableNumber("CoordinationLayer/ShotTuning/hoodAngleDegrees", JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
-  private final LoggedTunableNumber shooterTuningRPM = new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0);
-  private final TestModeManager<CoordinationTestMode> testModeManager = new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
+  private final LoggedTunableNumber hoodTuningAngleDegrees =
+      new LoggedTunableNumber(
+          "CoordinationLayer/ShotTuning/hoodAngleDegrees",
+          JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
+  private final LoggedTunableNumber shooterTuningRPM =
+      new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0);
+  private final TestModeManager<CoordinationTestMode> testModeManager =
+      new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
 
   // Logging
   private final Alert autonomyOverriddenAlert =
@@ -294,6 +298,8 @@ public class CoordinationLayer {
 
     extensionStateMachine.setState(noExtensionState);
     StateMachineDump.write("coordination", extensionStateMachine);
+
+    AutoLogOutputManager.addObject(this);
   }
 
   // Controller bindings
@@ -687,10 +693,11 @@ public class CoordinationLayer {
       aimForTestModeShot();
       isShotReal = true;
     } else {
-      isShotReal = switch (effectiveAutonomyLevel) {
-          case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
-          case Manual -> aimForManualShot();
-        };
+      isShotReal =
+          switch (effectiveAutonomyLevel) {
+            case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
+            case Manual -> aimForManualShot();
+          };
     }
 
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
@@ -722,6 +729,7 @@ public class CoordinationLayer {
                 // When the turret isn't enabled, assume that it's been locked into the correct
                 // location for a manual mode shot if we ever have to run "no turret"
                 && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
+    Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
 
     if (canShoot) {
       hopper.ifPresent(

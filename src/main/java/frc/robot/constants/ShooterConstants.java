@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -163,7 +164,8 @@ public class ShooterConstants {
             new FeedbackConfigs()
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                 .withSensorToMechanismRatio(shooterReduction)
-                .withVelocityFilterTimeConstant(velocityFilterTime));
+                .withVelocityFilterTimeConstant(velocityFilterTime))
+        .withTorqueCurrent(new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()));
   }
 
   public MechanismConfig buildMechanismConfig() {
