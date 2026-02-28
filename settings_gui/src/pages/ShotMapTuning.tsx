@@ -24,8 +24,9 @@ export function ShotMapTuning() {
   const [error, setError] = useState<string | null>(null);
   const [telemetry, setTelemetry] = useState<Telemetry>({
     distanceMeters: 0,
-    shooterRPMRadPerSec: 0,
-    hoodAngleRadians: 0,
+    distanceToHubMeters: null,
+    shooterRPM: 0,
+    hoodAngleDegrees: 0,
     robotPoseX: 0,
     robotPoseY: 0,
   });
@@ -74,8 +75,9 @@ export function ShotMapTuning() {
       id,
       createdAt: new Date().toISOString(),
       distanceMeters: snap.distanceMeters,
-      shooterRPMRadPerSec: snap.shooterRPMRadPerSec,
-      hoodAngleRadians: snap.hoodAngleRadians,
+      distanceToHubMeters: snap.distanceToHubMeters,
+      shooterRPM: snap.shooterRPM,
+      hoodAngleDegrees: snap.hoodAngleDegrees,
       robotPoseX: snap.robotPoseX,
       robotPoseY: snap.robotPoseY,
       leavesShooterTimeSec: null,

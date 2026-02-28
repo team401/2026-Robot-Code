@@ -1,9 +1,14 @@
 export interface TuningAttempt {
   id: string;
   createdAt: string;
+  /** Distance computed from robot pose vs hub center (meters) */
   distanceMeters: number;
-  shooterRPMRadPerSec: number;
-  hoodAngleRadians: number;
+  /** Distance reported directly by the robot via NT (meters); null for old attempts */
+  distanceToHubMeters: number | null;
+  /** Shooter setpoint in RPM (from TunableNumbers) */
+  shooterRPM: number;
+  /** Hood setpoint in degrees (from TunableNumbers) */
+  hoodAngleDegrees: number;
   robotPoseX: number;
   robotPoseY: number;
   leavesShooterTimeSec: number | null;

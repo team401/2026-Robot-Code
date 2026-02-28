@@ -1,9 +1,14 @@
 import { HUB_CENTER } from '../types/ShotTuning';
 
 export interface Telemetry {
+  /** Pose-computed distance to hub (meters) */
   distanceMeters: number;
-  shooterRPMRadPerSec: number;
-  hoodAngleRadians: number;
+  /** NT-reported distance to hub from robot (meters); null until first value received */
+  distanceToHubMeters: number | null;
+  /** Shooter setpoint in RPM (from TunableNumbers) */
+  shooterRPM: number;
+  /** Hood setpoint in degrees (from TunableNumbers) */
+  hoodAngleDegrees: number;
   robotPoseX: number;
   robotPoseY: number;
 }
@@ -19,10 +24,10 @@ const AK_PREFIX = '/AdvantageKit/RealOutputs';
 
 // Actual topics discovered via nt4-debug.mjs against the robot sim:
 const TOPIC_POSE = `${AK_PREFIX}/Odometry/Robot`;                                     // struct:Pose2d
-// processInputs topics live under /AdvantageKit/<subsystem>/ (no RealOutputs).
-const TOPIC_SHOOTER_LEAD = '/AdvantageKit/Shooter/LeadMotorInputs/VelocityRadiansPerSecond';       // double
-const TOPIC_SHOOTER_FOLLOWER = '/AdvantageKit/Shooter/FollowerMotorInputs/VelocityRadiansPerSecond'; // double
-const TOPIC_HOOD_ANGLE = `${AK_PREFIX}/Hood/exitAngleRadians`;                                      // double
+// TunableNumbers are logged under NetworkInputs by AdvantageKit.
+const TOPIC_SHOOTER_RPM = '/AdvantageKit/NetworkInputs/TunableNumbers/CoordinationLayer/ShotTuning/shooterRPM';       // double, in RPM
+const TOPIC_HOOD_DEG    = '/AdvantageKit/NetworkInputs/TunableNumbers/CoordinationLayer/ShotTuning/hoodAngleDegrees'; // double, in degrees
+const TOPIC_DISTANCE_HUB = `${AK_PREFIX}/CoordinationLayer/distanceToHub`;                                            // double, in meters
 
 // Minimal raw NT4.1 WebSocket client.
 // ntcore-ts-client cannot handle WPILib struct types (crashes on Zod validation
@@ -36,17 +41,18 @@ export async function createNT4Service(
 
   let poseX = 0;
   let poseY = 0;
-  let shooterLeadVel = 0;
-  let shooterFollowerVel = 0;
-  let hoodAngle = 0;
+  let shooterRPM = 0;
+  let hoodAngleDegrees = 0;
+  let distanceToHubMeters: number | null = null;
 
   function emitUpdate() {
     const dx = poseX - HUB_CENTER.x;
     const dy = poseY - HUB_CENTER.y;
     onTelemetry({
       distanceMeters: Math.sqrt(dx * dx + dy * dy),
-      shooterRPMRadPerSec: (shooterLeadVel + shooterFollowerVel) / 2,
-      hoodAngleRadians: hoodAngle,
+      distanceToHubMeters,
+      shooterRPM,
+      hoodAngleDegrees,
       robotPoseX: poseX,
       robotPoseY: poseY,
     });
@@ -69,23 +75,23 @@ export async function createNT4Service(
     }
   });
 
-  wantedTopics.set(TOPIC_SHOOTER_LEAD, (value) => {
+  wantedTopics.set(TOPIC_SHOOTER_RPM, (value) => {
     if (typeof value === 'number') {
-      shooterLeadVel = value;
+      shooterRPM = value;
       emitUpdate();
     }
   });
 
-  wantedTopics.set(TOPIC_SHOOTER_FOLLOWER, (value) => {
+  wantedTopics.set(TOPIC_HOOD_DEG, (value) => {
     if (typeof value === 'number') {
-      shooterFollowerVel = value;
+      hoodAngleDegrees = value;
       emitUpdate();
     }
   });
 
-  wantedTopics.set(TOPIC_HOOD_ANGLE, (value) => {
+  wantedTopics.set(TOPIC_DISTANCE_HUB, (value) => {
     if (typeof value === 'number') {
-      hoodAngle = value;
+      distanceToHubMeters = value;
       emitUpdate();
     }
   });

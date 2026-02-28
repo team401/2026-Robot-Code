@@ -24,9 +24,6 @@ interface VideoReplayPlayerProps {
   fps?: number;
 }
 
-// Conversion helpers
-const RAD_PER_SEC_TO_RPM = 60 / (2 * Math.PI);
-const RAD_TO_DEG = 180 / Math.PI;
 
 export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChange, fps = 30 }: VideoReplayPlayerProps) {
   const FRAME_STEP = 1 / fps;
@@ -161,10 +158,12 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
   const handleExport = async (target: 'hub' | 'pass') => {
     if (attempt.flightTimeSec === null) return;
     const shotMaps = await loadLocal<ShotMaps>(environment, 'ShotMaps.json');
+    // Use NT-reported distance if available, fall back to pose-computed
+    const distance = attempt.distanceToHubMeters ?? attempt.distanceMeters;
     const newPoint: ShotMapDataPoint = {
-      distance: { value: attempt.distanceMeters, unit: 'Meter' },
-      shooterRPM: attempt.shooterRPMRadPerSec * RAD_PER_SEC_TO_RPM,
-      hoodAngle: { value: attempt.hoodAngleRadians * RAD_TO_DEG, unit: 'Degree' },
+      distance: { value: distance, unit: 'Meter' },
+      shooterRPM: attempt.shooterRPM,
+      hoodAngle: { value: attempt.hoodAngleDegrees, unit: 'Degree' },
       flightTime: { value: attempt.flightTimeSec, unit: 'Second' },
     };
     if (target === 'hub') {
@@ -259,11 +258,18 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
       {/* Telemetry summary */}
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.25, mb: 1 }}>
         <Typography variant="caption" color="text.secondary">Distance:</Typography>
-        <Typography variant="caption" fontFamily="monospace">{attempt.distanceMeters.toFixed(3)} m</Typography>
+        <Typography variant="caption" fontFamily="monospace">
+          {(attempt.distanceToHubMeters ?? attempt.distanceMeters).toFixed(3)} m
+          {attempt.distanceToHubMeters !== null && (
+            <Typography component="span" variant="caption" color="text.secondary">
+              {' '}(pose: {attempt.distanceMeters.toFixed(3)} m)
+            </Typography>
+          )}
+        </Typography>
         <Typography variant="caption" color="text.secondary">Shooter:</Typography>
-        <Typography variant="caption" fontFamily="monospace">{(attempt.shooterRPMRadPerSec * RAD_PER_SEC_TO_RPM).toFixed(1)} RPM</Typography>
+        <Typography variant="caption" fontFamily="monospace">{attempt.shooterRPM.toFixed(1)} RPM</Typography>
         <Typography variant="caption" color="text.secondary">Hood:</Typography>
-        <Typography variant="caption" fontFamily="monospace">{(attempt.hoodAngleRadians * RAD_TO_DEG).toFixed(2)} deg</Typography>
+        <Typography variant="caption" fontFamily="monospace">{attempt.hoodAngleDegrees.toFixed(2)} deg</Typography>
       </Box>
 
       <Divider sx={{ my: 1 }} />
