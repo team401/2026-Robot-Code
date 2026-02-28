@@ -56,8 +56,6 @@ import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-
-import org.junit.Test;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -152,9 +150,14 @@ public class CoordinationLayer {
   private ShotMode shotMode = ShotMode.Hub;
 
   // Tunable numbers for shot tuning
-  private final LoggedTunableNumber hoodTuningAngleDegrees = new LoggedTunableNumber("CoordinationLayer/ShotTuning/hoodAngleDegrees", JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
-  private final LoggedTunableNumber shooterTuningRPM = new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0);
-  private final TestModeManager<CoordinationTestMode> testModeManager = new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
+  private final LoggedTunableNumber hoodTuningAngleDegrees =
+      new LoggedTunableNumber(
+          "CoordinationLayer/ShotTuning/hoodAngleDegrees",
+          JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
+  private final LoggedTunableNumber shooterTuningRPM =
+      new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0);
+  private final TestModeManager<CoordinationTestMode> testModeManager =
+      new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
 
   // Logging
   private final Alert autonomyOverriddenAlert =
@@ -687,10 +690,11 @@ public class CoordinationLayer {
       aimForTestModeShot();
       isShotReal = true;
     } else {
-      isShotReal = switch (effectiveAutonomyLevel) {
-          case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
-          case Manual -> aimForManualShot();
-        };
+      isShotReal =
+          switch (effectiveAutonomyLevel) {
+            case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
+            case Manual -> aimForManualShot();
+          };
     }
 
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
