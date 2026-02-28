@@ -8,17 +8,17 @@
     "maxAmbiguity": 0.3
   },
   "camera0Index": 0,
-  "camera0Name": "FrontRight",
+  "camera0Name": "Right",
   "camera0Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": 0.3491,
+      "pitch": -0.5236,
       "yaw": -1.571
     },
     "translation": {
-      "x": 0.2665,
-      "y": -0.2663,
-      "z": 0.2091
+      "x": -0.165,
+      "y": -0.292,
+      "z": 0.171
     }
   },
   "camera1Index": 1,
@@ -26,13 +26,13 @@
   "camera1Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": 0.3491,
+      "pitch": -0.5236,
       "yaw": 3.142
     },
     "translation": {
-      "x": -0.2673,
-      "y": -0.2583,
-      "z": 0.2091
+      "x": -0.266,
+      "y": -0.265,
+      "z": 0.147
     }
   },
   "camera2Index": 2,
@@ -40,13 +40,13 @@
   "camera2Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": 0.3491,
+      "pitch": -0.5236,
       "yaw": 1.571
     },
     "translation": {
-      "x": -0.2665,
-      "y": 0.2663,
-      "z": 0.2091
+      "x": -0.264,
+      "y": 0.270,
+      "z": 0.147
     }
   },
   "disconnectedDebounceTime": {
