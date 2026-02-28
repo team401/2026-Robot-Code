@@ -10,11 +10,11 @@
     7.5
   ],
   "defaultViMetersPerSecond": 9.0,
-  "shooterKP": 14.0,
+  "shooterKP": 15.0,
   "shooterKI": 0.0,
   "shooterKD": 0.0,
   "shooterKS": 0.0,
-  "shooterKV": 0.46,
+  "shooterKV": 0.55,
   "shooterKA": 0.0,
   "shooterReduction": 0.625,
   "characterizationRampRate": {
@@ -26,7 +26,7 @@
     "unit": "Amp"
   },
   "shooterStatorCurrentLimit": {
-    "value": 80.0,
+    "value": 150.0,
     "unit": "Amp"
   },
   "velocityFilterTime": {
@@ -46,12 +46,12 @@
       "unit": "Hertz"
     },
     "outputUpdateFrequency": {
-      "value": 1000.0,
+      "value": 500.0,
       "unit": "Hertz"
     }
   },
   "shooterClosedLoopFrequency": {
-    "value": 1000.0,
+    "value": 500.0,
     "unit": "Hertz"
   },
   "shooterMaxVelocity": {
@@ -59,7 +59,7 @@
     "unit": "Rotation per Minute"
   },
   "shooterVelocitySetpointEpsilon": {
-    "value": 50.0,
+    "value": 70.0,
     "unit": "RPM"
   },
   "shooterMaxAcceleration": {

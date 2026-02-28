@@ -57,6 +57,7 @@ import frc.robot.util.geometry.EnhancedLine2d;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -297,6 +298,8 @@ public class CoordinationLayer {
 
     extensionStateMachine.setState(noExtensionState);
     StateMachineDump.write("coordination", extensionStateMachine);
+
+    AutoLogOutputManager.addObject(this);
   }
 
   // Controller bindings
@@ -726,6 +729,7 @@ public class CoordinationLayer {
                 // When the turret isn't enabled, assume that it's been locked into the correct
                 // location for a manual mode shot if we ever have to run "no turret"
                 && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
+    Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
 
     if (canShoot) {
       hopper.ifPresent(
