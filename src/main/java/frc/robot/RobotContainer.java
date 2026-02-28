@@ -141,9 +141,9 @@ public class RobotContainer {
     dependencyOrderedExecutor.finalizeSchedule();
 
     // output hub coordinates - these must match what's in settings_gui/src/types/ShotTuning.ts
-    var hub = FieldConstants.Hub.topCenterPoint();
-    System.out.printf("Hub.topCenterPoint at %s", hub);
-    System.out.printf("Hub.topCenterPoint at %f %f", hub.getX(), hub.getY());
+    var hub = FieldConstants.Hub.oppInnerCenterPoint();
+    System.out.printf("Hub.oppInnerCenterPoint at %s", hub);
+    System.out.printf("Hub.oppInnerCenterPoint at %f %f", hub.getX(), hub.getY());
   }
 
   /**
