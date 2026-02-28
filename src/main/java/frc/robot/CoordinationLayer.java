@@ -288,6 +288,10 @@ public class CoordinationLayer {
         .whenFinished("Intake finished retracting")
         .transitionTo(noExtensionState);
 
+    this.waitForIntakeRetractState
+        .when(() -> goalExtensionState == ExtensionState.IntakeDeployed, "Goal is IntakeDeployed")
+        .transitionTo(intakeDeployedState);
+
     this.climberDeployedState
         .when(() -> goalExtensionState != ExtensionState.ClimbDeployed, "Goal is not ClimbDeployed")
         .transitionTo(waitForClimbRetractState);
@@ -295,6 +299,10 @@ public class CoordinationLayer {
     this.waitForClimbRetractState
         .whenFinished("Climb finished retracting")
         .transitionTo(noExtensionState);
+
+    this.waitForClimbRetractState
+        .when(() -> goalExtensionState == ExtensionState.ClimbDeployed, "Goal is ClimbDeployed")
+        .transitionTo(climberDeployedState);
 
     extensionStateMachine.setState(noExtensionState);
     StateMachineDump.write("coordination", extensionStateMachine);
@@ -657,8 +665,11 @@ public class CoordinationLayer {
                 "CoordinationLayer/distanceToHub",
                 AllianceBasedFieldConstants.hubInnerCenterPoint()
                     .toTranslation2d()
-                    .getDistance(new Pose3d(drive.getPose())
-                        .plus(JsonConstants.robotInfo.robotToShooter).getTranslation().toTranslation2d()));
+                    .getDistance(
+                        new Pose3d(drive.getPose())
+                            .plus(JsonConstants.robotInfo.robotToShooter)
+                            .getTranslation()
+                            .toTranslation2d()));
           });
     }
 

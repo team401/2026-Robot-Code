@@ -8,13 +8,11 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -135,16 +133,18 @@ public class ShooterConstants {
   public AngularVelocity shooterVelocitySetpointEpsilon = RPM.of(50);
 
   /**
-   * When the shooter less than shooterSlot0Epsilon less than its closed loop reference, it will use slot 0. When it's more than shooterSlot0Epsilon below its setpoint, it will use slot 1.
+   * When the shooter less than shooterSlot0Epsilon less than its closed loop reference, it will use
+   * slot 0. When it's more than shooterSlot0Epsilon below its setpoint, it will use slot 1.
    */
-  public AngularVelocity shooterSlot0Epsilon = RPM.of(100);
+  public AngularVelocity shooterSlot0Epsilon = RPM.of(150);
+
+  /** The time it takes for closed loop to ramp from 0 to 300 amps of requested output */
+  public Time torqueCurrentRampTime = Seconds.of(1);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
-        .withSlot0(
-            shooterSlot0Gains.toSlot0Config())
-        .withSlot1(
-            shooterSlot1Gains.toSlot1Config())
+        .withSlot0(shooterSlot0Gains.toSlot0Config())
+        .withSlot1(shooterSlot1Gains.toSlot1Config())
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimit(shooterStatorCurrentLimit)
@@ -164,7 +164,9 @@ public class ShooterConstants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                 .withSensorToMechanismRatio(shooterReduction)
                 .withVelocityFilterTimeConstant(velocityFilterTime))
-        .withTorqueCurrent(new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()));
+        .withTorqueCurrent(new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()))
+        .withClosedLoopRamps(
+            new ClosedLoopRampsConfigs().withTorqueClosedLoopRampPeriod(torqueCurrentRampTime));
   }
 
   public MechanismConfig buildMechanismConfig() {
