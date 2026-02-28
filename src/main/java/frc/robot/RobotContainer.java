@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -138,6 +139,11 @@ public class RobotContainer {
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+
+    // output hub coordinates - these must match what's in settings_gui/src/types/ShotTuning.ts
+    var hub = FieldConstants.Hub.topCenterPoint();
+    System.out.printf("Hub.topCenterPoint at %s", hub);
+    System.out.printf("Hub.topCenterPoint at %f %f", hub.getX(), hub.getY());
   }
 
   /**
