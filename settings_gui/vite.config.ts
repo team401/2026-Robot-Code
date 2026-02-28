@@ -6,7 +6,7 @@ import path from 'node:path'
 const robotTarget = process.env.ROBOT_URL || 'http://localhost:8088';
 
 const KNOWN_ENVS = new Set(['comp', 'test_drivebase']);
-const KNOWN_FILES = new Set(['ShotMaps.json', 'VisionConstants.json']);
+const KNOWN_FILES = new Set(['ShotMaps.json', 'VisionConstants.json', 'RobotInfo.json']);
 
 function localFilesPlugin(): Plugin {
   const constantsDir = (...parts: string[]) =>

@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import type { TuningAttempt } from '../types/ShotTuning';
 import { loadAttempts, saveAttempts, uploadClip, deleteClip } from '../services/shotTuningStorage';
+import { loadLocal } from '../services/api';
 import { NTConnectionStatus } from '../components/shot-tuning/NTConnectionStatus';
 import { TelemetryDisplay } from '../components/shot-tuning/TelemetryDisplay';
 import { RecordingControls } from '../components/shot-tuning/RecordingControls';
@@ -16,12 +17,19 @@ import { AttemptsList } from '../components/shot-tuning/AttemptsList';
 import { VideoReplayPlayer } from '../components/shot-tuning/VideoReplayPlayer';
 import type { NT4Service, Telemetry } from '../services/nt4';
 import { createNT4Service } from '../services/nt4';
+import { useConnection } from '../contexts/ConnectionContext';
+
+interface RobotInfo {
+  robotToShooter: { translation: { x: number; y: number; z: number } };
+}
 
 export function ShotMapTuning() {
+  const { environment } = useConnection();
   const [attempts, setAttempts] = useState<TuningAttempt[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [snack, setSnack] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const shooterOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const [telemetry, setTelemetry] = useState<Telemetry>({
     distanceMeters: 0,
     distanceToHubMeters: null,
@@ -48,11 +56,21 @@ export function ShotMapTuning() {
 
   useEffect(() => { fetchAttempts(); }, [fetchAttempts]);
 
+  // Load robot geometry once on startup so distance is measured from the shooter, not the robot center.
+  useEffect(() => {
+    loadLocal<RobotInfo>(environment, 'RobotInfo.json')
+      .then((info) => {
+        const { x, y } = info.robotToShooter.translation;
+        shooterOffsetRef.current = { x, y };
+      })
+      .catch(() => { /* keep default {0,0} if unavailable */ });
+  }, [environment]);
+
   const handleConnect = useCallback(async (address: string) => {
     if (nt4Ref.current) {
       nt4Ref.current.disconnect();
     }
-    const svc = await createNT4Service(address, setTelemetry);
+    const svc = await createNT4Service(address, setTelemetry, shooterOffsetRef.current);
     nt4Ref.current = svc;
     return svc;
   }, []);

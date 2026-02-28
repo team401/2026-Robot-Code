@@ -36,18 +36,23 @@ const TOPIC_DISTANCE_HUB = `${AK_PREFIX}/CoordinationLayer/distanceToHub`;      
 export async function createNT4Service(
   address: string,
   onTelemetry: (update: Telemetry) => void,
+  shooterOffset: { x: number; y: number } = { x: 0, y: 0 },
 ): Promise<NT4Service> {
   const { decodeMulti } = await import('@msgpack/msgpack');
 
   let poseX = 0;
   let poseY = 0;
+  let poseHeading = 0; // radians
   let shooterRPM = 0;
   let hoodAngleDegrees = 0;
   let distanceToHubMeters: number | null = null;
 
   function emitUpdate() {
-    const dx = poseX - HUB_CENTER.x;
-    const dy = poseY - HUB_CENTER.y;
+    // Rotate the robot-frame shooter offset into field frame using the robot heading.
+    const shooterX = poseX + shooterOffset.x * Math.cos(poseHeading) - shooterOffset.y * Math.sin(poseHeading);
+    const shooterY = poseY + shooterOffset.x * Math.sin(poseHeading) + shooterOffset.y * Math.cos(poseHeading);
+    const dx = shooterX - HUB_CENTER.x;
+    const dy = shooterY - HUB_CENTER.y;
     onTelemetry({
       distanceMeters: Math.sqrt(dx * dx + dy * dy),
       distanceToHubMeters,
@@ -65,12 +70,13 @@ export async function createNT4Service(
   const wantedTopics = new Map<string, (value: unknown) => void>();
 
   wantedTopics.set(TOPIC_POSE, (value) => {
-    // struct:Pose2d = 3x float64 LE (x, y, rotation) = 24 bytes
+    // struct:Pose2d = 3x float64 LE (x, y, rotation_radians) = 24 bytes
     const bytes = value instanceof Uint8Array ? value : new Uint8Array(value as ArrayBuffer);
-    if (bytes.byteLength >= 16) {
+    if (bytes.byteLength >= 24) {
       const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
       poseX = dv.getFloat64(0, true);
       poseY = dv.getFloat64(8, true);
+      poseHeading = dv.getFloat64(16, true);
       emitUpdate();
     }
   });
