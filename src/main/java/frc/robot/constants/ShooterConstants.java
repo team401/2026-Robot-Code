@@ -1,9 +1,11 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -20,14 +22,20 @@ import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.CurrentUnit;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.util.sim.FlywheelSimAdapter;
 
@@ -92,11 +100,39 @@ public class ShooterConstants {
   // TODO: Actual invert values for the follower
   public final Boolean invertFollower = true;
 
+  public final SignalRefreshRates shooterSignalRefreshRates =
+      new SignalRefreshRates(Hertz.of(200.0), Hertz.of(20.0), Hertz.of(1000.0));
+
+  /**
+   * The rate at which to run the velocity and follower control requests for the shooter motors.
+   * Note that if this doesn't match the "output" rate in shooterSignalRefreshRates, this number
+   * won't fully take effect.
+   */
+  public final Frequency shooterClosedLoopFrequency = Hertz.of(1000);
+
+  @JSONExclude
+  public final int shooterMediumPrioritySignals =
+      MotorIOTalonFX.DEFAULT_MEDIUM_PRIORITY_SIGNALS
+          | MotorIOTalonFX.DEFAULT_HIGH_PRIORITY_SIGNALS & ~MotorIOTalonFX.SIGNAL_VELOCITY;
+
+  @JSONExclude public final int shooterHighPrioritySignals = MotorIOTalonFX.SIGNAL_VELOCITY;
+  @JSONExclude public final int shooterOutputSignals = MotorIOTalonFX.DEFAULT_OUTPUT_SIGNALS;
+
   // Perhaps regenerative braking can improve our battery performance?
   public final NeutralModeValue defaultShooterNeutralMode = NeutralModeValue.Brake;
 
   public AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
   public AngularAcceleration shooterMaxAcceleration = RPM.of(3000).per(Second);
+
+  public Velocity<CurrentUnit> characterizationRampRate = Amps.of(0.1).per(Second);
+
+  public final Time velocityFilterTime = Seconds.of(0.01);
+
+  /**
+   * When the shooter's velocity is within shooterVelocitySetpointEpsilon of its target velocity, it
+   * is considered "at its setpoint"
+   */
+  public AngularVelocity shooterVelocitySetpointEpsilon = RPM.of(50);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
@@ -126,7 +162,8 @@ public class ShooterConstants {
         .withFeedback(
             new FeedbackConfigs()
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                .withSensorToMechanismRatio(shooterReduction));
+                .withSensorToMechanismRatio(shooterReduction)
+                .withVelocityFilterTimeConstant(velocityFilterTime));
   }
 
   public MechanismConfig buildMechanismConfig() {

@@ -24,9 +24,9 @@ public class RobotInfo {
   // JSON Only Fields (For initializing values from JSON files)
 
   // Private here, everyone else should use the CANBus object below
-  private final String canivoreBusName = "canivore";
+  private String canivoreBusName = "canivore";
 
-  private final String logFilePath = "./logs/robot_log.hoot";
+  private String logFilePath = "./logs/robot_log.hoot";
 
   public Mass robotMass = Kilograms.of(74.088);
   public MomentOfInertia robotMOI = KilogramSquareMeters.of(6.883);

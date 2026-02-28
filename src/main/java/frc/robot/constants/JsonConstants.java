@@ -1,12 +1,27 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
+import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
+import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
+import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.json.JSONMotionProfileConfig;
+import frc.robot.util.json.JSONRotation3d;
+import frc.robot.util.json.JSONTransform2d;
+import frc.robot.util.json.JSONTransform3d;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -14,6 +29,21 @@ import frc.robot.constants.drive.PhysicalDriveConstants;
  */
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
+
+  // TODO: Figure out a better way to serialize the MotionProfileConfig
+  static {
+    JSONMeasure.registerUnit(RotationsPerSecondPerSecond.per(Second));
+    // This should be replaced with a polymorphic adapter in the future
+    // But that requires changes to the coppercore library
+    JSONConverter.addConversion(MotionProfileConfig.class, JSONMotionProfileConfig.class);
+
+    JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
+    JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
+    JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
+
+    JSONMeasure.registerUnit(Amp.per(Second));
+    JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
+  }
 
   public static void loadConstants() {
     environmentHandler =
@@ -24,8 +54,10 @@ public class JsonConstants {
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
-    var jsonHandler =
-        new JSONHandler(jsonSyncSettings.build(), environmentHandler.getEnvironmentPathProvider());
+    var pathProvider = environmentHandler.getEnvironmentPathProvider();
+
+    System.out.println("[JsonConstants] Environment name: " + pathProvider.getEnvironmentName());
+    var jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
@@ -42,6 +74,7 @@ public class JsonConstants {
     hopperConstants = jsonHandler.getObject(new HopperConstants(), "HopperConstants.json");
     indexerConstants = jsonHandler.getObject(new IndexerConstants(), "IndexerConstants.json");
     turretConstants = jsonHandler.getObject(new TurretConstants(), "TurretConstants.json");
+    intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
@@ -49,6 +82,9 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
+    manualModeConstants =
+        jsonHandler.getObject(new ManualModeConstants(), "ManualModeConstants.json");
+    strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -59,6 +95,14 @@ public class JsonConstants {
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
+        jsonHandler.addRoute("/intake", intakeConstants);
+        jsonHandler.addRoute("/vision", visionConstants);
+        jsonHandler.registerPostCallback(
+            "/vision",
+            (visionConstants) -> {
+              System.out.println("Vision Constants were updated");
+              return true;
+            });
         jsonHandler.addRoute("/shotmaps", shotMaps);
         jsonHandler.registerPostCallback(
             "/shotmaps",
@@ -66,6 +110,7 @@ public class JsonConstants {
               shotMaps.afterJsonLoad();
               return true;
             });
+        jsonHandler.addRoute("/manualMode", manualModeConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
@@ -86,11 +131,14 @@ public class JsonConstants {
   public static HopperConstants hopperConstants;
   public static IndexerConstants indexerConstants;
   public static TurretConstants turretConstants;
+  public static IntakeConstants intakeConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
+  public static ManualModeConstants manualModeConstants;
+  public static StrategyConstants strategyConstants;
 
   public static Controllers controllers;
 }

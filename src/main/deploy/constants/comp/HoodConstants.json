@@ -1,1 +1,66 @@
-{}
+{
+  "disconnectedDebounceTimeSeconds": 1.0,
+  "mechanismAngleToExitAngle": {
+    "value": 10.0,
+    "unit": "Degree"
+  },
+  "hoodKP": 512.0,
+  "hoodKI": 10.0,
+  "hoodKD": 5.0,
+  "hoodKS": 1.2,
+  "hoodKG": 3.0,
+  "hoodKV": 0.5,
+  "hoodKA": 0.0,
+  "hoodExpoKV": 0.5,
+  "hoodExpoKA": 0.5,
+  "hoodReduction": 20.0,
+  "hoodSupplyCurrentLimit": {
+    "value": 60.0,
+    "unit": "Amp"
+  },
+  "hoodStatorCurrentLimit": {
+    "value": 80.0,
+    "unit": "Amp"
+  },
+  "hoodMotorDirection": "CounterClockwise_Positive",
+  "minHoodAngle": {
+    "value": 13.7532108812,
+    "unit": "Degree"
+  },
+  "maxHoodAngle": {
+    "value": 68.99,
+    "unit": "Degree"
+  },
+  "hoodSetpointEpsilon": {
+    "value": 1.0,
+    "unit": "Degree"
+  },
+  "timeToStowHood": {
+    "value": 0.5,
+    "unit": "Second"
+  },
+  "hoodRequestUpdateFrequency": {
+    "value": 1000,
+    "unit": "Hertz"
+  },
+  "homingVoltage": {
+    "value": -3.0,
+    "unit": "Volt"
+  },
+  "homingMovementThreshold": {
+    "value": 2.0,
+    "unit": "Degree per Second"
+  },
+  "homingMaxUnmovingTime": {
+    "value": 0.25,
+    "unit": "Second"
+  },
+  "simHoodMOI": {
+    "value": 0.01,
+    "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
+  },
+  "simHoodArmLength": {
+    "value": 7.678,
+    "unit": "Inch"
+  }
+}

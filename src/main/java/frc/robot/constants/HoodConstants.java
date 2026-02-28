@@ -3,6 +3,7 @@ package frc.robot.constants;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
@@ -28,6 +29,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -91,10 +93,25 @@ public class HoodConstants {
   public final Angle minHoodAngle = Degrees.of(10.0);
   public final Angle maxHoodAngle = Degrees.of(30.0);
 
+  public final Frequency hoodRequestUpdateFrequency = Hertz.of(1000);
+
+  /**
+   * When the hood angle is within hoodSetpointEpsilon of its goal angle or the exit angle is within
+   * hoodSetpointEpsilon of the goal pitch, the hood is considered "at its setpoint"
+   */
+  public final Angle hoodSetpointEpsilon = Degrees.of(1.0);
+
   public final Voltage homingVoltage = Volts.of(-3.0);
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
+
+  /**
+   * The amount of time it takes the hood to stow from its highest position. If the
+   * CoordinationLayer detects that the robot will hit the trench in this amount of time, it should
+   * tell the hood to stow.
+   */
+  public final Time timeToStowHood = Seconds.of(0.5); // TODO: Real value
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

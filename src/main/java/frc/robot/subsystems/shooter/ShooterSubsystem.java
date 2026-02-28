@@ -14,13 +14,22 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.shooter.ShooterState.CoastState;
 import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -29,6 +38,11 @@ import org.littletonrobotics.junction.Logger;
  * Velocity profile.
  */
 public class ShooterSubsystem extends MonitoredSubsystem {
+  private enum ShooterAction {
+    Coast,
+    ControlVelocity
+  }
+
   public static final ActionKey UPDATE_INPUTS = new ActionKey("ShooterSubsystem::updateInputs");
 
   private final TestModeManager<TestMode> testModeManager =
@@ -44,6 +58,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   // State machine and states
   private final StateMachine<ShooterSubsystem> stateMachine;
 
+  private final ShooterState coastState;
   private final ShooterState velocityControlState;
   private final ShooterState testModeState;
 
@@ -66,6 +81,13 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   // State variables
   private final MutAngularVelocity targetVelocity = RPM.mutable(0.0);
 
+  @AutoLogOutput(key = "Shooter/requestedAction")
+  private ShooterAction requestedAction = ShooterAction.Coast;
+
+  // State variables for FF characterization
+  private SimpleRegression ffRegression = new SimpleRegression();
+  private final Timer characterizationTimer = new Timer();
+
   public ShooterSubsystem(
       DependencyOrderedExecutor dependencyOrderedExecutor,
       MotorIO leadMotor,
@@ -73,20 +95,49 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     this.leadMotor = leadMotor;
     this.followerMotor = followerMotor;
 
+    leadMotor.setRequestUpdateFrequency(JsonConstants.shooterConstants.shooterClosedLoopFrequency);
+    followerMotor.setRequestUpdateFrequency(
+        JsonConstants.shooterConstants.shooterClosedLoopFrequency);
+
     stateMachine = new StateMachine<>(this);
 
+    coastState = stateMachine.registerState(new CoastState());
     velocityControlState = stateMachine.registerState(new VelocityControlState());
     testModeState = stateMachine.registerState(new TestModeState());
+
+    coastState
+        .when(
+            () -> requestedAction == ShooterAction.ControlVelocity,
+            "requestedAction == ControlVelocity")
+        .transitionTo(velocityControlState);
+
+    coastState
+        .when(() -> testModeManager.isInTestMode(), "Is shooter test mode")
+        .transitionTo(testModeState);
+
+    velocityControlState
+        .when(() -> requestedAction == ShooterAction.Coast, "requestedAction == Coast")
+        .transitionTo(coastState);
 
     velocityControlState
         .when(() -> testModeManager.isInTestMode(), "Is shooter test mode")
         .transitionTo(testModeState);
 
     testModeState
-        .when(() -> !testModeManager.isInTestMode(), "Is not shooter test mode")
+        .when(
+            () ->
+                !testModeManager.isInTestMode() && requestedAction == ShooterAction.ControlVelocity,
+            "Is not shooter test mode and requestedAction == ControlVelocity")
         .transitionTo(velocityControlState);
 
+    testModeState
+        .when(
+            () -> !testModeManager.isInTestMode() && requestedAction == ShooterAction.Coast,
+            "Is not shooter test mode and requestedAction == Coast")
+        .transitionTo(coastState);
+
     stateMachine.setState(velocityControlState);
+    StateMachineDump.write("shooter", stateMachine);
 
     // Initialize tunable numbers for test modes
     shooterKP =
@@ -146,6 +197,26 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Shooter/TargetVelocityRadPerSec", targetVelocity.in(RadiansPerSecond));
 
     stateMachine.periodic();
+
+    if (stateMachine.getCurrentState() != coastState) {
+      followerMotor.follow(
+          JsonConstants.canBusAssignment.shooterLeaderId,
+          JsonConstants.shooterConstants.invertFollower);
+    }
+  }
+
+  /** Runs when test mode is entered. Should be called by the test mode state. */
+  protected void testInit() {
+    switch (testModeManager.getTestMode()) {
+      case ShooterFFCharacterization -> {
+        this.ffRegression.clear();
+        this.characterizationTimer.restart();
+
+        Logger.recordOutput("Shooter/Characterization/kS", 0.0);
+        Logger.recordOutput("Shooter/Characterization/kV", 0.0);
+      }
+      default -> {}
+    }
   }
 
   protected void testPeriodic() {
@@ -203,12 +274,42 @@ public class ShooterSubsystem extends MonitoredSubsystem {
       case ShooterVoltageTuning -> {
         leadMotor.controlOpenLoopVoltage(Volts.of(shooterTuningVolts.getAsDouble()));
       }
+      case ShooterFFCharacterization -> {
+        if (DriverStation.isEnabled()) {
+          Current characterizationCurrent =
+              (Current)
+                  JsonConstants.shooterConstants.characterizationRampRate.times(
+                      Seconds.of(characterizationTimer.get()));
+          double characterizationCurrentAmps = characterizationCurrent.in(Amps);
+
+          // TODO: Figure out why velocity is negative in sim
+          double velocityRotationsPerSecond =
+              Math.abs(Units.radiansToRotations(leadMotorInputs.velocityRadiansPerSecond));
+
+          ffRegression.addData(velocityRotationsPerSecond, characterizationCurrentAmps);
+          double kS = ffRegression.getIntercept();
+          double kV = ffRegression.getSlope();
+
+          Logger.recordOutput("Shooter/Characterization/sampleCount", ffRegression.getN());
+          Logger.recordOutput(
+              "Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
+          Logger.recordOutput("Shooter/Characterization/kS", kS);
+          Logger.recordOutput("Shooter/Characterization/kV", kV);
+
+          leadMotor.controlOpenLoopCurrent(characterizationCurrent);
+        }
+      }
       default -> {}
     }
   }
 
   protected void controlToTargetVelocity() {
     leadMotor.controlToVelocityProfiled(targetVelocity);
+  }
+
+  protected void coast() {
+    leadMotor.controlCoast();
+    followerMotor.controlCoast();
   }
 
   /**
@@ -220,5 +321,47 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    */
   public void setTargetVelocityRPM(double velocityRPM) {
     targetVelocity.mut_replace(velocityRPM, RPM);
+    requestedAction = ShooterAction.ControlVelocity;
+  }
+
+  /**
+   * Get the current velocity of the shooter, as reported by the leader and follower motors'
+   * internal encoder velocity values.
+   *
+   * @return The arithmetic mean of the two shooter motors' velocity estimates in radians per second
+   */
+  public double getVelocityRadiansPerSecond() {
+    return (leadMotorInputs.velocityRadiansPerSecond + followerMotorInputs.velocityRadiansPerSecond)
+        / 2;
+  }
+
+  public AngularVelocity getVelocity() {
+    // Optimization: this could be changed to continually mut_replace into a mutable measure to
+    // avoid allocating an object every cycle later if performance is a concern.
+    return RadiansPerSecond.of(getVelocityRadiansPerSecond());
+  }
+
+  /**
+   * Stops the shooter by coasting it to a stop.
+   *
+   * <p>This method should only be called by the coordination layer.
+   */
+  public void stopShooter() {
+    requestedAction = ShooterAction.Coast;
+  }
+
+  /**
+   * Returns whether or not the shooter is within the velocity threshold of its goal velocity
+   *
+   * <p>Returns false if the shooter is commanded to stop.
+   *
+   * @return {@code true} if the shooter is controlling to a velocity and its measured velocity is
+   *     within the threshold of its target velocity, {@code false} otherwise.
+   */
+  @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
+  public boolean isAtGoalVelocity() {
+    return requestedAction == ShooterAction.ControlVelocity
+        && getVelocity()
+            .isNear(targetVelocity, JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon);
   }
 }

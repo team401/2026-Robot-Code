@@ -7,6 +7,8 @@
     "value": 7.2,
     "unit": "Radian per Second"
   },
+  "joystickDeadband": 0.02,
+  "joystickMagnitudeExponent": 2.0,
   "linearDriveProfileMaxLinearVelocity": {
     "value": 4.0,
     "unit": "Meter per Second"
@@ -39,24 +41,22 @@
     "value": 0.05,
     "unit": "Radian per Second"
   },
-  "joystickDeadband": 0.02,
-  "joystickMagnitudeExponent": 2.0,
   "steerGains": {
     "kP": 100.0,
     "kI": 0.0,
     "kD": 0.5,
     "kS": 0.1,
+    "kG": 0.0,
     "kV": 2.49,
-    "kA": 0.0,
-    "kG": 0.0
+    "kA": 0.0
   },
   "driveGains": {
     "kP": 0.1,
     "kI": 0.0,
     "kD": 0.0,
     "kS": 0.20845,
+    "kG": 0.0,
     "kV": 0.75722,
-    "kA": 0.0,
-    "kG": 0.0
+    "kA": 0.0
   }
 }

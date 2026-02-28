@@ -1,0 +1,286 @@
+package frc.robot.coordination;
+
+import static edu.wpi.first.units.Units.Seconds;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
+import frc.robot.constants.JsonConstants;
+import frc.robot.constants.StrategyConstants;
+import frc.robot.util.AllianceUtil;
+import java.util.Optional;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+/**
+ * The MatchState class handles tracking the state of the match and indicating when we can score vs.
+ * not score.
+ */
+public class MatchState {
+  private Optional<Alliance> wonAuto = Optional.empty();
+  private boolean receivedAutoWinnerFromFMS = false;
+
+  private MatchShift currentShift = MatchShift.Unknown;
+  private boolean canScore = true;
+
+  private LoggedDashboardChooser<MatchType> matchTypeChooser;
+
+  /**
+   * @return {@code true} if we are in a match (FMS is attached or DriverStation.getMatchType()
+   *     return Practice, Qualification, or Elimination), {@code false} otherwise
+   */
+  @AutoLogOutput(key = "MatchState/isInMatch")
+  public boolean isInMatch() {
+    Logger.recordOutput("MatchState/matchType", DriverStation.getMatchType());
+    return DriverStation.isFMSAttached()
+        || DriverStation.getMatchType() == DriverStation.MatchType.Practice
+        || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
+        || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
+  }
+
+  public enum MatchShift {
+    /** Autonomous; both hubs are active */
+    Auto(ActiveHub.Both),
+    /** Transition shift; both hubs are active */
+    Transition(ActiveHub.Both),
+    /** Shift 1; auto loser's hub is active */
+    Shift1(ActiveHub.AutoLoser),
+    /** Shift 2; auto winner's hub is active */
+    Shift2(ActiveHub.AutoWinner),
+    /** Shift 3; auto loser's hub is active */
+    Shift3(ActiveHub.AutoLoser),
+    /** Shift 4; auto winner's hub is active */
+    Shift4(ActiveHub.AutoWinner),
+    /** Endgame; both hubs are active */
+    Endgame(ActiveHub.Both),
+    /** Unknown; allow shooting just in case */
+    Unknown(ActiveHub.Both),
+    /** Shop/pit testing; allow shooting just in case */
+    Testing(ActiveHub.Both);
+
+    private ActiveHub hub;
+
+    private MatchShift(ActiveHub hub) {
+      this.hub = hub;
+    }
+
+    public ActiveHub getActiveHub() {
+      return hub;
+    }
+  }
+
+  public enum ActiveHub {
+    Both,
+    AutoWinner,
+    AutoLoser;
+
+    /**
+     * Checks whether our alliance's hub is currently active, given information about who won auto
+     * and which alliance we are on
+     *
+     * @param autoWinner The winner of auto (or red if we haven't determined it yet)
+     * @param hasDeterminedAutoWinner Whether or not we have determined the auto winner
+     * @return {@code true} if, based on this ActiveHub value, our hub should be active, or if the
+     *     auto winner is unknown, and {@code false} otherwise.
+     */
+    public boolean isOurHubActive(Optional<Alliance> autoWinner) {
+      Alliance ourAlliance = AllianceUtil.getAlliance();
+
+      switch (this) {
+        case Both -> {
+          return true;
+        }
+        case AutoWinner -> {
+          return autoWinner.map(winningAlliance -> ourAlliance == winningAlliance).orElse(true);
+        }
+        case AutoLoser -> {
+          return autoWinner.map(winningAlliance -> ourAlliance != winningAlliance).orElse(true);
+        }
+        default -> {
+          throw new UnsupportedOperationException("Unknown ActiveHub value " + this);
+        }
+      }
+    }
+  }
+
+  public MatchState() {
+    AutoLogOutputManager.addObject(this);
+
+    SmartDashboard.putBoolean("matchState/manualRedOverride", false);
+    SmartDashboard.putBoolean("matchState/manualBlueOverride", false);
+
+    if (Constants.currentMode == Mode.SIM) {
+      matchTypeChooser = new LoggedDashboardChooser<>("MatchState/MatchType");
+
+      for (var matchType : MatchType.values()) {
+        if (matchType == MatchType.None) {
+          matchTypeChooser.addDefaultOption(matchType.name(), matchType);
+        } else {
+          matchTypeChooser.addOption(matchType.name(), matchType);
+        }
+      }
+    }
+
+    // Call getAutoWinner once to start logging that field.
+    getAutoWinner();
+  }
+
+  /** Must be called by the coordination layer when enabled */
+  public void enabledPeriodic(boolean weWonAutoOverridePressed, boolean weLostAutoOverridePressed) {
+    if (Constants.currentMode == Mode.SIM) {
+      DriverStationSim.setMatchType(matchTypeChooser.get());
+    }
+
+    // If we haven't yet received the auto winner, continue to check for it periodically.
+    if (!receivedAutoWinnerFromFMS) {
+      checkGameDataForAutoWinner();
+    }
+    // Even after checking, if we still haven't received it, poll user input.
+    if (!receivedAutoWinnerFromFMS) {
+      // Check for game data; if not present allow for manual override.
+      if (weWonAutoOverridePressed) {
+        wonAuto = Optional.of(AllianceUtil.getAlliance());
+      }
+
+      if (weLostAutoOverridePressed) {
+        wonAuto = Optional.of(AllianceUtil.getOppAlliance());
+      }
+    }
+
+    Logger.recordOutput("MatchState/receivedAutoWinnerFromFMS", receivedAutoWinnerFromFMS);
+    Logger.recordOutput("MatchState/weWonAutoOverridePressed", weWonAutoOverridePressed);
+    Logger.recordOutput("MatchState/weLostAutoOverridePressed", weLostAutoOverridePressed);
+    Logger.recordOutput("MatchState/autoWinner", wonAuto.orElse(null));
+    // Determine if it's possible to shoot by checking the current match shift
+    double matchTime = DriverStation.getMatchTime();
+    currentShift = getCurrentShift(matchTime);
+
+    double shiftStartGracePeriodSeconds =
+        JsonConstants.strategyConstants.shiftStartGracePeriod.in(Seconds);
+    MatchShift shiftWithStartGrace = getCurrentShift(matchTime + shiftStartGracePeriodSeconds);
+
+    Logger.recordOutput("MatchState/startGraceShift", shiftWithStartGrace);
+
+    double shiftEndGracePeriodSeconds =
+        JsonConstants.strategyConstants.shiftEndGracePeriod.in(Seconds);
+    MatchShift shiftWithEndGrace = getCurrentShift(matchTime - shiftEndGracePeriodSeconds);
+
+    Logger.recordOutput("MatchState/endGraceShift", shiftWithEndGrace);
+
+    this.canScore =
+        shiftWithStartGrace.getActiveHub().isOurHubActive(wonAuto)
+            || shiftWithEndGrace.getActiveHub().isOurHubActive(wonAuto);
+  }
+
+  private void checkGameDataForAutoWinner() {
+    String gameData = DriverStation.getGameSpecificMessage();
+
+    if (gameData == null) {
+      return;
+    }
+
+    if (gameData.length() > 0) {
+      if (gameData.startsWith("R")) {
+        wonAuto = Optional.of(Alliance.Red);
+        receivedAutoWinnerFromFMS = true;
+      } else if (gameData.startsWith("B")) {
+        wonAuto = Optional.of(Alliance.Blue);
+        receivedAutoWinnerFromFMS = true;
+      }
+    }
+  }
+
+  public Optional<Alliance> getAutoWinner() {
+    Logger.recordOutput("MatchState/autoWinner", wonAuto.map(Enum::name).orElse("Undetermined"));
+    return wonAuto;
+  }
+
+  public MatchShift getCurrentShift(double currentMatchTime) {
+    // The behavior of this method is determined largely by the docs here
+    // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj/DriverStation.html#getMatchTime()
+    if (isInMatch()) {
+      if (DriverStation.isAutonomous()) {
+        return MatchShift.Auto;
+      } else {
+        return getTeleopShiftFromMatchTime(currentMatchTime);
+      }
+    }
+
+    return MatchShift.Testing;
+    // TODO: Determine if having "Unknown" makes any sense considering that right now, we are forced
+    // to either return a real shift or "Testing"
+  }
+
+  private MatchShift getTeleopShiftFromMatchTime(double matchTime) {
+    // see page 43 https://firstfrc.blob.core.windows.net/frc2026/Manual/2026GameManual.pdf
+    if (matchTime <= StrategyConstants.transitionStart
+        && matchTime > StrategyConstants.shift1Start) {
+      // Transition period; both hubs active
+      return MatchShift.Transition;
+    } else if (matchTime <= StrategyConstants.shift1Start
+        && matchTime > StrategyConstants.shift2Start) {
+      // Shift 1; auto loser's hub active
+      return MatchShift.Shift1;
+    } else if (matchTime <= StrategyConstants.shift2Start
+        && matchTime > StrategyConstants.shift3Start) {
+      // Shift 2; auto winner's hub active
+      return MatchShift.Shift2;
+    } else if (matchTime <= StrategyConstants.shift3Start
+        && matchTime > StrategyConstants.shift4Start) {
+      // Shift 3; auto loser's hub active
+      return MatchShift.Shift3;
+    } else if (matchTime <= StrategyConstants.shift4Start
+        && matchTime > StrategyConstants.endgameStart) {
+      // Shift 4; auto winner's hub active
+      return MatchShift.Shift4;
+    } else if (matchTime <= StrategyConstants.endgameStart
+        && matchTime > StrategyConstants.matchEnd) {
+      // Endgame; both hubs active
+      return MatchShift.Endgame;
+    }
+
+    return MatchShift.Unknown;
+  }
+
+  @AutoLogOutput(key = "MatchState/timeLeftInShift")
+  public double getTimeLeftInCurrentShift() {
+    double matchTime = DriverStation.getMatchTime();
+
+    return switch (currentShift) {
+      case Transition -> Math.max(matchTime - StrategyConstants.shift1Start, 0);
+      case Shift1 -> Math.max(matchTime - StrategyConstants.shift2Start, 0);
+      case Shift2 -> Math.max(matchTime - StrategyConstants.shift3Start, 0);
+      case Shift3 -> Math.max(matchTime - StrategyConstants.shift4Start, 0);
+      case Shift4 -> Math.max(matchTime - StrategyConstants.endgameStart, 0);
+      case Endgame -> Math.max(matchTime - StrategyConstants.matchEnd, 0);
+      default -> Double.POSITIVE_INFINITY;
+    };
+  }
+
+  /**
+   * Checks whether the current phase of the match allows this alliance to be able to score.
+   *
+   * @return {@code true} if the hub is currently active, will soon be active, or has just become
+   *     inactive, {@code false} otherwise
+   */
+  @AutoLogOutput(key = "MatchState/canScore")
+  public boolean canScore() {
+    return canScore;
+  }
+
+  @AutoLogOutput(key = "MatchState/currentShift")
+  public MatchShift getCurrentShift() {
+    return currentShift;
+  }
+
+  @AutoLogOutput(key = "MatchState/hasDeterminedAutoWinner")
+  public boolean hasDeterminedAutoWinner() {
+    return wonAuto.isPresent();
+  }
+}

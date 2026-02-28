@@ -1,0 +1,14 @@
+[Unit]
+Description=Temperature Monitor (NetworkTables)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=team401
+ExecStart=/home/team401/coprocessor/.venv/bin/python /home/team401/coprocessor/temperature_monitor.py --team 401
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

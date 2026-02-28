@@ -21,6 +21,30 @@ public class AllianceUtil {
    *     {@code true} otherwise.
    */
   public static boolean isRed() {
-    return DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red;
+    return getAlliance() == Alliance.Red;
+  }
+
+  /**
+   * Gets the current alliance.
+   *
+   * <p>If no alliance is present, this method defaults to the Red alliance.
+   *
+   * @return {@code Blue} if the DriverStation has provided an alliance that alliance is blue,
+   *     {@code Red} otherwise.
+   */
+  public static Alliance getAlliance() {
+    return DriverStation.getAlliance().orElse(Alliance.Red);
+  }
+
+  /**
+   * Return the opposite alliance than {@link #getAlliance()}.
+   *
+   * @return {@code Red} if {@link #getAlliance()} returns {@code Blue}, {@code Blue} otherwise
+   */
+  public static Alliance getOppAlliance() {
+    return switch (getAlliance()) {
+      case Red -> Alliance.Blue;
+      case Blue -> Alliance.Red;
+    };
   }
 }

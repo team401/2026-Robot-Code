@@ -22,3 +22,18 @@ export async function postData<R>(env: string, endpoint: string): Promise<R> {
   if (!res.ok) throw new Error(`POST failed: ${res.status} ${res.statusText}`);
   return res.json() as Promise<R>;
 }
+
+export async function loadLocal<T>(env: string, filename: string): Promise<T> {
+  const res = await fetch(`/local-load/${env}/${filename}`);
+  if (!res.ok) throw new Error(`Local load failed: ${res.status} ${res.statusText}`);
+  return res.json() as Promise<T>;
+}
+
+export async function saveLocal(env: string, filename: string, data: unknown): Promise<void> {
+  const res = await fetch(`/local-save/${env}/${filename}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`Local save failed: ${res.status} ${res.statusText}`);
+}
