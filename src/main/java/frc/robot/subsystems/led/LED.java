@@ -18,7 +18,6 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
-import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class LED extends SubsystemBase {
   private Optional<Drive> driveSubsystem;
@@ -36,7 +35,7 @@ public class LED extends SubsystemBase {
 
   private boolean wasHomed = false;
   private boolean isHomed = false;
-  
+
   // Simple guard: when true we have already started the rainbow on the device and should not
   // resend it each periodic (lumyn's RunOnce(false) will be interrupted if resent every tick).
   private boolean multiFramedAnimationActive = false;
@@ -109,7 +108,7 @@ public class LED extends SubsystemBase {
       return;
     }
     // main stuff
-    
+
     if (!disabled) {
       setGroupColor("all", Color.kLime);
     } else {
