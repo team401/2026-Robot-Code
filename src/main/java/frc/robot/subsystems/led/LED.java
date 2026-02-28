@@ -33,11 +33,13 @@ public class LED extends SubsystemBase {
   private boolean directLedEnabled = false;
 
   private boolean wasDisabled = false;
-  private boolean disabled = DriverStation.isDisabled();
 
   private boolean wasHomed = false;
   private boolean isHomed = false;
-  private final LoggedNetworkBoolean isHomedSpoof = new LoggedNetworkBoolean("LED/isHomed");
+  
+  // Simple guard: when true we have already started the rainbow on the device and should not
+  // resend it each periodic (lumyn's RunOnce(false) will be interrupted if resent every tick).
+  private boolean multiFramedAnimationActive = false;
 
   /* Lumyn Device Config creates a config build for everything that
    * LEDs are going to do (ie. zones, channels, animations)
@@ -96,40 +98,63 @@ public class LED extends SubsystemBase {
   }
 
   public void periodic() {
+    boolean disabled = DriverStation.isDisabled();
+    // TODO: replace with homed switch
     isHomed = SmartDashboard.getBoolean("led/isHomed", false);
-    // check if homed switch has been triggered
+    // check if isHomed, if not disable all animations and set all strips to be orange
     if (!isHomed) {
       setGroupColor("all", Color.kOrangeRed);
+      multiFramedAnimationActive = false;
       wasHomed = false;
       return;
-    } else if (isHomed && !wasHomed) {
-      if (disabled && !wasDisabled) {
-        led.leds.SetAnimation(Animation.RainbowRoll)
-            .ForGroup("all")
-            .WithDelay(Milliseconds.of(6))
-            .RunOnce(false);
-      }
+    }
+    // main stuff
+    
+    if (!disabled) {
+      setGroupColor("all", Color.kLime);
+    } else {
+      playMultiFramedAnimationOnce("all", 6, Animation.RainbowRoll, Color.kBlack);
     }
 
-    if (!disabled && wasDisabled) {
-      led.leds.SetAnimation(Animation.Fill).ForGroup("all").WithColor(Color.kBlack).RunOnce(true);
-
-      led.leds.SetColor("rightFront", Color.kPink);
-    }
-
-    wasDisabled = disabled;
-    wasHomed = isHomed;
+    wasDisabled = DriverStation.isDisabled();
   }
 
   public void setHomed(boolean homed) {
     isHomed = homed;
   }
 
+  /**
+   * Play the multiframe animation for a group once. This prevents repeatedly resending the same
+   * animation every periodic and spamming the command.
+   *
+   * @param animation animation to play
+   * @param group group name
+   * @param color optional color (black = none because Lumyn labs FRC color to Lumyn Labs color
+   *     logic can't be null. {@link com.lumynlabs.domain.led.LedHandler#FrcColorToAnimationColor
+   *     see here})
+   * @param delayMillis optional delay in milliseconds (null = none)
+   * @param runOnce whether to RunOnce on the device
+   */
+  private void playMultiFramedAnimationOnce(
+      String group, int delayMillis, Animation animation, Color color) {
+    if (multiFramedAnimationActive) {
+      return;
+    }
+    led.leds.SetAnimation(animation)
+        .WithColor(color)
+        .ForGroup(group)
+        .WithDelay(Milliseconds.of(delayMillis))
+        .RunOnce(false);
+    multiFramedAnimationActive = true;
+  }
+
   public void clearGroup(String group) {
     led.leds.SetAnimation(Animation.Fill).WithColor(Color.kBlack).ForGroup(group).RunOnce(true);
+    multiFramedAnimationActive = false;
   }
 
   public void setGroupColor(String group, Color color) {
     led.leds.SetAnimation(Animation.Fill).WithColor(color).ForGroup(group).RunOnce(true);
+    multiFramedAnimationActive = false;
   }
 }
