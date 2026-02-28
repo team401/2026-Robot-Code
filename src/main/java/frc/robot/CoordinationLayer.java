@@ -657,7 +657,8 @@ public class CoordinationLayer {
                 "CoordinationLayer/distanceToHub",
                 AllianceBasedFieldConstants.hubInnerCenterPoint()
                     .toTranslation2d()
-                    .getDistance(drive.getPose().getTranslation()));
+                    .getDistance(new Pose3d(drive.getPose())
+                        .plus(JsonConstants.robotInfo.robotToShooter).getTranslation().toTranslation2d()));
           });
     }
 
