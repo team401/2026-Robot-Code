@@ -8,6 +8,7 @@
   "runShooter": true,
   "runIntake": false,
   "runHood": true,
+  "runTransferRoller": true,
   "useHomingSwitch": false,
   "useTuningServer": true,
   "pretendCamerasAreMobile": false

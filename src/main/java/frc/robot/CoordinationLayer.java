@@ -45,6 +45,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.transferRoller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.OptionalUtil;
@@ -68,6 +69,7 @@ public class CoordinationLayer {
   private Optional<VisionLocalizer> vision = Optional.empty();
   private Optional<HopperSubsystem> hopper = Optional.empty();
   private Optional<IndexerSubsystem> indexer = Optional.empty();
+  private Optional<TransferRollerSubsystem> transferRoller = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
   private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
@@ -510,6 +512,11 @@ public class CoordinationLayer {
     this.indexer = Optional.of(indexer);
   }
 
+  public void setTransferRoller(TransferRollerSubsystem transferRoller) {
+    checkForDuplicateSubsystem(this.transferRoller, "TransferRoller");
+    this.transferRoller = Optional.of(transferRoller);
+  }
+
   public void setIntake(IntakeSubsystem intake) {
     checkForDuplicateSubsystem(this.intake, "Intake");
     this.intake = Optional.of(intake);
@@ -711,9 +718,14 @@ public class CoordinationLayer {
           hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
       indexer.ifPresent(
           indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
+      transferRoller.ifPresent(
+          transferRoller ->
+              transferRoller.setTargetVelocity(
+                  JsonConstants.transferRollerConstants.transferRollerSpinningVelocity));
     } else {
       hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
       indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+      transferRoller.ifPresent(transferRoller -> transferRoller.setTargetVelocity(RPM.zero()));
     }
   }
 
