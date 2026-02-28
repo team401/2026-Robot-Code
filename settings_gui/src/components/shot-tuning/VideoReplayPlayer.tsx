@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Typography,
@@ -11,9 +12,11 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import type { TuningAttempt } from '../../types/ShotTuning';
-import type { ShotMapDataPoint } from '../../types/ShotMaps';
+import type { ShotMaps, ShotMapDataPoint } from '../../types/ShotMaps';
 import { clipUrl } from '../../services/shotTuningStorage';
-import { shotMapsStore } from '../../services/shotMapsStore';
+import { loadLocal, saveLocal } from '../../services/api';
+import { useConnection } from '../../contexts/ConnectionContext';
+import { shotMapsLocalSignal } from '../../services/shotMapsStore';
 
 interface VideoReplayPlayerProps {
   attempt: TuningAttempt;
@@ -25,12 +28,14 @@ interface VideoReplayPlayerProps {
 
 
 export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChange, fps = 30 }: VideoReplayPlayerProps) {
+  const { environment } = useConnection();
   const FRAME_STEP = 1 / fps;
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [exportError, setExportError] = useState<string | null>(null);
 
 
   // Webm files often report wrong duration until fully buffered.
@@ -156,7 +161,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
 
   const handleExport = async (target: 'hub' | 'pass') => {
     if (attempt.flightTimeSec === null) return;
-    // Use NT-reported distance if available, fall back to pose-computed
+    setExportError(null);
     const distance = attempt.distanceToHubMeters ?? attempt.distanceMeters;
     const newPoint: ShotMapDataPoint = {
       distance: { value: distance, unit: 'Meter' },
@@ -164,9 +169,18 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
       hoodAngle: { value: attempt.hoodAngleDegrees, unit: 'Degree' },
       flightTime: { value: attempt.flightTimeSec, unit: 'Second' },
     };
-    // Push into the shared in-memory store so ShotMapsEditor reflects it immediately.
-    // No file write here — the user saves explicitly from the Shot Maps tab.
-    shotMapsStore.addPoint(newPoint, target);
+    try {
+      // Always load fresh so we never overwrite concurrent edits.
+      const current = await loadLocal<ShotMaps>(environment, 'ShotMaps.json');
+      if (target === 'hub') current.hubDataPoints.push(newPoint);
+      else current.passDataPoints.push(newPoint);
+      await saveLocal(environment, 'ShotMaps.json', current);
+      // Signal the Shot Maps tab to reload from local on its next mount.
+      shotMapsLocalSignal.markDirty();
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : 'Failed to save to local file');
+      return;
+    }
 
     const updated = { ...attempt, exportedToShotMap: target };
     const next = attempts.map((a) => a.id === updated.id ? updated : a);
@@ -271,7 +285,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
 
       {/* Export to Shot Maps */}
       <Box sx={{ display: 'flex', gap: 1 }}>
-        <Tooltip title="Append this data point to the hub interpolation table in ShotMaps.json" arrow>
+        <Tooltip title="Load ShotMaps.json, append this point to the hub table, save back to local file" arrow>
           <span>
             <Button
               size="small"
@@ -283,7 +297,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
             </Button>
           </span>
         </Tooltip>
-        <Tooltip title="Append this data point to the pass interpolation table in ShotMaps.json" arrow>
+        <Tooltip title="Load ShotMaps.json, append this point to the pass table, save back to local file" arrow>
           <span>
             <Button
               size="small"
@@ -297,6 +311,11 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
           </span>
         </Tooltip>
       </Box>
+      {exportError && (
+        <Alert severity="error" sx={{ mt: 1 }} onClose={() => setExportError(null)}>
+          {exportError}
+        </Alert>
+      )}
     </Box>
   );
 }

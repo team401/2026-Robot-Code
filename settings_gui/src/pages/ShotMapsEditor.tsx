@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Button,
-  Chip,
   IconButton,
   Paper,
   Table,
@@ -27,7 +26,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { useConnection } from '../contexts/ConnectionContext';
 import { getData, putData, postData, saveLocal, loadLocal } from '../services/api';
 import type { ShotMaps, ShotMapDataPoint } from '../types/ShotMaps';
-import { shotMapsStore } from '../services/shotMapsStore';
+import { shotMapsLocalSignal } from '../services/shotMapsStore';
 
 function defaultDataPoint(): ShotMapDataPoint {
   return {
@@ -164,37 +163,21 @@ export function ShotMapsEditor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [snack, setSnack] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
-  const [unsavedCount, setUnsavedCount] = useState(0);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    // Drain pending before the API call so they're never lost even if the robot is offline.
-    const pending = shotMapsStore.drainPending();
     try {
-      const result = await getData<ShotMaps>(environment, 'shotmaps');
-      for (const { point, target } of pending) {
-        if (target === 'hub') result.hubDataPoints.push(point);
-        else result.passDataPoints.push(point);
+      let result: ShotMaps;
+      if (shotMapsLocalSignal.consume()) {
+        // The tuning tab saved a new point to the local file — reload from there.
+        result = await loadLocal<ShotMaps>(environment, 'ShotMaps.json');
+      } else {
+        result = await getData<ShotMaps>(environment, 'shotmaps');
       }
       setData(result);
-      if (pending.length > 0) setUnsavedCount((n) => n + pending.length);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to fetch');
-      // Still show pending points from the tuning tab even if the robot API is unavailable.
-      if (pending.length > 0) {
-        setData((prev) => {
-          const base = prev ?? { hubDataPoints: [], passDataPoints: [] };
-          const hub = [...base.hubDataPoints];
-          const pass = [...base.passDataPoints];
-          for (const { point, target } of pending) {
-            if (target === 'hub') hub.push(point);
-            else pass.push(point);
-          }
-          return { ...base, hubDataPoints: hub, passDataPoints: pass };
-        });
-        setUnsavedCount((n) => n + pending.length);
-      }
     } finally {
       setLoading(false);
     }
@@ -203,18 +186,6 @@ export function ShotMapsEditor() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  // Subscribe to points pushed by the tuning tab while this component is mounted
-  useEffect(() => {
-    return shotMapsStore.subscribe((point, target) => {
-      setData((prev) => {
-        const base = prev ?? { hubDataPoints: [], passDataPoints: [] };
-        if (target === 'hub') return { ...base, hubDataPoints: [...base.hubDataPoints, point] };
-        return { ...base, passDataPoints: [...base.passDataPoints, point] };
-      });
-      setUnsavedCount((n) => n + 1);
-    });
-  }, []);
 
   const handleSave = async () => {
     if (!data) return;
@@ -248,7 +219,6 @@ export function ShotMapsEditor() {
     setError(null);
     try {
       await saveLocal(environment, 'ShotMaps.json', data);
-      setUnsavedCount(0);
       setSnack({ message: 'Saved to local source tree', severity: 'success' });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save locally');
@@ -294,11 +264,9 @@ export function ShotMapsEditor() {
           Load from Local
         </Button>
         <Button
-          variant={unsavedCount > 0 ? 'contained' : 'outlined'}
-          color={unsavedCount > 0 ? 'warning' : 'primary'}
+          variant="outlined"
           startIcon={<FileDownloadIcon />}
           onClick={handleSaveLocal}
-          endIcon={unsavedCount > 0 ? <Chip label={`+${unsavedCount}`} size="small" color="warning" sx={{ height: 20, color: 'inherit' }} /> : undefined}
         >
           Save to Local
         </Button>
