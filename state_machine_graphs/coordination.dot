@@ -25,6 +25,7 @@ digraph {
   ClimberDeployed -> WaitForClimberRetract [label="Goal is not ClimbDeployed"];
 
   WaitForClimberRetract -> NoExtension [label="Climb finished retracting"];
+  WaitForClimberRetract -> ClimberDeployed [label="Goal is ClimbDeployed"];
 
   NoExtension -> IntakeDeployed [label="Goal is IntakeDeployed"];
   NoExtension -> ClimberDeployed [label="Goal is ClimbDeployed"];
@@ -32,5 +33,6 @@ digraph {
   IntakeDeployed -> WaitForIntakeRetract [label="Goal is not IntakeDeployed"];
 
   WaitForIntakeRetract -> NoExtension [label="Intake finished retracting"];
+  WaitForIntakeRetract -> IntakeDeployed [label="Goal is IntakeDeployed"];
 
 }
