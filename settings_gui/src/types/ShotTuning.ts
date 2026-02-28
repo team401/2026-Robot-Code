@@ -13,4 +13,10 @@ export interface TuningAttempt {
   fps: number;
 }
 
-export const HUB_CENTER = { x: 4.02844, y: 4.00050 } as const;
+// 
+// coordinates below were obtained via FieldConstants.Hub.topCenterPoint();
+// - gback
+export const HUB_CENTER = { 
+    x: 4.604766,
+    y: 4.021500,
+} as const;
