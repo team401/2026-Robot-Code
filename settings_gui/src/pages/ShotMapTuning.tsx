@@ -149,17 +149,18 @@ export function ShotMapTuning() {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ mb: 2 }}>Shot Map Tuning</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+        <Typography variant="h5" sx={{ whiteSpace: 'nowrap' }}>Shot Map Tuning</Typography>
+        <Paper sx={{ p: 1.5, flex: 1 }}>
+          <NTConnectionStatus onConnect={handleConnect} onDisconnect={handleDisconnect} />
+        </Paper>
+      </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
       <Grid container spacing={2}>
-        {/* Left column: NT4 + Recording */}
+        {/* Left column: Recording */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 2, mb: 2 }}>
-            <NTConnectionStatus onConnect={handleConnect} onDisconnect={handleDisconnect} />
-          </Paper>
-
           <Paper sx={{ p: 2, mb: 2 }}>
             <TelemetryDisplay telemetry={telemetry} />
           </Paper>
