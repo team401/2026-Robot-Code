@@ -17,6 +17,7 @@ digraph {
   HomingWaitForMovementState ;
   HomingWaitForStoppingState ;
   IdleState ;
+  WearInState ;
   TrackHeadingState ;
   TestModeState ;
   HomingWaitForButtonState ;
@@ -30,6 +31,8 @@ digraph {
 
   IdleState -> TrackHeadingState [label="Action == TrackHeading"];
   IdleState -> TestModeState [label="In turret test mode"];
+
+  WearInState -> HomingWaitForButtonState [label="When WearInState finished"];
 
   TrackHeadingState -> IdleState [label="Action != TrackHeading"];
 

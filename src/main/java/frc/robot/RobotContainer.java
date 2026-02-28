@@ -163,7 +163,7 @@ public class RobotContainer {
             .orElse(Radians.zero());
 
     var shooterBasePosition =
-        new Pose3d(new Translation3d(0.058, -0.245, 0.37), new Rotation3d(0.0, 0.0, Math.PI / 2));
+        new Pose3d(new Translation3d(-0.058, 0.245, 0.37), new Rotation3d(0.0, 0.0, -Math.PI / 2));
     var shooterOffsetFromReferencePoint =
         new Transform3d(0.1045, -0.039, 0, new Rotation3d(0, 0, 0));
     var shooterWithTurretAngle =
@@ -188,31 +188,29 @@ public class RobotContainer {
           shooterWithTurretAngle,
           // Indexer + hopper
           new Pose3d(
-              new Translation3d(-0.121, -0.025, 0.0),
-              new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2)),
+              new Translation3d(0.121, 0.025, 0.0),
+              new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
           // Intake
           new Pose3d(
-                  new Translation3d(-0.35, 0.0, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2))
+                  new Translation3d(0.35, 0.0, 0.0), new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2))
               .plus(intakeOffsetFromReferencePoint)
               .plus(new Transform3d(0, 0, 0, new Rotation3d(intakeAngle.in(Radians), 0, 0)))
               .plus(intakeOffsetFromReferencePoint.inverse()),
           // Turret
           new Pose3d(
-              new Translation3d(0.099, -0.138, 0.331),
-              new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
+              new Translation3d(-0.099, 0.138, 0.331),
+              new Rotation3d(Math.PI / 2, 0.0, - Math.PI / 2)),
           // Climb
           new Pose3d(
-              new Translation3d(0.180, 0.218, -0.190 + climbHeight), new Rotation3d(Math.PI / 2, 0.0, 0.0)),
+              new Translation3d(-0.180, -0.218, -0.190 + climbHeight),
+              new Rotation3d(Math.PI / 2, 0.0, Math.PI)),
           // Hood
           shooterWithTurretAngle
               .plus(hoodOffsetFromShooter)
               .plus(hoodOffsetFromReferencePoint)
               .plus(
                   new Transform3d(
-                      0,
-                      0,
-                      0,
-                      new Rotation3d(-hoodAngle.in(Radians) + Math.PI / 3 + Math.PI / 12, 0, 0)))
+                      0, 0, 0, new Rotation3d(-hoodAngle.in(Radians) + 5 * Math.PI / 12, 0, 0)))
               .plus(hoodOffsetFromReferencePoint.inverse())
         });
   }
