@@ -1,0 +1,78 @@
+{
+  "team": "401",
+  "network": {
+    "mode": "USB"
+  },
+  "channels": {
+    "1": {
+      "id": "backStrip",
+      "length": 94,
+      "brightness": 255,
+      "zones": [
+        {
+          "id": "leftBack",
+          "type": "strip",
+          "length": 47,
+          "brightness": 255,
+          "reversed": false
+        },
+        {
+          "id": "rightBack",
+          "type": "strip",
+          "length": 47,
+          "brightness": 255,
+          "reversed": false
+        }
+      ]
+    },
+    "2": {
+      "id": "frontStrip",
+      "length": 102,
+      "brightness": 255,
+      "zones": [
+        {
+          "id": "leftFront",
+          "type": "strip",
+          "length": 51,
+          "brightness": 255,
+          "reversed": false
+        },
+        {
+          "id": "rightFront",
+          "type": "strip",
+          "length": 51,
+          "brightness": 255,
+          "reversed": false
+        }
+      ]
+    }
+  },
+  "sequences": [],
+  "bitmaps": [],
+  "sensors": [],
+  "groups": [
+    {
+      "id": "backStrip",
+      "zones": [
+        "leftBack",
+        "rightBack"
+      ]
+    },
+    {
+      "id": "frontStrip",
+      "zones": [
+        "leftFront",
+        "rightFront"
+      ]
+    },
+    {
+      "id": "all",
+      "zones": [
+        "leftBack",
+        "rightBack",
+        "leftFront",
+        "rightFront"
+      ]
+    }
+  ]
+}

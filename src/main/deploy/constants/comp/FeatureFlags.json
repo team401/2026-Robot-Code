@@ -4,6 +4,7 @@
   "runIndexer": false,
   "runTurret": false,
   "runHood": false,
+  "runShooter": false,
   "useHomingSwitch": false,
   "useTuningServer": false,
   "runLEDs": true
