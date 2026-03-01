@@ -5,6 +5,20 @@
     "value": 74.088,
     "unit": "Kilogram"
   },
+  "nonFireControllingRefreshRates": {
+    "highPriorityUpdateFrequency": {
+      "value": 50.0,
+      "unit": "Hertz"
+    },
+    "mediumPriorityUpdateFrequency": {
+      "value": 20.0,
+      "unit": "Hertz"
+    },
+    "outputUpdateFrequency": {
+      "value": 50.0,
+      "unit": "Hertz"
+    }
+  },
   "robotMOI": {
     "value": 6.883,
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"

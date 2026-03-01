@@ -12,8 +12,8 @@
   "camera0Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": -0.5236,
-      "yaw": -1.571
+      "pitch": -30.0,
+      "yaw": -90.0
     },
     "translation": {
       "x": -0.165,
@@ -26,8 +26,8 @@
   "camera1Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": -0.5236,
-      "yaw": 3.142
+      "pitch": -30.0,
+      "yaw": 180.0
     },
     "translation": {
       "x": -0.266,
@@ -40,8 +40,8 @@
   "camera2Transform": {
     "rotation": {
       "roll": 0.0,
-      "pitch": -0.5236,
-      "yaw": 1.571
+      "pitch": -30.0,
+      "yaw": 90.0
     },
     "translation": {
       "x": -0.264,
