@@ -107,41 +107,47 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
     video.currentTime = time;
   }, []);
 
-  // Keyboard shortcuts
+  // Focus the container on mount and whenever the attempt changes so keyboard
+  // shortcuts work immediately without the user having to click first.
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    containerRef.current?.focus();
+  }, [attempt.id]);
 
-      switch (e.key) {
-        case 'ArrowLeft':
-        case 'j':
-          e.preventDefault();
-          stepFrame(-FRAME_STEP);
-          break;
-        case 'ArrowRight':
-        case 'k':
-          e.preventDefault();
-          stepFrame(FRAME_STEP);
-          break;
-        case 'h':
-          e.preventDefault();
-          stepFrame(-FRAME_STEP * 10);
-          break;
-        case 'l':
-          e.preventDefault();
-          stepFrame(FRAME_STEP * 10);
-          break;
-        case ' ':
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const target = e.target as HTMLElement;
+    const tag = target.tagName;
+    // Let form controls and the MUI slider handle their own keys.
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (target.getAttribute('role') === 'slider') return;
+
+    switch (e.key) {
+      case 'ArrowLeft':
+      case 'j':
+        e.preventDefault();
+        stepFrame(-FRAME_STEP);
+        break;
+      case 'ArrowRight':
+      case 'k':
+        e.preventDefault();
+        stepFrame(FRAME_STEP);
+        break;
+      case 'h':
+        e.preventDefault();
+        stepFrame(-FRAME_STEP * 10);
+        break;
+      case 'l':
+        e.preventDefault();
+        stepFrame(FRAME_STEP * 10);
+        break;
+      case ' ':
+        // Don't intercept Space when a button has focus (it would double-fire).
+        if (tag !== 'BUTTON') {
           e.preventDefault();
           togglePlay();
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [stepFrame, togglePlay]);
+        }
+        break;
+    }
+  }, [stepFrame, togglePlay, FRAME_STEP]);
 
   const markLeavesShooter = async () => {
     const updated = { ...attempt, leavesShooterTimeSec: currentTime };
@@ -188,7 +194,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
   };
 
   return (
-    <Box ref={containerRef} tabIndex={-1} sx={{ outline: 'none' }}>
+    <Box ref={containerRef} tabIndex={-1} sx={{ outline: 'none' }} onKeyDown={handleKeyDown}>
       <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
         Video Replay
       </Typography>
@@ -200,7 +206,10 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
         onLoadedMetadata={handleLoadedMetadata}
         onDurationChange={handleDurationChange}
         onEnded={() => setPlaying(false)}
-        style={{ width: '100%', borderRadius: 4, background: '#000' }}
+        // Clicking the video would give native focus to the <video> element, which
+        // intercepts keyboard events in some browsers. Redirect focus to our container.
+        onClick={() => containerRef.current?.focus()}
+        style={{ width: '100%', borderRadius: 4, background: '#000', cursor: 'pointer' }}
       />
 
       {/* Scrub slider */}
@@ -218,7 +227,12 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
 
       {/* Playback controls */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
-        <Tooltip title="Back 1 frame (Left Arrow)" arrow>
+        <Tooltip title="Back 10 frames (h)" arrow>
+          <Button size="small" variant="outlined" onClick={() => stepFrame(-FRAME_STEP * 10)}>
+            -10 Frames
+          </Button>
+        </Tooltip>
+        <Tooltip title="Back 1 frame (j / Left Arrow)" arrow>
           <Button size="small" variant="outlined" onClick={() => stepFrame(-FRAME_STEP)}>
             -1 Frame
           </Button>
@@ -228,9 +242,14 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
             {playing ? <PauseIcon /> : <PlayArrowIcon />}
           </IconButton>
         </Tooltip>
-        <Tooltip title="Forward 1 frame (Right Arrow)" arrow>
+        <Tooltip title="Forward 1 frame (k / Right Arrow)" arrow>
           <Button size="small" variant="outlined" onClick={() => stepFrame(FRAME_STEP)}>
             +1 Frame
+          </Button>
+        </Tooltip>
+        <Tooltip title="Forward 10 frames (l)" arrow>
+          <Button size="small" variant="outlined" onClick={() => stepFrame(FRAME_STEP * 10)}>
+            +10 Frames
           </Button>
         </Tooltip>
         <Typography variant="body2" fontFamily="monospace" sx={{ ml: 1 }}>
@@ -239,7 +258,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
       </Box>
 
       <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-        j / Left: -1 frame | k / Right: +1 frame | h: -10 frames | l: +10 frames | Space: play/pause
+        h: -10 frames | j / Left: -1 frame | Space: play/pause | k / Right: +1 frame | l: +10 frames
       </Typography>
 
       <Divider sx={{ my: 1 }} />

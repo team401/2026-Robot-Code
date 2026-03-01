@@ -150,7 +150,7 @@ function shotTuningPlugin(): Plugin {
         });
       });
 
-      // GET /shot-tuning/clips/:id  (serve webm)
+      // GET /shot-tuning/clips/:id  (serve webm with range-request support for Chrome seeking)
       server.middlewares.use((req, res, next) => {
         const match = req.url?.match(/^\/shot-tuning\/clips\/([a-f0-9-]+)$/);
         if (!match || req.method !== 'GET') return next();
@@ -161,11 +161,23 @@ function shotTuningPlugin(): Plugin {
           res.end('Not found');
           return;
         }
-        const stat = fs.statSync(filePath);
-        res.statusCode = 200;
+        const total = fs.statSync(filePath).size;
+        const rangeHeader = (req as import('http').IncomingMessage).headers['range'];
         res.setHeader('Content-Type', 'video/webm');
-        res.setHeader('Content-Length', stat.size);
-        fs.createReadStream(filePath).pipe(res);
+        res.setHeader('Accept-Ranges', 'bytes');
+        if (rangeHeader) {
+          const [startStr, endStr] = rangeHeader.replace(/bytes=/, '').split('-');
+          const start = parseInt(startStr, 10);
+          const end = endStr ? parseInt(endStr, 10) : total - 1;
+          res.statusCode = 206;
+          res.setHeader('Content-Range', `bytes ${start}-${end}/${total}`);
+          res.setHeader('Content-Length', end - start + 1);
+          fs.createReadStream(filePath, { start, end }).pipe(res);
+        } else {
+          res.statusCode = 200;
+          res.setHeader('Content-Length', total);
+          fs.createReadStream(filePath).pipe(res);
+        }
       });
 
       // DELETE /shot-tuning/clips/:id
