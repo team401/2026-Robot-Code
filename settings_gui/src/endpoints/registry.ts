@@ -10,7 +10,7 @@ export interface EndpointEntry {
 }
 
 export const endpoints: EndpointEntry[] = [
-  { name: 'shotmaps', label: 'Shot Maps', component: ShotMapsEditor },
   { name: 'vision', label: 'Vision', component: VisionEditor },
+  { name: 'shotmaps', label: 'Shot Maps', component: ShotMapsEditor },
   { name: 'shot-tuning', label: 'Shot Map Tuning', component: ShotMapTuning },
 ];
