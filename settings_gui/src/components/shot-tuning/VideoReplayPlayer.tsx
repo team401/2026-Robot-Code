@@ -212,17 +212,49 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
         style={{ width: '100%', borderRadius: 4, background: '#000', cursor: 'pointer' }}
       />
 
-      {/* Scrub slider */}
+      {/* Scrub slider + flight-window indicator */}
       {duration > 0 && (
-        <Slider
-          value={currentTime}
-          min={0}
-          max={duration}
-          step={0.001}
-          onChange={(_, v) => seekTo(v as number)}
-          size="small"
-          sx={{ mt: 0.5, mb: 0 }}
-        />
+        <>
+          <Slider
+            value={currentTime}
+            min={0}
+            max={duration}
+            step={0.001}
+            onChange={(_, v) => seekTo(v as number)}
+            size="small"
+            sx={{ mt: 0.5, mb: 0 }}
+          />
+          {/* Only show the indicator once at least one mark is set */}
+          {(attempt.leavesShooterTimeSec !== null || attempt.hitTargetTimeSec !== null) && (
+            <Box sx={{ position: 'relative', height: 8, borderRadius: 1, overflow: 'hidden', mb: 0.5, bgcolor: 'divider' }}>
+              {/* Amber highlight for the flight window */}
+              {attempt.leavesShooterTimeSec !== null && attempt.hitTargetTimeSec !== null && (
+                <Box sx={{
+                  position: 'absolute', top: 0, bottom: 0,
+                  left: `${(attempt.leavesShooterTimeSec / duration) * 100}%`,
+                  width: `${((attempt.hitTargetTimeSec - attempt.leavesShooterTimeSec) / duration) * 100}%`,
+                  bgcolor: 'warning.main', opacity: 0.6,
+                }} />
+              )}
+              {/* Green tick: leaves shooter */}
+              {attempt.leavesShooterTimeSec !== null && (
+                <Box sx={{
+                  position: 'absolute', top: 0, bottom: 0, width: 2,
+                  left: `${(attempt.leavesShooterTimeSec / duration) * 100}%`,
+                  transform: 'translateX(-1px)', bgcolor: 'success.main',
+                }} />
+              )}
+              {/* Red tick: hits target */}
+              {attempt.hitTargetTimeSec !== null && (
+                <Box sx={{
+                  position: 'absolute', top: 0, bottom: 0, width: 2,
+                  left: `${(attempt.hitTargetTimeSec / duration) * 100}%`,
+                  transform: 'translateX(-1px)', bgcolor: 'error.main',
+                }} />
+              )}
+            </Box>
+          )}
+        </>
       )}
 
       {/* Playback controls */}
