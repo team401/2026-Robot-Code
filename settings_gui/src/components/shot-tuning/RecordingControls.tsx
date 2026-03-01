@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Box, Button, Typography, Alert, Select, MenuItem, InputLabel, FormControl, ToggleButtonGroup, ToggleButton, Tooltip } from '@mui/material';
+import { Box, Button, Typography, Alert, Select, MenuItem, InputLabel, FormControl, Tooltip } from '@mui/material';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import StopIcon from '@mui/icons-material/Stop';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -162,37 +162,37 @@ export function RecordingControls({ onStore, onFpsChange, onRecordStart }: Recor
         Recording
       </Typography>
 
-      {cameras.length > 1 && (
-        <FormControl size="small" fullWidth sx={{ mb: 1 }}>
-          <InputLabel>Camera</InputLabel>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        {cameras.length > 1 && (
+          <FormControl size="small" sx={{ flex: 1 }}>
+            <InputLabel>Camera</InputLabel>
+            <Select
+              value={selectedCameraId}
+              label="Camera"
+              onChange={(e) => handleCameraChange(e.target.value)}
+              disabled={recording}
+            >
+              {cameras.map((cam) => (
+                <MenuItem key={cam.deviceId} value={cam.deviceId}>
+                  {cam.label || `Camera ${cameras.indexOf(cam) + 1}`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+        <FormControl size="small" sx={{ minWidth: 80 }}>
+          <InputLabel>FPS</InputLabel>
           <Select
-            value={selectedCameraId}
-            label="Camera"
-            onChange={(e) => handleCameraChange(e.target.value)}
+            value={selectedFps}
+            label="FPS"
+            onChange={(e) => handleFpsChange(e.target.value as number)}
             disabled={recording}
           >
-            {cameras.map((cam) => (
-              <MenuItem key={cam.deviceId} value={cam.deviceId}>
-                {cam.label || `Camera ${cameras.indexOf(cam) + 1}`}
-              </MenuItem>
+            {FPS_OPTIONS.map((fps) => (
+              <MenuItem key={fps} value={fps}>{fps}</MenuItem>
             ))}
           </Select>
         </FormControl>
-      )}
-
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-        <Typography variant="body2" color="text.secondary">FPS:</Typography>
-        <ToggleButtonGroup
-          value={selectedFps}
-          exclusive
-          size="small"
-          onChange={(_, v) => { if (v !== null) handleFpsChange(v); }}
-          disabled={recording}
-        >
-          {FPS_OPTIONS.map((fps) => (
-            <ToggleButton key={fps} value={fps}>{fps}</ToggleButton>
-          ))}
-        </ToggleButtonGroup>
         {actualFps !== null && actualFps !== selectedFps && (
           <Tooltip title="Camera may not support the requested frame rate" arrow>
             <Typography variant="caption" color="warning.main">
