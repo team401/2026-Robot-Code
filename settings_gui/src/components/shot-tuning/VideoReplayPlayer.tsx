@@ -113,6 +113,22 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
     containerRef.current?.focus();
   }, [attempt.id]);
 
+  const markLeavesShooter = useCallback(async () => {
+    const updated = { ...attempt, leavesShooterTimeSec: currentTime };
+    if (updated.hitTargetTimeSec !== null) {
+      updated.flightTimeSec = updated.hitTargetTimeSec - currentTime;
+    }
+    await onUpdate(updated);
+  }, [attempt, currentTime, onUpdate]);
+
+  const markHitTarget = useCallback(async () => {
+    const updated = { ...attempt, hitTargetTimeSec: currentTime };
+    if (updated.leavesShooterTimeSec !== null) {
+      updated.flightTimeSec = currentTime - updated.leavesShooterTimeSec;
+    }
+    await onUpdate(updated);
+  }, [attempt, currentTime, onUpdate]);
+
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     const target = e.target as HTMLElement;
     const tag = target.tagName;
@@ -143,6 +159,14 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
         e.preventDefault();
         stepFrame(FRAME_STEP * 10);
         break;
+      case 's':
+        e.preventDefault();
+        markLeavesShooter();
+        break;
+      case 'e':
+        e.preventDefault();
+        markHitTarget();
+        break;
       case ' ':
         // Don't intercept Space when a button has focus (it would double-fire).
         if (tag !== 'BUTTON') {
@@ -151,23 +175,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
         }
         break;
     }
-  }, [stepFrame, togglePlay, FRAME_STEP]);
-
-  const markLeavesShooter = async () => {
-    const updated = { ...attempt, leavesShooterTimeSec: currentTime };
-    if (updated.hitTargetTimeSec !== null) {
-      updated.flightTimeSec = updated.hitTargetTimeSec - currentTime;
-    }
-    await onUpdate(updated);
-  };
-
-  const markHitTarget = async () => {
-    const updated = { ...attempt, hitTargetTimeSec: currentTime };
-    if (updated.leavesShooterTimeSec !== null) {
-      updated.flightTimeSec = currentTime - updated.leavesShooterTimeSec;
-    }
-    await onUpdate(updated);
-  };
+  }, [stepFrame, togglePlay, markLeavesShooter, markHitTarget, FRAME_STEP]);
 
   const handleExport = async (target: 'hub' | 'pass') => {
     if (attempt.flightTimeSec === null) return;
@@ -295,7 +303,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
       </Box>
 
       <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-        h: -10 frames | j / Left: -1 frame | Space: play/pause | k / Right: +1 frame | l: +10 frames
+        h: -10 frames | j / Left: -1 frame | Space: play/pause | k / Right: +1 frame | l: +10 frames | s: mark start | e: mark end
       </Typography>
 
       <Divider sx={{ my: 1 }} />
