@@ -8,6 +8,7 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
 import frc.robot.subsystems.indexer.IndexerState.ShootingState;
@@ -29,6 +30,12 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
   // Desired shooting velocity
   private AngularVelocity targetVelocity = RadiansPerSecond.of(0.0);
+
+  /*
+   * Mutable measure for getVelocity() to avoid allocations every cycle.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final MutAngularVelocity cachedVelocity = RadiansPerSecond.mutable(0.0);
 
   // State machine and states
   private final StateMachine<IndexerSubsystem> stateMachine;
@@ -138,7 +145,8 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   public AngularVelocity getVelocity() {
-    return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
+    // Use mutable measure to avoid allocations every cycle
+    return cachedVelocity.mut_replace(inputs.velocityRadiansPerSecond, RadiansPerSecond);
   }
 
   public void setToTargetVelocity() {

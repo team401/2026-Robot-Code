@@ -202,6 +202,44 @@ class ShotCalculations {
   public record MapBasedShotInfo(
       double hoodAngleRadians, double shooterRPM, double yawRadians, boolean isReal) {}
 
+  /**
+   * Mutable version of MapBasedShotInfo to avoid allocations when repeatedly calculating shots. Use
+   * {@link #set} to update values in place.
+   *
+   * <p>[Optimization by Claude Opus 4.5, March 2026]
+   */
+  public static class MutableMapBasedShotInfo {
+    private double hoodAngleRadians;
+    private double shooterRPM;
+    private double yawRadians;
+    private boolean isReal;
+
+    public MutableMapBasedShotInfo() {}
+
+    public void set(double hoodAngleRadians, double shooterRPM, double yawRadians, boolean isReal) {
+      this.hoodAngleRadians = hoodAngleRadians;
+      this.shooterRPM = shooterRPM;
+      this.yawRadians = yawRadians;
+      this.isReal = isReal;
+    }
+
+    public double hoodAngleRadians() {
+      return hoodAngleRadians;
+    }
+
+    public double shooterRPM() {
+      return shooterRPM;
+    }
+
+    public double yawRadians() {
+      return yawRadians;
+    }
+
+    public boolean isReal() {
+      return isReal;
+    }
+  }
+
   public static MapBasedShotInfo calculateShotFromMap(
       Translation3d shooterPosition,
       Translation2d fieldRelativeShooterVelocity,
@@ -278,5 +316,116 @@ class ShotCalculations {
     Logger.recordOutput("ShotCalculations/MapBased/succeeded", true);
     Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);
     return shot;
+  }
+
+  /**
+   * Calculate shot parameters from a shot map, storing results in a mutable output object. This
+   * version avoids allocating a new MapBasedShotInfo record each call by using primitive parameters
+   * and a mutable output object.
+   *
+   * <p>[Optimization by Claude Opus 4.5, March 2026]
+   *
+   * @param shooterPositionX Shooter X position in field coordinates (meters)
+   * @param shooterPositionY Shooter Y position in field coordinates (meters)
+   * @param shooterPositionZ Shooter Z position in field coordinates (meters)
+   * @param fieldRelativeShooterVelocityX Shooter X velocity in field coordinates (m/s)
+   * @param fieldRelativeShooterVelocityY Shooter Y velocity in field coordinates (m/s)
+   * @param target The target to shoot at
+   * @param output The mutable output object to store results in
+   */
+  public static void calculateShotFromMapInPlace(
+      double shooterPositionX,
+      double shooterPositionY,
+      double shooterPositionZ,
+      double fieldRelativeShooterVelocityX,
+      double fieldRelativeShooterVelocityY,
+      ShotTarget target,
+      MutableMapBasedShotInfo output) {
+
+    Translation3d targetPose =
+        switch (target) {
+          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
+          case PassLeft -> FieldLocations.leftPassingTarget();
+          case PassRight -> FieldLocations.rightPassingTarget();
+        };
+
+    Logger.recordOutput("ShotCalculations/MapBased/succeeded", false);
+
+    // Calculate distance using primitives to avoid Translation2d allocations
+    double targetX = targetPose.getX();
+    double targetY = targetPose.getY();
+    double dx = shooterPositionX - targetX;
+    double dy = shooterPositionY - targetY;
+    double distanceXYMeters = Math.sqrt(dx * dx + dy * dy);
+    Logger.recordOutput("ShotCalculations/MapBased/ShotDistanceMeters", distanceXYMeters);
+
+    double minDistanceMeters =
+        target == ShotTarget.Hub
+            ? JsonConstants.shotMaps.minHubDistanceMeters
+            : JsonConstants.shotMaps.minPassDistanceMeters;
+    double maxDistanceMeters =
+        target == ShotTarget.Hub
+            ? JsonConstants.shotMaps.maxHubDistanceMeters
+            : JsonConstants.shotMaps.maxPassDistanceMeters;
+    Logger.recordOutput("ShotCalculations/MapBased/MinDistanceMeters", minDistanceMeters);
+    Logger.recordOutput("ShotCalculations/MapBased/MaxDistanceMeters", maxDistanceMeters);
+
+    boolean isShotReal = true;
+
+    if (distanceXYMeters < minDistanceMeters || distanceXYMeters > maxDistanceMeters) {
+      isShotReal = false;
+      distanceXYMeters = MathUtil.clamp(distanceXYMeters, minDistanceMeters, maxDistanceMeters);
+    }
+    Logger.recordOutput("ShotCalculations/MapBased/ClampedShotDistanceMeters", distanceXYMeters);
+
+    ShotMap map =
+        target == ShotTarget.Hub
+            ? JsonConstants.shotMaps.hubMap
+            : JsonConstants.shotMaps.passingMap;
+
+    double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
+    Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
+
+    // Account for the time it will take to actually command the mechanism to its goal setpoint.
+    flightTimeSeconds += JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
+    Logger.recordOutput(
+        "ShotCalculations/MapBased/CompensatedFlightTimeSeconds", flightTimeSeconds);
+
+    // Calculate virtual target using primitives
+    double offsetX = fieldRelativeShooterVelocityX * flightTimeSeconds;
+    double offsetY = fieldRelativeShooterVelocityY * flightTimeSeconds;
+    double virtualTargetX = targetX - offsetX;
+    double virtualTargetY = targetY - offsetY;
+    double virtualTargetZ = targetPose.getZ();
+
+    // Log virtual target - this allocation only happens for logging
+    Logger.recordOutput(
+        "ShotCalculations/MapBased/VirtualTarget",
+        new Translation3d(virtualTargetX, virtualTargetY, virtualTargetZ));
+
+    // Calculate virtual distance using primitives
+    double vdx = shooterPositionX - virtualTargetX;
+    double vdy = shooterPositionY - virtualTargetY;
+    double virtualDistanceXYMeters = Math.sqrt(vdx * vdx + vdy * vdy);
+    Logger.recordOutput("ShotCalculations/MapBased/VirtualDistanceMeters", virtualDistanceXYMeters);
+
+    if (virtualDistanceXYMeters < minDistanceMeters
+        || virtualDistanceXYMeters > maxDistanceMeters) {
+      isShotReal = false;
+      virtualDistanceXYMeters =
+          MathUtil.clamp(virtualDistanceXYMeters, minDistanceMeters, maxDistanceMeters);
+    }
+    Logger.recordOutput(
+        "ShotCalculations/MapBased/ClampedVirtualDistanceMeters", virtualDistanceXYMeters);
+
+    double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
+    double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
+
+    // Calculate yaw using primitives
+    double yawRadians =
+        Math.atan2(virtualTargetY - shooterPositionY, virtualTargetX - shooterPositionX);
+
+    output.set(hoodAngleRadians, shooterRPM, yawRadians, isShotReal);
+    Logger.recordOutput("ShotCalculations/MapBased/succeeded", true);
   }
 }

@@ -88,6 +88,20 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
+
+  /*
+   * Pre-allocated arrays for odometry loop to avoid per-sample allocations.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+  private final SwerveModulePosition[] moduleDeltas =
+      new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      };
+
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
@@ -175,16 +189,14 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
     for (int i = 0; i < sampleCount; i++) {
-      // Read wheel positions and deltas from each module
-      SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-      SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
+      // Read wheel positions and deltas from each module (reusing pre-allocated arrays)
       for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
         modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
-        moduleDeltas[moduleIndex] =
-            new SwerveModulePosition(
-                modulePositions[moduleIndex].distanceMeters
-                    - lastModulePositions[moduleIndex].distanceMeters,
-                modulePositions[moduleIndex].angle);
+        // Update moduleDeltas in-place to avoid allocation
+        moduleDeltas[moduleIndex].distanceMeters =
+            modulePositions[moduleIndex].distanceMeters
+                - lastModulePositions[moduleIndex].distanceMeters;
+        moduleDeltas[moduleIndex].angle = modulePositions[moduleIndex].angle;
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
 

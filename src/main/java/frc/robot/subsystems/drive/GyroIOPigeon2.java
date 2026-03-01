@@ -21,6 +21,9 @@ import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO {
+  // Maximum number of odometry samples we expect per cycle
+  private static final int MAX_ODOMETRY_SAMPLES = 20;
+
   private final Pigeon2 pigeon =
       new Pigeon2(
           JsonConstants.physicalDriveConstants.DrivetrainConstants.Pigeon2Id,
@@ -29,6 +32,13 @@ public class GyroIOPigeon2 implements GyroIO {
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+
+  /*
+   * Pre-allocated arrays for odometry to avoid per-cycle allocations from stream operations.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final double[] preallocatedTimestamps = new double[MAX_ODOMETRY_SAMPLES];
+  private final Rotation2d[] preallocatedYawPositions = new Rotation2d[MAX_ODOMETRY_SAMPLES];
 
   public GyroIOPigeon2() {
     if (JsonConstants.physicalDriveConstants.DrivetrainConstants.Pigeon2Configs != null) {
@@ -53,13 +63,35 @@ public class GyroIOPigeon2 implements GyroIO {
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
 
-    inputs.odometryYawTimestamps =
-        yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometryYawPositions =
-        yawPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromDegrees(value))
-            .toArray(Rotation2d[]::new);
-    yawTimestampQueue.clear();
-    yawPositionQueue.clear();
+    // ===== OPTIMIZED ODOMETRY UPDATE (NO STREAM ALLOCATIONS) =====
+    // Drain timestamp queue into pre-allocated array
+    int sampleCount = 0;
+    Double timestamp;
+    while ((timestamp = yawTimestampQueue.poll()) != null && sampleCount < MAX_ODOMETRY_SAMPLES) {
+      preallocatedTimestamps[sampleCount] = timestamp;
+      sampleCount++;
+    }
+
+    // Drain yaw position queue
+    int yawCount = 0;
+    Double yawPos;
+    while ((yawPos = yawPositionQueue.poll()) != null && yawCount < MAX_ODOMETRY_SAMPLES) {
+      preallocatedYawPositions[yawCount] = Rotation2d.fromDegrees(yawPos);
+      yawCount++;
+    }
+
+    int finalCount = Math.min(sampleCount, yawCount);
+
+    // Only allocate new arrays if size changed
+    if (inputs.odometryYawTimestamps.length != finalCount) {
+      inputs.odometryYawTimestamps = new double[finalCount];
+    }
+    if (inputs.odometryYawPositions.length != finalCount) {
+      inputs.odometryYawPositions = new Rotation2d[finalCount];
+    }
+
+    // Copy from pre-allocated arrays
+    System.arraycopy(preallocatedTimestamps, 0, inputs.odometryYawTimestamps, 0, finalCount);
+    System.arraycopy(preallocatedYawPositions, 0, inputs.odometryYawPositions, 0, finalCount);
   }
 }

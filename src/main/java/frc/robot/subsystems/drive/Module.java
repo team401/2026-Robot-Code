@@ -20,6 +20,9 @@ import frc.robot.util.PIDGains;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
+  // Maximum number of odometry samples we expect per cycle (for pre-allocation)
+  private static final int MAX_ODOMETRY_SAMPLES = 20;
+
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final int index;
@@ -32,6 +35,20 @@ public class Module {
   private final Alert turnEncoderDisconnectedAlert;
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
+  /*
+   * Pre-allocated objects to avoid per-cycle allocations.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  // Pre-cached logger key to avoid string concatenation every cycle
+  private final String loggerKey;
+
+  // Pre-allocated array for odometry positions
+  private final SwerveModulePosition[] preallocatedOdometryPositions =
+      new SwerveModulePosition[MAX_ODOMETRY_SAMPLES];
+
+  // Track actual sample count separately from array length
+  private int odometrySampleCount = 0;
+
   public Module(
       ModuleIO io,
       int index,
@@ -40,6 +57,15 @@ public class Module {
     this.io = io;
     this.index = index;
     this.constants = constants;
+
+    // Pre-cache the logger key to avoid string concatenation every cycle
+    this.loggerKey = "Drive/Module" + index;
+
+    // Pre-allocate SwerveModulePosition objects
+    for (int i = 0; i < MAX_ODOMETRY_SAMPLES; i++) {
+      preallocatedOdometryPositions[i] = new SwerveModulePosition();
+    }
+
     driveDisconnectedAlert =
         new Alert(
             "Disconnected drive motor on module " + Integer.toString(index) + ".",
@@ -55,15 +81,30 @@ public class Module {
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
+    Logger.processInputs(loggerKey, inputs);
 
-    // Calculate positions for odometry
-    int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
-    odometryPositions = new SwerveModulePosition[sampleCount];
-    for (int i = 0; i < sampleCount; i++) {
-      double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
-      Rotation2d angle = inputs.odometryTurnPositions[i];
-      odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
+    // Calculate positions for odometry using pre-allocated objects
+    odometrySampleCount = inputs.odometryTimestamps.length;
+
+    // Reuse pre-allocated array if possible, otherwise allocate (rare case)
+    if (odometrySampleCount <= MAX_ODOMETRY_SAMPLES) {
+      // Use pre-allocated positions
+      for (int i = 0; i < odometrySampleCount; i++) {
+        double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
+        Rotation2d angle = inputs.odometryTurnPositions[i];
+        // SwerveModulePosition is mutable, but we'll just reuse the array slots
+        // and create new positions since SwerveModulePosition doesn't have setters
+        preallocatedOdometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
+      }
+      odometryPositions = preallocatedOdometryPositions;
+    } else {
+      // Fallback for unexpected large sample counts (should never happen)
+      odometryPositions = new SwerveModulePosition[odometrySampleCount];
+      for (int i = 0; i < odometrySampleCount; i++) {
+        double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
+        Rotation2d angle = inputs.odometryTurnPositions[i];
+        odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
+      }
     }
 
     // Update alerts

@@ -19,6 +19,8 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -124,6 +126,13 @@ public class TurretSubsystem extends MonitoredSubsystem {
    */
   @AutoLogOutput(key = "Turret/goalHeading")
   private Rotation2d goalTurretHeading = Rotation2d.kZero;
+
+  /*
+   * Mutable measures to avoid allocations every cycle.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final MutAngle cachedAngle = Radians.mutable(0.0);
+  private final MutAngularVelocity cachedVelocity = RadiansPerSecond.mutable(0.0);
 
   public TurretSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
@@ -299,11 +308,13 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   @AutoLogOutput(key = "Turret/robotRelativePosition")
   public Angle getTurretAngleRobotRelative() {
-    return Radians.of(inputs.positionRadians);
+    // Use mutable measure to avoid allocations every cycle
+    return cachedAngle.mut_replace(inputs.positionRadians, Radians);
   }
 
   public AngularVelocity getTurretVelocity() {
-    return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
+    // Use mutable measure to avoid allocations every cycle
+    return cachedVelocity.mut_replace(inputs.velocityRadiansPerSecond, RadiansPerSecond);
   }
 
   /**

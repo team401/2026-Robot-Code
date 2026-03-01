@@ -11,6 +11,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hopper.HopperState.DejamState;
@@ -33,6 +34,12 @@ public class HopperSubsystem extends MonitoredSubsystem {
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
   private AngularVelocity targetVelocity = RadiansPerSecond.of(0.0);
+
+  /*
+   * Mutable measure for getHopperVelocity() to avoid allocations every cycle.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final MutAngularVelocity cachedVelocity = RadiansPerSecond.mutable(0.0);
 
   private final StateMachine<HopperSubsystem> stateMachine;
   private final HopperState spinningState;
@@ -120,7 +127,8 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   public AngularVelocity getHopperVelocity() {
-    return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
+    // Use mutable measure to avoid allocations every cycle
+    return cachedVelocity.mut_replace(inputs.velocityRadiansPerSecond, RadiansPerSecond);
   }
 
   public void setTargetVelocity(AngularVelocity velocity) {

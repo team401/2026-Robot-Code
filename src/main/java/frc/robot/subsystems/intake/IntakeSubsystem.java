@@ -12,6 +12,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.StateMachineDump;
@@ -38,6 +39,12 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   protected MotorInputsAutoLogged rollerFollowerMotorInputs;
 
   protected Angle targetPivotAngle = Degrees.zero();
+
+  /*
+   * Mutable measure for getCurrentPivotAngle() to avoid allocations every cycle.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final MutAngle cachedPivotAngle = Radians.mutable(0.0);
 
   private LoggedTunableNumber rollersTargetSpeedTunable;
 
@@ -183,7 +190,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   }
 
   public Angle getCurrentPivotAngle() {
-    return Radians.of(this.pivotInputs.positionRadians);
+    // Use mutable measure to avoid allocations every cycle
+    return cachedPivotAngle.mut_replace(this.pivotInputs.positionRadians, Radians);
   }
 
   // Should these be blocked from executing if we are in test mode?

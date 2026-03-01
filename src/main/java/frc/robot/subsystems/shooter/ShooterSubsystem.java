@@ -87,6 +87,12 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   // State variables
   private final MutAngularVelocity targetVelocity = RPM.mutable(0.0);
 
+  /*
+   * Mutable measure for getVelocity() to avoid allocations every cycle.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final MutAngularVelocity cachedVelocity = RadiansPerSecond.mutable(0.0);
+
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
 
@@ -342,9 +348,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   }
 
   public AngularVelocity getVelocity() {
-    // Optimization: this could be changed to continually mut_replace into a mutable measure to
-    // avoid allocating an object every cycle later if performance is a concern.
-    return RadiansPerSecond.of(getVelocityRadiansPerSecond());
+    // Use mutable measure to avoid allocating a new object every cycle
+    return cachedVelocity.mut_replace(getVelocityRadiansPerSecond(), RadiansPerSecond);
   }
 
   /**

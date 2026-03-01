@@ -13,17 +13,12 @@ import coppercore.vision.VisionLocalizer;
 import coppercore.wpilib_interface.controllers.Controller.Button;
 import coppercore.wpilib_interface.controllers.Controllers;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -32,7 +27,7 @@ import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
-import frc.robot.ShotCalculations.MapBasedShotInfo;
+import frc.robot.ShotCalculations.MutableMapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.AllianceBasedFieldConstants;
@@ -659,17 +654,22 @@ public class CoordinationLayer {
   public void coordinateRobotActions() {
     if (DriverStation.isTest()) {
       // Log distance to hub for test modes
+      // [Optimized by Claude Opus 4.5, March 2026: primitive math instead of Translation2d]
       drive.ifPresent(
           drive -> {
-            Logger.recordOutput(
-                "CoordinationLayer/distanceToHub",
-                AllianceBasedFieldConstants.hubInnerCenterPoint()
-                    .toTranslation2d()
-                    .getDistance(
-                        new Pose3d(drive.getPose())
-                            .plus(JsonConstants.robotInfo.robotToShooter)
-                            .getTranslation()
-                            .toTranslation2d()));
+            Pose2d robotPose = drive.getPose();
+            Rotation2d rotation = robotPose.getRotation();
+            double cos = rotation.getCos();
+            double sin = rotation.getSin();
+            var robotToShooter = JsonConstants.robotInfo.robotToShooter;
+            double shooterX =
+                robotPose.getX() + robotToShooter.getX() * cos - robotToShooter.getY() * sin;
+            double shooterY =
+                robotPose.getY() + robotToShooter.getX() * sin + robotToShooter.getY() * cos;
+            var hubCenter = AllianceBasedFieldConstants.hubInnerCenterPoint();
+            double dx = shooterX - hubCenter.getX();
+            double dy = shooterY - hubCenter.getY();
+            Logger.recordOutput("CoordinationLayer/distanceToHub", Math.sqrt(dx * dx + dy * dy));
           });
     }
 
@@ -842,35 +842,74 @@ public class CoordinationLayer {
     leftBlueTrench, rightRedTrench, rightBlueTrench, leftRedTrench
   };
 
+  /*
+   * Pre-allocated objects for coordination layer methods to avoid per-cycle allocations.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  // Pre-allocated array for logging shooter trajectory in shouldStowHoodBasedOnMovement
+  private final Translation2d[] cachedShooterTrajectory = new Translation2d[2];
+
+  // Cached EnhancedLine2d for shouldStowHoodBasedOnMovement, reused via set() method
+  private EnhancedLine2d cachedMovementLine = null;
+  private Pose2d cachedHoodPredictedPose = new Pose2d();
+
+  // Pre-allocated shot calculation output to avoid record allocations every cycle
+  private final MutableMapBasedShotInfo cachedShotInfo = new MutableMapBasedShotInfo();
+
+  /**
+   * Determines if the hood should stow based on predicted robot movement toward trenches.
+   *
+   * <p>[Optimized by Claude Opus 4.5, March 2026: Uses primitive math instead of allocating
+   * Translation2d/Pose3d objects for rotation and transform calculations]
+   */
   private boolean shouldStowHoodBasedOnMovement(Drive drive, HoodSubsystem hood) {
     Pose2d robotPose = drive.getPose();
 
     ChassisSpeeds robotRelativeSpeeds = drive.getChassisSpeeds();
-    Translation2d fieldCentricSpeeds =
-        new Translation2d(
-                robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
-            .rotateBy(robotPose.getRotation());
+    // Compute field centric speeds using primitive math instead of Translation2d.rotateBy()
+    Rotation2d rotation = robotPose.getRotation();
+    double cos = rotation.getCos();
+    double sin = rotation.getSin();
+    double fieldVx =
+        robotRelativeSpeeds.vxMetersPerSecond * cos - robotRelativeSpeeds.vyMetersPerSecond * sin;
+    double fieldVy =
+        robotRelativeSpeeds.vxMetersPerSecond * sin + robotRelativeSpeeds.vyMetersPerSecond * cos;
 
-    Translation2d predictedMovement =
-        fieldCentricSpeeds.times(JsonConstants.hoodConstants.timeToStowHood.in(Seconds));
-    Translation2d shooterPose =
-        new Pose3d(robotPose)
-            .plus(JsonConstants.robotInfo.robotToShooter)
-            .getTranslation()
-            .toTranslation2d();
+    double timeToStow = JsonConstants.hoodConstants.timeToStowHood.in(Seconds);
+    double predictedDx = fieldVx * timeToStow;
+    double predictedDy = fieldVy * timeToStow;
 
-    Translation2d movementStart = shooterPose;
-    Translation2d movementEnd = movementStart.plus(predictedMovement);
+    // Calculate shooter position using primitive math instead of Pose3d.plus().getTranslation()
+    var robotToShooter = JsonConstants.robotInfo.robotToShooter;
+    double shooterX = robotPose.getX() + robotToShooter.getX() * cos - robotToShooter.getY() * sin;
+    double shooterY = robotPose.getY() + robotToShooter.getX() * sin + robotToShooter.getY() * cos;
 
-    Logger.recordOutput(
-        "CoordinationLayer/ShooterTrajectory", new Translation2d[] {movementStart, movementEnd});
-    Logger.recordOutput(
-        "CoordinationLayer/HoodPredictedLocation",
-        new Pose2d(movementEnd, robotPose.getRotation()));
-    EnhancedLine2d movementLine = new EnhancedLine2d(movementStart, movementEnd);
+    double movementStartX = shooterX;
+    double movementStartY = shooterY;
+    double movementEndX = movementStartX + predictedDx;
+    double movementEndY = movementStartY + predictedDy;
+
+    // Translation2d objects required for EnhancedLine2d API and logging
+    Translation2d movementStart = new Translation2d(movementStartX, movementStartY);
+    Translation2d movementEnd = new Translation2d(movementEndX, movementEndY);
+
+    // Reuse the cached array for logging instead of allocating new array each cycle
+    cachedShooterTrajectory[0] = movementStart;
+    cachedShooterTrajectory[1] = movementEnd;
+    Logger.recordOutput("CoordinationLayer/ShooterTrajectory", cachedShooterTrajectory);
+
+    cachedHoodPredictedPose = new Pose2d(movementEnd, rotation);
+    Logger.recordOutput("CoordinationLayer/HoodPredictedLocation", cachedHoodPredictedPose);
+
+    // Reuse cached EnhancedLine2d via set() instead of allocating new one each cycle
+    if (cachedMovementLine == null) {
+      cachedMovementLine = new EnhancedLine2d(movementStart, movementEnd);
+    } else {
+      cachedMovementLine.set(movementStart, movementEnd);
+    }
 
     for (var trench : trenches) {
-      if (movementLine.intersects(trench)) {
+      if (cachedMovementLine.intersects(trench)) {
         return true;
       }
     }
@@ -914,10 +953,14 @@ public class CoordinationLayer {
   }
 
   /**
-   * Run the shot calculations, given an actual drive instance
+   * Run the shot calculations, given an actual drive instance.
    *
    * <p>This method exists to reduce the indentation in runShotCalculator introduced by widespread
-   * use of optionals
+   * use of optionals.
+   *
+   * <p>[Optimized by Claude Opus 4.5, March 2026: Uses primitive math instead of allocating Pose3d,
+   * Translation3d, Translation2d, ChassisSpeeds, Rotation3d, and Vector objects. Cross product
+   * computed manually instead of using Translation3d.cross().]
    *
    * @param drive A Drive instance
    * @return whether or not the shot currently being aimed for is "attainable": {@code true} if
@@ -926,20 +969,33 @@ public class CoordinationLayer {
    */
   private boolean runShotCalculatorWithDrive(Drive driveInstance) {
     Pose2d robotPose = driveInstance.getPose();
-    Translation3d shooterPosition =
-        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
+    Rotation2d rotation = robotPose.getRotation();
+    double cos = rotation.getCos();
+    double sin = rotation.getSin();
+
+    // Calculate shooter position using primitive math instead of Pose3d.plus().getTranslation()
+    var robotToShooter = JsonConstants.robotInfo.robotToShooter;
+    double shooterX = robotPose.getX() + robotToShooter.getX() * cos - robotToShooter.getY() * sin;
+    double shooterY = robotPose.getY() + robotToShooter.getX() * sin + robotToShooter.getY() * cos;
+    double shooterZ = robotToShooter.getZ();
 
     ShotTarget target = getShotTargetFromPose(robotPose);
 
-    ChassisSpeeds fieldCentricSpeeds =
-        ChassisSpeeds.fromRobotRelativeSpeeds(
-            driveInstance.getChassisSpeeds(), robotPose.getRotation());
+    // Convert robot-relative speeds to field-relative using primitive math
+    // instead of ChassisSpeeds.fromRobotRelativeSpeeds()
+    ChassisSpeeds robotRelativeSpeeds = driveInstance.getChassisSpeeds();
+    double fieldVx =
+        robotRelativeSpeeds.vxMetersPerSecond * cos - robotRelativeSpeeds.vyMetersPerSecond * sin;
+    double fieldVy =
+        robotRelativeSpeeds.vxMetersPerSecond * sin + robotRelativeSpeeds.vyMetersPerSecond * cos;
+    double omega = robotRelativeSpeeds.omegaRadiansPerSecond;
 
     /*
-      Calculate the additional velocity caused by the rotation of the robot
+      Calculate the additional velocity caused by the rotation of the robot.
       The shooter is basically a point a certain radius away from the center of the robot.
 
-      In terms of vectors, this is represented by v_rot = omega x r_vec, where r_vec is the radius vector from the center of the robot to the turret.
+      In terms of vectors, this is represented by v_rot = omega x r_vec, where r_vec is the
+      radius vector from the center of the robot to the turret.
 
       Let r_vec = <x, y, z>. The cross product becomes:
 
@@ -952,17 +1008,17 @@ public class CoordinationLayer {
       = - i *omega * y + j * omega * x
       = < - omega * y, omega * x >
 
-      However, we can accomplish this math using Translation3d.cross instead:
+      Computed manually using primitives to avoid allocating Translation3d and Vector<N3>.
     */
-    double omega = fieldCentricSpeeds.omegaRadiansPerSecond;
-    Translation3d omega_vec = new Translation3d(0, 0, omega);
+    // Rotate robotToShooter by the robot's heading
+    double robotToShooterX = robotToShooter.getX();
+    double robotToShooterY = robotToShooter.getY();
+    double fieldRelativeRobotToShooterX = robotToShooterX * cos - robotToShooterY * sin;
+    double fieldRelativeRobotToShooterY = robotToShooterX * sin + robotToShooterY * cos;
 
-    Translation3d robotToShooterTranslation =
-        JsonConstants.robotInfo.robotToShooter.getTranslation();
-    Translation3d fieldRelativeRobotToShooter =
-        robotToShooterTranslation.rotateBy(new Rotation3d(robotPose.getRotation()));
-
-    Vector<N3> vRot = omega_vec.cross(fieldRelativeRobotToShooter);
+    // Cross product of (0, 0, omega) x (rx, ry, rz) = (-omega * ry, omega * rx, 0)
+    double vRotX = -omega * fieldRelativeRobotToShooterY;
+    double vRotY = omega * fieldRelativeRobotToShooterX;
 
     // Shooter velocity is the instantaneous velocity of the shooter at the moment of release.
     // This means that it must include the translation of the drivetrain, plus the circular motion
@@ -970,30 +1026,29 @@ public class CoordinationLayer {
     // This explicitly does not model the curved motion caused by the rotation of the drivetrain
     // over time, which would be represented using Twist2d. This is because the ball will not curve
     // in the air in the same way as the shooter curves on the ground.
-    Translation2d shooterVelocity =
-        new Translation2d(
-            fieldCentricSpeeds.vxMetersPerSecond + vRot.get(0),
-            fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
+    double shooterVelocityX = fieldVx + vRotX;
+    double shooterVelocityY = fieldVy + vRotY;
 
-    MapBasedShotInfo shot =
-        ShotCalculations.calculateShotFromMap(shooterPosition, shooterVelocity, target);
+    // Use the in-place shot calculator to avoid allocations
+    ShotCalculations.calculateShotFromMapInPlace(
+        shooterX, shooterY, shooterZ, shooterVelocityX, shooterVelocityY, target, cachedShotInfo);
 
     turret.ifPresent(
         turret -> {
-          turret.targetGoalHeading(new Rotation2d(shot.yawRadians()));
+          turret.targetGoalHeading(new Rotation2d(cachedShotInfo.yawRadians()));
         });
 
     hood.ifPresent(
         hood -> {
-          hood.targetAngleRadians(shot.hoodAngleRadians());
+          hood.targetAngleRadians(cachedShotInfo.hoodAngleRadians());
         });
 
     shooter.ifPresent(
         shooter -> {
-          shooter.setTargetVelocityRPM(shot.shooterRPM());
+          shooter.setTargetVelocityRPM(cachedShotInfo.shooterRPM());
         });
 
-    return shot.isReal();
+    return cachedShotInfo.isReal();
   }
 
   /** Update the MatchState each periodic loop */
