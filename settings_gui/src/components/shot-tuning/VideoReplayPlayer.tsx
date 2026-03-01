@@ -116,18 +116,22 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     const target = e.target as HTMLElement;
     const tag = target.tagName;
-    // Let form controls and the MUI slider handle their own keys.
+    // Let form controls handle their own keys entirely.
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    if (target.getAttribute('role') === 'slider') return;
+
+    const isSlider = target.getAttribute('role') === 'slider';
 
     switch (e.key) {
       case 'ArrowLeft':
       case 'j':
+        // Skip arrow keys when slider is focused — it handles them for fine scrubbing.
+        if (isSlider && e.key === 'ArrowLeft') return;
         e.preventDefault();
         stepFrame(-FRAME_STEP);
         break;
       case 'ArrowRight':
       case 'k':
+        if (isSlider && e.key === 'ArrowRight') return;
         e.preventDefault();
         stepFrame(FRAME_STEP);
         break;
@@ -194,7 +198,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
   };
 
   return (
-    <Box ref={containerRef} tabIndex={-1} sx={{ outline: 'none' }} onKeyDown={handleKeyDown}>
+    <Box ref={containerRef} tabIndex={-1} sx={{ outline: 'none' }} onKeyDownCapture={handleKeyDown}>
       <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
         Video Replay
       </Typography>
@@ -221,6 +225,7 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
             max={duration}
             step={0.001}
             onChange={(_, v) => seekTo(v as number)}
+            onChangeCommitted={() => containerRef.current?.focus()}
             size="small"
             sx={{ mt: 0.5, mb: 0 }}
           />
