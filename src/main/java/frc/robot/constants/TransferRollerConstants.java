@@ -65,6 +65,7 @@ public class TransferRollerConstants {
   public final MomentOfInertia simTransferRollerMOI = KilogramSquareMeters.of(0.00025);
 
   public final AngularVelocity transferRollerSpinningVelocity = RPM.of(2000);
+  public final AngularVelocity transferRollerDeJamVelocity = RPM.of(-2000);
 
   public final InvertedValue transferRollerMotorDirection = InvertedValue.CounterClockwise_Positive;
 
