@@ -49,6 +49,15 @@ public class ModuleIOSim implements ModuleIO {
   private double driveAppliedVolts = 0.0;
   private double turnAppliedVolts = 0.0;
 
+  /*
+   * Pre-allocated arrays for odometry (sim only has 1 sample per cycle, but reuse to match
+   * the real robot pattern and avoid allocations).
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final double[] odometryTimestampsArray = new double[1];
+  private final double[] odometryDrivePositionsArray = new double[1];
+  private final Rotation2d[] odometryTurnPositionsArray = new Rotation2d[] {new Rotation2d()};
+
   public ModuleIOSim(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
@@ -99,17 +108,30 @@ public class ModuleIOSim implements ModuleIO {
     // Update turn inputs
     inputs.turnConnected = true;
     inputs.turnEncoderConnected = true;
-    inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad());
-    inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
+    // Create only one Rotation2d per cycle since both values are the same
+    Rotation2d turnRotation = new Rotation2d(turnSim.getAngularPositionRad());
+    inputs.turnAbsolutePosition = turnRotation;
+    inputs.turnPosition = turnRotation;
     inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
     inputs.turnAppliedVolts = turnAppliedVolts;
     inputs.turnCurrentAmps = Math.abs(turnSim.getCurrentDrawAmps());
 
-    // Update odometry inputs (50Hz because high-frequency odometry in sim doesn't
-    // matter)
-    inputs.odometryTimestamps = new double[] {Timer.getFPGATimestamp()};
-    inputs.odometryDrivePositionsRad = new double[] {inputs.drivePositionRad};
-    inputs.odometryTurnPositions = new Rotation2d[] {inputs.turnPosition};
+    // Update odometry inputs using pre-allocated arrays (avoids allocations every cycle)
+    // Sim only has 1 sample per cycle at 50Hz
+    odometryTimestampsArray[0] = Timer.getFPGATimestamp();
+    odometryDrivePositionsArray[0] = inputs.drivePositionRad;
+    odometryTurnPositionsArray[0] = turnRotation;
+
+    // Reuse the same array references if already set, otherwise assign once
+    if (inputs.odometryTimestamps != odometryTimestampsArray) {
+      inputs.odometryTimestamps = odometryTimestampsArray;
+    }
+    if (inputs.odometryDrivePositionsRad != odometryDrivePositionsArray) {
+      inputs.odometryDrivePositionsRad = odometryDrivePositionsArray;
+    }
+    if (inputs.odometryTurnPositions != odometryTurnPositionsArray) {
+      inputs.odometryTurnPositions = odometryTurnPositionsArray;
+    }
   }
 
   @Override

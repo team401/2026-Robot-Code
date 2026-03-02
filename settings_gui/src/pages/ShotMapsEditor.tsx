@@ -20,11 +20,13 @@ import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import SendIcon from '@mui/icons-material/Send';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SortIcon from '@mui/icons-material/Sort';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { useConnection } from '../contexts/ConnectionContext';
 import { getData, putData, postData, saveLocal, loadLocal } from '../services/api';
 import type { ShotMaps, ShotMapDataPoint } from '../types/ShotMaps';
+import { shotMapsLocalSignal } from '../services/shotMapsStore';
 
 function defaultDataPoint(): ShotMapDataPoint {
   return {
@@ -56,12 +58,19 @@ function DataPointTable({ title, rows, onChange }: DataPointTableProps) {
     onChange([...rows, defaultDataPoint()]);
   };
 
+  const sortByDistance = () => {
+    onChange([...rows].sort((a, b) => a.distance.value - b.distance.value));
+  };
+
   return (
     <Box sx={{ mb: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
         <Typography variant="h6">{title}</Typography>
         <Button startIcon={<AddIcon />} size="small" onClick={addRow}>
           Add Row
+        </Button>
+        <Button startIcon={<SortIcon />} size="small" onClick={sortByDistance}>
+          Sort by Distance
         </Button>
       </Box>
       <TableContainer component={Paper} variant="outlined">
@@ -159,7 +168,13 @@ export function ShotMapsEditor() {
     setLoading(true);
     setError(null);
     try {
-      const result = await getData<ShotMaps>(environment, 'shotmaps');
+      let result: ShotMaps;
+      if (shotMapsLocalSignal.consume()) {
+        // The tuning tab saved a new point to the local file — reload from there.
+        result = await loadLocal<ShotMaps>(environment, 'ShotMaps.json');
+      } else {
+        result = await getData<ShotMaps>(environment, 'shotmaps');
+      }
       setData(result);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to fetch');
@@ -248,7 +263,11 @@ export function ShotMapsEditor() {
         <Button variant="outlined" startIcon={<FileUploadIcon />} onClick={handleLoadLocal} sx={{ ml: 'auto' }}>
           Load from Local
         </Button>
-        <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleSaveLocal}>
+        <Button
+          variant="outlined"
+          startIcon={<FileDownloadIcon />}
+          onClick={handleSaveLocal}
+        >
           Save to Local
         </Button>
       </Box>

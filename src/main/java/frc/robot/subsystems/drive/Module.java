@@ -32,6 +32,10 @@ public class Module {
   private final Alert turnEncoderDisconnectedAlert;
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
+  // Pre-cached logger key to avoid string concatenation every cycle
+  // [Optimization by Claude Opus 4.5, March 2026]
+  private final String loggerKey;
+
   public Module(
       ModuleIO io,
       int index,
@@ -40,6 +44,10 @@ public class Module {
     this.io = io;
     this.index = index;
     this.constants = constants;
+
+    // Pre-cache the logger key to avoid string concatenation every cycle
+    this.loggerKey = "Drive/Module" + index;
+
     driveDisconnectedAlert =
         new Alert(
             "Disconnected drive motor on module " + Integer.toString(index) + ".",
@@ -55,15 +63,16 @@ public class Module {
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
+    Logger.processInputs(loggerKey, inputs);
 
     // Calculate positions for odometry
-    int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
+    int sampleCount = inputs.odometryTimestamps.length;
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
-      double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
-      Rotation2d angle = inputs.odometryTurnPositions[i];
-      odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
+      odometryPositions[i] =
+          new SwerveModulePosition(
+              inputs.odometryDrivePositionsRad[i] * constants.WheelRadius,
+              inputs.odometryTurnPositions[i]);
     }
 
     // Update alerts

@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import coppercore.metadata.CopperCoreMetadata;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -138,6 +138,11 @@ public class RobotContainer {
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+
+    // output hub coordinates - these must match what's in settings_gui/src/types/ShotTuning.ts
+    var hub = FieldConstants.Hub.oppInnerCenterPoint();
+    System.out.printf("Hub.oppInnerCenterPoint at %s", hub);
+    System.out.printf("Hub.oppInnerCenterPoint at %f %f", hub.getX(), hub.getY());
   }
 
   /**
@@ -146,9 +151,8 @@ public class RobotContainer {
    * @param drive The Drive instance to use for the auto chooser
    */
   private void createAutoChooser(Drive drive) {
-    // TODO: Stop using pathplanner AutoBuilder
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
     // Set up SysId routines
     autoChooser.addOption(

@@ -9,7 +9,7 @@
     "unit": "Radian per Second"
   },
   "indexingVelocity": {
-    "value": 2000,
+    "value": 5000,
     "unit": "RPM"
   },
   "hopperGains": {

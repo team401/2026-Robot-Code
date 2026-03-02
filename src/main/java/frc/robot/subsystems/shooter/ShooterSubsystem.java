@@ -12,6 +12,7 @@ import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
+import coppercore.wpilib_interface.subsystems.motors.MotorIO.GainSlot;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.math.util.Units;
@@ -26,6 +27,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.shooter.ShooterState.CoastState;
 import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
+import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
@@ -63,13 +65,17 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   private final ShooterState testModeState;
 
   // Tunable Numbers
-  LoggedTunableNumber shooterKP;
-  LoggedTunableNumber shooterKI;
-  LoggedTunableNumber shooterKD;
+  LoggedTunablePIDGains slot0TunableGains =
+      new LoggedTunablePIDGains(
+          "ShooterTunables/slot0", JsonConstants.shooterConstants.shooterSlot0Gains);
+  LoggedTunablePIDGains slot1TunableGains =
+      new LoggedTunablePIDGains(
+          "ShooterTunables/slot1", JsonConstants.shooterConstants.shooterSlot1Gains);
 
-  LoggedTunableNumber shooterKS;
-  LoggedTunableNumber shooterKV;
-  LoggedTunableNumber shooterKA;
+  LoggedTunableNumber slot0EpsilonRPM =
+      new LoggedTunableNumber(
+          "ShooterTunables/slot0EpsilonRPM",
+          JsonConstants.shooterConstants.shooterSlot0Epsilon.in(RPM));
 
   LoggedTunableNumber shooterMaxVelocityRPM;
   LoggedTunableNumber shooterMaxAccelerationRPMPerSecond;
@@ -80,6 +86,12 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   // State variables
   private final MutAngularVelocity targetVelocity = RPM.mutable(0.0);
+
+  /*
+   * Mutable measure for getVelocity() to avoid allocations every cycle.
+   * [Optimization by Claude Opus 4.5, March 2026]
+   */
+  private final MutAngularVelocity cachedVelocity = RadiansPerSecond.mutable(0.0);
 
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
@@ -140,26 +152,6 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     StateMachineDump.write("shooter", stateMachine);
 
     // Initialize tunable numbers for test modes
-    shooterKP =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKP", JsonConstants.shooterConstants.shooterKP);
-    shooterKI =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKI", JsonConstants.shooterConstants.shooterKI);
-    shooterKD =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKD", JsonConstants.shooterConstants.shooterKD);
-
-    shooterKS =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKS", JsonConstants.shooterConstants.shooterKS);
-    shooterKV =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKV", JsonConstants.shooterConstants.shooterKV);
-    shooterKA =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKA", JsonConstants.shooterConstants.shooterKA);
-
     shooterMaxVelocityRPM =
         new LoggedTunableNumber(
             "ShooterTunables/shooterMaxVelocityRPM",
@@ -196,6 +188,15 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   public void monitoredPeriodic() {
     Logger.recordOutput("Shooter/TargetVelocityRadPerSec", targetVelocity.in(RadiansPerSecond));
 
+    GainSlot slot =
+        Units.radiansPerSecondToRotationsPerMinute(leadMotorInputs.velocityRadiansPerSecond)
+                > Units.radiansPerSecondToRotationsPerMinute(leadMotorInputs.closedLoopReference)
+                    - JsonConstants.shooterConstants.shooterSlot0Epsilon.in(RPM)
+            ? GainSlot.Slot0
+            : GainSlot.Slot1;
+    leadMotor.selectGainSlot(slot);
+    Logger.recordOutput("Shooter/gainSlot", slot);
+
     stateMachine.periodic();
 
     if (stateMachine.getCurrentState() != coastState) {
@@ -222,31 +223,35 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   protected void testPeriodic() {
     switch (testModeManager.getTestMode()) {
       case ShooterClosedLoopTuning -> {
-        LoggedTunableNumber.ifChanged(
+        slot0TunableGains.ifChanged(
             hashCode(),
-            (pid_sva) -> {
-              JsonConstants.shooterConstants.shooterKP = pid_sva[0];
-              JsonConstants.shooterConstants.shooterKI = pid_sva[1];
-              JsonConstants.shooterConstants.shooterKD = pid_sva[2];
-              JsonConstants.shooterConstants.shooterKS = pid_sva[3];
-              JsonConstants.shooterConstants.shooterKV = pid_sva[4];
-              JsonConstants.shooterConstants.shooterKA = pid_sva[5];
-
+            (gains) -> {
+              JsonConstants.shooterConstants.shooterSlot0Gains = gains;
               leadMotor.setGains(
-                  JsonConstants.shooterConstants.shooterKP,
-                  JsonConstants.shooterConstants.shooterKI,
-                  JsonConstants.shooterConstants.shooterKD,
-                  JsonConstants.shooterConstants.shooterKS,
-                  0.0,
-                  JsonConstants.shooterConstants.shooterKV,
-                  JsonConstants.shooterConstants.shooterKA);
-            },
-            shooterKP,
-            shooterKI,
-            shooterKD,
-            shooterKS,
-            shooterKV,
-            shooterKA);
+                  GainSlot.Slot0,
+                  gains.kP(),
+                  gains.kI(),
+                  gains.kD(),
+                  gains.kS(),
+                  gains.kG(),
+                  gains.kV(),
+                  gains.kA());
+            });
+
+        slot1TunableGains.ifChanged(
+            hashCode(),
+            (gains) -> {
+              JsonConstants.shooterConstants.shooterSlot1Gains = gains;
+              leadMotor.setGains(
+                  GainSlot.Slot1,
+                  gains.kP(),
+                  gains.kI(),
+                  gains.kD(),
+                  gains.kS(),
+                  gains.kG(),
+                  gains.kV(),
+                  gains.kA());
+            });
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -265,6 +270,13 @@ public class ShooterSubsystem extends MonitoredSubsystem {
             },
             shooterMaxVelocityRPM,
             shooterMaxAccelerationRPMPerSecond);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (slot0EpsilonRPM) -> {
+              JsonConstants.shooterConstants.shooterSlot0Epsilon = RPM.of(slot0EpsilonRPM[0]);
+            },
+            slot0EpsilonRPM);
 
         leadMotor.controlToVelocityProfiled(RPM.of(shooterTuningRPM.getAsDouble()));
       }
@@ -336,9 +348,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   }
 
   public AngularVelocity getVelocity() {
-    // Optimization: this could be changed to continually mut_replace into a mutable measure to
-    // avoid allocating an object every cycle later if performance is a concern.
-    return RadiansPerSecond.of(getVelocityRadiansPerSecond());
+    // Use mutable measure to avoid allocating a new object every cycle
+    return cachedVelocity.mut_replace(getVelocityRadiansPerSecond(), RadiansPerSecond);
   }
 
   /**

@@ -53,12 +53,20 @@ public class GyroIOPigeon2 implements GyroIO {
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
 
-    inputs.odometryYawTimestamps =
-        yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometryYawPositions =
-        yawPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromDegrees(value))
-            .toArray(Rotation2d[]::new);
+    // Determine sample count from queues (use minimum of both queue sizes)
+    int sampleCount = Math.min(yawTimestampQueue.size(), yawPositionQueue.size());
+
+    // Allocate arrays directly at the correct size
+    inputs.odometryYawTimestamps = new double[sampleCount];
+    inputs.odometryYawPositions = new Rotation2d[sampleCount];
+
+    // Copy directly from queues to inputs
+    for (int i = 0; i < sampleCount; i++) {
+      inputs.odometryYawTimestamps[i] = yawTimestampQueue.poll();
+      inputs.odometryYawPositions[i] = Rotation2d.fromDegrees(yawPositionQueue.poll());
+    }
+
+    // Clear any remaining items if queues were unequal
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
   }
