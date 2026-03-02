@@ -13,6 +13,7 @@ import coppercore.parameter_tools.json.helpers.JSONObject;
 import coppercore.parameter_tools.json.strategies.JSONNamingStrategy;
 import coppercore.parameter_tools.json.strategies.JSONPrimitiveCheckStrategy;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.PerUnit;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.FileWriter;
@@ -95,20 +96,36 @@ public final class TypeScriptGenerator {
             "}\n\n");
 
     Set<Unit> units = new HashSet<>();
-    HashMap<Unit, String> baseUnits = new HashMap<>();
+    HashMap<Class<?>, String> baseUnits = new HashMap<>();
+    Set<String> emittedMeasureNames = new HashSet<>();
     JSONMeasure.unitMap.forEach(
         (name, unitFunc) -> {
           var measure = unitFunc.apply(1.0);
           var unit = measure.unit();
           var baseUnit = unit.getBaseUnit();
           if (baseUnit == null) return;
-          if (!baseUnits.containsKey(baseUnit)) {
-            var measureName = baseUnit.getClass().getSimpleName();
-            if (measureName.equals("PerUnit")) return;
-            // remove Unit suffix if it exists
-            if (measureName.endsWith("Unit")) {
-              measureName = measureName.substring(0, measureName.length() - 4);
+          Class<?> baseUnitClass = baseUnit.getClass();
+          if (!baseUnits.containsKey(baseUnitClass)) {
+            String measureName;
+            if (baseUnit instanceof PerUnit<?, ?> perBaseUnit) {
+              // For PerUnit (and its subclasses like VelocityUnit), derive a unique name
+              // from the numerator and denominator unit types, e.g. VelocityUnit<CurrentUnit>
+              // → "CurrentPerTime", PerUnit<VoltageUnit, AngularVelocityUnit> →
+              // "VoltagePerAngularVelocity".
+              // Named subclasses like LinearVelocityUnit, AngularAccelerationUnit etc. have
+              // a descriptive getSimpleName() and are handled by the else branch below.
+              String numeratorName =
+                  stripUnitSuffix(perBaseUnit.numerator().getBaseUnit().getClass().getSimpleName());
+              String denominatorName =
+                  stripUnitSuffix(
+                      perBaseUnit.denominator().getBaseUnit().getClass().getSimpleName());
+              measureName = numeratorName + "Per" + denominatorName;
+            } else {
+              measureName = stripUnitSuffix(baseUnitClass.getSimpleName());
             }
+            // Skip if a type with this name was already emitted (collision guard)
+            if (emittedMeasureNames.contains(measureName)) return;
+            emittedMeasureNames.add(measureName);
             sb.append("export class ")
                 .append(measureName)
                 .append("_UnitType")
@@ -121,24 +138,27 @@ public final class TypeScriptGenerator {
                 .append(" Measure<")
                 .append(measureName)
                 .append("_UnitType>;\n");
-            typeScriptTypeMap.put(baseUnit.getClass(), measureName);
-            baseUnits.put(baseUnit, measureName);
+            typeScriptTypeMap.put(baseUnitClass, measureName);
+            baseUnits.put(baseUnitClass, measureName);
           }
           if (units.contains(unit)) return;
+          // Skip units whose base class was not registered (filtered above)
+          String registeredName = baseUnits.get(baseUnitClass);
+          if (registeredName == null) return;
           units.add(unit);
-          typeScriptTypeMap.put(unit.getClass(), baseUnits.get(baseUnit));
+          typeScriptTypeMap.put(unit.getClass(), registeredName);
           var unitName = unit.name().replace(" ", "_").replace("-", "_");
           if (unitName.equals("<?>")) unitName = "Unitless";
           sb.append("export const ")
               .append(unitName)
               .append(" = new Unit<")
-              .append(baseUnits.get(baseUnit))
+              .append(registeredName)
               .append("_UnitType>(\"")
               .append(unit.name())
               .append("\", new ")
-              .append(baseUnits.get(baseUnit))
+              .append(registeredName)
               .append("_UnitType(\"")
-              .append(baseUnits.get(baseUnit))
+              .append(registeredName)
               .append("\"));\n");
         });
 
@@ -719,6 +739,14 @@ public final class TypeScriptGenerator {
   // ============================================
   // Utilities
   // ============================================
+
+  /**
+   * Removes a trailing "Unit" suffix from a unit class simple name, e.g. "DistanceUnit" →
+   * "Distance".
+   */
+  private static String stripUnitSuffix(String name) {
+    return name.endsWith("Unit") ? name.substring(0, name.length() - 4) : name;
+  }
 
   private static boolean isPrimitive(Class<?> clazz) {
     return clazz.isPrimitive() || primitiveMap.containsKey(clazz);

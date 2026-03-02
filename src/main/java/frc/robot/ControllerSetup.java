@@ -1,25 +1,10 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
-import com.therekrab.autopilot.APConstraints;
-import com.therekrab.autopilot.APProfile;
-import com.therekrab.autopilot.APTarget;
-import com.therekrab.autopilot.Autopilot;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.controllers.Controllers;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
-import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
-import frc.robot.subsystems.drive.DriveCoordinatorCommands;
-import frc.robot.subsystems.drive.DriveCoordinatorCommands.XBasedAutoPilotCommand;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
@@ -50,12 +35,12 @@ public class ControllerSetup {
     return JsonConstants.controllers;
   }
 
-//   private static LoggedNetworkNumber trenchEndVelocityMps =
-//       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/EndVelocityMps", 4.0);
-//   private static LoggedNetworkNumber trenchAccelMpsSquared =
-//       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/AccelMps2", 6.0);
-//   private static LoggedNetworkNumber trenchJerkMpsCubed =
-//       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/JerkMps3", 1.0);
+  //   private static LoggedNetworkNumber trenchEndVelocityMps =
+  //       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/EndVelocityMps", 4.0);
+  //   private static LoggedNetworkNumber trenchAccelMpsSquared =
+  //       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/AccelMps2", 6.0);
+  //   private static LoggedNetworkNumber trenchJerkMpsCubed =
+  //       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/JerkMps3", 1.0);
 
   /**
    * Initialize drive bindings by setting the default command to a DriveWithJoysticks command

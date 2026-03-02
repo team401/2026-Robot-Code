@@ -17,45 +17,48 @@ export class Unit<UUnitType extends UnitType<any>>{
 	}
 }
 
-export class AngularAcceleration_UnitType extends UnitType<"AngularAcceleration"> {}
-export type AngularAcceleration =  Measure<AngularAcceleration_UnitType>;
-export const Rotation_per_Second_per_Second = new Unit<AngularAcceleration_UnitType>("Rotation per Second per Second", new AngularAcceleration_UnitType("AngularAcceleration"));
-export class Velocity_UnitType extends UnitType<"Velocity"> {}
-export type Velocity =  Measure<Velocity_UnitType>;
-export const Amp_per_Second = new Unit<Velocity_UnitType>("Amp per Second", new Velocity_UnitType("Velocity"));
+export class AngularVelocityPerTime_UnitType extends UnitType<"AngularVelocityPerTime"> {}
+export type AngularVelocityPerTime =  Measure<AngularVelocityPerTime_UnitType>;
+export const Rotation_per_Second_per_Second = new Unit<AngularVelocityPerTime_UnitType>("Rotation per Second per Second", new AngularVelocityPerTime_UnitType("AngularVelocityPerTime"));
+export class CurrentPerTime_UnitType extends UnitType<"CurrentPerTime"> {}
+export type CurrentPerTime =  Measure<CurrentPerTime_UnitType>;
+export const Amp_per_Second = new Unit<CurrentPerTime_UnitType>("Amp per Second", new CurrentPerTime_UnitType("CurrentPerTime"));
 export class Voltage_UnitType extends UnitType<"Voltage"> {}
 export type Voltage =  Measure<Voltage_UnitType>;
 export const Volt = new Unit<Voltage_UnitType>("Volt", new Voltage_UnitType("Voltage"));
-export class LinearAcceleration_UnitType extends UnitType<"LinearAcceleration"> {}
-export type LinearAcceleration =  Measure<LinearAcceleration_UnitType>;
-export const Meter_per_Second_per_Second = new Unit<LinearAcceleration_UnitType>("Meter per Second per Second", new LinearAcceleration_UnitType("LinearAcceleration"));
+export class LinearVelocityPerTime_UnitType extends UnitType<"LinearVelocityPerTime"> {}
+export type LinearVelocityPerTime =  Measure<LinearVelocityPerTime_UnitType>;
+export const Meter_per_Second_per_Second = new Unit<LinearVelocityPerTime_UnitType>("Meter per Second per Second", new LinearVelocityPerTime_UnitType("LinearVelocityPerTime"));
 export class Time_UnitType extends UnitType<"Time"> {}
 export type Time =  Measure<Time_UnitType>;
 export const Minute = new Unit<Time_UnitType>("Minute", new Time_UnitType("Time"));
-export const Foot_per_Second_per_Second = new Unit<LinearAcceleration_UnitType>("Foot per Second per Second", new LinearAcceleration_UnitType("LinearAcceleration"));
-export class AngularVelocity_UnitType extends UnitType<"AngularVelocity"> {}
-export type AngularVelocity =  Measure<AngularVelocity_UnitType>;
-export const Degree_per_Second = new Unit<AngularVelocity_UnitType>("Degree per Second", new AngularVelocity_UnitType("AngularVelocity"));
+export const Foot_per_Second_per_Second = new Unit<LinearVelocityPerTime_UnitType>("Foot per Second per Second", new LinearVelocityPerTime_UnitType("LinearVelocityPerTime"));
+export class AnglePerTime_UnitType extends UnitType<"AnglePerTime"> {}
+export type AnglePerTime =  Measure<AnglePerTime_UnitType>;
+export const Degree_per_Second = new Unit<AnglePerTime_UnitType>("Degree per Second", new AnglePerTime_UnitType("AnglePerTime"));
 export class Torque_UnitType extends UnitType<"Torque"> {}
 export type Torque =  Measure<Torque_UnitType>;
 export const Inch_Pound_force = new Unit<Torque_UnitType>("Inch-Pound-force", new Torque_UnitType("Torque"));
-export const Radian_per_Second = new Unit<AngularVelocity_UnitType>("Radian per Second", new AngularVelocity_UnitType("AngularVelocity"));
-export class Frequency_UnitType extends UnitType<"Frequency"> {}
-export type Frequency =  Measure<Frequency_UnitType>;
-export const Hertz = new Unit<Frequency_UnitType>("Hertz", new Frequency_UnitType("Frequency"));
+export const Radian_per_Second = new Unit<AnglePerTime_UnitType>("Radian per Second", new AnglePerTime_UnitType("AnglePerTime"));
+export class VoltagePerLinearAcceleration_UnitType extends UnitType<"VoltagePerLinearAcceleration"> {}
+export type VoltagePerLinearAcceleration =  Measure<VoltagePerLinearAcceleration_UnitType>;
+export const Volt_per_Meter_per_Second_per_Second = new Unit<VoltagePerLinearAcceleration_UnitType>("Volt per Meter per Second per Second", new VoltagePerLinearAcceleration_UnitType("VoltagePerLinearAcceleration"));
+export class DimensionlessPerTime_UnitType extends UnitType<"DimensionlessPerTime"> {}
+export type DimensionlessPerTime =  Measure<DimensionlessPerTime_UnitType>;
+export const Hertz = new Unit<DimensionlessPerTime_UnitType>("Hertz", new DimensionlessPerTime_UnitType("DimensionlessPerTime"));
 export class Distance_UnitType extends UnitType<"Distance"> {}
 export type Distance =  Measure<Distance_UnitType>;
 export const Centimeter = new Unit<Distance_UnitType>("Centimeter", new Distance_UnitType("Distance"));
 export const Inch_Ounce_force = new Unit<Torque_UnitType>("Inch-Ounce-force", new Torque_UnitType("Torque"));
-export class LinearVelocity_UnitType extends UnitType<"LinearVelocity"> {}
-export type LinearVelocity =  Measure<LinearVelocity_UnitType>;
-export const Inch_per_Second = new Unit<LinearVelocity_UnitType>("Inch per Second", new LinearVelocity_UnitType("LinearVelocity"));
+export class DistancePerTime_UnitType extends UnitType<"DistancePerTime"> {}
+export type DistancePerTime =  Measure<DistancePerTime_UnitType>;
+export const Inch_per_Second = new Unit<DistancePerTime_UnitType>("Inch per Second", new DistancePerTime_UnitType("DistancePerTime"));
 export const Meter_Newton = new Unit<Torque_UnitType>("Meter-Newton", new Torque_UnitType("Torque"));
-export const Degree_per_Second_per_Second = new Unit<AngularAcceleration_UnitType>("Degree per Second per Second", new AngularAcceleration_UnitType("AngularAcceleration"));
-export class Power_UnitType extends UnitType<"Power"> {}
-export type Power =  Measure<Power_UnitType>;
-export const Watt = new Unit<Power_UnitType>("Watt", new Power_UnitType("Power"));
-export const Rotation_per_Second = new Unit<AngularVelocity_UnitType>("Rotation per Second", new AngularVelocity_UnitType("AngularVelocity"));
+export const Degree_per_Second_per_Second = new Unit<AngularVelocityPerTime_UnitType>("Degree per Second per Second", new AngularVelocityPerTime_UnitType("AngularVelocityPerTime"));
+export class EnergyPerTime_UnitType extends UnitType<"EnergyPerTime"> {}
+export type EnergyPerTime =  Measure<EnergyPerTime_UnitType>;
+export const Watt = new Unit<EnergyPerTime_UnitType>("Watt", new EnergyPerTime_UnitType("EnergyPerTime"));
+export const Rotation_per_Second = new Unit<AnglePerTime_UnitType>("Rotation per Second", new AnglePerTime_UnitType("AnglePerTime"));
 export class Current_UnitType extends UnitType<"Current"> {}
 export type Current =  Measure<Current_UnitType>;
 export const Amp = new Unit<Current_UnitType>("Amp", new Current_UnitType("Current"));
@@ -66,25 +69,25 @@ export class Temperature_UnitType extends UnitType<"Temperature"> {}
 export type Temperature =  Measure<Temperature_UnitType>;
 export const Celsius = new Unit<Temperature_UnitType>("Celsius", new Temperature_UnitType("Temperature"));
 export const Fahrenheit = new Unit<Temperature_UnitType>("Fahrenheit", new Temperature_UnitType("Temperature"));
-export const G = new Unit<LinearAcceleration_UnitType>("G", new LinearAcceleration_UnitType("LinearAcceleration"));
+export const G = new Unit<LinearVelocityPerTime_UnitType>("G", new LinearVelocityPerTime_UnitType("LinearVelocityPerTime"));
 export const Inch = new Unit<Distance_UnitType>("Inch", new Distance_UnitType("Distance"));
-export const Foot_per_Second = new Unit<LinearVelocity_UnitType>("Foot per Second", new LinearVelocity_UnitType("LinearVelocity"));
+export const Foot_per_Second = new Unit<DistancePerTime_UnitType>("Foot per Second", new DistancePerTime_UnitType("DistancePerTime"));
 export class Energy_UnitType extends UnitType<"Energy"> {}
 export type Energy =  Measure<Energy_UnitType>;
 export const Joule = new Unit<Energy_UnitType>("Joule", new Energy_UnitType("Energy"));
 export const Kelvin = new Unit<Temperature_UnitType>("Kelvin", new Temperature_UnitType("Temperature"));
-export const Rotation_per_Minute = new Unit<AngularVelocity_UnitType>("Rotation per Minute", new AngularVelocity_UnitType("AngularVelocity"));
+export const Rotation_per_Minute = new Unit<AnglePerTime_UnitType>("Rotation per Minute", new AnglePerTime_UnitType("AnglePerTime"));
 export class LinearMomentum_UnitType extends UnitType<"LinearMomentum"> {}
 export type LinearMomentum =  Measure<LinearMomentum_UnitType>;
 export const Kilogram_Meter_per_Second = new Unit<LinearMomentum_UnitType>("Kilogram-Meter per Second", new LinearMomentum_UnitType("LinearMomentum"));
-export class Resistance_UnitType extends UnitType<"Resistance"> {}
-export type Resistance =  Measure<Resistance_UnitType>;
-export const Kiloohm = new Unit<Resistance_UnitType>("Kiloohm", new Resistance_UnitType("Resistance"));
+export class VoltagePerCurrent_UnitType extends UnitType<"VoltagePerCurrent"> {}
+export type VoltagePerCurrent =  Measure<VoltagePerCurrent_UnitType>;
+export const Kiloohm = new Unit<VoltagePerCurrent_UnitType>("Kiloohm", new VoltagePerCurrent_UnitType("VoltagePerCurrent"));
 export class Mass_UnitType extends UnitType<"Mass"> {}
 export type Mass =  Measure<Mass_UnitType>;
 export const Gram = new Unit<Mass_UnitType>("Gram", new Mass_UnitType("Mass"));
 export const Millimeter = new Unit<Distance_UnitType>("Millimeter", new Distance_UnitType("Distance"));
-export const Millihertz = new Unit<Frequency_UnitType>("Millihertz", new Frequency_UnitType("Frequency"));
+export const Millihertz = new Unit<DimensionlessPerTime_UnitType>("Millihertz", new DimensionlessPerTime_UnitType("DimensionlessPerTime"));
 export const Millijoule = new Unit<Energy_UnitType>("Millijoule", new Energy_UnitType("Energy"));
 export class Angle_UnitType extends UnitType<"Angle"> {}
 export type Angle =  Measure<Angle_UnitType>;
@@ -92,23 +95,25 @@ export const Degree = new Unit<Angle_UnitType>("Degree", new Angle_UnitType("Ang
 export const Rotation = new Unit<Angle_UnitType>("Rotation", new Angle_UnitType("Angle"));
 export const Foot_Pound_force = new Unit<Torque_UnitType>("Foot-Pound-force", new Torque_UnitType("Torque"));
 export const Microsecond = new Unit<Time_UnitType>("Microsecond", new Time_UnitType("Time"));
-export const Radian_per_Second_per_Second = new Unit<AngularAcceleration_UnitType>("Radian per Second per Second", new AngularAcceleration_UnitType("AngularAcceleration"));
-export const Revolution_per_Second = new Unit<AngularVelocity_UnitType>("Revolution per Second", new AngularVelocity_UnitType("AngularVelocity"));
+export const Radian_per_Second_per_Second = new Unit<AngularVelocityPerTime_UnitType>("Radian per Second per Second", new AngularVelocityPerTime_UnitType("AngularVelocityPerTime"));
+export const Revolution_per_Second = new Unit<AnglePerTime_UnitType>("Revolution per Second", new AnglePerTime_UnitType("AnglePerTime"));
 export const Millivolt = new Unit<Voltage_UnitType>("Millivolt", new Voltage_UnitType("Voltage"));
-export const Rotation_per_Minute_per_Second = new Unit<AngularAcceleration_UnitType>("Rotation per Minute per Second", new AngularAcceleration_UnitType("AngularAcceleration"));
+export const Rotation_per_Minute_per_Second = new Unit<AngularVelocityPerTime_UnitType>("Rotation per Minute per Second", new AngularVelocityPerTime_UnitType("AngularVelocityPerTime"));
 export const Revolution = new Unit<Angle_UnitType>("Revolution", new Angle_UnitType("Angle"));
 export const Kilogram = new Unit<Mass_UnitType>("Kilogram", new Mass_UnitType("Mass"));
 export const Kilojoule = new Unit<Energy_UnitType>("Kilojoule", new Energy_UnitType("Energy"));
 export const Radian = new Unit<Angle_UnitType>("Radian", new Angle_UnitType("Angle"));
-export const Milliwatt = new Unit<Power_UnitType>("Milliwatt", new Power_UnitType("Power"));
+export const Milliwatt = new Unit<EnergyPerTime_UnitType>("Milliwatt", new EnergyPerTime_UnitType("EnergyPerTime"));
 export const Foot = new Unit<Distance_UnitType>("Foot", new Distance_UnitType("Distance"));
 export class AngularMomentum_UnitType extends UnitType<"AngularMomentum"> {}
 export type AngularMomentum =  Measure<AngularMomentum_UnitType>;
 export const Kilogram_Meter_per_Second_Meter = new Unit<AngularMomentum_UnitType>("Kilogram-Meter per Second-Meter", new AngularMomentum_UnitType("AngularMomentum"));
-export class MomentOfInertia_UnitType extends UnitType<"MomentOfInertia"> {}
-export type MomentOfInertia =  Measure<MomentOfInertia_UnitType>;
-export const Kilogram_Meter_per_Second_Meter_per_Radian_per_Second = new Unit<MomentOfInertia_UnitType>("Kilogram-Meter per Second-Meter per Radian per Second", new MomentOfInertia_UnitType("MomentOfInertia"));
-export const Milliohm = new Unit<Resistance_UnitType>("Milliohm", new Resistance_UnitType("Resistance"));
+export class AngularMomentumPerAngularVelocity_UnitType extends UnitType<"AngularMomentumPerAngularVelocity"> {}
+export type AngularMomentumPerAngularVelocity =  Measure<AngularMomentumPerAngularVelocity_UnitType>;
+export const Kilogram_Meter_per_Second_Meter_per_Radian_per_Second = new Unit<AngularMomentumPerAngularVelocity_UnitType>("Kilogram-Meter per Second-Meter per Radian per Second", new AngularMomentumPerAngularVelocity_UnitType("AngularMomentumPerAngularVelocity"));
+export const Milliohm = new Unit<VoltagePerCurrent_UnitType>("Milliohm", new VoltagePerCurrent_UnitType("VoltagePerCurrent"));
+export const Volt_per_Radian_per_Second_per_Second = new Unit<VoltagePerLinearAcceleration_UnitType>("Volt per Radian per Second per Second", new VoltagePerLinearAcceleration_UnitType("VoltagePerLinearAcceleration"));
+export const Volt_per_Radian_per_Second = new Unit<VoltagePerLinearAcceleration_UnitType>("Volt per Radian per Second", new VoltagePerLinearAcceleration_UnitType("VoltagePerLinearAcceleration"));
 export class Dimensionless_UnitType extends UnitType<"Dimensionless"> {}
 export type Dimensionless =  Measure<Dimensionless_UnitType>;
 export const Percent = new Unit<Dimensionless_UnitType>("Percent", new Dimensionless_UnitType("Dimensionless"));
@@ -116,14 +121,13 @@ export const Millisecond = new Unit<Time_UnitType>("Millisecond", new Time_UnitT
 export const Pound = new Unit<Mass_UnitType>("Pound", new Mass_UnitType("Mass"));
 export const Second = new Unit<Time_UnitType>("Second", new Time_UnitType("Time"));
 export const Meter = new Unit<Distance_UnitType>("Meter", new Distance_UnitType("Distance"));
-export const Horsepower = new Unit<Power_UnitType>("Horsepower", new Power_UnitType("Power"));
-export const Meter_per_Second = new Unit<LinearVelocity_UnitType>("Meter per Second", new LinearVelocity_UnitType("LinearVelocity"));
+export const Horsepower = new Unit<EnergyPerTime_UnitType>("Horsepower", new EnergyPerTime_UnitType("EnergyPerTime"));
+export const Meter_per_Second = new Unit<DistancePerTime_UnitType>("Meter per Second", new DistancePerTime_UnitType("DistancePerTime"));
 export const Milliamp = new Unit<Current_UnitType>("Milliamp", new Current_UnitType("Current"));
 export const Ounce = new Unit<Mass_UnitType>("Ounce", new Mass_UnitType("Mass"));
 export const Unitless = new Unit<Dimensionless_UnitType>("<?>", new Dimensionless_UnitType("Dimensionless"));
-export const Ohm = new Unit<Resistance_UnitType>("Ohm", new Resistance_UnitType("Resistance"));
+export const Ohm = new Unit<VoltagePerCurrent_UnitType>("Ohm", new VoltagePerCurrent_UnitType("VoltagePerCurrent"));
 export const Ounce_force = new Unit<Force_UnitType>("Ounce-force", new Force_UnitType("Force"));
 export const Pound_force = new Unit<Force_UnitType>("Pound-force", new Force_UnitType("Force"));
-export class Velocity_UnitType extends UnitType<"Velocity"> {}
-export type Velocity =  Measure<Velocity_UnitType>;
-export const Rotation_per_Second_per_Second_per_Second = new Unit<Velocity_UnitType>("Rotation per Second per Second per Second", new Velocity_UnitType("Velocity"));
+export const Rotation_per_Second_per_Second_per_Second = new Unit<CurrentPerTime_UnitType>("Rotation per Second per Second per Second", new CurrentPerTime_UnitType("CurrentPerTime"));
+export const Volt_per_Meter_per_Second = new Unit<VoltagePerLinearAcceleration_UnitType>("Volt per Meter per Second", new VoltagePerLinearAcceleration_UnitType("VoltagePerLinearAcceleration"));
