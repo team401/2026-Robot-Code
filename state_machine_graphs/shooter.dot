@@ -1,0 +1,32 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  VelocityControlState ;
+  CoastState ;
+  TestModeState ;
+
+  // Transitions
+
+  VelocityControlState -> CoastState [label="requestedAction == Coast"];
+  VelocityControlState -> TestModeState [label="Is shooter test mode"];
+
+  CoastState -> VelocityControlState [label="requestedAction == ControlVelocity"];
+  CoastState -> TestModeState [label="Is shooter test mode"];
+
+  TestModeState -> VelocityControlState [label="Is not shooter test mode and requestedAction == ControlVelocity"];
+  TestModeState -> CoastState [label="Is not shooter test mode and requestedAction == Coast"];
+
+}

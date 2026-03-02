@@ -139,16 +139,20 @@ public class ModuleIOSim implements ModuleIO {
 
   @Override
   public void setDriveGains(PIDGains gains) {
-    driveController.setP(gains.kP());
-    driveController.setI(gains.kI());
-    driveController.setD(gains.kD());
-    DRIVE_KV = gains.kV();
+    System.out.println("setDriveGains called with " + gains);
+    // Don't actually update gains as it causes awful drive performance in sim.
+    // driveController.setP(gains.kP());
+    // driveController.setI(gains.kI());
+    // driveController.setD(gains.kD());
+    // DRIVE_KV = gains.kV();
   }
 
   @Override
   public void setSteerGains(PIDGains gains) {
-    turnController.setP(gains.kP());
-    turnController.setI(gains.kI());
-    turnController.setD(gains.kD());
+    System.out.println("setSteerGains called with " + gains);
+    // Don't actually update gains as it causes awful drive performance in sim.
+    // turnController.setP(gains.kP());
+    // turnController.setI(gains.kI());
+    // turnController.setD(gains.kD());
   }
 }

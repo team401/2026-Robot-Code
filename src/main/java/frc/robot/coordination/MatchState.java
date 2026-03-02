@@ -132,7 +132,7 @@ public class MatchState {
   }
 
   /** Must be called by the coordination layer when enabled */
-  public void enabledPeriodic(boolean manualRedOverridePressed, boolean manualBlueOverridePressed) {
+  public void enabledPeriodic(boolean weWonAutoOverridePressed, boolean weLostAutoOverridePressed) {
     if (Constants.currentMode == Mode.SIM) {
       DriverStationSim.setMatchType(matchTypeChooser.get());
     }
@@ -144,18 +144,18 @@ public class MatchState {
     // Even after checking, if we still haven't received it, poll user input.
     if (!receivedAutoWinnerFromFMS) {
       // Check for game data; if not present allow for manual override.
-      if (manualRedOverridePressed) {
-        wonAuto = Optional.of(Alliance.Red);
+      if (weWonAutoOverridePressed) {
+        wonAuto = Optional.of(AllianceUtil.getAlliance());
       }
 
-      if (manualBlueOverridePressed) {
-        wonAuto = Optional.of(Alliance.Blue);
+      if (weLostAutoOverridePressed) {
+        wonAuto = Optional.of(AllianceUtil.getOppAlliance());
       }
     }
 
     Logger.recordOutput("MatchState/receivedAutoWinnerFromFMS", receivedAutoWinnerFromFMS);
-    Logger.recordOutput("MatchState/manualRedOverridePressed", manualRedOverridePressed);
-    Logger.recordOutput("MatchState/manualBlueOverridePressed", manualBlueOverridePressed);
+    Logger.recordOutput("MatchState/weWonAutoOverridePressed", weWonAutoOverridePressed);
+    Logger.recordOutput("MatchState/weLostAutoOverridePressed", weLostAutoOverridePressed);
     Logger.recordOutput("MatchState/autoWinner", wonAuto.orElse(null));
     // Determine if it's possible to shoot by checking the current match shift
     double matchTime = DriverStation.getMatchTime();

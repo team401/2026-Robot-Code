@@ -3,11 +3,14 @@
     "value": 3.0,
     "unit": "Volt"
   },
-  "hopperDemoMode": true,
   "hopperReduction": 1.0,
   "spinningMovementThreshold": {
     "value": 3.0,
     "unit": "Radian per Second"
+  },
+  "indexingVelocity": {
+    "value": 2000,
+    "unit": "RPM"
   },
   "hopperGains": {
     "kP": 0.5,

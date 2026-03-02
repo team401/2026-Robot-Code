@@ -59,6 +59,9 @@ public class IntakeConstants {
   public final Angle intakePositionAngle = Degrees.of(0.0);
   public final Angle stowPositionAngle = Degrees.of(90.0);
 
+  /** When the intake pivot is at or above this angle, it is within the frame perimeter. */
+  public final Angle stowThresholdAngle = Degrees.of(87.0);
+
   // Roller speeds
   public AngularVelocity intakeRollerSpeed = RPM.of(1500.0);
 
