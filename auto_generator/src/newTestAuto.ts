@@ -7,7 +7,7 @@ function linearDrive({ targetPose }: { targetPose: AutoActions.Pose2d }) {
         target: new AutoActions.APTarget({
             reference: targetPose
         })
-    })
+    }).add();
 }
 
 

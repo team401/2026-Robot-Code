@@ -4,6 +4,7 @@ import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAction;
 import frc.robot.constants.JsonConstants;
@@ -20,8 +21,7 @@ public class AutoPilotAction extends AutoAction {
   @TypeScriptOptional public APConstraints constraints = null;
   @TypeScriptOptional public PIDGains pidGains = null;
 
-  @Override
-  public Command toCommand(AutoActionContext data) {
+  protected void handleNullValues() {
     Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");
     Objects.requireNonNull(
         target.getReference(), "Target Pose cannot be null for AutoPilot Action");
@@ -46,14 +46,21 @@ public class AutoPilotAction extends AutoAction {
                 Optional.ofNullable(profile.getErrorXY())
                     .orElse(JsonConstants.driveConstants.defaultAutoPilotXYTolerance));
 
-    PIDGains gains =
+    pidGains =
         Optional.ofNullable(pidGains)
             .orElse(JsonConstants.driveConstants.defaultAutoPilotHeadingGains);
+  }
 
-    var headingController = gains.toPIDController();
-
+  protected PIDController getHeadingController() {
+    var headingController = pidGains.toPIDController();
     headingController.enableContinuousInput(-Math.PI, Math.PI);
+    return headingController;
+  }
 
+  @Override
+  public Command toCommand(AutoActionContext data) {
+    handleNullValues();
+    var headingController = getHeadingController();
     return DriveCoordinatorCommands.autoPilotCommand(
         data.driveCoordinator(), new Autopilot(profile), target, headingController);
   }

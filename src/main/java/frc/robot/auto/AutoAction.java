@@ -4,6 +4,8 @@ import coppercore.parameter_tools.json.annotations.JsonSubtype;
 import coppercore.parameter_tools.json.annotations.JsonType;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.drive.AutoPilotAction;
+import frc.robot.auto.drive.StopDriveAction;
+import frc.robot.auto.drive.XBasedAutoPilotAction;
 import frc.robot.auto.general.Deadline;
 import frc.robot.auto.general.Parallel;
 import frc.robot.auto.general.Print;
@@ -36,6 +38,8 @@ import frc.robot.util.ts.TypeScriptMethod;
       @JsonSubtype(clazz = Print.class, name = "Print"),
       // Drive actions
       @JsonSubtype(clazz = AutoPilotAction.class, name = "AutoPilotAction"),
+      @JsonSubtype(clazz = XBasedAutoPilotAction.class, name = "XBasedAutoPilotAction"),
+      @JsonSubtype(clazz = StopDriveAction.class, name = "StopDriveAction"),
     })
 public abstract class AutoAction {
 

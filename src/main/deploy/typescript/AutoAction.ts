@@ -180,7 +180,37 @@ export class AutoPilotAction {
   }
 }
 
-export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | undefined | null;
+export class XBasedAutoPilotAction {
+  type: "XBasedAutoPilotAction" = "XBasedAutoPilotAction";
+  target?: APTarget;
+  profile?: APProfile | undefined;
+  constraints?: APConstraints | undefined;
+  pidGains?: PIDGains | undefined;
+	constructor({target = new APTarget({}), profile = undefined, constraints = undefined, pidGains = undefined}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains}>) {
+    this.target = target;
+    this.profile = profile;
+    this.constraints = constraints;
+    this.pidGains = pidGains;
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
+}
+
+export class StopDriveAction {
+  type: "StopDriveAction" = "StopDriveAction";
+	constructor({}: Partial<{}>) {
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
+}
+
+export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | undefined | null;
 
 let _addCommandHook: ((command: NonNullable<AutoAction>) => void) | null = null;
 export function setAddCommandHook(hook: (command: NonNullable<AutoAction>) => void) { _addCommandHook = hook; }
