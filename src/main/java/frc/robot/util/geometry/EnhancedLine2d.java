@@ -9,12 +9,10 @@ import java.util.Optional;
  * coppercore.
  */
 public class EnhancedLine2d {
-  // Fields made non-final to support in-place updates via set()
-  // [Optimization by Claude Opus 4.5, March 2026]
-  protected Translation2d start;
-  protected Translation2d end;
-  protected Translation2d d;
-  protected double length;
+  protected final Translation2d start;
+  protected final Translation2d end;
+  protected final Translation2d d;
+  protected final double length;
 
   public EnhancedLine2d(Translation2d start, Translation2d end) {
     this.start = start;
@@ -31,21 +29,6 @@ public class EnhancedLine2d {
    */
   public EnhancedLine2d(Translation3d start, Translation3d end) {
     this(start.toTranslation2d(), end.toTranslation2d());
-  }
-
-  /**
-   * Update this line's endpoints in place to avoid allocations.
-   *
-   * <p>[Optimization by Claude Opus 4.5, March 2026]
-   *
-   * @param start The new start point
-   * @param end The new end point
-   */
-  public void set(Translation2d start, Translation2d end) {
-    this.start = start;
-    this.end = end;
-    this.d = end.minus(start);
-    this.length = d.getNorm();
   }
 
   private record IntersectionParameters(double s, double t) {}

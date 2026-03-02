@@ -16,6 +16,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -654,22 +655,16 @@ public class CoordinationLayer {
   public void coordinateRobotActions() {
     if (DriverStation.isTest()) {
       // Log distance to hub for test modes
-      // [Optimized by Claude Opus 4.5, March 2026: primitive math instead of Translation2d]
       drive.ifPresent(
           drive -> {
-            Pose2d robotPose = drive.getPose();
-            Rotation2d rotation = robotPose.getRotation();
-            double cos = rotation.getCos();
-            double sin = rotation.getSin();
-            var robotToShooter = JsonConstants.robotInfo.robotToShooter;
-            double shooterX =
-                robotPose.getX() + robotToShooter.getX() * cos - robotToShooter.getY() * sin;
-            double shooterY =
-                robotPose.getY() + robotToShooter.getX() * sin + robotToShooter.getY() * cos;
-            var hubCenter = AllianceBasedFieldConstants.hubInnerCenterPoint();
-            double dx = shooterX - hubCenter.getX();
-            double dy = shooterY - hubCenter.getY();
-            Logger.recordOutput("CoordinationLayer/distanceToHub", Math.sqrt(dx * dx + dy * dy));
+            Logger.recordOutput(
+                "CoordinationLayer/distanceToHub",
+                new Pose3d(drive.getPose())
+                    .plus(JsonConstants.robotInfo.robotToShooter)
+                    .getTranslation()
+                    .toTranslation2d()
+                    .getDistance(
+                        AllianceBasedFieldConstants.hubInnerCenterPoint().toTranslation2d()));
           });
     }
 
@@ -842,74 +837,40 @@ public class CoordinationLayer {
     leftBlueTrench, rightRedTrench, rightBlueTrench, leftRedTrench
   };
 
-  /*
-   * Pre-allocated objects for coordination layer methods to avoid per-cycle allocations.
-   * [Optimization by Claude Opus 4.5, March 2026]
-   */
-  // Pre-allocated array for logging shooter trajectory in shouldStowHoodBasedOnMovement
-  private final Translation2d[] cachedShooterTrajectory = new Translation2d[2];
-
-  // Cached EnhancedLine2d for shouldStowHoodBasedOnMovement, reused via set() method
-  private EnhancedLine2d cachedMovementLine = null;
-  private Pose2d cachedHoodPredictedPose = new Pose2d();
-
   // Pre-allocated shot calculation output to avoid record allocations every cycle
+  // [Optimization by Claude Opus 4.5, March 2026]
   private final MutableMapBasedShotInfo cachedShotInfo = new MutableMapBasedShotInfo();
 
-  /**
-   * Determines if the hood should stow based on predicted robot movement toward trenches.
-   *
-   * <p>[Optimized by Claude Opus 4.5, March 2026: Uses primitive math instead of allocating
-   * Translation2d/Pose3d objects for rotation and transform calculations]
-   */
+  /** Determines if the hood should stow based on predicted robot movement toward trenches. */
   private boolean shouldStowHoodBasedOnMovement(Drive drive, HoodSubsystem hood) {
     Pose2d robotPose = drive.getPose();
 
     ChassisSpeeds robotRelativeSpeeds = drive.getChassisSpeeds();
-    // Compute field centric speeds using primitive math instead of Translation2d.rotateBy()
-    Rotation2d rotation = robotPose.getRotation();
-    double cos = rotation.getCos();
-    double sin = rotation.getSin();
-    double fieldVx =
-        robotRelativeSpeeds.vxMetersPerSecond * cos - robotRelativeSpeeds.vyMetersPerSecond * sin;
-    double fieldVy =
-        robotRelativeSpeeds.vxMetersPerSecond * sin + robotRelativeSpeeds.vyMetersPerSecond * cos;
+    Translation2d fieldCentricSpeeds =
+        new Translation2d(
+                robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
+            .rotateBy(robotPose.getRotation());
 
     double timeToStow = JsonConstants.hoodConstants.timeToStowHood.in(Seconds);
-    double predictedDx = fieldVx * timeToStow;
-    double predictedDy = fieldVy * timeToStow;
+    Translation2d predictedMovement =
+        new Translation2d(
+            fieldCentricSpeeds.getX() * timeToStow, fieldCentricSpeeds.getY() * timeToStow);
 
-    // Calculate shooter position using primitive math instead of Pose3d.plus().getTranslation()
-    var robotToShooter = JsonConstants.robotInfo.robotToShooter;
-    double shooterX = robotPose.getX() + robotToShooter.getX() * cos - robotToShooter.getY() * sin;
-    double shooterY = robotPose.getY() + robotToShooter.getX() * sin + robotToShooter.getY() * cos;
-
-    double movementStartX = shooterX;
-    double movementStartY = shooterY;
-    double movementEndX = movementStartX + predictedDx;
-    double movementEndY = movementStartY + predictedDy;
-
-    // Translation2d objects required for EnhancedLine2d API and logging
-    Translation2d movementStart = new Translation2d(movementStartX, movementStartY);
-    Translation2d movementEnd = new Translation2d(movementEndX, movementEndY);
-
-    // Reuse the cached array for logging instead of allocating new array each cycle
-    cachedShooterTrajectory[0] = movementStart;
-    cachedShooterTrajectory[1] = movementEnd;
-    Logger.recordOutput("CoordinationLayer/ShooterTrajectory", cachedShooterTrajectory);
-
-    cachedHoodPredictedPose = new Pose2d(movementEnd, rotation);
-    Logger.recordOutput("CoordinationLayer/HoodPredictedLocation", cachedHoodPredictedPose);
-
-    // Reuse cached EnhancedLine2d via set() instead of allocating new one each cycle
-    if (cachedMovementLine == null) {
-      cachedMovementLine = new EnhancedLine2d(movementStart, movementEnd);
-    } else {
-      cachedMovementLine.set(movementStart, movementEnd);
-    }
+    Translation2d movementStart =
+        new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter)
+            .getTranslation()
+            .toTranslation2d();
+    Translation2d movementEnd = movementStart.plus(predictedMovement);
+    Logger.recordOutput(
+        "CoordinationLayer/ShooterTrajectory", new Translation2d[] {movementStart, movementEnd});
+    Logger.recordOutput(
+        "CoordinationLayer/HoodPredictedLocation",
+        new Pose2d(movementEnd, robotPose.getRotation()));
+    EnhancedLine2d movementLine = new EnhancedLine2d(movementStart, movementEnd);
 
     for (var trench : trenches) {
-      if (cachedMovementLine.intersects(trench)) {
+      if (movementLine.intersects(trench)) {
         return true;
       }
     }
