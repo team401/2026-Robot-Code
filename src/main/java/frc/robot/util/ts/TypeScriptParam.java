@@ -3,6 +3,8 @@ package frc.robot.util.ts;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+// Written with help of Copilot (Claude model)
+
 /**
  * Defines a single parameter for a {@link TypeScriptMethod}.
  *

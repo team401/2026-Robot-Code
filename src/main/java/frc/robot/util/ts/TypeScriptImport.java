@@ -5,6 +5,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+// Written with help of Copilot (Claude model)
 
 /**
  * Adds a TypeScript import statement to the top of the generated file. Place on a Java class that

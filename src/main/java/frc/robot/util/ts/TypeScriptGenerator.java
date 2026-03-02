@@ -22,6 +22,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 // Written with the help of ChatGPT.
+// Written with help of Copilot (Claude model)
+// Many changes done by hand.
 
 /**
  * Generates TypeScript definitions from any Java class using the same config rules as JSONSync /
