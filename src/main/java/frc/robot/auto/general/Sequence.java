@@ -11,7 +11,7 @@ public class Sequence extends AutoAction {
   public AutoAction[] actions;
 
   @Override
-  public Command toCommand(AutoActionData data) {
+  public Command toCommand(AutoActionContext data) {
     Objects.requireNonNull(actions, "actions cannot be null");
     return new SequentialCommandGroup(
         Stream.of(actions).map(action -> action.toCommand(data)).toArray(Command[]::new));

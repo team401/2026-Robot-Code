@@ -39,7 +39,7 @@ public abstract class AutoAction {
 
   public String type;
 
-  public record AutoActionData(DriveCoordinator driveCoordinator, Autos auto) {}
+  public record AutoActionContext(DriveCoordinator driveCoordinator, Autos auto) {}
 
-  public abstract Command toCommand(AutoActionData data);
+  public abstract Command toCommand(AutoActionContext data);
 }

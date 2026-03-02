@@ -12,7 +12,7 @@ public class Deadline extends AutoAction {
   public AutoAction[] others;
 
   @Override
-  public Command toCommand(AutoActionData data) {
+  public Command toCommand(AutoActionContext data) {
     Objects.requireNonNull(deadline, "deadline command cant be null");
     Objects.requireNonNull(others, "other commands cant be null");
     return deadline

@@ -9,7 +9,7 @@ public class Wait extends AutoAction {
   public Time delay;
 
   @Override
-  public Command toCommand(AutoActionData data) {
+  public Command toCommand(AutoActionContext data) {
     return new WaitCommand(delay);
   }
 }

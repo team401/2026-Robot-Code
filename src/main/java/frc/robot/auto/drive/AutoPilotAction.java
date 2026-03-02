@@ -20,7 +20,7 @@ public class AutoPilotAction extends AutoAction {
   @TypeScriptOptional public PIDGains pidGains = null;
 
   @Override
-  public Command toCommand(AutoActionData data) {
+  public Command toCommand(AutoActionContext data) {
     Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");
     Objects.requireNonNull(
         target.getReference(), "Target Pose cannot be null for AutoPilot Action");
