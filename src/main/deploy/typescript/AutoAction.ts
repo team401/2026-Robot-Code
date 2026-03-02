@@ -67,6 +67,19 @@ export class Wait {
   }
 }
 
+export class Print {
+  type: "Print" = "Print";
+  message?: string;
+	constructor({message = ""}: Partial<{message: string}>) {
+    this.message = message;
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
+}
+
 export class Rotation2d {
   degrees?: number;
 	constructor({degrees = 0}: Partial<{degrees: number}>) {
@@ -167,7 +180,7 @@ export class AutoPilotAction {
   }
 }
 
-export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | AutoPilotAction | undefined | null;
+export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | undefined | null;
 
 let _addCommandHook: ((command: NonNullable<AutoAction>) => void) | null = null;
 export function setAddCommandHook(hook: (command: NonNullable<AutoAction>) => void) { _addCommandHook = hook; }

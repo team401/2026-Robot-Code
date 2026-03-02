@@ -26,20 +26,29 @@ public class AutoPilotAction extends AutoAction {
     Objects.requireNonNull(
         target.getReference(), "Target Pose cannot be null for AutoPilot Action");
 
-    profile = Optional.ofNullable(profile).orElseGet(DriveCoordinatorCommands::createDefaultAPProfile);
-    
-    profile = profile
-      .withConstraints(Optional.ofNullable(constraints)
-        .orElse(Optional.ofNullable(profile.getConstraints())
-            .orElseGet(DriveCoordinatorCommands::createDefaultAPConstraints)))
-      .withBeelineRadius(Optional.ofNullable(profile.getBeelineRadius())
-        .orElse(JsonConstants.driveConstants.defaultAutoPilotBeelineRadius))
-      .withErrorTheta(Optional.ofNullable(profile.getErrorTheta())
-        .orElse(JsonConstants.driveConstants.defaultAutoPilotHeadingTolerance))
-      .withErrorXY(Optional.ofNullable(profile.getErrorXY())
-        .orElse(JsonConstants.driveConstants.defaultAutoPilotXYTolerance));
+    profile =
+        Optional.ofNullable(profile).orElseGet(DriveCoordinatorCommands::createDefaultAPProfile);
 
-    PIDGains gains = Optional.ofNullable(pidGains).orElse(JsonConstants.driveConstants.defaultAutoPilotHeadingGains);
+    profile =
+        profile
+            .withConstraints(
+                Optional.ofNullable(constraints)
+                    .orElse(
+                        Optional.ofNullable(profile.getConstraints())
+                            .orElseGet(DriveCoordinatorCommands::createDefaultAPConstraints)))
+            .withBeelineRadius(
+                Optional.ofNullable(profile.getBeelineRadius())
+                    .orElse(JsonConstants.driveConstants.defaultAutoPilotBeelineRadius))
+            .withErrorTheta(
+                Optional.ofNullable(profile.getErrorTheta())
+                    .orElse(JsonConstants.driveConstants.defaultAutoPilotHeadingTolerance))
+            .withErrorXY(
+                Optional.ofNullable(profile.getErrorXY())
+                    .orElse(JsonConstants.driveConstants.defaultAutoPilotXYTolerance));
+
+    PIDGains gains =
+        Optional.ofNullable(pidGains)
+            .orElse(JsonConstants.driveConstants.defaultAutoPilotHeadingGains);
 
     var headingController = gains.toPIDController();
 

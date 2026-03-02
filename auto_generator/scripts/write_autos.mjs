@@ -1,5 +1,5 @@
 /**
- * run_autos.mjs
+ * write_autos.mjs
  *
  * Imports all compiled auto JS files (passed as CLI args), then reads the
  * accumulated autos from AutoLib and writes a single Autos.json file into
@@ -9,7 +9,7 @@
  *   { "autos": { "AutoName": { ... AutoAction ... }, ... } }
  *
  * Usage (from auto_generator/):
- *   node scripts/run_autos.mjs dist/auto_generator/src/newTestAuto.js [...]
+ *   node scripts/write_autos.mjs dist/auto_generator/src/newTestAuto.js [...]
  */
 
 import * as fs from "fs";

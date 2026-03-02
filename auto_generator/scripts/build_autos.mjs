@@ -1,13 +1,13 @@
 /**
- * compile_autos.mjs
+ * build_autos.mjs
  *
  * 1. Compiles all TypeScript sources via `tsc`.
  * 2. Finds all compiled auto files (everything in dist/auto_generator/src/
  *    except helper modules like AutoLib.js and Shorthands.js).
- * 3. Runs run_autos.mjs to write a single Autos.json into src/main/deploy/.
+ * 3. Runs write_autos.mjs to write a single Autos.json into src/main/deploy/.
  *
  * Usage (from auto_generator/):
- *   node scripts/compile_autos.mjs
+ *   node scripts/build_autos.mjs
  */
 
 import { execSync } from "child_process";
@@ -41,7 +41,7 @@ if (autoFiles.length === 0) {
 console.log(`Found ${autoFiles.length} auto file(s):`, autoFiles.map((f) => path.basename(f)));
 
 // Step 3: Run the autos and write a single Autos.json
-const runnerPath = path.join(__dirname, "run_autos.mjs");
+const runnerPath = path.join(__dirname, "write_autos.mjs");
 execSync(`node "${runnerPath}" ${autoFiles.map((f) => `"${f}"`).join(" ")}`, {
   cwd: rootDir,
   stdio: "inherit",
