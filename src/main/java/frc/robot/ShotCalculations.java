@@ -253,7 +253,7 @@ class ShotCalculations {
 
     Translation2d offsetXY = fieldRelativeShooterVelocity.times(flightTimeSeconds);
     Translation3d offset = new Translation3d(offsetXY.getX(), offsetXY.getY(), 0.0);
-    Translation3d virtualTarget = targetPose.minus(offset);
+    Translation3d virtualTarget = targetPose.plus(offset);
     Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
 
     double virtualDistanceXYMeters =

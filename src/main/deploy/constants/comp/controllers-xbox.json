@@ -16,7 +16,7 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "leftX",
-            "inverted": false
+            "inverted": true
           }
         },
         {
@@ -25,7 +25,7 @@
           "hapticControlElement": {
             "elementType": "axis",
             "id": "leftY",
-            "inverted": false
+            "inverted": true
           }
         },
         {
