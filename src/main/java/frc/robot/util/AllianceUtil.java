@@ -35,4 +35,16 @@ public class AllianceUtil {
   public static Alliance getAlliance() {
     return DriverStation.getAlliance().orElse(Alliance.Red);
   }
+
+  /**
+   * Return the opposite alliance than {@link #getAlliance()}.
+   *
+   * @return {@code Red} if {@link #getAlliance()} returns {@code Blue}, {@code Blue} otherwise
+   */
+  public static Alliance getOppAlliance() {
+    return switch (getAlliance()) {
+      case Red -> Alliance.Blue;
+      case Blue -> Alliance.Red;
+    };
+  }
 }

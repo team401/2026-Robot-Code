@@ -63,10 +63,8 @@ public class RobotContainer {
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
     dependencyOrderedExecutor.registerAction(
         RUN_COMMAND_SCHEDULER, CommandScheduler.getInstance()::run);
-    // Homing switch must be updated before running subsystem periodics because certain state
-    // machines will take action during periodic based on its state.
     dependencyOrderedExecutor.addDependencies(
-        RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_SHOT_CALCULATOR);
+        RUN_COMMAND_SCHEDULER, CoordinationLayer.COORDINATE_ROBOT_ACTIONS);
 
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
@@ -78,7 +76,7 @@ public class RobotContainer {
       coordinationLayer.setDrive(drive);
       coordinationLayer.setDriveCoordinator(driveCoordinator);
       if (JsonConstants.featureFlags.runVision) {
-        InitSubsystems.initVisionSubsystem(drive);
+        coordinationLayer.setVisionLocalizer(InitSubsystems.initVisionSubsystem(drive));
       }
     } else {
       drive = Optional.empty();
@@ -130,13 +128,6 @@ public class RobotContainer {
       coordinationLayer.setHomingSwitch(homingSwitch);
     }
 
-    if (JsonConstants.featureFlags.runIndexer || JsonConstants.featureFlags.runHopper) {
-      // Ensure that demo modes are run before subsystem periodics if either of the 2 subsystems
-      // that have demo modes are active
-      dependencyOrderedExecutor.addDependencies(
-          RUN_COMMAND_SCHEDULER, CoordinationLayer.RUN_DEMO_MODES);
-    }
-
     drive.ifPresentOrElse(
         this::createAutoChooser,
         () -> {
@@ -183,7 +174,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // TODO: Create a robust and clean input/action layer.
+    coordinationLayer.initBindings();
 
     // Default command, normal field-relative drive
     driveCoordinator.ifPresent(
@@ -191,13 +182,7 @@ public class RobotContainer {
           drive.ifPresent(
               (drive) -> {
                 ControllerSetup.initDriveBindings(driveCoordinator, drive);
-                ControllerSetup.initMatchStateBindings(coordinationLayer);
               });
-        });
-
-    intakeSubsystem.ifPresent(
-        (intake) -> {
-          ControllerSetup.initIntakeBindings(intake);
         });
   }
 

@@ -1,0 +1,35 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  SpinningState ;
+  IdleState ;
+  TestModeState ;
+  DejamState ;
+
+  // Transitions
+
+  SpinningState -> IdleState [label="Should idle"];
+  SpinningState -> TestModeState [label="In hopper test mode"];
+  SpinningState -> DejamState [label="Dejam required"];
+
+  IdleState -> SpinningState [label="Should spin"];
+  IdleState -> TestModeState [label="In hopper test mode"];
+
+  TestModeState -> IdleState [label="Not in hopper test mode"];
+
+  DejamState -> SpinningState [label="Dejam not required"];
+
+}

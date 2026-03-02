@@ -11,7 +11,21 @@ public abstract class ShooterState extends State<ShooterSubsystem> {
     }
   }
 
+  public static class CoastState extends ShooterState {
+    @Override
+    public void periodic(StateMachine<ShooterSubsystem> stateMachine, ShooterSubsystem shooter) {
+      // Coast the shooter rather than controlling it to 0 with closed loop to avoid exploding the
+      // belts unnecessarily
+      shooter.coast();
+    }
+  }
+
   public static class TestModeState extends ShooterState {
+    @Override
+    public void onEntry(StateMachine<ShooterSubsystem> stateMachine, ShooterSubsystem shooter) {
+      shooter.testInit();
+    }
+
     @Override
     public void periodic(StateMachine<ShooterSubsystem> stateMachine, ShooterSubsystem shooter) {
       shooter.testPeriodic();

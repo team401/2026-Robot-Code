@@ -31,6 +31,14 @@
     "value": 68.99,
     "unit": "Degree"
   },
+  "hoodSetpointEpsilon": {
+    "value": 1.0,
+    "unit": "Degree"
+  },
+  "timeToStowHood": {
+    "value": 0.5,
+    "unit": "Second"
+  },
   "hoodRequestUpdateFrequency": {
     "value": 1000,
     "unit": "Hertz"
