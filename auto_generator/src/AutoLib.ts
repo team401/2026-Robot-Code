@@ -47,7 +47,7 @@ export function auto(name: string, commands: () => void) {
   if (command_pointers.length !== 1) {
     throw new Error("Pointer stack is not empty after auto command");
   }
-  var endPointer = getPointer();
+  const endPointer = getPointer();
   if (endPointer != firstPointer) {
     throw new Error("Pointer stack was not properly managed");
   }

@@ -7,13 +7,13 @@ export function translation2d({ x, y }: { x: number | undefined; y: number | und
     return new AutoActions.Translation2d({ x: x ?? 0, y: y ?? 0 });
 }
 
-export function rotation2d({ angle }: { angle: number | undefined }) {
-    return new AutoActions.Rotation2d({ radians: angle ?? 0 });
+export function rotation2d({ angleDegrees }: { angleDegrees: number | undefined }) {
+    return new AutoActions.Rotation2d({ degrees: angleDegrees ?? 0 });
 }
 
-export function pose2d({ x, y, angle }: { x: number | undefined; y: number | undefined; angle: number | undefined }) {
+export function pose2d({ x, y, angleDegrees }: { x: number | undefined; y: number | undefined; angleDegrees: number | undefined }) {
     return new AutoActions.Pose2d({
         translation: translation2d({ x, y }),
-        rotation: rotation2d({ angle })
+        rotation: rotation2d({ angleDegrees })
     });
 }

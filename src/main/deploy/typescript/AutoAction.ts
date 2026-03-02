@@ -68,9 +68,9 @@ export class Wait {
 }
 
 export class Rotation2d {
-  radians?: number;
-	constructor({radians = 0}: Partial<{radians: number}>) {
-    this.radians = radians;
+  degrees?: number;
+	constructor({degrees = 0}: Partial<{degrees: number}>) {
+    this.degrees = degrees;
   }
 }
 

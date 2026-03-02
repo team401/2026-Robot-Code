@@ -11,7 +11,7 @@
   },
   "leftClimbLocation": {
     "rotation": {
-      "radians": 0.0
+      "degrees": 0.0
     },
     "translation": {
       "x": 0.0,
@@ -20,7 +20,7 @@
   },
   "rightClimbLocation": {
     "rotation": {
-      "radians": 0.0
+      "degrees": 0.0
     },
     "translation": {
       "x": 0.0,
