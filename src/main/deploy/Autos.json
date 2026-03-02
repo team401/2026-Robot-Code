@@ -1,6 +1,6 @@
 {
   "autos": {
-    "Random Auto": {
+    "Test Auto": {
       "type": "Sequence",
       "actions": [
         {
@@ -8,11 +8,11 @@
           "target": {
             "reference": {
               "rotation": {
-                "radians": 4.619905604748963
+                "degrees": 0
               },
               "translation": {
-                "x": 1.0522661236921171,
-                "y": 0.19954352272395448
+                "x": 1,
+                "y": 0
               }
             },
             "velocity": 0
@@ -23,11 +23,11 @@
           "target": {
             "reference": {
               "rotation": {
-                "radians": 3.5894403970073863
+                "degrees": 0
               },
               "translation": {
-                "x": 2.613040925405867,
-                "y": 1.267422719599668
+                "x": 3,
+                "y": -1
               }
             },
             "velocity": 0
@@ -38,56 +38,11 @@
           "target": {
             "reference": {
               "rotation": {
-                "radians": 2.368923512804117
+                "degrees": 0
               },
               "translation": {
-                "x": 2.6772465458655015,
-                "y": 3.5836283404872287
-              }
-            },
-            "velocity": 0
-          }
-        },
-        {
-          "type": "AutoPilotAction",
-          "target": {
-            "reference": {
-              "rotation": {
-                "radians": 4.417097328393309
-              },
-              "translation": {
-                "x": 2.9521788676466976,
-                "y": 3.3705773092574804
-              }
-            },
-            "velocity": 0
-          }
-        },
-        {
-          "type": "AutoPilotAction",
-          "target": {
-            "reference": {
-              "rotation": {
-                "radians": 5.659846600249077
-              },
-              "translation": {
-                "x": 1.079599950787028,
-                "y": 1.9798635736448071
-              }
-            },
-            "velocity": 0
-          }
-        },
-        {
-          "type": "AutoPilotAction",
-          "target": {
-            "reference": {
-              "rotation": {
-                "radians": 0.6518703613029698
-              },
-              "translation": {
-                "x": 4.858185340356923,
-                "y": 2.2197874996379037
+                "x": 4,
+                "y": 0
               }
             },
             "velocity": 0

@@ -63,6 +63,10 @@ export function getAutos(): Map<string, AutoCommand> {
   return autos;
 }
 
+function ignoreTyping() {
+  
+}
+
 export function serializeAutos(): string {
   const obj: { [key: string]: AutoCommand } = {};
   autos.forEach((commands, name) => {
