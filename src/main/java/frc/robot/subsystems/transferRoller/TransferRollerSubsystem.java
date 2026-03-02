@@ -88,7 +88,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
         .transitionTo(idleState);
 
     stateMachine.setState(idleState);
-    StateMachineDump.write("transferRoller", stateMachine);
+    StateMachineDump.write("transferroller", stateMachine);
 
     // Initialize tuning mode helper
     TunableMotor tunableMotor =

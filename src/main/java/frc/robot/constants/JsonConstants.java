@@ -77,11 +77,8 @@ public class JsonConstants {
     intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
-
-    jsonHandler.saveObject(new TransferRollerConstants(), "TransferRollerConstants.json");
     transferRollerConstants =
         jsonHandler.getObject(new TransferRollerConstants(), "TransferRollerConstants.json");
-
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
     redFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
@@ -100,7 +97,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
-        jsonHandler.addRoute("/transferRoller", transferRollerConstants);
+        jsonHandler.addRoute("/transferroller", transferRollerConstants);
         jsonHandler.addRoute("/intake", intakeConstants);
         jsonHandler.addRoute("/vision", visionConstants);
         jsonHandler.registerPostCallback(
