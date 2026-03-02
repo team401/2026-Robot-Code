@@ -1,58 +1,84 @@
-import * as AutoAction  from "@/typescript/AutoAction.js";
+import * as AutoAction from "@/typescript/AutoAction.js";
 import { type AutoAction as AutoCommand, setAddCommandHook } from "@/typescript/AutoAction.js";
 
-let command_pointers: AutoCommand[][] = [];
+// Clean up by Claude Sonnet 4.6
+
+// ---------------------------------------------------------------------------
+// Module-level state
+// ---------------------------------------------------------------------------
+
+/** Stack of action arrays used to track the current nesting context. */
+let commandPointers: AutoCommand[][] = [];
+
+/** All registered autos, keyed by name. */
 let autos = new Map<string, AutoCommand>();
 
-// Wire up the hook so that .add() on any AutoAction class calls addCommand
+// Wire up the hook so that .add() on any AutoAction instance calls addCommand.
 setAddCommandHook((command) => addCommand(command));
 
-export function getPointer() {
-  return command_pointers[command_pointers.length - 1];
+// ---------------------------------------------------------------------------
+// Pointer-stack helpers (used internally and by shorthand builders)
+// ---------------------------------------------------------------------------
+
+/** Returns the action array at the top of the pointer stack, or undefined. */
+export function getPointer(): AutoCommand[] | undefined {
+  return commandPointers[commandPointers.length - 1];
 }
 
-export function pushPointer(pointer: AutoCommand[]) {
-  command_pointers.push(pointer);
+export function pushPointer(pointer: AutoCommand[]): void {
+  commandPointers.push(pointer);
 }
 
-export function popPointer() {
-  command_pointers.pop();
+export function popPointer(): void {
+  commandPointers.pop();
 }
 
+/** Returns the last command added to the current pointer, or undefined. */
 export function getLastCommand(): AutoCommand | undefined {
   const pointer = getPointer();
-  if (pointer && pointer.length > 0) {
-    return pointer[pointer.length - 1];
-  }
-  return undefined;
+  return pointer && pointer.length > 0 ? pointer[pointer.length - 1] : undefined;
 }
 
-export function clearPointers() {
-  command_pointers = [];
+/** Clears the entire pointer stack (called before building each auto). */
+export function clearPointers(): void {
+  commandPointers = [];
 }
 
-export function addCommand(command: AutoCommand) {
-  const pointer = getPointer();
-  if (pointer) {
-    pointer.push(command);
-  }
+/** Appends a command to the current pointer. No-op if the stack is empty. */
+export function addCommand(command: AutoCommand): void {
+  getPointer()?.push(command);
 }
 
-export function auto(name: string, commands: () => void) {
+// ---------------------------------------------------------------------------
+// Auto registration
+// ---------------------------------------------------------------------------
+
+/**
+ * Defines and registers a named autonomous routine.
+ *
+ * The `build` callback runs synchronously; any commands created inside it are
+ * appended to a top-level Sequence via the pointer stack. The stack is always
+ * cleaned up — even if `build` throws — so a failed auto doesn't corrupt
+ * subsequent registrations.
+ */
+export function auto(name: string, build: () => void): void {
   clearPointers();
-  const auto: AutoCommand = new AutoAction.Sequence({});
-  const firstPointer = auto.actions as AutoCommand[];
+  const root: AutoCommand = new AutoAction.Sequence({});
+  const firstPointer = root.actions as AutoCommand[];
   pushPointer(firstPointer);
-  commands();
-  if (command_pointers.length !== 1) {
-    throw new Error("Pointer stack is not empty after auto command");
+
+  try {
+    build();
+  } finally {
+    // Always restore a clean state, even on error.
+    clearPointers();
   }
-  const endPointer = getPointer();
-  if (endPointer != firstPointer) {
-    throw new Error("Pointer stack was not properly managed");
+
+  if (commandPointers.length !== 0) {
+    throw new Error(`Pointer stack was not empty after building auto "${name}"`);
   }
-  command_pointers.pop();
-  autos.set(name, auto);
+
+  autos.set(name, root);
 }
 
 export function getAuto(name: string): AutoCommand | undefined {
@@ -63,20 +89,24 @@ export function getAutos(): Map<string, AutoCommand> {
   return autos;
 }
 
-const skippedKeys = new Set(["_unitType"]);
+// ---------------------------------------------------------------------------
+// Serialization
+// ---------------------------------------------------------------------------
 
-function ignoreTyping(key: string, value: any) {
-  if (skippedKeys.has(key)) {
-    return undefined;
-  }
-  return value;
+/** Keys that should be stripped from the serialized output. */
+const SKIPPED_KEYS = new Set(["_unitType"]);
+
+/** JSON replacer that drops internal typing metadata. */
+function stripInternalKeys(key: string, value: unknown): unknown {
+  return SKIPPED_KEYS.has(key) ? undefined : value;
 }
 
+/** Serializes all registered autos to a JSON string. */
 export function serializeAutos(): string {
-  const obj: { [key: string]: AutoCommand } = {};
-  autos.forEach((commands, name) => {
-    obj[name] = commands;
+  const obj: Record<string, AutoCommand> = {};
+  autos.forEach((command, name) => {
+    obj[name] = command;
   });
-  return JSON.stringify(obj, ignoreTyping, 4);
+  return JSON.stringify(obj, stripInternalKeys, 4);
 }
 
