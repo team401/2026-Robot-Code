@@ -33,12 +33,6 @@ The primary strategies used:
 - **After:** Loop-based draining directly into input arrays
 - **Impact:** Eliminates stream overhead for gyro odometry data
 
-#### `Drive.java`
-- **Change:** Pre-allocated `SwerveModulePosition[]` arrays for odometry loop
-- **Before:** Created new `SwerveModulePosition` arrays per odometry sample
-- **After:** Reuse `modulePositions[4]` and `moduleDeltas[4]` arrays, update in place
-- **Impact:** Eliminates 2 array allocations × number of odometry samples per cycle
-
 #### `Module.java`
 - **Change:** Pre-allocated odometry positions array + cached logger key string
 - **Before:** Created new `SwerveModulePosition[]` each cycle, concatenated logger key string
