@@ -22,16 +22,16 @@ The primary strategies used:
 ### Drive System
 
 #### `ModuleIOTalonFX.java`
-- **Change:** Added pre-allocated arrays for odometry data
+- **Change:** Simplified queue-to-input copying (no intermediate arrays)
 - **Before:** Used `stream().mapToDouble().toArray()` which allocates intermediate objects and a new array each cycle
-- **After:** Drain queues into pre-allocated `double[]` and `Rotation2d[]` arrays using loops
-- **Impact:** Eliminates ~3 array allocations + stream overhead per module per cycle (×4 modules)
+- **After:** Determine sample count from queue sizes, allocate output arrays directly, loop-copy from queues
+- **Impact:** Eliminates stream overhead; arrays still allocated but at correct size with no intermediate copies
 
 #### `GyroIOPigeon2.java`
 - **Change:** Same pattern as ModuleIOTalonFX
 - **Before:** Stream-based queue draining
-- **After:** Loop-based draining into pre-allocated arrays
-- **Impact:** Eliminates array allocations for gyro odometry data
+- **After:** Loop-based draining directly into input arrays
+- **Impact:** Eliminates stream overhead for gyro odometry data
 
 #### `Drive.java`
 - **Change:** Pre-allocated `SwerveModulePosition[]` arrays for odometry loop

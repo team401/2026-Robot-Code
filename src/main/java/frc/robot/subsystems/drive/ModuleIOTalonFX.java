@@ -45,9 +45,6 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFX implements ModuleIO {
-  // Maximum number of odometry samples we expect per cycle
-  private static final int MAX_ODOMETRY_SAMPLES = 20;
-
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
@@ -94,14 +91,6 @@ public class ModuleIOTalonFX implements ModuleIO {
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
   private final Debouncer turnEncoderConnectedDebounce =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-
-  /*
-   * Pre-allocated arrays for odometry to avoid per-cycle allocations from stream operations.
-   * [Optimization by Claude Opus 4.5, March 2026]
-   */
-  private final double[] preallocatedTimestamps = new double[MAX_ODOMETRY_SAMPLES];
-  private final double[] preallocatedDrivePositions = new double[MAX_ODOMETRY_SAMPLES];
-  private final Rotation2d[] preallocatedTurnPositions = new Rotation2d[MAX_ODOMETRY_SAMPLES];
 
   public ModuleIOTalonFX(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
@@ -221,51 +210,27 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
-    // Update odometry inputs
-    // ===== OPTIMIZED ODOMETRY UPDATE (NO STREAM ALLOCATIONS) =====
-    // Drain timestamp queue into pre-allocated array
-    int sampleCount = 0;
-    Double timestamp;
-    while ((timestamp = timestampQueue.poll()) != null && sampleCount < MAX_ODOMETRY_SAMPLES) {
-      preallocatedTimestamps[sampleCount] = timestamp;
-      sampleCount++;
+    // Update odometry inputs - copy directly from queues
+    int sampleCount =
+        Math.min(
+            timestampQueue.size(), Math.min(drivePositionQueue.size(), turnPositionQueue.size()));
+
+    // Allocate arrays directly at the correct size
+    inputs.odometryTimestamps = new double[sampleCount];
+    inputs.odometryDrivePositionsRad = new double[sampleCount];
+    inputs.odometryTurnPositions = new Rotation2d[sampleCount];
+
+    // Copy directly from queues to inputs
+    for (int i = 0; i < sampleCount; i++) {
+      inputs.odometryTimestamps[i] = timestampQueue.poll();
+      inputs.odometryDrivePositionsRad[i] = Units.rotationsToRadians(drivePositionQueue.poll());
+      inputs.odometryTurnPositions[i] = Rotation2d.fromRotations(turnPositionQueue.poll());
     }
 
-    // Drain drive position queue
-    int driveCount = 0;
-    Double drivePos;
-    while ((drivePos = drivePositionQueue.poll()) != null && driveCount < MAX_ODOMETRY_SAMPLES) {
-      preallocatedDrivePositions[driveCount] = Units.rotationsToRadians(drivePos);
-      driveCount++;
-    }
-
-    // Drain turn position queue
-    int turnCount = 0;
-    Double turnPos;
-    while ((turnPos = turnPositionQueue.poll()) != null && turnCount < MAX_ODOMETRY_SAMPLES) {
-      preallocatedTurnPositions[turnCount] = Rotation2d.fromRotations(turnPos);
-      turnCount++;
-    }
-
-    int finalCount = Math.min(sampleCount, Math.min(driveCount, turnCount));
-
-    // Only allocate new arrays if size changed (reduces allocations when sample count is
-    // consistent)
-    if (inputs.odometryTimestamps.length != finalCount) {
-      inputs.odometryTimestamps = new double[finalCount];
-    }
-    if (inputs.odometryDrivePositionsRad.length != finalCount) {
-      inputs.odometryDrivePositionsRad = new double[finalCount];
-    }
-    if (inputs.odometryTurnPositions.length != finalCount) {
-      inputs.odometryTurnPositions = new Rotation2d[finalCount];
-    }
-
-    // Copy from pre-allocated arrays
-    System.arraycopy(preallocatedTimestamps, 0, inputs.odometryTimestamps, 0, finalCount);
-    System.arraycopy(
-        preallocatedDrivePositions, 0, inputs.odometryDrivePositionsRad, 0, finalCount);
-    System.arraycopy(preallocatedTurnPositions, 0, inputs.odometryTurnPositions, 0, finalCount);
+    // Clear any remaining items if queues were unequal
+    timestampQueue.clear();
+    drivePositionQueue.clear();
+    turnPositionQueue.clear();
   }
 
   @Override
