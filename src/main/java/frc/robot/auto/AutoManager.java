@@ -24,4 +24,5 @@ public class AutoManager {
   public static void loadAutos() {
     autos = Optional.ofNullable(jsonHandler.getObject(new Autos(), AUTOS_PATH.toString()));
   }
+
 }
