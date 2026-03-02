@@ -1,23 +1,31 @@
-// Probably want to modify where this is importing from and how it is named later, but for now this is just a test file to make sure the system is working
-// And make it easier to write new autos without needing to write out the full class names every time
-
 import * as AutoActions from '@/typescript/AutoAction.js';
+import * as AutoLib from './AutoLib.js';
 import * as Units from '@/typescript/Units.js';
 
-export function translation2d({ x, y }: { x: number | undefined; y: number | undefined }) {
-    return new AutoActions.Translation2d({ x: x ?? 0, y: y ?? 0 });
+// Cleaned up and improved by Claude Sonnet 4.6
+
+// ---------------------------------------------------------------------------
+// Geometry helpers
+// ---------------------------------------------------------------------------
+
+export function translation2d({ x = 0, y = 0 }: { x?: number; y?: number }) {
+    return new AutoActions.Translation2d({ x, y });
 }
 
-export function rotation2d({ angleDegrees }: { angleDegrees: number | undefined }) {
-    return new AutoActions.Rotation2d({ degrees: angleDegrees ?? 0 });
+export function rotation2d({ angleDegrees = 0 }: { angleDegrees?: number }) {
+    return new AutoActions.Rotation2d({ degrees: angleDegrees });
 }
 
-export function pose2d({ x, y, angleDegrees }: { x: number | undefined; y: number | undefined; angleDegrees: number | undefined }) {
+export function pose2d({ x = 0, y = 0, angleDegrees = 0 }: { x?: number; y?: number; angleDegrees?: number }) {
     return new AutoActions.Pose2d({
         translation: translation2d({ x, y }),
-        rotation: rotation2d({ angleDegrees })
+        rotation: rotation2d({ angleDegrees }),
     });
 }
+
+// ---------------------------------------------------------------------------
+// Primitive commands
+// ---------------------------------------------------------------------------
 
 export function wait({ seconds }: { seconds: number }) {
     return new AutoActions.Wait({ delay: Units.Second.of(seconds) }).add();
@@ -25,4 +33,34 @@ export function wait({ seconds }: { seconds: number }) {
 
 export function print({ message }: { message: string }) {
     return new AutoActions.Print({ message }).add();
+}
+
+export function autoPilot({ targetPose, entryAngle, velocity }: {
+    targetPose: AutoActions.Pose2d;
+    entryAngle?: AutoActions.Rotation2d;
+    velocity?: number;
+}) {
+    return new AutoActions.AutoPilotAction({
+        target: new AutoActions.APTarget({
+            reference: targetPose,
+            ...(entryAngle !== undefined && { entryAngle }),
+            ...(velocity !== undefined && { velocity }),
+        }),
+    }).add();
+}
+
+// ---------------------------------------------------------------------------
+// Container helpers
+// ---------------------------------------------------------------------------
+
+export function sequence(build: () => void) {
+    AutoLib.withContainer(new AutoActions.Sequence({}), build);
+}
+
+export function parallel(build: () => void) {
+    AutoLib.withContainer(new AutoActions.Parallel({}), build);
+}
+
+export function race(build: () => void) {
+    AutoLib.withContainer(new AutoActions.Race({}), build);
 }

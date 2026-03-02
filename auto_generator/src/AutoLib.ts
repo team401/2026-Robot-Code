@@ -1,56 +1,73 @@
 import * as AutoAction from "@/typescript/AutoAction.js";
 import { type AutoAction as AutoCommand, setAddCommandHook } from "@/typescript/AutoAction.js";
 
-// Clean up by Claude Sonnet 4.6
+// Cleaned up and improved by Claude Sonnet 4.6
 
 // ---------------------------------------------------------------------------
-// Module-level state
+// Internal pointer stack
 // ---------------------------------------------------------------------------
 
 /** Stack of action arrays tracking the current nesting context. */
 let commandPointers: AutoCommand[][] = [];
 
-/** All registered autos, keyed by name. */
-const autos = new Map<string, AutoCommand>();
+function currentPointer(): AutoCommand[] | undefined {
+  return commandPointers.at(-1);
+}
+
+function pushPointer(pointer: AutoCommand[]): void {
+  commandPointers.push(pointer);
+}
+
+function popPointer(): void {
+  commandPointers.pop();
+}
+
+function addCommand(command: AutoCommand): void {
+  currentPointer()?.push(command);
+}
 
 // Wire up the hook so that .add() on any AutoAction instance calls addCommand.
 setAddCommandHook(addCommand);
 
 // ---------------------------------------------------------------------------
-// Pointer-stack helpers (used internally and by shorthand builders)
+// Public API
 // ---------------------------------------------------------------------------
 
-/** Returns the action array at the top of the pointer stack, or undefined. */
-export function getPointer(): AutoCommand[] | undefined {
-  return commandPointers.at(-1);
-}
-
-export function pushPointer(pointer: AutoCommand[]): void {
-  commandPointers.push(pointer);
-}
-
-export function popPointer(): void {
-  commandPointers.pop();
-}
-
-/** Returns the last command added to the current pointer, or undefined. */
+/** Returns the last command added in the current context, or undefined. */
 export function getLastCommand(): AutoCommand | undefined {
-  return getPointer()?.at(-1);
+  return currentPointer()?.at(-1);
 }
 
-/** Clears the entire pointer stack (called before building each auto). */
-export function clearPointers(): void {
-  commandPointers = [];
-}
-
-/** Appends a command to the current pointer. No-op if the stack is empty. */
-export function addCommand(command: AutoCommand): void {
-  getPointer()?.push(command);
+/**
+ * Runs `build` with a container command as the active context, then adds the
+ * finished container to the parent context. Use this to nest Sequence,
+ * Parallel, or Race blocks without touching the pointer stack directly.
+ *
+ * @example
+ * withContainer(new AutoAction.Parallel({}), () => {
+ *   drive({ targetPose: … }).add();
+ *   shoot({}).add();
+ * });
+ */
+export function withContainer(
+  container: AutoAction.Sequence | AutoAction.Parallel | AutoAction.Race,
+  build: () => void
+): void {
+  pushPointer(container.actions as AutoCommand[]);
+  try {
+    build();
+  } finally {
+    popPointer();
+  }
+  addCommand(container);
 }
 
 // ---------------------------------------------------------------------------
 // Auto registration
 // ---------------------------------------------------------------------------
+
+/** All registered autos, keyed by name. */
+const autos = new Map<string, AutoCommand>();
 
 /**
  * Defines and registers a named autonomous routine.
@@ -61,14 +78,14 @@ export function addCommand(command: AutoCommand): void {
  * subsequent registrations.
  */
 export function auto(name: string, build: () => void): void {
-  clearPointers();
-  const root: AutoCommand = new AutoAction.Sequence({});
+  commandPointers = [];
+  const root = new AutoAction.Sequence({});
   pushPointer(root.actions as AutoCommand[]);
 
   try {
     build();
   } finally {
-    clearPointers();
+    commandPointers = [];
   }
 
   autos.set(name, root);

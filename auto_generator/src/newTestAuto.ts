@@ -1,27 +1,13 @@
-import * as AutoActions from '@/typescript/AutoAction.js';
 import * as AutoLib from './AutoLib.js';
-import { pose2d } from './Shorthands.js';
+import { autoPilot, pose2d } from './Shorthands.js';
 
-function linearDrive({ targetPose }: { targetPose: AutoActions.Pose2d }) {
-    return new AutoActions.AutoPilotAction({
-        target: new AutoActions.APTarget({
-            reference: targetPose
-        })
-    }).add();
-}
-
-
-// TODO: Add locations for the alliance and add alliance utils to make it so you can have 
-// alliance relative coordinates for the autos.
-
-// TODO: Replace all locations with actual coordinates
-// TODO: Make it use AutoPilotAction with entry angle and exit velocity for trench.
+// TODO: Add alliance-relative coordinate utilities.
+// TODO: Replace placeholder coordinates with real field positions.
+// TODO: Switch to AutoPilotAction with entry angle and exit velocity for trench segments.
 
 AutoLib.auto("Test Auto", () => {
-    // Center of Alliance Zone
-    linearDrive({ targetPose: pose2d({ x: 1, y: 0, angleDegrees: 0 }) });
-    // Middle of trench on the right side of the field
-    linearDrive({ targetPose: pose2d({ x: 3, y: -1, angleDegrees: 0 }) });
-    // Center of the field
-    linearDrive({ targetPose: pose2d({ x: 4, y: 0, angleDegrees: 0 }) });
+    // NOTE: These coordinates are placeholders and should be replaced with actual field positions.
+    autoPilot({ targetPose: pose2d({ x: 1, y: 0 }) });             // Center of Alliance Zone
+    autoPilot({ targetPose: pose2d({ x: 3, y: -1 }) });            // Middle of trench (right side)
+    autoPilot({ targetPose: pose2d({ x: 4, y: 0 }) });             // Center of field
 });
