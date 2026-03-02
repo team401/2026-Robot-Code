@@ -20,6 +20,9 @@ export class Unit<UUnitType extends UnitType<any>>{
 export class AngularAcceleration_UnitType extends UnitType<"AngularAcceleration"> {}
 export type AngularAcceleration =  Measure<AngularAcceleration_UnitType>;
 export const Rotation_per_Second_per_Second = new Unit<AngularAcceleration_UnitType>("Rotation per Second per Second", new AngularAcceleration_UnitType("AngularAcceleration"));
+export class Velocity_UnitType extends UnitType<"Velocity"> {}
+export type Velocity =  Measure<Velocity_UnitType>;
+export const Amp_per_Second = new Unit<Velocity_UnitType>("Amp per Second", new Velocity_UnitType("Velocity"));
 export class Voltage_UnitType extends UnitType<"Voltage"> {}
 export type Voltage =  Measure<Voltage_UnitType>;
 export const Volt = new Unit<Voltage_UnitType>("Volt", new Voltage_UnitType("Voltage"));
@@ -92,6 +95,7 @@ export const Microsecond = new Unit<Time_UnitType>("Microsecond", new Time_UnitT
 export const Radian_per_Second_per_Second = new Unit<AngularAcceleration_UnitType>("Radian per Second per Second", new AngularAcceleration_UnitType("AngularAcceleration"));
 export const Revolution_per_Second = new Unit<AngularVelocity_UnitType>("Revolution per Second", new AngularVelocity_UnitType("AngularVelocity"));
 export const Millivolt = new Unit<Voltage_UnitType>("Millivolt", new Voltage_UnitType("Voltage"));
+export const Rotation_per_Minute_per_Second = new Unit<AngularAcceleration_UnitType>("Rotation per Minute per Second", new AngularAcceleration_UnitType("AngularAcceleration"));
 export const Revolution = new Unit<Angle_UnitType>("Revolution", new Angle_UnitType("Angle"));
 export const Kilogram = new Unit<Mass_UnitType>("Kilogram", new Mass_UnitType("Mass"));
 export const Kilojoule = new Unit<Energy_UnitType>("Kilojoule", new Energy_UnitType("Energy"));

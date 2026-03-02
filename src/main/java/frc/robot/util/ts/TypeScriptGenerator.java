@@ -72,11 +72,15 @@ public final class TypeScriptGenerator {
             + //
             "}\n\n");
     sb.append(
-        "export type Measure<MUnitType extends UnitType<any>> = {\r\n" + //
-                    "\tvalue: number;\r\n" + //
-                    "\tunit: string;\r\n" + //
-                    "\t_unitType?: MUnitType;\r\n" + //
-                    "} | null | undefined;\n\n");
+        "export type Measure<MUnitType extends UnitType<any>> = {\r\n"
+            + //
+            "\tvalue: number;\r\n"
+            + //
+            "\tunit: string;\r\n"
+            + //
+            "\t_unitType?: MUnitType;\r\n"
+            + //
+            "} | null | undefined;\n\n");
     sb.append(
         "export class Unit<UUnitType extends UnitType<any>>{\r\n"
             + //

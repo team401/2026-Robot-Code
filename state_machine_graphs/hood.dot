@@ -18,7 +18,7 @@ digraph {
   HomingWaitForMovementState ;
   HomingWaitForStoppingState ;
   IdleState ;
-  TargetPitchState ;
+  TargetExitPitchState ;
   TestModeState ;
   HomingWaitForButtonState ;
 
@@ -32,10 +32,10 @@ digraph {
   HomingWaitForStoppingState -> IdleState [label="Is not moving"];
 
   IdleState -> TestModeState [label="Is hood test mode"];
-  IdleState -> TargetPitchState [label="Action == TargetPitch"];
+  IdleState -> TargetExitPitchState [label="Action == TargetPitch"];
   IdleState -> TargetAngleState [label="Action == TargetAngle"];
 
-  TargetPitchState -> IdleState [label="Action != TargetPitch"];
+  TargetExitPitchState -> IdleState [label="Action != TargetPitch"];
 
   TestModeState -> IdleState [label="Isn't hood test mode"];
 

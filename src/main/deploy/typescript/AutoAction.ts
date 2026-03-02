@@ -169,11 +169,13 @@ export class AutoPilotAction {
   profile?: APProfile | undefined;
   constraints?: APConstraints | undefined;
   pidGains?: PIDGains | undefined;
-	constructor({target = new APTarget({}), profile = undefined, constraints = undefined, pidGains = undefined}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains}>) {
+  allianceRelative?: boolean | undefined;
+	constructor({target = new APTarget({}), profile = undefined, constraints = undefined, pidGains = undefined, allianceRelative = undefined}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains; allianceRelative: boolean}>) {
     this.target = target;
     this.profile = profile;
     this.constraints = constraints;
     this.pidGains = pidGains;
+    this.allianceRelative = allianceRelative;
   }
   /** Adds this command to the current auto and returns itself for chaining. */
   add(): this {
@@ -188,11 +190,13 @@ export class XBasedAutoPilotAction {
   profile?: APProfile | undefined;
   constraints?: APConstraints | undefined;
   pidGains?: PIDGains | undefined;
-	constructor({target = new APTarget({}), profile = undefined, constraints = undefined, pidGains = undefined}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains}>) {
+  allianceRelative?: boolean | undefined;
+	constructor({target = new APTarget({}), profile = undefined, constraints = undefined, pidGains = undefined, allianceRelative = undefined}: Partial<{target: APTarget; profile: APProfile; constraints: APConstraints; pidGains: PIDGains; allianceRelative: boolean}>) {
     this.target = target;
     this.profile = profile;
     this.constraints = constraints;
     this.pidGains = pidGains;
+    this.allianceRelative = allianceRelative;
   }
   /** Adds this command to the current auto and returns itself for chaining. */
   add(): this {

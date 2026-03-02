@@ -19,9 +19,7 @@ import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.drive.DriveCoordinator.ClimbLocations;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands.XBasedAutoPilotCommand;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-import frc.robot.subsystems.drive.DriveCoordinator.DriveAction;
 
 /**
  * The ControllerSetup class handles all controller/binding initialization, similar to InitBindings
@@ -52,12 +50,12 @@ public class ControllerSetup {
     return JsonConstants.controllers;
   }
 
-  private static LoggedNetworkNumber trenchEndVelocityMps =
-      new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/EndVelocityMps", 4.0);
-  private static LoggedNetworkNumber trenchAccelMpsSquared =
-      new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/AccelMps2", 6.0);
-  private static LoggedNetworkNumber trenchJerkMpsCubed =
-      new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/JerkMps3", 1.0);
+//   private static LoggedNetworkNumber trenchEndVelocityMps =
+//       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/EndVelocityMps", 4.0);
+//   private static LoggedNetworkNumber trenchAccelMpsSquared =
+//       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/AccelMps2", 6.0);
+//   private static LoggedNetworkNumber trenchJerkMpsCubed =
+//       new LoggedNetworkNumber("DriveCoordinator/TrenchConstraints/JerkMps3", 1.0);
 
   /**
    * Initialize drive bindings by setting the default command to a DriveWithJoysticks command
@@ -82,64 +80,64 @@ public class ControllerSetup {
     driveCoordinator.setDriveWithJoysticksCommand(joystickDriveCommand);
 
     // Temporary testing setup
-    controllers
-        .getButton("testClimbDrive")
-        .getTrigger()
-        .onTrue(
-            driveCoordinator.createInstantCommandToSetCurrent(
-                driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
-        // .onTrue(
-        //    driveCoordinator.createInstantCommandToSetCurrent(autoCommand))
-        // .onTrue(autoCommand)
-        .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
+    // controllers
+    //     .getButton("testClimbDrive")
+    //     .getTrigger()
+    //     .onTrue(
+    //         driveCoordinator.createInstantCommandToSetCurrent(
+    //             driveCoordinator.getDriveToClimbCommand(ClimbLocations.LeftClimbLocation)))
+    //     // .onTrue(
+    //     //    driveCoordinator.createInstantCommandToSetCurrent(autoCommand))
+    //     // .onTrue(autoCommand)
+    //     .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
 
-    Pose2d pose1 = new Pose2d(12.6, 7.33, new Rotation2d(Math.toRadians(90)));
+    // Pose2d pose1 = new Pose2d(12.6, 7.33, new Rotation2d(Math.toRadians(90)));
 
-    Pose2d pose2 = new Pose2d(11.4, 7.33, new Rotation2d(Math.toRadians(90)));
+    // Pose2d pose2 = new Pose2d(11.4, 7.33, new Rotation2d(Math.toRadians(90)));
 
-    controllers
-        .getButton("testGoToAllianceCenter")
-        .getTrigger()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  var constraints =
-                      new APConstraints()
-                          .withAcceleration(trenchAccelMpsSquared.get())
-                          .withJerk(trenchJerkMpsCubed.get());
+    // controllers
+    //     .getButton("testGoToAllianceCenter")
+    //     .getTrigger()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               var constraints =
+    //                   new APConstraints()
+    //                       .withAcceleration(trenchAccelMpsSquared.get())
+    //                       .withJerk(trenchJerkMpsCubed.get());
 
-                  var profile =
-                      new APProfile(constraints)
-                          .withErrorXY(Meters.of(0.2))
-                          .withErrorTheta(Degrees.of(5))
-                          .withBeelineRadius(Meters.of(0.2));
+    //               var profile =
+    //                   new APProfile(constraints)
+    //                       .withErrorXY(Meters.of(0.2))
+    //                       .withErrorTheta(Degrees.of(5))
+    //                       .withBeelineRadius(Meters.of(0.2));
 
-                  double endVelocityMps = trenchEndVelocityMps.get();
-                  var target1 =
-                      new APTarget(pose1)
-                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+    //               double endVelocityMps = trenchEndVelocityMps.get();
+    //               var target1 =
+    //                   new APTarget(pose1)
+    //                       .withEntryAngle(new Rotation2d(Degrees.of(180)))
+    //                       .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
 
-                  var target2 =
-                      new APTarget(pose2)
-                          .withEntryAngle(new Rotation2d(Degrees.of(180)))
-                          .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
+    //               var target2 =
+    //                   new APTarget(pose2)
+    //                       .withEntryAngle(new Rotation2d(Degrees.of(180)))
+    //                       .withVelocity(MetersPerSecond.of(endVelocityMps).in(MetersPerSecond));
 
-                  Autopilot autoPilot = new Autopilot(profile);
-                  var command1 =
-                      new XBasedAutoPilotCommand(
-                          driveCoordinator,
-                          autoPilot,
-                          target1,
-                          DriveCoordinatorCommands.createDefaultAutoPilotHeadingController());
-                  var command2 =
-                      new XBasedAutoPilotCommand(
-                          driveCoordinator,
-                          autoPilot,
-                          target2,
-                          DriveCoordinatorCommands.createDefaultAutoPilotHeadingController());
-                  driveCoordinator.setCurrentCommand(command1.andThen(command2));
-                }))
-        .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
+    //               Autopilot autoPilot = new Autopilot(profile);
+    //               var command1 =
+    //                   new XBasedAutoPilotCommand(
+    //                       driveCoordinator,
+    //                       autoPilot,
+    //                       target1,
+    //                       DriveCoordinatorCommands.createDefaultAutoPilotHeadingController());
+    //               var command2 =
+    //                   new XBasedAutoPilotCommand(
+    //                       driveCoordinator,
+    //                       autoPilot,
+    //                       target2,
+    //                       DriveCoordinatorCommands.createDefaultAutoPilotHeadingController());
+    //               driveCoordinator.setCurrentCommand(command1.andThen(command2));
+    //             }))
+    //     .onFalse(driveCoordinator.createInstantCommandToCancelCommand());
   }
 }

@@ -5,8 +5,11 @@ import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAction;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import frc.robot.util.PIDGains;
@@ -20,11 +23,22 @@ public class AutoPilotAction extends AutoAction {
   @TypeScriptOptional public APProfile profile = null;
   @TypeScriptOptional public APConstraints constraints = null;
   @TypeScriptOptional public PIDGains pidGains = null;
+  @TypeScriptOptional public boolean allianceRelative = true;
 
   protected void handleNullValues() {
     Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");
     Objects.requireNonNull(
         target.getReference(), "Target Pose cannot be null for AutoPilot Action");
+
+    if (allianceRelative) {
+      var originalTarget = target.getReference();
+      var flippedTarget =
+          originalTarget.rotateAround(
+              new Translation2d(
+                  FieldConstants.fieldLength() / 2.0, FieldConstants.fieldWidth() / 2.0),
+              Rotation2d.fromDegrees(180));
+      target = target.withReference(flippedTarget);
+    }
 
     profile =
         Optional.ofNullable(profile).orElseGet(DriveCoordinatorCommands::createDefaultAPProfile);
