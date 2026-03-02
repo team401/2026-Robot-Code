@@ -63,8 +63,13 @@ export function getAutos(): Map<string, AutoCommand> {
   return autos;
 }
 
-function ignoreTyping() {
-  
+const skippedKeys = new Set(["_unitType"]);
+
+function ignoreTyping(key: string, value: any) {
+  if (skippedKeys.has(key)) {
+    return undefined;
+  }
+  return value;
 }
 
 export function serializeAutos(): string {
@@ -72,6 +77,6 @@ export function serializeAutos(): string {
   autos.forEach((commands, name) => {
     obj[name] = commands;
   });
-  return JSON.stringify(obj, null, 2);
+  return JSON.stringify(obj, ignoreTyping, 4);
 }
 
