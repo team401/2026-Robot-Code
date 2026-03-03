@@ -11,7 +11,7 @@
   ],
   "defaultViMetersPerSecond": 9.0,
   "shooterSlot0Gains": {
-    "kP": 15.0,
+    "kP": 13.0,
     "kI": 0.0,
     "kD": 0.0,
     "kS": 0.0,

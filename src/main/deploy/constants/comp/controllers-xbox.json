@@ -33,7 +33,8 @@
           "commandType": "axis",
           "hapticControlElement": {
             "elementType": "axis",
-            "id": "rightX"
+            "id": "rightX",
+            "inverted": true
           }
         },
         {

@@ -37,6 +37,7 @@ import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
 import frc.robot.coordination.CoordinationTestMode;
 import frc.robot.coordination.MatchState;
@@ -702,7 +703,7 @@ public class CoordinationLayer {
     // Aim for a shot based on the current autonomy level
     boolean isShotReal;
     if (testModeManager.isInTestMode()) {
-      aimForTestModeShot();
+      drive.ifPresent(this::aimForTestModeShot);
       isShotReal = true;
     } else {
       isShotReal =
@@ -809,7 +810,7 @@ public class CoordinationLayer {
     return true;
   }
 
-  private void aimForTestModeShot() {
+  private void aimForTestModeShot(Drive driveInstance) {
     double hoodAngleRadians = Units.degreesToRadians(hoodTuningAngleDegrees.getAsDouble());
     double shooterRPM = shooterTuningRPM.getAsDouble();
 
@@ -820,7 +821,22 @@ public class CoordinationLayer {
 
     shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
 
-    // Use turret closed loop mode for turret angle
+    Pose2d robotPose = driveInstance.getPose();
+    Translation3d shooterPosition =
+        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
+
+    ShotTarget target = getShotTargetFromPose(robotPose);
+
+    Translation3d targetPose =
+        switch (target) {
+          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
+          case PassLeft -> FieldLocations.leftPassingTarget();
+          case PassRight -> FieldLocations.rightPassingTarget();
+        };
+
+    double yawRadians = ShotCalculations.calculateYawRadians(shooterPosition, targetPose);
+
+    turret.ifPresent(turret -> turret.targetGoalHeading(new Rotation2d(yawRadians)));
   }
 
   private final EnhancedLine2d leftBlueTrench =
