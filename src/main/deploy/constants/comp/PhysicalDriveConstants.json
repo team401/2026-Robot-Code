@@ -105,6 +105,6 @@
     "unit": "Meter per Second"
   },
   "kCoupleRatio": 3.857142857142857,
-  "kInvertLeftSide": true,
-  "kInvertRightSide": false
+  "kInvertLeftSide": false,
+  "kInvertRightSide": true
 }

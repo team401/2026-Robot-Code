@@ -151,6 +151,12 @@ public class CoordinationLayer {
   @AutoLogOutput(key = "CoordinationLayer/shotMode")
   private ShotMode shotMode = ShotMode.Hub;
 
+  /**
+   * Whether the shot we were aiming for last cycle was a real shot or an approximation of the
+   * nearest possible shot
+   */
+  private boolean isShotReal = false;
+
   // Tunable numbers for shot tuning
   private final LoggedTunableNumber hoodTuningAngleDegrees =
       new LoggedTunableNumber(
@@ -688,9 +694,8 @@ public class CoordinationLayer {
 
     // Determine if vision is enabled and functioning
     boolean visionConnected = vision.map(VisionLocalizer::coprocessorConnected).orElse(false);
-    Logger.recordOutput("CoordinationLayer/visionConnected", visionConnected);
     boolean visionConnectedDebounced = visionConnectedDebouncer.calculate(visionConnected);
-    Logger.recordOutput("CoordinationLayer/visionConnectedDebounced", visionConnectedDebounced);
+    Logger.recordOutput("CoordinationLayer/visionConnected", visionConnectedDebounced);
 
     visionDisconnectedAlert.set(JsonConstants.featureFlags.runVision && !visionConnected);
 
@@ -700,8 +705,32 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
+    // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
+    // shot we were looking ahead to last cycle.
+    // This should improve the performance of shoot on the move.
+    // If this isn't sufficient, we can calculate 2 shots: one with compensation delay and one
+    // without compensation delay, and then just test the one without compensation delay.
+    boolean canShoot =
+        isForceShootPressed.getAsBoolean()
+            || (shootingEnabled
+                && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
+                && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
+                // When the turret isn't enabled, assume that it's been locked into the correct
+                // location for a manual mode shot if we ever have to run "no turret"
+                && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
+    Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
+
+    if (canShoot) {
+      hopper.ifPresent(
+          hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
+      indexer.ifPresent(
+          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
+    } else {
+      hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
+      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+    }
+
     // Aim for a shot based on the current autonomy level
-    boolean isShotReal;
     if (testModeManager.isInTestMode()) {
       drive.ifPresent(this::aimForTestModeShot);
       isShotReal = true;
@@ -732,26 +761,6 @@ public class CoordinationLayer {
     // a ton of energy
     if (!shootingEnabled || shouldStowHood) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
-    }
-
-    boolean canShoot =
-        isForceShootPressed.getAsBoolean()
-            || (shootingEnabled
-                && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
-                && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
-                // When the turret isn't enabled, assume that it's been locked into the correct
-                // location for a manual mode shot if we ever have to run "no turret"
-                && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
-    Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
-
-    if (canShoot) {
-      hopper.ifPresent(
-          hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
-      indexer.ifPresent(
-          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
-    } else {
-      hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
-      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
     }
   }
 
