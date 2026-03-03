@@ -55,6 +55,7 @@ import frc.robot.util.OptionalUtil;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
+import frc.robot.util.math.Lazy;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -158,12 +159,14 @@ public class CoordinationLayer {
   private boolean isShotReal = false;
 
   // Tunable numbers for shot tuning
-  private final LoggedTunableNumber hoodTuningAngleDegrees =
-      new LoggedTunableNumber(
-          "CoordinationLayer/ShotTuning/hoodAngleDegrees",
-          JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
-  private final LoggedTunableNumber shooterTuningRPM =
-      new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0);
+  private final Lazy<LoggedTunableNumber> hoodTuningAngleDegrees =
+      new Lazy<>(
+          () ->
+              new LoggedTunableNumber(
+                  "CoordinationLayer/ShotTuning/hoodAngleDegrees",
+                  JsonConstants.hoodConstants.minHoodAngle.in(Degrees)));
+  private final Lazy<LoggedTunableNumber> shooterTuningRPM =
+      new Lazy<>(() -> new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0));
   private final TestModeManager<CoordinationTestMode> testModeManager =
       new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
 
@@ -820,8 +823,8 @@ public class CoordinationLayer {
   }
 
   private void aimForTestModeShot(Drive driveInstance) {
-    double hoodAngleRadians = Units.degreesToRadians(hoodTuningAngleDegrees.getAsDouble());
-    double shooterRPM = shooterTuningRPM.getAsDouble();
+    double hoodAngleRadians = Units.degreesToRadians(hoodTuningAngleDegrees.get().getAsDouble());
+    double shooterRPM = shooterTuningRPM.get().getAsDouble();
 
     hood.ifPresent(
         hood -> {
