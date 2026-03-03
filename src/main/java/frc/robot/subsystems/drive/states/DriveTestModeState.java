@@ -6,31 +6,38 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.util.LoggedTunablePIDGains;
+import frc.robot.util.math.Lazy;
 
 // Extends DriveWithJoysticksState to allow you to drive the robot while tuning
 // the drive and steer gains
 public class DriveTestModeState extends DriveWithJoysticksState {
 
-  LoggedTunablePIDGains steerGains;
-  LoggedTunablePIDGains driveGains;
+  Lazy<LoggedTunablePIDGains> steerGains;
+  Lazy<LoggedTunablePIDGains> driveGains;
 
   public DriveTestModeState(Drive drive, DriveWithJoysticks driveCommand) {
     super("Drive Test Mode", driveCommand);
 
     steerGains =
-        new LoggedTunablePIDGains(
-            "Drive Test Mode/Steer Gains", JsonConstants.driveConstants.steerGains.asArray());
+        new Lazy<>(
+            () ->
+                new LoggedTunablePIDGains(
+                    "Drive Test Mode/Steer Gains",
+                    JsonConstants.driveConstants.steerGains.asArray()));
     driveGains =
-        new LoggedTunablePIDGains(
-            "Drive Test Mode/Drive Gains", JsonConstants.driveConstants.driveGains.asArray());
+        new Lazy<>(
+            () ->
+                new LoggedTunablePIDGains(
+                    "Drive Test Mode/Drive Gains",
+                    JsonConstants.driveConstants.driveGains.asArray()));
   }
 
   @Override
   public void periodic(StateMachine<Drive> stateMachine, Drive drive) {
     switch (DriveCoordinator.getTestModeManager().getTestMode()) {
       case DriveGainsTuning:
-        steerGains.ifChanged(hashCode(), drive::setSteerGains);
-        driveGains.ifChanged(hashCode(), drive::setDriveGains);
+        steerGains.get().ifChanged(hashCode(), drive::setSteerGains);
+        driveGains.get().ifChanged(hashCode(), drive::setDriveGains);
         break;
       default:
         finish();

@@ -28,6 +28,7 @@ import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.math.Lazy;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -63,20 +64,20 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   private final ShooterState testModeState;
 
   // Tunable Numbers
-  LoggedTunableNumber shooterKP;
-  LoggedTunableNumber shooterKI;
-  LoggedTunableNumber shooterKD;
+  Lazy<LoggedTunableNumber> shooterKP;
+  Lazy<LoggedTunableNumber> shooterKI;
+  Lazy<LoggedTunableNumber> shooterKD;
 
-  LoggedTunableNumber shooterKS;
-  LoggedTunableNumber shooterKV;
-  LoggedTunableNumber shooterKA;
+  Lazy<LoggedTunableNumber> shooterKS;
+  Lazy<LoggedTunableNumber> shooterKV;
+  Lazy<LoggedTunableNumber> shooterKA;
 
-  LoggedTunableNumber shooterMaxVelocityRPM;
-  LoggedTunableNumber shooterMaxAccelerationRPMPerSecond;
+  Lazy<LoggedTunableNumber> shooterMaxVelocityRPM;
+  Lazy<LoggedTunableNumber> shooterMaxAccelerationRPMPerSecond;
 
-  LoggedTunableNumber shooterTuningRPM;
-  LoggedTunableNumber shooterTuningAmps;
-  LoggedTunableNumber shooterTuningVolts;
+  Lazy<LoggedTunableNumber> shooterTuningRPM;
+  Lazy<LoggedTunableNumber> shooterTuningAmps;
+  Lazy<LoggedTunableNumber> shooterTuningVolts;
 
   // State variables
   private final MutAngularVelocity targetVelocity = RPM.mutable(0.0);
@@ -141,37 +142,56 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
     // Initialize tunable numbers for test modes
     shooterKP =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKP", JsonConstants.shooterConstants.shooterKP);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterKP", JsonConstants.shooterConstants.shooterKP));
     shooterKI =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKI", JsonConstants.shooterConstants.shooterKI);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterKI", JsonConstants.shooterConstants.shooterKI));
     shooterKD =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKD", JsonConstants.shooterConstants.shooterKD);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterKD", JsonConstants.shooterConstants.shooterKD));
 
     shooterKS =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKS", JsonConstants.shooterConstants.shooterKS);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterKS", JsonConstants.shooterConstants.shooterKS));
     shooterKV =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKV", JsonConstants.shooterConstants.shooterKV);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterKV", JsonConstants.shooterConstants.shooterKV));
     shooterKA =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterKA", JsonConstants.shooterConstants.shooterKA);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterKA", JsonConstants.shooterConstants.shooterKA));
 
     shooterMaxVelocityRPM =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterMaxVelocityRPM",
-            JsonConstants.shooterConstants.shooterMaxVelocity.in(RPM));
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterMaxVelocityRPM",
+                    JsonConstants.shooterConstants.shooterMaxVelocity.in(RPM)));
     shooterMaxAccelerationRPMPerSecond =
-        new LoggedTunableNumber(
-            "ShooterTunables/shooterMaxAccelerationRPMPerSecond",
-            JsonConstants.shooterConstants.shooterMaxAcceleration.in(RPM.per(Second)));
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ShooterTunables/shooterMaxAccelerationRPMPerSecond",
+                    JsonConstants.shooterConstants.shooterMaxAcceleration.in(RPM.per(Second))));
 
-    shooterTuningRPM = new LoggedTunableNumber("ShooterTunables/shooterTuningRPM", 0.0);
-    shooterTuningAmps = new LoggedTunableNumber("ShooterTunables/shooterTuningAmps", 0.0);
-    shooterTuningVolts = new LoggedTunableNumber("ShooterTunables/shooterTuningVolts", 0.0);
+    shooterTuningRPM =
+        new Lazy<>(() -> new LoggedTunableNumber("ShooterTunables/shooterTuningRPM", 0.0));
+    shooterTuningAmps =
+        new Lazy<>(() -> new LoggedTunableNumber("ShooterTunables/shooterTuningAmps", 0.0));
+    shooterTuningVolts =
+        new Lazy<>(() -> new LoggedTunableNumber("ShooterTunables/shooterTuningVolts", 0.0));
 
     AutoLogOutputManager.addObject(this);
 
@@ -241,12 +261,12 @@ public class ShooterSubsystem extends MonitoredSubsystem {
                   JsonConstants.shooterConstants.shooterKV,
                   JsonConstants.shooterConstants.shooterKA);
             },
-            shooterKP,
-            shooterKI,
-            shooterKD,
-            shooterKS,
-            shooterKV,
-            shooterKA);
+            shooterKP.get(),
+            shooterKI.get(),
+            shooterKD.get(),
+            shooterKS.get(),
+            shooterKV.get(),
+            shooterKA.get());
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -263,16 +283,16 @@ public class ShooterSubsystem extends MonitoredSubsystem {
                       Volts.zero().div(RPM.of(1.0)),
                       Volts.zero().div(RotationsPerSecondPerSecond.of(1.0))));
             },
-            shooterMaxVelocityRPM,
-            shooterMaxAccelerationRPMPerSecond);
+            shooterMaxVelocityRPM.get(),
+            shooterMaxAccelerationRPMPerSecond.get());
 
-        leadMotor.controlToVelocityProfiled(RPM.of(shooterTuningRPM.getAsDouble()));
+        leadMotor.controlToVelocityProfiled(RPM.of(shooterTuningRPM.get().getAsDouble()));
       }
       case ShooterCurrentTuning -> {
-        leadMotor.controlOpenLoopCurrent(Amps.of(shooterTuningAmps.getAsDouble()));
+        leadMotor.controlOpenLoopCurrent(Amps.of(shooterTuningAmps.get().getAsDouble()));
       }
       case ShooterVoltageTuning -> {
-        leadMotor.controlOpenLoopVoltage(Volts.of(shooterTuningVolts.getAsDouble()));
+        leadMotor.controlOpenLoopVoltage(Volts.of(shooterTuningVolts.get().getAsDouble()));
       }
       case ShooterFFCharacterization -> {
         if (DriverStation.isEnabled()) {
