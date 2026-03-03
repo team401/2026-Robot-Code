@@ -20,6 +20,7 @@ import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
+import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends MonitoredSubsystem {
@@ -42,7 +43,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Indexer", TestMode.class);
 
-  TuningModeHelper<TestMode> tuningModeHelper;
+  Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
 
   public IndexerSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -100,14 +101,20 @@ public class IndexerSubsystem extends MonitoredSubsystem {
             .build("Indexer/MotorTuning", motor);
 
     tuningModeHelper =
-        new TuningModeHelper<TestMode>(TestMode.class)
-            .addMotorTuningModes(
-                tunableMotor,
-                MotorTuningMode.of(TestMode.IndexerClosedLoopTuning, ControlMode.CLOSED_LOOP),
-                MotorTuningMode.of(TestMode.IndexerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                MotorTuningMode.of(TestMode.IndexerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-                MotorTuningMode.of(TestMode.IndexerPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                MotorTuningMode.of(TestMode.None, ControlMode.NONE));
+        new Lazy<>(
+            () ->
+                new TuningModeHelper<TestMode>(TestMode.class)
+                    .addMotorTuningModes(
+                        tunableMotor,
+                        MotorTuningMode.of(
+                            TestMode.IndexerClosedLoopTuning, ControlMode.CLOSED_LOOP),
+                        MotorTuningMode.of(
+                            TestMode.IndexerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+                        MotorTuningMode.of(
+                            TestMode.IndexerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+                        MotorTuningMode.of(
+                            TestMode.IndexerPhoenixTuning, ControlMode.PHOENIX_TUNING),
+                        MotorTuningMode.of(TestMode.None, ControlMode.NONE)));
   }
 
   @Override
@@ -121,7 +128,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    tuningModeHelper.testPeriodic(testModeManager.getTestMode());
+    tuningModeHelper.get().testPeriodic(testModeManager.getTestMode());
   }
 
   /**
