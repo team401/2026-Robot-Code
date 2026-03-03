@@ -21,6 +21,7 @@ import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
 import frc.robot.util.math.Lazy;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends MonitoredSubsystem {
@@ -86,26 +87,28 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     StateMachineDump.write("indexer", stateMachine);
 
     // Initialize tuning mode helper
-    TunableMotor tunableMotor =
-        TunableMotorConfiguration.defaultConfiguration()
-            .withVelocityTuning()
-            .profiled()
-            .withDefaultMotionProfileConfig(
-                JsonConstants.indexerConstants.indexerMotionProfileConfig)
-            .withDefaultPIDGains(JsonConstants.indexerConstants.indexerGains)
-            .onPIDGainsChanged(newGains -> JsonConstants.indexerConstants.indexerGains = newGains)
-            .onMotionProfileConfigChanged(
-                newProfile ->
-                    JsonConstants.indexerConstants.indexerMotionProfileConfig = newProfile)
-            .withTunableAngularVelocityUnit(RPM)
-            .build("Indexer/MotorTuning", motor);
+    Supplier<TunableMotor> createTunableMotor =
+        () ->
+            TunableMotorConfiguration.defaultConfiguration()
+                .withVelocityTuning()
+                .profiled()
+                .withDefaultMotionProfileConfig(
+                    JsonConstants.indexerConstants.indexerMotionProfileConfig)
+                .withDefaultPIDGains(JsonConstants.indexerConstants.indexerGains)
+                .onPIDGainsChanged(
+                    newGains -> JsonConstants.indexerConstants.indexerGains = newGains)
+                .onMotionProfileConfigChanged(
+                    newProfile ->
+                        JsonConstants.indexerConstants.indexerMotionProfileConfig = newProfile)
+                .withTunableAngularVelocityUnit(RPM)
+                .build("Indexer/MotorTuning", motor);
 
     tuningModeHelper =
         new Lazy<>(
             () ->
                 new TuningModeHelper<TestMode>(TestMode.class)
                     .addMotorTuningModes(
-                        tunableMotor,
+                        createTunableMotor.get(),
                         MotorTuningMode.of(
                             TestMode.IndexerClosedLoopTuning, ControlMode.CLOSED_LOOP),
                         MotorTuningMode.of(
