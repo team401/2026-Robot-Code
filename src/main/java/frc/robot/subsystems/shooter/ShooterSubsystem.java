@@ -66,17 +66,23 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   private final ShooterState testModeState;
 
   // Tunable Numbers
-  LoggedTunablePIDGains slot0TunableGains =
-      new LoggedTunablePIDGains(
-          "ShooterTunables/slot0", JsonConstants.shooterConstants.shooterSlot0Gains);
-  LoggedTunablePIDGains slot1TunableGains =
-      new LoggedTunablePIDGains(
-          "ShooterTunables/slot1", JsonConstants.shooterConstants.shooterSlot1Gains);
+  Lazy<LoggedTunablePIDGains> slot0TunableGains =
+      new Lazy<>(
+          () ->
+              new LoggedTunablePIDGains(
+                  "ShooterTunables/slot0", JsonConstants.shooterConstants.shooterSlot0Gains));
+  Lazy<LoggedTunablePIDGains> slot1TunableGains =
+      new Lazy<>(
+          () ->
+              new LoggedTunablePIDGains(
+                  "ShooterTunables/slot1", JsonConstants.shooterConstants.shooterSlot1Gains));
 
-  LoggedTunableNumber slot0EpsilonRPM =
-      new LoggedTunableNumber(
-          "ShooterTunables/slot0EpsilonRPM",
-          JsonConstants.shooterConstants.shooterSlot0Epsilon.in(RPM));
+  Lazy<LoggedTunableNumber> slot0EpsilonRPM =
+      new Lazy<>(
+          () ->
+              new LoggedTunableNumber(
+                  "ShooterTunables/slot0EpsilonRPM",
+                  JsonConstants.shooterConstants.shooterSlot0Epsilon.in(RPM)));
 
   Lazy<LoggedTunableNumber> shooterMaxVelocityRPM;
   Lazy<LoggedTunableNumber> shooterMaxAccelerationRPMPerSecond;
@@ -225,35 +231,39 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   protected void testPeriodic() {
     switch (testModeManager.getTestMode()) {
       case ShooterClosedLoopTuning -> {
-        slot0TunableGains.ifChanged(
-            hashCode(),
-            (gains) -> {
-              JsonConstants.shooterConstants.shooterSlot0Gains = gains;
-              leadMotor.setGains(
-                  GainSlot.Slot0,
-                  gains.kP(),
-                  gains.kI(),
-                  gains.kD(),
-                  gains.kS(),
-                  gains.kG(),
-                  gains.kV(),
-                  gains.kA());
-            });
+        slot0TunableGains
+            .get()
+            .ifChanged(
+                hashCode(),
+                (gains) -> {
+                  JsonConstants.shooterConstants.shooterSlot0Gains = gains;
+                  leadMotor.setGains(
+                      GainSlot.Slot0,
+                      gains.kP(),
+                      gains.kI(),
+                      gains.kD(),
+                      gains.kS(),
+                      gains.kG(),
+                      gains.kV(),
+                      gains.kA());
+                });
 
-        slot1TunableGains.ifChanged(
-            hashCode(),
-            (gains) -> {
-              JsonConstants.shooterConstants.shooterSlot1Gains = gains;
-              leadMotor.setGains(
-                  GainSlot.Slot1,
-                  gains.kP(),
-                  gains.kI(),
-                  gains.kD(),
-                  gains.kS(),
-                  gains.kG(),
-                  gains.kV(),
-                  gains.kA());
-            });
+        slot1TunableGains
+            .get()
+            .ifChanged(
+                hashCode(),
+                (gains) -> {
+                  JsonConstants.shooterConstants.shooterSlot1Gains = gains;
+                  leadMotor.setGains(
+                      GainSlot.Slot1,
+                      gains.kP(),
+                      gains.kI(),
+                      gains.kD(),
+                      gains.kS(),
+                      gains.kG(),
+                      gains.kV(),
+                      gains.kA());
+                });
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -278,9 +288,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
             (slot0EpsilonRPM) -> {
               JsonConstants.shooterConstants.shooterSlot0Epsilon = RPM.of(slot0EpsilonRPM[0]);
             },
-            slot0EpsilonRPM);
+            slot0EpsilonRPM.get());
 
-        leadMotor.controlToVelocityProfiled(RPM.of(shooterTuningRPM.getAsDouble()));
+        leadMotor.controlToVelocityProfiled(RPM.of(shooterTuningRPM.get().getAsDouble()));
       }
       case ShooterCurrentTuning -> {
         leadMotor.controlOpenLoopCurrent(Amps.of(shooterTuningAmps.get().getAsDouble()));
