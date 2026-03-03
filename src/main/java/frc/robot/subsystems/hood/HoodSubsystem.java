@@ -35,6 +35,7 @@ import frc.robot.subsystems.hood.HoodState.TargetExitPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -80,21 +81,21 @@ public class HoodSubsystem extends MonitoredSubsystem {
   TestModeManager<TestMode> testModeManager = new TestModeManager<TestMode>("Hood", TestMode.class);
 
   // Tunable numbers
-  private final LoggedTunableNumber hoodKP;
-  private final LoggedTunableNumber hoodKI;
-  private final LoggedTunableNumber hoodKD;
+  private final Lazy<LoggedTunableNumber> hoodKP;
+  private final Lazy<LoggedTunableNumber> hoodKI;
+  private final Lazy<LoggedTunableNumber> hoodKD;
 
-  private final LoggedTunableNumber hoodKS;
-  private final LoggedTunableNumber hoodKV;
-  private final LoggedTunableNumber hoodKA;
-  private final LoggedTunableNumber hoodKG;
+  private final Lazy<LoggedTunableNumber> hoodKS;
+  private final Lazy<LoggedTunableNumber> hoodKV;
+  private final Lazy<LoggedTunableNumber> hoodKA;
+  private final Lazy<LoggedTunableNumber> hoodKG;
 
-  private final LoggedTunableNumber hoodExpoKV;
-  private final LoggedTunableNumber hoodExpoKA;
+  private final Lazy<LoggedTunableNumber> hoodExpoKV;
+  private final Lazy<LoggedTunableNumber> hoodExpoKA;
 
-  private final LoggedTunableNumber hoodTuningSetpointDegrees;
-  private final LoggedTunableNumber hoodTuningAmps;
-  private final LoggedTunableNumber hoodTuningVolts;
+  private final Lazy<LoggedTunableNumber> hoodTuningSetpointDegrees;
+  private final Lazy<LoggedTunableNumber> hoodTuningAmps;
+  private final Lazy<LoggedTunableNumber> hoodTuningVolts;
 
   // State variables
   /**
@@ -188,26 +189,55 @@ public class HoodSubsystem extends MonitoredSubsystem {
     StateMachineDump.write("hood", stateMachine);
 
     // Initialize tunable numbers for test modes
-    hoodKP = new LoggedTunableNumber("HoodTunables/HoodKP", JsonConstants.hoodConstants.hoodKP);
-    hoodKI = new LoggedTunableNumber("HoodTunables/HoodKI", JsonConstants.hoodConstants.hoodKI);
-    hoodKD = new LoggedTunableNumber("HoodTunables/HoodKD", JsonConstants.hoodConstants.hoodKD);
+    hoodKP =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber("HoodTunables/HoodKP", JsonConstants.hoodConstants.hoodKP));
+    hoodKI =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber("HoodTunables/HoodKI", JsonConstants.hoodConstants.hoodKI));
+    hoodKD =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber("HoodTunables/HoodKD", JsonConstants.hoodConstants.hoodKD));
 
-    hoodKS = new LoggedTunableNumber("HoodTunables/HoodKS", JsonConstants.hoodConstants.hoodKS);
-    hoodKG = new LoggedTunableNumber("HoodTunables/HoodKG", JsonConstants.hoodConstants.hoodKG);
-    hoodKV = new LoggedTunableNumber("HoodTunables/HoodKV", JsonConstants.hoodConstants.hoodKV);
-    hoodKA = new LoggedTunableNumber("HoodTunables/HoodKA", JsonConstants.hoodConstants.hoodKA);
+    hoodKS =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber("HoodTunables/HoodKS", JsonConstants.hoodConstants.hoodKS));
+    hoodKG =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber("HoodTunables/HoodKG", JsonConstants.hoodConstants.hoodKG));
+    hoodKV =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber("HoodTunables/HoodKV", JsonConstants.hoodConstants.hoodKV));
+    hoodKA =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber("HoodTunables/HoodKA", JsonConstants.hoodConstants.hoodKA));
 
     hoodExpoKV =
-        new LoggedTunableNumber("HoodTunables/HoodExpoKV", JsonConstants.hoodConstants.hoodExpoKV);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "HoodTunables/HoodExpoKV", JsonConstants.hoodConstants.hoodExpoKV));
     hoodExpoKA =
-        new LoggedTunableNumber("HoodTunables/HoodExpoKA", JsonConstants.hoodConstants.hoodExpoKA);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "HoodTunables/HoodExpoKA", JsonConstants.hoodConstants.hoodExpoKA));
 
     hoodTuningSetpointDegrees =
-        new LoggedTunableNumber(
-            "HoodTunables/HoodTuningSetpointDegrees",
-            JsonConstants.hoodConstants.minHoodAngle.in(Degrees));
-    hoodTuningAmps = new LoggedTunableNumber("HoodTunables/HoodAmps", 0.0);
-    hoodTuningVolts = new LoggedTunableNumber("HoodTunables/HoodVolts", 0.0);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "HoodTunables/HoodTuningSetpointDegrees",
+                    JsonConstants.hoodConstants.minHoodAngle.in(Degrees)));
+    hoodTuningAmps = new Lazy<>(() -> new LoggedTunableNumber("HoodTunables/HoodAmps", 0.0));
+    hoodTuningVolts = new Lazy<>(() -> new LoggedTunableNumber("HoodTunables/HoodVolts", 0.0));
 
     dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
 
@@ -265,13 +295,13 @@ public class HoodSubsystem extends MonitoredSubsystem {
                   JsonConstants.hoodConstants.hoodKV,
                   JsonConstants.hoodConstants.hoodKA);
             },
-            hoodKP,
-            hoodKI,
-            hoodKD,
-            hoodKS,
-            hoodKG,
-            hoodKV,
-            hoodKA);
+            hoodKP.get(),
+            hoodKI.get(),
+            hoodKD.get(),
+            hoodKS.get(),
+            hoodKG.get(),
+            hoodKV.get(),
+            hoodKA.get());
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -287,18 +317,18 @@ public class HoodSubsystem extends MonitoredSubsystem {
               JsonConstants.hoodConstants.hoodExpoKV = expoConstraintsVA[0];
               JsonConstants.hoodConstants.hoodExpoKA = expoConstraintsVA[1];
             },
-            hoodExpoKV,
-            hoodExpoKA);
+            hoodExpoKV.get(),
+            hoodExpoKA.get());
 
         // Make sure that the mechanism doesn't break itself by controlling outside of its safe
         // range of motion, even in test mode
-        clampAndControlToAngle(Degrees.of(hoodTuningSetpointDegrees.getAsDouble()));
+        clampAndControlToAngle(Degrees.of(hoodTuningSetpointDegrees.get().getAsDouble()));
       }
       case HoodCurrentTuning -> {
-        motor.controlOpenLoopCurrent(Amps.of(hoodTuningAmps.getAsDouble()));
+        motor.controlOpenLoopCurrent(Amps.of(hoodTuningAmps.get().getAsDouble()));
       }
       case HoodVoltageTuning -> {
-        motor.controlOpenLoopVoltage(Volts.of(hoodTuningVolts.getAsDouble()));
+        motor.controlOpenLoopVoltage(Volts.of(hoodTuningVolts.get().getAsDouble()));
       }
       default -> {}
     }

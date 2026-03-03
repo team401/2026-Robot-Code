@@ -33,6 +33,7 @@ import frc.robot.subsystems.turret.TurretState.WearInState;
 import frc.robot.util.AngleUtil;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -92,20 +93,20 @@ public class TurretSubsystem extends MonitoredSubsystem {
   private final TurretState testModeState;
 
   // Tunable numbers
-  LoggedTunableNumber turretKP;
-  LoggedTunableNumber turretKI;
-  LoggedTunableNumber turretKD;
+  Lazy<LoggedTunableNumber> turretKP;
+  Lazy<LoggedTunableNumber> turretKI;
+  Lazy<LoggedTunableNumber> turretKD;
 
-  LoggedTunableNumber turretKS;
-  LoggedTunableNumber turretKV;
-  LoggedTunableNumber turretKA;
+  Lazy<LoggedTunableNumber> turretKS;
+  Lazy<LoggedTunableNumber> turretKV;
+  Lazy<LoggedTunableNumber> turretKA;
 
-  LoggedTunableNumber turretExpoKV;
-  LoggedTunableNumber turretExpoKA;
+  Lazy<LoggedTunableNumber> turretExpoKV;
+  Lazy<LoggedTunableNumber> turretExpoKA;
 
-  LoggedTunableNumber turretTuningSetpointDegrees;
-  LoggedTunableNumber turretTuningAmps;
-  LoggedTunableNumber turretTuningVolts;
+  Lazy<LoggedTunableNumber> turretTuningSetpointDegrees;
+  Lazy<LoggedTunableNumber> turretTuningAmps;
+  Lazy<LoggedTunableNumber> turretTuningVolts;
 
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Turret", TestMode.class);
@@ -185,30 +186,55 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     // Initialize tunable numbers for test modes
     turretKP =
-        new LoggedTunableNumber("TurretTunables/turretKP", JsonConstants.turretConstants.turretKP);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretKP", JsonConstants.turretConstants.turretKP));
     turretKI =
-        new LoggedTunableNumber("TurretTunables/turretKI", JsonConstants.turretConstants.turretKI);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretKI", JsonConstants.turretConstants.turretKI));
     turretKD =
-        new LoggedTunableNumber("TurretTunables/turretKD", JsonConstants.turretConstants.turretKD);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretKD", JsonConstants.turretConstants.turretKD));
 
     turretKS =
-        new LoggedTunableNumber("TurretTunables/turretKS", JsonConstants.turretConstants.turretKS);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretKS", JsonConstants.turretConstants.turretKS));
     turretKV =
-        new LoggedTunableNumber("TurretTunables/turretKV", JsonConstants.turretConstants.turretKV);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretKV", JsonConstants.turretConstants.turretKV));
     turretKA =
-        new LoggedTunableNumber("TurretTunables/turretKA", JsonConstants.turretConstants.turretKA);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretKA", JsonConstants.turretConstants.turretKA));
 
     turretExpoKV =
-        new LoggedTunableNumber(
-            "TurretTunables/turretExpoKV", JsonConstants.turretConstants.turretExpoKV);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretExpoKV", JsonConstants.turretConstants.turretExpoKV));
     turretExpoKA =
-        new LoggedTunableNumber(
-            "TurretTunables/turretExpoKA", JsonConstants.turretConstants.turretExpoKA);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "TurretTunables/turretExpoKA", JsonConstants.turretConstants.turretExpoKA));
 
     turretTuningSetpointDegrees =
-        new LoggedTunableNumber("TurretTunables/turretTuningSetpointDegrees", 0.0);
-    turretTuningAmps = new LoggedTunableNumber("TurretTunables/turretTuningAmps", 0.0);
-    turretTuningVolts = new LoggedTunableNumber("TurretTunables/turretTuningVolts", 0.0);
+        new Lazy<>(
+            () -> new LoggedTunableNumber("TurretTunables/turretTuningSetpointDegrees", 0.0));
+    turretTuningAmps =
+        new Lazy<>(() -> new LoggedTunableNumber("TurretTunables/turretTuningAmps", 0.0));
+    turretTuningVolts =
+        new Lazy<>(() -> new LoggedTunableNumber("TurretTunables/turretTuningVolts", 0.0));
 
     // Add turret to the AutoLogOutputManager, as, being stored in an optional, it won't be visible
     // to the recursive search of Robot's fields
@@ -253,12 +279,12 @@ public class TurretSubsystem extends MonitoredSubsystem {
               motor.setGains(
                   pid_sva[0], pid_sva[1], pid_sva[2], pid_sva[3], 0, pid_sva[4], pid_sva[5]);
             },
-            turretKP,
-            turretKI,
-            turretKD,
-            turretKS,
-            turretKV,
-            turretKA);
+            turretKP.get(),
+            turretKI.get(),
+            turretKD.get(),
+            turretKS.get(),
+            turretKV.get(),
+            turretKA.get());
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -273,16 +299,17 @@ public class TurretSubsystem extends MonitoredSubsystem {
                       Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
                       Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
             },
-            turretExpoKV,
-            turretExpoKA);
+            turretExpoKV.get(),
+            turretExpoKA.get());
 
-        motor.controlToPositionExpoProfiled(Degrees.of(turretTuningSetpointDegrees.getAsDouble()));
+        motor.controlToPositionExpoProfiled(
+            Degrees.of(turretTuningSetpointDegrees.get().getAsDouble()));
       }
       case TurretCurrentTuning -> {
-        motor.controlOpenLoopCurrent(Amps.of(turretTuningAmps.getAsDouble()));
+        motor.controlOpenLoopCurrent(Amps.of(turretTuningAmps.get().getAsDouble()));
       }
       case TurretVoltageTuning -> {
-        motor.controlOpenLoopVoltage(Volts.of(turretTuningVolts.getAsDouble()));
+        motor.controlOpenLoopVoltage(Volts.of(turretTuningVolts.get().getAsDouble()));
       }
       default -> {}
     }
