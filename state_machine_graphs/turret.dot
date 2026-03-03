@@ -17,9 +17,10 @@ digraph {
   HomingWaitForMovementState ;
   HomingWaitForStoppingState ;
   IdleState ;
+  WearInState ;
   TrackHeadingState ;
   TestModeState ;
-  HomingWaitForButtonState ;
+  HomingWaitForButtonState [shape=doublecircle];
 
   // Transitions
 
@@ -28,8 +29,10 @@ digraph {
 
   HomingWaitForStoppingState -> IdleState [label="When HomingWaitForStoppingState finished"];
 
-  IdleState -> TrackHeadingState [label="Action == TrackHeading"];
   IdleState -> TestModeState [label="In turret test mode"];
+  IdleState -> TrackHeadingState [label="Action == TrackHeading"];
+
+  WearInState -> HomingWaitForButtonState [label="When WearInState finished"];
 
   TrackHeadingState -> IdleState [label="Action != TrackHeading"];
 

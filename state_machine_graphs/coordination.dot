@@ -16,7 +16,7 @@ digraph {
 
   ClimberDeployed ;
   WaitForClimberRetract ;
-  NoExtension ;
+  NoExtension [shape=doublecircle];
   IntakeDeployed ;
   WaitForIntakeRetract ;
 
