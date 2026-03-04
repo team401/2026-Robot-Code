@@ -24,6 +24,10 @@
     "value": 15000,
     "unit": "Degrees"
   },
+  "maxStowedAngle": {
+    "value": 500,
+    "unit": "Degrees"
+  },
   "climberToMechanismRatio": {
     "value": 1.0,
     "unit": "Meters"

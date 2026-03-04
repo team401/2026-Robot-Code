@@ -2,6 +2,7 @@ package frc.robot.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -22,6 +23,8 @@ import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
+import java.nio.file.WatchEvent;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -274,11 +277,49 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         JsonConstants.climberConstants.hangClimbAngle); // TODO: Find
   }
 
-  public boolean getClimberInLowerPosition() {
-    return (inputs.positionRadians < 5);
+  public boolean isStowed() {
+    return (inputs.positionRadians <= JsonConstants.climberConstants.maxStowedAngle.in(Radians));
   }
 
   public void setToLowerClimbPosition() {
     motor.controlToPositionExpoProfiled(Degrees.of(0.0));
+  }
+
+  /**
+   * Stows the climber if it has been homed, or waits to home if it hasn't been homed.
+   * 
+   * <p>This method should only be called by the CoordinationLayer
+   */
+  public void stayStowed() {
+    requestedAction = switch (requestedAction) {
+      case Wait -> ClimberAction.Wait;
+      default -> ClimberAction.Stow;
+    };
+  }
+
+  /**
+   * Sets the climber's requested action to be searching. This won't guarantee that it immediately searches, it may have to home beforehand.
+   * 
+   * <p>This method should only be called by the CoordinationLayer
+   */
+  public void search() {
+    requestedAction = ClimberAction.Search; 
+  }
+
+  /**
+   * Sets the climber's requested action to be hanging. This means that the climber will soon be commanded to go downward with climbing gains.
+   */
+  public void hang() {
+    requestedAction = ClimberAction.Hang;
+  }
+
+  /**
+   * Checks whether or not the climber is below its stow threshold position or it has not been homed.
+   * 
+   * <p>This operates under the assumption that the climber is always stowed before the match, so it is stowed prior to being homed.
+   * @return {@code false} if the climber has been homed and is above its stow threshold, {@code true} otherwise.
+   */
+  public boolean isStowedOrHasntBeenHomed() {
+    return stateMachine.getCurrentState() == waitForHomingState || isStowed();
   }
 }

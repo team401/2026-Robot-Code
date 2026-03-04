@@ -51,6 +51,12 @@ public class ClimberConstants {
   public final Angle hangClimbAngle =
       homingAngle.plus(Degrees.of(15000.0)); // TODO: Find actual value for this
 
+ /**
+  * When the climber is at or below this angle, it is considered stowed
+  */
+ public final Angle maxStowedAngle =
+    Degrees.of(500.0);
+
   public final Distance climberToMechanismRatio = Meters.of(0.005); // TODO: Find real value
 
   public Double climberKP = 500.0; // TODO: Tune these
