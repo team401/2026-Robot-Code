@@ -19,14 +19,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 // Copilot autocomplete was used to help write this file
 public class ClimberSubsystem extends MonitoredSubsystem {
-
   private enum ClimberAction {
     Wait,
     Home,
@@ -35,9 +36,11 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     Stow
   }
 
+  // Motor IO
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
+  // State machine
   private final StateMachine<ClimberSubsystem> stateMachine;
 
   private final ClimberState waitForHomingState;
@@ -48,6 +51,12 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   private final ClimberState hangState; // the t-rex arms state
   private final ClimberState testModeState;
 
+  // State variables
+  @AutoLogOutput(key = "Climber/requestedAction")
+  private ClimberAction requestedAction = ClimberAction.Wait;
+
+  // Tunables
+  // These aren't lazy for now, hopefully we can handle like 20 more logging fields.
   LoggedTunableNumber climberKP;
   LoggedTunableNumber climberKI;
   LoggedTunableNumber climberKD;
@@ -91,9 +100,22 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         .whenTimeout(JsonConstants.climberConstants.homingMaxUnmovingTime)
         .transitionTo(homingWaitForStoppingState);
     homingWaitForStoppingState.whenFinished("Stopped").transitionTo(stowState);
-    // stowState.when(climber -> climber.shouldClimb(), "Should climb").transitionTo(searchState);
-    hangState.when(climber -> climber.shouldDeClimb(), "Should declimb").transitionTo(searchState);
-    searchState.when(climber -> climber.shouldStow(), "Should stow").transitionTo(stowState);
+    stowState
+        .when(() -> requestedAction == ClimberAction.Search, "Should search")
+        .transitionTo(searchState);
+
+    searchState
+        .when(() -> requestedAction == ClimberAction.Stow, "Should stow")
+        .transitionTo(stowState);
+    searchState
+        .when(() -> requestedAction == ClimberAction.Hang, "Should hang")
+        .transitionTo(hangState);
+
+    hangState
+        .when(
+            () -> requestedAction == ClimberAction.Search,
+            "Requested action is Search (Should declimb)")
+        .transitionTo(searchState);
 
     stowState
         .when(climber -> climber.isClimberTestMode(), "In climber test mode")
@@ -104,6 +126,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
     stateMachine.setState(waitForHomingState);
     stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
+    StateMachineDump.write("climber", stateMachine);
 
     // Initialize tunable numbers for test modes
     climberKP =
@@ -140,6 +163,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber("ClimberTunables/climberTuningSetpointDegrees", 0.0);
     climberTuningAmps = new LoggedTunableNumber("ClimberTunables/climberTuningAmps", 0.0);
     climberTuningVolts = new LoggedTunableNumber("ClimberTunables/climberTuningVolts", 0.0);
+
     AutoLogOutputManager.addObject(this);
   }
 
@@ -219,7 +243,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   }
 
   public boolean shouldHome() {
-    return false; // TODO: Find out how to determine this.
+    // TODO: Figure out if homing at the start of teleop is a valid move
+    return requestedAction != ClimberAction.Wait;
   }
 
   public AngularVelocity getClimberVelocity() {
@@ -247,23 +272,6 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   public void setToHangClimbPosition() {
     motor.controlToPositionExpoProfiled(
         JsonConstants.climberConstants.hangClimbAngle); // TODO: Find
-  }
-
-  public boolean shouldDeClimb() {
-    if (!getClimberInUpPosition()) { // TODO: Find how to determine this, need to be able to climb
-      // down depending on match stage, but I don't know how that is
-      // found
-      return true;
-    }
-    return false;
-  }
-
-  public boolean shouldSearch() {
-    return true; // TODO: Ask Aiden when we should be big armed
-  }
-
-  public boolean shouldStow() {
-    return true; // TODO: Ask Aiden when we should be armless
   }
 
   public boolean getClimberInLowerPosition() {
