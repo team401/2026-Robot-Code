@@ -55,7 +55,7 @@ public class TransferRollerConstants {
         .withLeadMotorId(
             new CANDeviceID(
                 JsonConstants.robotInfo.CANBus,
-                20)) // TODO: Change to ID given by CANBUS assignment
+                JsonConstants.canBusAssignment.transferRollerKrakenId))
         .build();
   }
 

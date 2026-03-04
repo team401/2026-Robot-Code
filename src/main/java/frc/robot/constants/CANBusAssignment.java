@@ -40,5 +40,5 @@ public class CANBusAssignment {
   public final Integer shooterLeaderId = 22; // TODO: Real ids
   public final Integer shooterFollowerId = 23;
 
-  public final Integer transferRollerKrakenId = 25; // TODO: Find value
+  public final Integer transferRollerKrakenId = 25;
 }

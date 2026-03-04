@@ -153,7 +153,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
     return RadiansPerSecond.of(inputs.velocityRadiansPerSecond);
   }
 
-  public void setToTargetVelocity() {
+  public void controlToTargetVelocity() {
     motor.controlToVelocityProfiled(targetVelocity);
   }
 

@@ -9,7 +9,7 @@ public abstract class TransferRollerState extends State<TransferRollerSubsystem>
     @Override
     public void periodic(
         StateMachine<TransferRollerSubsystem> stateMachine, TransferRollerSubsystem intakeRoller) {
-      intakeRoller.setToTargetVelocity();
+      intakeRoller.controlToTargetVelocity();
     }
   }
 
@@ -29,7 +29,7 @@ public abstract class TransferRollerState extends State<TransferRollerSubsystem>
     @Override
     public void periodic(
         StateMachine<TransferRollerSubsystem> stateMachine, TransferRollerSubsystem intakeRoller) {
-      intakeRoller.setToTargetVelocity();
+      intakeRoller.controlToTargetVelocity();
     }
   }
 
@@ -37,7 +37,7 @@ public abstract class TransferRollerState extends State<TransferRollerSubsystem>
     @Override
     public void periodic(
         StateMachine<TransferRollerSubsystem> stateMachine, TransferRollerSubsystem intakeRoller) {
-      intakeRoller.setToTargetVelocity();
+      intakeRoller.controlToTargetVelocity();
     }
   }
 }
