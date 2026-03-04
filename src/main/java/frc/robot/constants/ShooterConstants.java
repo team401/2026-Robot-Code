@@ -135,6 +135,9 @@ public class ShooterConstants {
   /**
    * When the shooter less than shooterSlot0Epsilon less than its closed loop reference, it will use
    * slot 0. When it's more than shooterSlot0Epsilon below its setpoint, it will use slot 1.
+   *
+   * <p>This was tested and does help recovery time (~5 fuel per second -> ~12 fuel per second
+   * recovery rate)
    */
   public AngularVelocity shooterSlot0Epsilon = RPM.of(150);
 
