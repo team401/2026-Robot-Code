@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -174,6 +175,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
+    Twist2d totalTwist = new Twist2d();
+
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
       SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
@@ -188,31 +191,40 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
 
+      // This twist is used later in multiple branches, so we just create it here preemptively
+      Twist2d twist = kinematics.toTwist2d(moduleDeltas);
+
       // Update gyro angle
       if (gyroInputs.connected) {
         // Use the real gyro angle
         rawGyroRotation = gyroInputs.odometryYawPositions[i];
       } else {
         // Use the angle delta from the kinematics and module deltas
-        Twist2d twist = kinematics.toTwist2d(moduleDeltas);
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
 
-      // The following code was added for the support of ma pose estimator
-      Rotation2d deltaYaw;
-      if (i == 0) {
-        deltaYaw = rawGyroRotation.minus(lastGyroYaw);
+      if (JsonConstants.featureFlags.useMAPoseEstimator) {
+        // The following code was added for the support of ma pose estimator
+        Rotation2d deltaYaw;
+        if (i == 0) {
+          deltaYaw = rawGyroRotation.minus(lastGyroYaw);
+        } else {
+          deltaYaw = rawGyroRotation.minus(gyroInputs.odometryYawPositions[i - 1]);
+        }
+        twist = new Twist2d(twist.dx, twist.dy, deltaYaw.getRadians());
+
+        totalTwist =
+            new Twist2d(
+                totalTwist.dx + twist.dx,
+                totalTwist.dy + twist.dy,
+                totalTwist.dtheta + twist.dtheta);
       } else {
-        deltaYaw = rawGyroRotation.minus(gyroInputs.odometryYawPositions[i - 1]);
+        poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       }
-      var twist = kinematics.toTwist2d(moduleDeltas);
-      twist = new Twist2d(twist.dx, twist.dy, deltaYaw.getRadians());
+    }
 
-      Twist2d totalTwist = new Twist2d();
-      totalTwist =
-          new Twist2d(
-              totalTwist.dx + twist.dx, totalTwist.dy + twist.dy, totalTwist.dtheta + twist.dtheta);
-
+    // Apply update
+    if (JsonConstants.featureFlags.useMAPoseEstimator) {
       if (gyroInputs.connected) {
         totalTwist.dtheta = gyroInputs.yawPosition.minus(lastGyroYaw).getRadians();
         lastGyroYaw = gyroInputs.yawPosition;
@@ -221,13 +233,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         lastGyroYaw = rawGyroRotation;
       }
 
-      // Apply update
-      if (JsonConstants.featureFlags.useMAPoseEstimator) {
-        maPoseEstimator.addDriveData(sampleTimestamps[i], totalTwist);
-      } else {
-        poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
-      }
+      maPoseEstimator.addDriveData(Timer.getTimestamp(), totalTwist);
     }
+
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }

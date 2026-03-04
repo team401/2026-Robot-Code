@@ -343,7 +343,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Turret/isAimedCorrectly")
   public boolean isAimedCorrectly() {
     return requestedAction == TurretAction.TrackHeading
-        // Subtract the rotations to automatically 
+        // Subtract the rotations to automatically
         && Math.abs(getFieldCentricTurretHeading().minus(goalTurretHeading).getRadians())
             < JsonConstants.turretConstants.turretSetpointEpsilon.in(Radians);
   }
