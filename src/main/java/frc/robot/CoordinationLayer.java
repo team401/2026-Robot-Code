@@ -155,6 +155,11 @@ public class CoordinationLayer {
   /**
    * Whether the shot we were aiming for last cycle was a real shot or an approximation of the
    * nearest possible shot
+   *
+   * <p>This is needed because, when it encounters a shot that's outside of its shot map, the shot
+   * calculator simply clamps the distance to the nearest possible distance and aims for that
+   * instead. This is done so that, whenever the circumstances change so that we can shoot again,
+   * the robot is already aimed to shoot.
    */
   private boolean isShotReal = false;
 
@@ -736,10 +741,14 @@ public class CoordinationLayer {
     // Aim for a shot based on the current autonomy level
     if (testModeManager.isInTestMode()) {
       drive.ifPresent(this::aimForTestModeShot);
+      // When in test mode, always assume the shot is real to avoid locking ourselves out of shots.
+      // Assume that the tuner knows what they are doing.
       isShotReal = true;
     } else {
       isShotReal =
           switch (effectiveAutonomyLevel) {
+            // If the drivetrain doesn't exist, we won't shoot. Not sure when this would ever come
+            // into play. If this ever becomes an outreach bot, this will need to change.
             case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
             case Manual -> aimForManualShot();
           };
@@ -819,6 +828,8 @@ public class CoordinationLayer {
       }
     }
 
+    // Manual shot is always real, as the manual shot we're aiming for is a shot that we know is
+    // possible.
     return true;
   }
 
