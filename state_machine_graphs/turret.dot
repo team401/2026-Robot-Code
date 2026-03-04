@@ -1,0 +1,44 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  HomingWaitForMovementState ;
+  HomingWaitForStoppingState ;
+  IdleState ;
+  WearInState ;
+  TrackHeadingState ;
+  TestModeState ;
+  HomingWaitForButtonState [shape=doublecircle];
+
+  // Transitions
+
+  HomingWaitForMovementState -> HomingWaitForStoppingState [label="When HomingWaitForMovementState finished"];
+  HomingWaitForMovementState -> HomingWaitForStoppingState [label="timeout"];
+
+  HomingWaitForStoppingState -> IdleState [label="When HomingWaitForStoppingState finished"];
+
+  IdleState -> TestModeState [label="In turret test mode"];
+  IdleState -> TrackHeadingState [label="Action == TrackHeading"];
+
+  WearInState -> HomingWaitForButtonState [label="When WearInState finished"];
+
+  TrackHeadingState -> IdleState [label="Action != TrackHeading"];
+
+  TestModeState -> IdleState [label="Not in turret test mode"];
+
+  HomingWaitForButtonState -> IdleState [label="When HomingWaitForButtonState finished"];
+  HomingWaitForButtonState -> HomingWaitForMovementState [label="Robot is enabled"];
+
+}

@@ -10,30 +10,78 @@
     7.5
   ],
   "defaultViMetersPerSecond": 9.0,
-  "shooterKP": 48.0,
-  "shooterKI": 0.0,
-  "shooterKD": 0.0,
-  "shooterKS": 0.0,
-  "shooterKV": 1.85,
-  "shooterKA": 0.0,
-  "shooterReduction": 0.625,
-  "shooterSupplyCurrentLimit": {
-    "value": 40.0,
-    "unit": "Amp"
+  "shooterSlot0Gains": {
+    "kP": 13.0,
+    "kI": 0.0,
+    "kD": 0.0,
+    "kS": 0.0,
+    "kV": 0.55,
+    "kA": 0.0
   },
-  "shooterStatorCurrentLimit": {
+  "shooterSlot1Gains": {
+    "kP": 48.0,
+    "kI": 0.0,
+    "kD": 0.0,
+    "kS": 0.0,
+    "kV": 0.55,
+    "kA": 0.0
+  },
+  "shooterReduction": 0.625,
+  "characterizationRampRate": {
+    "value": 0.5,
+    "unit": "Amp per Second"
+  },
+  "shooterSupplyCurrentLimit": {
     "value": 80.0,
     "unit": "Amp"
   },
-  "shooterMotorDirection": "CounterClockwise_Positive",
+  "shooterStatorCurrentLimit": {
+    "value": 150.0,
+    "unit": "Amp"
+  },
+  "velocityFilterTime": {
+    "value": 0.01,
+    "unit": "Second"
+  },
+  "shooterMotorDirection": "Clockwise_Positive",
   "invertFollower": true,
-  "defaultShooterNeutralMode": "Brake",
+  "defaultShooterNeutralMode": "Coast",
+  "shooterSignalRefreshRates": {
+    "highPriorityUpdateFrequency": {
+      "value": 200.0,
+      "unit": "Hertz"
+    },
+    "mediumPriorityUpdateFrequency": {
+      "value": 20.0,
+      "unit": "Hertz"
+    },
+    "outputUpdateFrequency": {
+      "value": 500.0,
+      "unit": "Hertz"
+    }
+  },
+  "shooterClosedLoopFrequency": {
+    "value": 500.0,
+    "unit": "Hertz"
+  },
   "shooterMaxVelocity": {
     "value": 2900.0,
     "unit": "Rotation per Minute"
   },
+  "shooterVelocitySetpointEpsilon": {
+    "value": 70.0,
+    "unit": "RPM"
+  },
+  "shooterSlot0Epsilon": {
+    "value": 150.0,
+    "unit": "RPM"
+  },
+  "torqueCurrentRampTime": {
+    "value": 0.0,
+    "unit": "Second"
+  },
   "shooterMaxAcceleration": {
-    "value": 314.1592653589793,
+    "value": 607.376,
     "unit": "Radian per Second per Second"
   },
   "shooterMOI": {

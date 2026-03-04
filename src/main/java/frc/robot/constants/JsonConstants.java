@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
@@ -38,6 +40,9 @@ public class JsonConstants {
     JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
     JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
     JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
+
+    JSONMeasure.registerUnit(Amp.per(Second));
+    JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
   public static void loadConstants() {
@@ -78,6 +83,9 @@ public class JsonConstants {
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "BlueFieldLocations.json");
+    manualModeConstants =
+        jsonHandler.getObject(new ManualModeConstants(), "ManualModeConstants.json");
+    strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -104,6 +112,7 @@ public class JsonConstants {
               shotMaps.afterJsonLoad();
               return true;
             });
+        jsonHandler.addRoute("/manualMode", manualModeConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
@@ -131,6 +140,8 @@ public class JsonConstants {
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
   public static ClimberConstants climberConstants;
+  public static ManualModeConstants manualModeConstants;
+  public static StrategyConstants strategyConstants;
 
   public static Controllers controllers;
 }

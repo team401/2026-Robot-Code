@@ -1,0 +1,38 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  ClimberDeployed ;
+  WaitForClimberRetract ;
+  NoExtension [shape=doublecircle];
+  IntakeDeployed ;
+  WaitForIntakeRetract ;
+
+  // Transitions
+
+  ClimberDeployed -> WaitForClimberRetract [label="Goal is not ClimbDeployed"];
+
+  WaitForClimberRetract -> NoExtension [label="Climb finished retracting"];
+  WaitForClimberRetract -> ClimberDeployed [label="Goal is ClimbDeployed"];
+
+  NoExtension -> IntakeDeployed [label="Goal is IntakeDeployed"];
+  NoExtension -> ClimberDeployed [label="Goal is ClimbDeployed"];
+
+  IntakeDeployed -> WaitForIntakeRetract [label="Goal is not IntakeDeployed"];
+
+  WaitForIntakeRetract -> NoExtension [label="Intake finished retracting"];
+  WaitForIntakeRetract -> IntakeDeployed [label="Goal is IntakeDeployed"];
+
+}

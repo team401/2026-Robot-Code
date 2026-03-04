@@ -6,7 +6,7 @@ import path from 'node:path'
 const robotTarget = process.env.ROBOT_URL || 'http://localhost:8088';
 
 const KNOWN_ENVS = new Set(['comp', 'test_drivebase']);
-const KNOWN_FILES = new Set(['ShotMaps.json', 'VisionConstants.json']);
+const KNOWN_FILES = new Set(['ShotMaps.json', 'VisionConstants.json', 'RobotInfo.json']);
 
 function localFilesPlugin(): Plugin {
   const constantsDir = (...parts: string[]) =>
@@ -79,9 +79,133 @@ function localFilesPlugin(): Plugin {
   };
 }
 
+function shotTuningPlugin(): Plugin {
+  const dataDir = (...parts: string[]) =>
+    path.resolve(__dirname, 'shot-tuning-data', ...parts);
+
+  return {
+    name: 'shot-tuning',
+    configureServer(server) {
+      // GET /shot-tuning/attempts
+      server.middlewares.use((req, res, next) => {
+        if (req.url !== '/shot-tuning/attempts' || req.method !== 'GET') return next();
+        try {
+          const filePath = dataDir('attempts.json');
+          if (!fs.existsSync(filePath)) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end('[]');
+            return;
+          }
+          const content = fs.readFileSync(filePath, 'utf-8');
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(content);
+        } catch (e) {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: String(e) }));
+        }
+      });
+
+      // POST /shot-tuning/attempts
+      server.middlewares.use((req, res, next) => {
+        if (req.url !== '/shot-tuning/attempts' || req.method !== 'POST') return next();
+        let body = '';
+        req.on('data', (chunk: Buffer) => { body += chunk.toString(); });
+        req.on('end', () => {
+          try {
+            const json = JSON.parse(body);
+            const dest = dataDir('attempts.json');
+            fs.mkdirSync(path.dirname(dest), { recursive: true });
+            fs.writeFileSync(dest, JSON.stringify(json, null, 2) + '\n');
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ ok: true }));
+          } catch (e) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(e) }));
+          }
+        });
+      });
+
+      // POST /shot-tuning/clips/:id  (save binary webm)
+      server.middlewares.use((req, res, next) => {
+        const match = req.url?.match(/^\/shot-tuning\/clips\/([a-f0-9-]+)$/);
+        if (!match || req.method !== 'POST') return next();
+        const id = match[1];
+        const chunks: Buffer[] = [];
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', () => {
+          try {
+            const dir = dataDir('clips');
+            fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(path.join(dir, `${id}.webm`), Buffer.concat(chunks));
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ ok: true }));
+          } catch (e) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(e) }));
+          }
+        });
+      });
+
+      // GET /shot-tuning/clips/:id  (serve webm with range-request support for Chrome seeking)
+      server.middlewares.use((req, res, next) => {
+        const match = req.url?.match(/^\/shot-tuning\/clips\/([a-f0-9-]+)$/);
+        if (!match || req.method !== 'GET') return next();
+        const id = match[1];
+        const filePath = dataDir('clips', `${id}.webm`);
+        if (!fs.existsSync(filePath)) {
+          res.statusCode = 404;
+          res.end('Not found');
+          return;
+        }
+        const total = fs.statSync(filePath).size;
+        const rangeHeader = (req as import('http').IncomingMessage).headers['range'];
+        res.setHeader('Content-Type', 'video/webm');
+        res.setHeader('Accept-Ranges', 'bytes');
+        if (rangeHeader) {
+          const [startStr, endStr] = rangeHeader.replace(/bytes=/, '').split('-');
+          const start = parseInt(startStr, 10);
+          const end = endStr ? parseInt(endStr, 10) : total - 1;
+          res.statusCode = 206;
+          res.setHeader('Content-Range', `bytes ${start}-${end}/${total}`);
+          res.setHeader('Content-Length', end - start + 1);
+          fs.createReadStream(filePath, { start, end }).pipe(res);
+        } else {
+          res.statusCode = 200;
+          res.setHeader('Content-Length', total);
+          fs.createReadStream(filePath).pipe(res);
+        }
+      });
+
+      // DELETE /shot-tuning/clips/:id
+      server.middlewares.use((req, res, next) => {
+        const match = req.url?.match(/^\/shot-tuning\/clips\/([a-f0-9-]+)$/);
+        if (!match || req.method !== 'DELETE') return next();
+        const id = match[1];
+        const filePath = dataDir('clips', `${id}.webm`);
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
+        } catch (e) {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: String(e) }));
+        }
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), localFilesPlugin()],
+  plugins: [react(), localFilesPlugin(), shotTuningPlugin()],
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   server: {
     proxy: {
       '/api': {
