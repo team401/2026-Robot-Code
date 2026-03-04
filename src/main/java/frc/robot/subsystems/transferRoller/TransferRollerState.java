@@ -8,8 +8,9 @@ public abstract class TransferRollerState extends State<TransferRollerSubsystem>
   public static class IdleState extends TransferRollerState {
     @Override
     public void periodic(
-        StateMachine<TransferRollerSubsystem> stateMachine, TransferRollerSubsystem intakeRoller) {
-      intakeRoller.controlToTargetVelocity();
+        StateMachine<TransferRollerSubsystem> stateMachine,
+        TransferRollerSubsystem transferRoller) {
+      transferRoller.coast();
     }
   }
 
@@ -20,24 +21,27 @@ public abstract class TransferRollerState extends State<TransferRollerSubsystem>
   public static class TestModeState extends TransferRollerState {
     @Override
     public void periodic(
-        StateMachine<TransferRollerSubsystem> stateMachine, TransferRollerSubsystem intakeRoller) {
-      intakeRoller.testPeriodic();
+        StateMachine<TransferRollerSubsystem> stateMachine,
+        TransferRollerSubsystem transferRoller) {
+      transferRoller.testPeriodic();
     }
   }
 
   public static class SpinState extends TransferRollerState {
     @Override
     public void periodic(
-        StateMachine<TransferRollerSubsystem> stateMachine, TransferRollerSubsystem intakeRoller) {
-      intakeRoller.controlToTargetVelocity();
+        StateMachine<TransferRollerSubsystem> stateMachine,
+        TransferRollerSubsystem transferRoller) {
+      transferRoller.controlToTargetVelocity();
     }
   }
 
   public static class DeJamState extends TransferRollerState {
     @Override
     public void periodic(
-        StateMachine<TransferRollerSubsystem> stateMachine, TransferRollerSubsystem intakeRoller) {
-      intakeRoller.controlToTargetVelocity();
+        StateMachine<TransferRollerSubsystem> stateMachine,
+        TransferRollerSubsystem transferRoller) {
+      transferRoller.controlToTargetVelocity();
     }
   }
 }

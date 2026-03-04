@@ -168,4 +168,8 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
   public boolean shouldDeJam() {
     return targetVelocity.in(Units.RadiansPerSecond) < 0;
   }
+
+  void coast() {
+    motor.controlCoast();
+  }
 }
