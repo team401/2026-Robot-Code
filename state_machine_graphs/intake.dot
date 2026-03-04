@@ -15,7 +15,7 @@ digraph {
   // States
 
   HomingWaitForStopMoving ;
-  WaitForButton ;
+  WaitForButton [shape=doublecircle];
   TestMode ;
   ControlToPosition ;
   HomingWaitForMovement ;

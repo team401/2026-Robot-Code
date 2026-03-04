@@ -34,8 +34,16 @@ deploy {
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+                    // 422 2025 arguments
+                    // gcType = 'Other'
+                    // jvmArgs.add("-XX:GCTimeRatio=5")
+                    // jvmArgs.add("-XX:+UseG1GC")
+                    // jvmArgs.add("-XX:MaxGCPauseMillis=20")
+
+                    // 401 arguments
+                    // Our cycle times are super slow but these *seem* to be the least bad options.
                     jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
-                    jvmArgs.add("-XX:GCTimeRatio=5")
+                    jvmArgs.add("-XX:GCTimeRatio=0")
                     jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
 

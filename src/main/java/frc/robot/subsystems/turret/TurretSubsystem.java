@@ -161,17 +161,20 @@ public class TurretSubsystem extends MonitoredSubsystem {
     wearInState.whenFinished().transitionTo(homingWaitForButtonState);
 
     idleState
+        .when(turret -> turret.isTurretTestMode(), "In turret test mode")
+        .transitionTo(testModeState);
+
+    idleState
         .when(
             turret -> turret.requestedAction == TurretAction.TrackHeading, "Action == TrackHeading")
         .transitionTo(trackHeadingState);
 
-    idleState
-        .when(turret -> turret.isTurretTestMode(), "In turret test mode")
-        .transitionTo(testModeState);
-
     trackHeadingState
         .when(
-            turret -> turret.requestedAction != TurretAction.TrackHeading, "Action != TrackHeading")
+            turret ->
+                turret.requestedAction != TurretAction.TrackHeading
+                    || testModeManager.isInTestMode(),
+            "Action != TrackHeading")
         .transitionTo(idleState);
 
     testModeState
@@ -340,7 +343,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Turret/isAimedCorrectly")
   public boolean isAimedCorrectly() {
     return requestedAction == TurretAction.TrackHeading
-        && Math.abs(getFieldCentricTurretHeading().getRadians() - goalTurretHeading.getRadians())
+        // Subtract the rotations to automatically
+        && Math.abs(getFieldCentricTurretHeading().minus(goalTurretHeading).getRadians())
             < JsonConstants.turretConstants.turretSetpointEpsilon.in(Radians);
   }
 

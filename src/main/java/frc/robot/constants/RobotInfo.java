@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Seconds;
@@ -11,6 +12,7 @@ import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.signals.S1FloatStateValue;
 import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
+import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
@@ -51,6 +53,10 @@ public class RobotInfo {
                 .withS1CloseState(S1CloseStateValue.CloseWhenHigh)
                 .withS1FloatState(S1FloatStateValue.PullLow));
   }
+
+  /** The refresh rates that should be used for subsystems that don't effect fire control */
+  public final SignalRefreshRates nonFireControllingRefreshRates =
+      new SignalRefreshRates(Hertz.of(50.0), Hertz.of(20.0), Hertz.of(50.0));
 
   // Normal Fields
 
