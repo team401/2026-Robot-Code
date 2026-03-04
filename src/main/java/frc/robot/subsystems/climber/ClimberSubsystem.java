@@ -21,8 +21,6 @@ import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
-
-import org.checkerframework.checker.units.qual.s;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -93,11 +91,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         .whenTimeout(JsonConstants.climberConstants.homingMaxUnmovingTime)
         .transitionTo(homingWaitForStoppingState);
     homingWaitForStoppingState.whenFinished("Stopped").transitionTo(stowState);
-    //stowState.when(climber -> climber.shouldClimb(), "Should climb").transitionTo(searchState);
-    hangState
-        .when(climber -> climber.shouldDeClimb(), "Should declimb").transitionTo(searchState);
-    searchState
-        .when(climber -> climber.shouldStow(), "Should stow").transitionTo(stowState);
+    // stowState.when(climber -> climber.shouldClimb(), "Should climb").transitionTo(searchState);
+    hangState.when(climber -> climber.shouldDeClimb(), "Should declimb").transitionTo(searchState);
+    searchState.when(climber -> climber.shouldStow(), "Should stow").transitionTo(stowState);
 
     stowState
         .when(climber -> climber.isClimberTestMode(), "In climber test mode")
@@ -265,8 +261,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   public boolean shouldSearch() {
     return true; // TODO: Ask Aiden when we should be big armed
   }
- 
-  public boolean shouldStow(){
+
+  public boolean shouldStow() {
     return true; // TODO: Ask Aiden when we should be armless
   }
 

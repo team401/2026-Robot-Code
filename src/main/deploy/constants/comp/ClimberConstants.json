@@ -20,6 +20,10 @@
     "value": 90,
     "unit": "Degrees"
   },
+  "hangClimbAngle": {
+    "value": 15000,
+    "unit": "Degrees"
+  },
   "climberToMechanismRatio": {
     "value": 1.0,
     "unit": "Meters"
@@ -41,6 +45,7 @@
     "value": 80.0,
     "unit": "Amps"
   },
+  "climberMotorDirection": "CounterClockwise_Positive",
   "simClimberWeight": {
     "value": 0.5,
     "unit": "Kilograms"

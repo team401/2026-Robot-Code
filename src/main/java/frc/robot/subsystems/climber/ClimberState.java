@@ -69,5 +69,5 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToHangClimbPosition();
     }
-}
+  }
 }
