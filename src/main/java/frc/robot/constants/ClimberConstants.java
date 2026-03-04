@@ -46,16 +46,17 @@ public class ClimberConstants {
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
 
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
+  public final Angle stowAngle = Degrees.zero();
   public final Angle upperClimbAngle =
       homingAngle.plus(Degrees.of(22700.0)); // TODO: Find actual value for this
   public final Angle hangClimbAngle =
       homingAngle.plus(Degrees.of(15000.0)); // TODO: Find actual value for this
 
- /**
-  * When the climber is at or below this angle, it is considered stowed
-  */
- public final Angle maxStowedAngle =
-    Degrees.of(500.0);
+  /** When the climber is at or below this angle, it is considered stowed */
+  public final Angle maxStowedAngle = Degrees.of(500.0);
+
+  /** Coast the climber when it's trying to stow and is within this much angle of its target */
+  public final Angle stowCoastMargin = Degrees.of(50.0);
 
   public final Distance climberToMechanismRatio = Meters.of(0.005); // TODO: Find real value
 

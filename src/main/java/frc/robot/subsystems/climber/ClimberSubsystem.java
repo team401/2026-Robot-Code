@@ -23,8 +23,6 @@ import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
-import java.nio.file.WatchEvent;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -247,7 +245,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
   public boolean shouldHome() {
     // TODO: Figure out if homing at the start of teleop is a valid move
-    return requestedAction != ClimberAction.Wait;
+    return requestedAction != ClimberAction.Wait
+        && stateMachine.getCurrentState() == waitForHomingState;
   }
 
   public AngularVelocity getClimberVelocity() {
@@ -262,14 +261,12 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     motor.controlOpenLoopVoltage(JsonConstants.climberConstants.homingVoltage);
   }
 
-  public boolean getClimberInUpPosition() {
-    return (Math.abs(
-            inputs.positionRadians - JsonConstants.climberConstants.upperClimbAngle.in(Degrees))
-        < 5);
-  }
-
   public void setToUpperClimbPosition() {
     motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.upperClimbAngle);
+  }
+
+  public void setToStowPosition() {
+    motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.stowAngle);
   }
 
   public void setToHangClimbPosition() {
@@ -281,43 +278,78 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     return (inputs.positionRadians <= JsonConstants.climberConstants.maxStowedAngle.in(Radians));
   }
 
+  protected boolean isWithinStowCoastThreshold() {
+    return Math.abs(inputs.positionRadians - JsonConstants.climberConstants.stowAngle.in(Radians))
+        < JsonConstants.climberConstants.stowCoastMargin.in(Radians);
+  }
+
   public void setToLowerClimbPosition() {
     motor.controlToPositionExpoProfiled(Degrees.of(0.0));
   }
 
   /**
    * Stows the climber if it has been homed, or waits to home if it hasn't been homed.
-   * 
+   *
    * <p>This method should only be called by the CoordinationLayer
    */
   public void stayStowed() {
-    requestedAction = switch (requestedAction) {
-      case Wait -> ClimberAction.Wait;
-      default -> ClimberAction.Stow;
-    };
+    requestedAction =
+        switch (requestedAction) {
+          case Wait -> ClimberAction.Wait;
+          case Hang -> ClimberAction.Hang;
+          default -> ClimberAction.Stow;
+        };
   }
 
   /**
-   * Sets the climber's requested action to be searching. This won't guarantee that it immediately searches, it may have to home beforehand.
-   * 
+   * Handles a stow button press by: If the climber is hanging, command it to search. If the climber
+   * is searching, command it to stow.
+   *
+   * <p>This method should only be called by a coordination layer button binding.
+   *
+   * <p>This method returns whether or not the climber was commanded to stow, which enables the
+   * coordination layer to know if it should reset the goal extension state or not.
+   *
+   * @return {@code true} if the climber is going to stow, {@code false} if not (if it will go to
+   *     search)
+   */
+  public boolean stowPressed() {
+    if (stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang) {
+      requestedAction = ClimberAction.Search;
+      return false;
+    } else {
+      requestedAction = ClimberAction.Stow;
+      return true;
+    }
+  }
+
+  /**
+   * Sets the climber's requested action to be searching. This won't guarantee that it immediately
+   * searches, it may have to home beforehand.
+   *
    * <p>This method should only be called by the CoordinationLayer
    */
   public void search() {
-    requestedAction = ClimberAction.Search; 
+    requestedAction = ClimberAction.Search;
   }
 
   /**
-   * Sets the climber's requested action to be hanging. This means that the climber will soon be commanded to go downward with climbing gains.
+   * Sets the climber's requested action to be hanging. This means that the climber will soon be
+   * commanded to go downward with climbing gains.
    */
   public void hang() {
     requestedAction = ClimberAction.Hang;
   }
 
   /**
-   * Checks whether or not the climber is below its stow threshold position or it has not been homed.
-   * 
-   * <p>This operates under the assumption that the climber is always stowed before the match, so it is stowed prior to being homed.
-   * @return {@code false} if the climber has been homed and is above its stow threshold, {@code true} otherwise.
+   * Checks whether or not the climber is below its stow threshold position or it has not been
+   * homed.
+   *
+   * <p>This operates under the assumption that the climber is always stowed before the match, so it
+   * is stowed prior to being homed.
+   *
+   * @return {@code false} if the climber has been homed and is above its stow threshold, {@code
+   *     true} otherwise.
    */
   public boolean isStowedOrHasntBeenHomed() {
     return stateMachine.getCurrentState() == waitForHomingState || isStowed();

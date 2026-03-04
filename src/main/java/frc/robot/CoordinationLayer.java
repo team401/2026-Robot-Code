@@ -266,7 +266,8 @@ public class CoordinationLayer {
         extensionStateMachine.registerState(
             new State<CoordinationLayer>("ClimberDeployed") {
               @Override
-              protected void onEntry(StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+              protected void onEntry(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 climber.ifPresent(ClimberSubsystem::search);
               }
 
@@ -509,7 +510,11 @@ public class CoordinationLayer {
 
   private void stowClimber() {
     if (goalExtensionState == ExtensionState.ClimbDeployed) {
-      goalExtensionState = ExtensionState.None;
+      boolean willClimberStow = climber.map(ClimberSubsystem::stowPressed).orElse(true);
+
+      if (willClimberStow) {
+        goalExtensionState = ExtensionState.None;
+      }
     }
   }
 

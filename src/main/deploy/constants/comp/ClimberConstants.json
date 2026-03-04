@@ -16,6 +16,10 @@
     "value": 0.0,
     "unit": "Degrees"
   },
+  "stowAngle": {
+    "value": 0.0,
+    "unit": "Degrees"
+  },
   "upperClimbAngle": {
     "value": 90,
     "unit": "Degrees"
@@ -26,6 +30,10 @@
   },
   "maxStowedAngle": {
     "value": 500,
+    "unit": "Degrees"
+  },
+  "stowCoastMargin": {
+    "value": 100.0,
     "unit": "Degrees"
   },
   "climberToMechanismRatio": {
