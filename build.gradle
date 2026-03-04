@@ -40,11 +40,12 @@ deploy {
                     // jvmArgs.add("-XX:+UseG1GC")
                     // jvmArgs.add("-XX:MaxGCPauseMillis=20")
 
-                    // 401 arguments pre 2-28 shop
+                    // 401 arguments
+                    // Our cycle times are super slow but these *seem* to be the least bad options.
                     jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
                     jvmArgs.add("-XX:GCTimeRatio=0")
                     jvmArgs.add("-XX:+UseSerialGC")
-                    jvmArgs.add("-XX:MaxGCPauseMillis=20")
+                    jvmArgs.add("-XX:MaxGCPauseMillis=50")
 
                     // The options below may improve performance, but should only be enabled on the RIO 2
                     //
