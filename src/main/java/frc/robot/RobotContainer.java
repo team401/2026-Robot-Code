@@ -172,7 +172,7 @@ public class RobotContainer {
             .plus(new Transform3d(0, 0, 0, new Rotation3d(0, 0, turretAngle.in(Radians))))
             .plus(shooterOffsetFromReferencePoint.inverse());
     var hoodOffsetFromShooter =
-        new Transform3d(0.1875, -0.032, 0.0165, new Rotation3d(Math.PI / 2, 0, 0));
+        new Transform3d(0.1875, -0.04, 0.033, new Rotation3d(Math.PI / 2, 0, 0));
     var hoodOffsetFromReferencePoint = new Transform3d(0, 0.021, 0.101, new Rotation3d(0, 0, 0));
 
     var intakeOffsetFromReferencePoint =
@@ -188,8 +188,7 @@ public class RobotContainer {
           shooterWithTurretAngle,
           // Indexer + hopper
           new Pose3d(
-              new Translation3d(0.121, 0.025, 0.0),
-              new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
+              new Translation3d(0.121, 0.025, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
           // Intake
           new Pose3d(
                   new Translation3d(0.35, 0.0, 0.0), new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2))
@@ -199,7 +198,7 @@ public class RobotContainer {
           // Turret
           new Pose3d(
               new Translation3d(-0.099, 0.138, 0.331),
-              new Rotation3d(Math.PI / 2, 0.0, - Math.PI / 2)),
+              new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2)),
           // Climb
           new Pose3d(
               new Translation3d(-0.180, -0.218, -0.190 + climbHeight),
@@ -210,7 +209,15 @@ public class RobotContainer {
               .plus(hoodOffsetFromReferencePoint)
               .plus(
                   new Transform3d(
-                      0, 0, 0, new Rotation3d(-hoodAngle.in(Radians) + 5 * Math.PI / 12, 0, 0)))
+                      0,
+                      0,
+                      0,
+                      new Rotation3d(
+                          -hoodAngle.in(Radians)
+                              + Math.toRadians(
+                                  50.0), // This is an estimate of the hood offset angle
+                          0,
+                          0)))
               .plus(hoodOffsetFromReferencePoint.inverse())
         });
   }
