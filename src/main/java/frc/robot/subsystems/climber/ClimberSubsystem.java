@@ -48,9 +48,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   private final ClimberState waitForHomingState;
   private final ClimberState homingWaitForMovementState;
   private final ClimberState homingWaitForStoppingState;
-  private final ClimberState stowState; // the armless state
-  private final ClimberState searchState; // the big arms boi state
-  private final ClimberState hangState; // the t-rex arms state
+  private final ClimberState stowState; // Stowed state (arms retracted)
+  private final ClimberState searchState; // Search/extend state (looking for rung)
+  private final ClimberState hangState; // Hang state (arms engaged for hanging) (t-rex arms)
   private final ClimberState testModeState;
 
   // State variables
