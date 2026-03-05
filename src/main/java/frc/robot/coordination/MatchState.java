@@ -35,9 +35,9 @@ public class MatchState {
    * @return {@code true} if we are in a match (FMS is attached or DriverStation.getMatchType()
    *     return Practice, Qualification, or Elimination), {@code false} otherwise
    */
-  @AutoLogOutput(key = "MatchState/isInMatch")
+  @AutoLogOutput(key = "matchState/isInMatch")
   public boolean isInMatch() {
-    Logger.recordOutput("MatchState/matchType", DriverStation.getMatchType());
+    Logger.recordOutput("matchState/matchType", DriverStation.getMatchType());
     return DriverStation.isFMSAttached()
         || DriverStation.getMatchType() == DriverStation.MatchType.Practice
         || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
@@ -116,7 +116,7 @@ public class MatchState {
     SmartDashboard.putBoolean("matchState/manualBlueOverride", false);
 
     if (Constants.currentMode == Mode.SIM) {
-      matchTypeChooser = new LoggedDashboardChooser<>("MatchState/MatchType");
+      matchTypeChooser = new LoggedDashboardChooser<>("matchState/MatchType");
 
       for (var matchType : MatchType.values()) {
         if (matchType == MatchType.None) {
@@ -246,6 +246,19 @@ public class MatchState {
     }
 
     return MatchShift.Unknown;
+  }
+
+  @AutoLogOutput(key = "MatchState/maxTimeInCurrentShift")
+  public double getMaxTimeInCurrentShift() {
+    return switch (currentShift) {
+      case Transition -> StrategyConstants.transitionStart - StrategyConstants.shift1Start;
+      case Shift1 -> StrategyConstants.shift1Start - StrategyConstants.shift2Start;
+      case Shift2 -> StrategyConstants.shift2Start - StrategyConstants.shift3Start;
+      case Shift3 -> StrategyConstants.shift3Start - StrategyConstants.shift4Start;
+      case Shift4 -> StrategyConstants.shift4Start - StrategyConstants.endgameStart;
+      case Endgame -> StrategyConstants.endgameStart - StrategyConstants.matchEnd;
+      default -> Double.POSITIVE_INFINITY;
+    };
   }
 
   @AutoLogOutput(key = "MatchState/timeLeftInShift")

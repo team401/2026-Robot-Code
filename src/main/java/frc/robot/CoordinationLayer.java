@@ -492,7 +492,8 @@ public class CoordinationLayer {
     checkForDuplicateSubsystem(this.led, "LED");
     led =
         Optional.of(
-            InitSubsystems.initLEDs(drive, hood, hopper, shooter, turret, coordinationLayer));
+            InitSubsystems.initLEDs(
+                drive, hood, hopper, shooter, turret, coordinationLayer, matchState));
   }
 
   public void setDrive(Drive drive) {

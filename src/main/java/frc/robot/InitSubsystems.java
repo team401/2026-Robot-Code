@@ -16,6 +16,7 @@ import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.JsonConstants;
+import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -424,13 +425,14 @@ public class InitSubsystems {
       Optional<HopperSubsystem> hopper,
       Optional<ShooterSubsystem> shooter,
       Optional<TurretSubsystem> turret,
-      Optional<CoordinationLayer> coordinationLayer) {
+      Optional<CoordinationLayer> coordinationLayer,
+      MatchState matchState) {
 
     switch (Constants.currentMode) {
       case REAL:
-        return new LED(drive, hood, hopper, shooter, turret, coordinationLayer);
+        return new LED(drive, hood, hopper, shooter, turret, coordinationLayer, matchState);
       case SIM:
-        return new LED(drive, hood, hopper, shooter, turret, coordinationLayer);
+        return new LED(drive, hood, hopper, shooter, turret, coordinationLayer, matchState);
       case REPLAY:
         throw new UnsupportedOperationException("LED replay is not going to happen.");
       default:
