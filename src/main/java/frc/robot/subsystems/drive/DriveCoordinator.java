@@ -9,6 +9,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.states.DriveTestModeState;
 import frc.robot.subsystems.drive.states.DriveWithJoysticksState;
 import frc.robot.subsystems.drive.states.LinearDriveToPoseState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -59,6 +60,7 @@ public class DriveCoordinator extends SubsystemBase {
     testModeState.whenFinished("No Drive Test Mode Active").transitionTo(driveWithJoysticksState);
 
     driveStateMachine.setState(driveWithJoysticksState);
+    StateMachineDump.write("drive", driveStateMachine);
   }
 
   public void setLinearTargetPose(Pose2d pose) {

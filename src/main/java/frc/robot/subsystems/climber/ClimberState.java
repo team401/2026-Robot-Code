@@ -46,7 +46,11 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
   public static class StowState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      climber.coast();
+      if (climber.isWithinStowCoastThreshold()) {
+        climber.coast();
+      } else {
+        climber.setToStowPosition();
+      }
     }
   }
 
@@ -69,5 +73,5 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
       climber.setToHangClimbPosition();
     }
-}
+  }
 }

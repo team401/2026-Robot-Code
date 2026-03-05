@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
@@ -31,7 +30,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -48,10 +46,17 @@ public class ClimberConstants {
   public final Time homingMaxUnmovingTime = Seconds.of(5.0);
 
   public final Angle homingAngle = Degrees.zero(); // TODO: Find actual value for this
+  public final Angle stowAngle = Degrees.zero();
   public final Angle upperClimbAngle =
       homingAngle.plus(Degrees.of(22700.0)); // TODO: Find actual value for this
-  public final Angle hangClimbAngle = 
+  public final Angle hangClimbAngle =
       homingAngle.plus(Degrees.of(15000.0)); // TODO: Find actual value for this
+
+  /** When the climber is at or below this angle, it is considered stowed */
+  public final Angle maxStowedAngle = Degrees.of(500.0);
+
+  /** Coast the climber when it's trying to stow and is within this much angle of its target */
+  public final Angle stowCoastMargin = Degrees.of(50.0);
 
   public final Distance climberToMechanismRatio = Meters.of(0.005); // TODO: Find real value
 

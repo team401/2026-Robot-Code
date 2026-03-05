@@ -2,6 +2,7 @@ package frc.robot.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -19,16 +20,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
-
-import org.checkerframework.checker.units.qual.s;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 // Copilot autocomplete was used to help write this file
 public class ClimberSubsystem extends MonitoredSubsystem {
-
   private enum ClimberAction {
     Wait,
     Home,
@@ -37,9 +37,11 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     Stow
   }
 
+  // Motor IO
   private final MotorIO motor;
   private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
+  // State machine
   private final StateMachine<ClimberSubsystem> stateMachine;
 
   private final ClimberState waitForHomingState;
@@ -50,6 +52,12 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   private final ClimberState hangState; // Hang state (arms engaged for hanging) (t-rex arms)
   private final ClimberState testModeState;
 
+  // State variables
+  @AutoLogOutput(key = "Climber/requestedAction")
+  private ClimberAction requestedAction = ClimberAction.Wait;
+
+  // Tunables
+  // These aren't lazy for now, hopefully we can handle like 20 more logging fields.
   LoggedTunableNumber climberKP;
   LoggedTunableNumber climberKI;
   LoggedTunableNumber climberKD;
@@ -109,6 +117,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
     stateMachine.setState(waitForHomingState);
     stateMachine.writeGraphvizFile(new PrintWriter(System.out, true));
+    StateMachineDump.write("climber", stateMachine);
 
     // Initialize tunable numbers for test modes
     climberKP =
@@ -145,6 +154,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         new LoggedTunableNumber("ClimberTunables/climberTuningSetpointDegrees", 0.0);
     climberTuningAmps = new LoggedTunableNumber("ClimberTunables/climberTuningAmps", 0.0);
     climberTuningVolts = new LoggedTunableNumber("ClimberTunables/climberTuningVolts", 0.0);
+
     AutoLogOutputManager.addObject(this);
   }
 
@@ -224,7 +234,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   }
 
   public boolean shouldHome() {
-    return false; // TODO: Find out how to determine this.
+    // TODO: Figure out if homing at the start of teleop is a valid move
+    return requestedAction != ClimberAction.Wait
+        && stateMachine.getCurrentState() == waitForHomingState;
   }
 
   public AngularVelocity getClimberVelocity() {
@@ -239,14 +251,12 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     motor.controlOpenLoopVoltage(JsonConstants.climberConstants.homingVoltage);
   }
 
-  public boolean getClimberInUpPosition() {
-    return (Math.abs(
-            inputs.positionRadians - JsonConstants.climberConstants.upperClimbAngle.in(Degrees))
-        < 5);
-  }
-
   public void setToUpperClimbPosition() {
     motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.upperClimbAngle);
+  }
+
+  public void setToStowPosition() {
+    motor.controlToPositionExpoProfiled(JsonConstants.climberConstants.stowAngle);
   }
 
   public void setToHangClimbPosition() {
@@ -254,28 +264,84 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         JsonConstants.climberConstants.hangClimbAngle); // TODO: Find
   }
 
-  public boolean shouldDeClimb() {
-    if (!getClimberInUpPosition()) { // TODO: Find how to determine this, need to be able to climb
-      // down depending on match stage, but I don't know how that is
-      // found
-      return true;
-    }
-    return false;
+  public boolean isStowed() {
+    return (inputs.positionRadians <= JsonConstants.climberConstants.maxStowedAngle.in(Radians));
   }
 
-  public boolean shouldSearch() {
-    return true; // TODO: Ask Aiden when we should be big armed
-  }
- 
-  public boolean shouldStow(){
-    return true; // TODO: Ask Aiden when we should be armless
-  }
-
-  public boolean getClimberInLowerPosition() {
-    return (inputs.positionRadians < 5);
+  protected boolean isWithinStowCoastThreshold() {
+    return Math.abs(inputs.positionRadians - JsonConstants.climberConstants.stowAngle.in(Radians))
+        < JsonConstants.climberConstants.stowCoastMargin.in(Radians);
   }
 
   public void setToLowerClimbPosition() {
     motor.controlToPositionExpoProfiled(Degrees.of(0.0));
+  }
+
+  /**
+   * Stows the climber if it has been homed, or waits to home if it hasn't been homed.
+   *
+   * <p>This method should only be called by the CoordinationLayer
+   */
+  public void stayStowed() {
+    requestedAction =
+        switch (requestedAction) {
+          case Wait -> ClimberAction.Wait;
+          case Hang -> ClimberAction.Hang;
+          default -> ClimberAction.Stow;
+        };
+  }
+
+  /**
+   * Handles a stow button press by: If the climber is hanging, command it to search. If the climber
+   * is searching, command it to stow.
+   *
+   * <p>This method should only be called by a coordination layer button binding.
+   *
+   * <p>This method returns whether or not the climber was commanded to stow, which enables the
+   * coordination layer to know if it should reset the goal extension state or not.
+   *
+   * @return {@code true} if the climber is going to stow, {@code false} if not (if it will go to
+   *     search)
+   */
+  public boolean stowPressed() {
+    if (stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang) {
+      requestedAction = ClimberAction.Search;
+      return false;
+    } else {
+      requestedAction = ClimberAction.Stow;
+      return true;
+    }
+  }
+
+  /**
+   * Sets the climber's requested action to be searching. This won't guarantee that it immediately
+   * searches, it may have to home beforehand.
+   *
+   * <p>This method should only be called by the CoordinationLayer
+   */
+  public void search() {
+    requestedAction = ClimberAction.Search;
+  }
+
+  /**
+   * Sets the climber's requested action to be hanging. This means that the climber will soon be
+   * commanded to go downward with climbing gains.
+   */
+  public void hang() {
+    requestedAction = ClimberAction.Hang;
+  }
+
+  /**
+   * Checks whether or not the climber is below its stow threshold position or it has not been
+   * homed.
+   *
+   * <p>This operates under the assumption that the climber is always stowed before the match, so it
+   * is stowed prior to being homed.
+   *
+   * @return {@code false} if the climber has been homed and is above its stow threshold, {@code
+   *     true} otherwise.
+   */
+  public boolean isStowedOrHasntBeenHomed() {
+    return stateMachine.getCurrentState() == waitForHomingState || isStowed();
   }
 }

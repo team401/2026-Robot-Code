@@ -1,0 +1,44 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  HomingWaitForStopMoving ;
+  WaitForButton [shape=doublecircle];
+  TestMode ;
+  ControlToPosition ;
+  HomingWaitForMovement ;
+  HomingDone ;
+
+  // Transitions
+
+  HomingWaitForStopMoving -> WaitForButton [label="When robot is disabled during homing"];
+  HomingWaitForStopMoving -> HomingDone [label="When HomingWaitForStopMoving finished"];
+
+  WaitForButton -> TestMode [label="When WaitForButton finished && Should be in test mode"];
+  WaitForButton -> ControlToPosition [label="When WaitForButton finished"];
+  WaitForButton -> HomingWaitForMovement [label="When robot is enabled and button has not been pressed"];
+
+  TestMode -> ControlToPosition [label="When TestMode finished"];
+
+  ControlToPosition -> TestMode [label="Should be in test mode"];
+
+  HomingWaitForMovement -> WaitForButton [label="When robot is disabled during homing"];
+  HomingWaitForMovement -> HomingWaitForStopMoving [label="When HomingWaitForMovement finished"];
+  HomingWaitForMovement -> HomingDone [label="timeout"];
+
+  HomingDone -> TestMode [label="When HomingDone finished && Should be in test mode"];
+  HomingDone -> ControlToPosition [label="When HomingDone finished"];
+
+}

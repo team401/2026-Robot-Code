@@ -1,0 +1,35 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  ShootingState ;
+  WarmupState ;
+  IdleState [shape=doublecircle];
+  TestModeState ;
+
+  // Transitions
+
+  ShootingState -> IdleState [label="Shooting aborted"];
+  ShootingState -> WarmupState [label="Changing shooting speed"];
+
+  WarmupState -> ShootingState [label="Indexer velocity at target"];
+  WarmupState -> IdleState [label="Warmup aborted"];
+
+  IdleState -> TestModeState [label="In indexer test mode"];
+  IdleState -> WarmupState [label="Nonzero targetVelocity requested"];
+
+  TestModeState -> IdleState [label="Not in indexer test mode"];
+
+}

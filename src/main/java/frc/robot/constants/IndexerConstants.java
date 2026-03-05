@@ -2,6 +2,7 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -19,6 +20,7 @@ import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -31,8 +33,6 @@ public class IndexerConstants {
   // Constant for maximum relative velocity error between the desired motor output and the actual
   // motor output
   public final Double indexerMaximumRelativeVelocityError = 0.01;
-
-  public final Boolean indexerDemoMode = false;
 
   public PIDGains indexerGains = PIDGains.kPID(10.0, 5.0, 0.0);
 
@@ -62,6 +62,8 @@ public class IndexerConstants {
   public final Current indexerSupplyCurrentLimit = Amps.of(60.0);
   public final Current indexerStatorCurrentLimit = Amps.of(40.0);
   public final MomentOfInertia simIndexerMOI = KilogramSquareMeters.of(0.00025);
+
+  public final AngularVelocity indexingVelocity = RPM.of(2000);
 
   public final InvertedValue indexerMotorDirection =
       InvertedValue.CounterClockwise_Positive; // TODO: find value

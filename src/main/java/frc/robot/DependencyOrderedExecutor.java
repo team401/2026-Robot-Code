@@ -66,7 +66,7 @@ public class DependencyOrderedExecutor {
   }
 
   /**
-   * Register an action, setting the Runnable associated with an ActionKey
+   * Register an action to run in each periodic, setting the Runnable associated with an ActionKey
    *
    * @param key The key of the action to register
    * @param action The Runnable to run in order to execute this action

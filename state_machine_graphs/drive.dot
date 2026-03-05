@@ -1,0 +1,31 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  DriveWithJoysticks [shape=doublecircle];
+  Drive Test Mode ;
+  LinearDrive ;
+
+  // Transitions
+
+  DriveWithJoysticks -> LinearDrive [label="When LinearDrive requested"];
+  DriveWithJoysticks -> Drive Test Mode [label="drive test mode active"];
+
+  Drive Test Mode -> DriveWithJoysticks [label="No Drive Test Mode Active"];
+
+  LinearDrive -> DriveWithJoysticks [label="When DriveWithJoysticks requested"];
+  LinearDrive -> DriveWithJoysticks [label="When LinearDrive finished"];
+
+}

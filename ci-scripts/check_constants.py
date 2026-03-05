@@ -24,9 +24,12 @@ JSON_TO_CLASS = {
     "IntakeConstants.json": "frc.robot.constants.IntakeConstants",
     "ShooterConstants.json": "frc.robot.constants.ShooterConstants",
     "HoodConstants.json": "frc.robot.constants.HoodConstants",
+    "ClimberConstants.json": "frc.robot.constants.ClimberConstants",
     "ShotMaps.json": "frc.robot.constants.ShotMaps",
     "RedFieldLocations.json": "frc.robot.constants.FieldLocationInstance",
     "BlueFieldLocations.json": "frc.robot.constants.FieldLocationInstance",
+    "StrategyConstants.json": "frc.robot.constants.StrategyConstants",
+    "ManualModeConstants.json": "frc.robot.constants.ManualModeConstants",
 }
 
 SKIP_FILES = {"config.json", "controllers-xbox.json"}

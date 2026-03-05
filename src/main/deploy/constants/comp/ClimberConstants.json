@@ -16,8 +16,24 @@
     "value": 0.0,
     "unit": "Degrees"
   },
+  "stowAngle": {
+    "value": 0.0,
+    "unit": "Degrees"
+  },
   "upperClimbAngle": {
     "value": 90,
+    "unit": "Degrees"
+  },
+  "hangClimbAngle": {
+    "value": 15000,
+    "unit": "Degrees"
+  },
+  "maxStowedAngle": {
+    "value": 500,
+    "unit": "Degrees"
+  },
+  "stowCoastMargin": {
+    "value": 100.0,
     "unit": "Degrees"
   },
   "climberToMechanismRatio": {
@@ -41,6 +57,7 @@
     "value": 80.0,
     "unit": "Amps"
   },
+  "climberMotorDirection": "CounterClockwise_Positive",
   "simClimberWeight": {
     "value": 0.5,
     "unit": "Kilograms"

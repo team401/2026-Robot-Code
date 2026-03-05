@@ -3,11 +3,12 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
-import frc.robot.constants.FieldConstants;
+import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
 import frc.robot.constants.ShotMaps.ShotMap;
@@ -195,16 +196,19 @@ class ShotCalculations {
    * @param shooterRPM The desired angular velocity of the shooter, in RPM.
    * @param yawRadians The desired field-relative yaw (NOT the angle setpoint) of the turret, in
    *     radians.
+   * @param isReal {@code true} if the shot is a real shot aimed at the target and {@code false} if
+   *     the shot is a "best guess" because the real shot is impossible.
    */
-  public record MapBasedShotInfo(double hoodAngleRadians, double shooterRPM, double yawRadians) {}
+  public record MapBasedShotInfo(
+      double hoodAngleRadians, double shooterRPM, double yawRadians, boolean isReal) {}
 
-  public static Optional<MapBasedShotInfo> calculateShotFromMap(
+  public static MapBasedShotInfo calculateShotFromMap(
       Translation3d shooterPosition,
       Translation2d fieldRelativeShooterVelocity,
       ShotTarget target) {
     Translation3d targetPose =
         switch (target) {
-          case Hub -> FieldConstants.Hub.innerCenterPoint();
+          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };
@@ -226,9 +230,17 @@ class ShotCalculations {
     Logger.recordOutput("ShotCalculations/MapBased/MinDistanceMeters", minDistanceMeters);
     Logger.recordOutput("ShotCalculations/MapBased/MaxDistanceMeters", maxDistanceMeters);
 
+    // Track whether or not the shot has been clamped to make it fit into the distance map.
+    // If it hasn't been clamped, it is no longer real: it is a best approximation of the shot we
+    // will take soon.
+    boolean isShotReal = true;
+
     if (distanceXYMeters < minDistanceMeters || distanceXYMeters > maxDistanceMeters) {
-      return Optional.empty();
+      // When clamping, the shot is no longer real.
+      isShotReal = false;
+      distanceXYMeters = MathUtil.clamp(distanceXYMeters, minDistanceMeters, maxDistanceMeters);
     }
+    Logger.recordOutput("ShotCalculations/MapBased/ClampedShotDistanceMeters", distanceXYMeters);
 
     ShotMap map =
         target == ShotTarget.Hub
@@ -254,16 +266,22 @@ class ShotCalculations {
 
     if (virtualDistanceXYMeters < minDistanceMeters
         || virtualDistanceXYMeters > maxDistanceMeters) {
-      return Optional.empty();
+      // When clamping, the shot is no longer real.
+      isShotReal = false;
+      virtualDistanceXYMeters =
+          MathUtil.clamp(virtualDistanceXYMeters, minDistanceMeters, maxDistanceMeters);
     }
+    Logger.recordOutput(
+        "ShotCalculations/MapBased/ClampedVirtualDistanceMeters", virtualDistanceXYMeters);
 
     double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
     double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
     double yawRadians = calculateYawRadians(shooterPosition, virtualTarget);
 
-    MapBasedShotInfo shot = new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yawRadians);
+    MapBasedShotInfo shot =
+        new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yawRadians, isShotReal);
     Logger.recordOutput("ShotCalculations/MapBased/succeeded", true);
     Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);
-    return Optional.of(shot);
+    return shot;
   }
 }

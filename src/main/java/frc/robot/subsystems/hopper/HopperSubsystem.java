@@ -17,12 +17,14 @@ import frc.robot.subsystems.hopper.HopperState.DejamState;
 import frc.robot.subsystems.hopper.HopperState.IdleState;
 import frc.robot.subsystems.hopper.HopperState.SpinningState;
 import frc.robot.subsystems.hopper.HopperState.TestModeState;
+import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.TuningModeHelper;
 import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
+import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -39,7 +41,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   private final HopperState idleState;
   private final HopperState testModeState;
 
-  TuningModeHelper<TestMode> tuningModeHelper;
+  Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
 
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Hopper", TestMode.class);
@@ -69,6 +71,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
         .when(hopper -> !hopper.isHopperTestMode(), "Not in hopper test mode")
         .transitionTo(idleState);
     stateMachine.setState(idleState);
+    StateMachineDump.write("hopper", stateMachine);
 
     // Initialize tuning mode helper
     TunableMotor tunableMotor =
@@ -84,14 +87,20 @@ public class HopperSubsystem extends MonitoredSubsystem {
             .build("Hopper/MotorTuning", motor);
 
     tuningModeHelper =
-        new TuningModeHelper<TestMode>(TestMode.class)
-            .addMotorTuningModes(
-                tunableMotor,
-                MotorTuningMode.of(TestMode.HopperClosedLoopTuning, ControlMode.CLOSED_LOOP),
-                MotorTuningMode.of(TestMode.HopperCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                MotorTuningMode.of(TestMode.HopperVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-                MotorTuningMode.of(TestMode.HopperPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                MotorTuningMode.of(TestMode.None, ControlMode.NONE));
+        new Lazy<>(
+            () ->
+                new TuningModeHelper<TestMode>(TestMode.class)
+                    .addMotorTuningModes(
+                        tunableMotor,
+                        MotorTuningMode.of(
+                            TestMode.HopperClosedLoopTuning, ControlMode.CLOSED_LOOP),
+                        MotorTuningMode.of(
+                            TestMode.HopperCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+                        MotorTuningMode.of(
+                            TestMode.HopperVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+                        MotorTuningMode.of(
+                            TestMode.HopperPhoenixTuning, ControlMode.PHOENIX_TUNING),
+                        MotorTuningMode.of(TestMode.None, ControlMode.NONE)));
 
     AutoLogOutputManager.addObject(this);
   }
@@ -106,7 +115,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    tuningModeHelper.testPeriodic(testModeManager.getTestMode());
+    tuningModeHelper.get().testPeriodic(testModeManager.getTestMode());
   }
 
   private boolean isHopperTestMode() {

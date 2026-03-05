@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
@@ -31,6 +32,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class TurretConstants {
+  public final Boolean wearInTurret = false;
 
   public final Voltage homingVoltage = Volts.of(-3.0);
 
@@ -91,10 +93,18 @@ public class TurretConstants {
   public final Angle maxTurretAngle = Degrees.of(350);
 
   /**
+   * When the turret heading is within turretSetpointEpsilon of its goal heading, it is considered
+   * to be "at the target"
+   */
+  public final Angle turretSetpointEpsilon = Degrees.of(1.0);
+
+  /**
    * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
    * headingToTurretAngle = turretRelativeAngle
+   *
+   * <p>FieldCentricTurretHeading = TurretAngle - headingToTurretAngle + RobotHeading
    */
-  public final Angle headingToTurretAngle = Degrees.of(-45.0); // TODO: Real value
+  public final Angle headingToTurretAngle = Degrees.of(41.706);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
@@ -106,7 +116,8 @@ public class TurretConstants {
                 .withKS(turretKS)
                 .withKV(turretKV)
                 .withKG(turretKG)
-                .withKA(turretKA))
+                .withKA(turretKA)
+                .withGravityType(GravityTypeValue.Elevator_Static))
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(turretSupplyCurrentLimit)

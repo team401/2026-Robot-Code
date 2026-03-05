@@ -27,6 +27,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -83,6 +84,11 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final StatusSignal<AngularVelocity> turnVelocity;
   private final StatusSignal<Voltage> turnAppliedVolts;
   private final StatusSignal<Current> turnCurrent;
+
+  // Signal arrays to use with isAllGood to check connectivity
+  private final BaseStatusSignal[] driveSignals;
+  private final BaseStatusSignal[] turnSignals;
+  private final BaseStatusSignal[] encoderSignals;
 
   // Connection debouncers
   private final Debouncer driveConnectedDebounce =
@@ -162,6 +168,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveAppliedVolts = driveTalon.getMotorVoltage();
     driveCurrent = driveTalon.getStatorCurrent();
 
+    driveSignals =
+        new BaseStatusSignal[] {drivePosition, driveVelocity, driveAppliedVolts, driveCurrent};
+
     // Create turn status signals
     turnAbsolutePosition = cancoder.getAbsolutePosition();
     turnPosition = turnTalon.getPosition();
@@ -169,6 +178,16 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnVelocity = turnTalon.getVelocity();
     turnAppliedVolts = turnTalon.getMotorVoltage();
     turnCurrent = turnTalon.getStatorCurrent();
+
+    turnSignals =
+        new BaseStatusSignal[] {turnPosition, turnVelocity, turnAppliedVolts, turnCurrent};
+
+    encoderSignals = new BaseStatusSignal[] {turnAbsolutePosition};
+
+    // Register all signals with the StatusSignalRefresher
+    StatusSignalRefresher.addSignals(JsonConstants.robotInfo.CANBus, driveSignals);
+    StatusSignalRefresher.addSignals(JsonConstants.robotInfo.CANBus, turnSignals);
+    StatusSignalRefresher.addSignals(JsonConstants.robotInfo.CANBus, encoderSignals);
 
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -187,23 +206,21 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    // Refresh all signals
-    var driveStatus =
-        BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
-    var turnStatus =
-        BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
-    var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
+    // Don't refresh signals here, the StatusSignalRefresher will do this for us
+    boolean driveOK = BaseStatusSignal.isAllGood(driveSignals);
+    boolean turnOK = BaseStatusSignal.isAllGood(turnSignals);
+    boolean turnEncoderOK = BaseStatusSignal.isAllGood(encoderSignals);
 
     // Update drive inputs
-    inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
+    inputs.driveConnected = driveConnectedDebounce.calculate(driveOK);
     inputs.drivePositionRad = Units.rotationsToRadians(drivePosition.getValueAsDouble());
     inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
 
     // Update turn inputs
-    inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
-    inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
+    inputs.turnConnected = turnConnectedDebounce.calculate(turnOK);
+    inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderOK);
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
     inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
     inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());

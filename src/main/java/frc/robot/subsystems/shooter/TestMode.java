@@ -7,6 +7,7 @@ public enum TestMode implements TestModeDescription {
   ShooterVoltageTuning("Shooter Voltage Open-loop Tuning"),
   ShooterCurrentTuning("Shooter Current Open-loop Tuning"),
   ShooterPhoenixTuning("Shooter Phoenix (no-op) Tuning"),
+  ShooterFFCharacterization("Shooter feedforward Characterization"),
   None;
 
   private final String description;

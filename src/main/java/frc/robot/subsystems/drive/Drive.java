@@ -9,13 +9,8 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.PathPlannerLogging;
 import coppercore.wpilib_interface.DriveTemplate;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -38,13 +33,13 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
-import frc.robot.util.LocalADStarAK;
 import frc.robot.util.PIDGains;
 import frc.robot.util.littletonUtil.PoseEstimator;
 import frc.robot.util.littletonUtil.PoseEstimator.TimestampedVisionUpdate;
@@ -118,25 +113,25 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     PhoenixOdometryThread.getInstance().start();
 
     // Configure AutoBuilder for PathPlanner
-    AutoBuilder.configure(
-        this::getPose,
-        this::setPose,
-        this::getChassisSpeeds,
-        this::runVelocity,
-        new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
-        PP_CONFIG,
-        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-        this);
-    Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> {
-          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(
-        (targetPose) -> {
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-        });
+    // AutoBuilder.configure(
+    //     this::getPose,
+    //     this::setPose,
+    //     this::getChassisSpeeds,
+    //     this::runVelocity,
+    //     new PPHolonomicDriveController(
+    //         new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+    //     PP_CONFIG,
+    //     () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+    //     this);
+    // Pathfinding.setPathfinder(new LocalADStarAK());
+    // PathPlannerLogging.setLogActivePathCallback(
+    //     (activePath) -> {
+    //       Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
+    //     });
+    // PathPlannerLogging.setLogTargetPoseCallback(
+    //     (targetPose) -> {
+    //       Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+    //     });
 
     // Configure SysId
     sysId =
@@ -180,6 +175,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
+    Twist2d totalTwist = new Twist2d();
+
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
       SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
@@ -194,31 +191,40 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
 
+      // This twist is used later in multiple branches, so we just create it here preemptively
+      Twist2d twist = kinematics.toTwist2d(moduleDeltas);
+
       // Update gyro angle
       if (gyroInputs.connected) {
         // Use the real gyro angle
         rawGyroRotation = gyroInputs.odometryYawPositions[i];
       } else {
         // Use the angle delta from the kinematics and module deltas
-        Twist2d twist = kinematics.toTwist2d(moduleDeltas);
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
 
-      // The following code was added for the support of ma pose estimator
-      Rotation2d deltaYaw;
-      if (i == 0) {
-        deltaYaw = rawGyroRotation.minus(lastGyroYaw);
+      if (JsonConstants.featureFlags.useMAPoseEstimator) {
+        // The following code was added for the support of ma pose estimator
+        Rotation2d deltaYaw;
+        if (i == 0) {
+          deltaYaw = rawGyroRotation.minus(lastGyroYaw);
+        } else {
+          deltaYaw = rawGyroRotation.minus(gyroInputs.odometryYawPositions[i - 1]);
+        }
+        twist = new Twist2d(twist.dx, twist.dy, deltaYaw.getRadians());
+
+        totalTwist =
+            new Twist2d(
+                totalTwist.dx + twist.dx,
+                totalTwist.dy + twist.dy,
+                totalTwist.dtheta + twist.dtheta);
       } else {
-        deltaYaw = rawGyroRotation.minus(gyroInputs.odometryYawPositions[i - 1]);
+        poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       }
-      var twist = kinematics.toTwist2d(moduleDeltas);
-      twist = new Twist2d(twist.dx, twist.dy, deltaYaw.getRadians());
+    }
 
-      Twist2d totalTwist = new Twist2d();
-      totalTwist =
-          new Twist2d(
-              totalTwist.dx + twist.dx, totalTwist.dy + twist.dy, totalTwist.dtheta + twist.dtheta);
-
+    // Apply update
+    if (JsonConstants.featureFlags.useMAPoseEstimator) {
       if (gyroInputs.connected) {
         totalTwist.dtheta = gyroInputs.yawPosition.minus(lastGyroYaw).getRadians();
         lastGyroYaw = gyroInputs.yawPosition;
@@ -227,13 +233,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         lastGyroYaw = rawGyroRotation;
       }
 
-      // Apply update
-      if (JsonConstants.featureFlags.useMAPoseEstimator) {
-        maPoseEstimator.addDriveData(sampleTimestamps[i], totalTwist);
-      } else {
-        poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
-      }
+      maPoseEstimator.addDriveData(Timer.getTimestamp(), totalTwist);
     }
+
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }
