@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.util.AllianceUtil;
 
@@ -20,7 +21,7 @@ public class FieldLocations {
    *
    * @return A Translation2d representing the left target passing location for the current alliance
    */
-  public static Translation3d leftPassingTarget() {
+  public static Translation2d leftPassingTarget() {
     return AllianceUtil.isRed()
         ? JsonConstants.redFieldLocations.leftPassingTarget
         : JsonConstants.blueFieldLocations.leftPassingTarget;
@@ -32,7 +33,7 @@ public class FieldLocations {
    *
    * @return A Translation2d representing the right target passing location for the current alliance
    */
-  public static Translation3d rightPassingTarget() {
+  public static Translation2d rightPassingTarget() {
     return AllianceUtil.isRed()
         ? JsonConstants.redFieldLocations.rightPassingTarget
         : JsonConstants.blueFieldLocations.rightPassingTarget;

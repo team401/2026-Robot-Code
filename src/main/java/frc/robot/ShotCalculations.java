@@ -4,8 +4,11 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.constants.AllianceBasedFieldConstants;
@@ -194,29 +197,50 @@ class ShotCalculations {
    *
    * @param hoodAngleRadians The angle of the hood (NOT the pitch) in radians.
    * @param shooterRPM The desired angular velocity of the shooter, in RPM.
-   * @param yawRadians The desired field-relative yaw (NOT the angle setpoint) of the turret, in
-   *     radians.
+   * @param yaw The desired field-relative yaw (NOT the angle setpoint) of the turret, in
+   *     a Rotation2d.
    * @param isReal {@code true} if the shot is a real shot aimed at the target and {@code false} if
    *     the shot is a "best guess" because the real shot is impossible.
    */
   public record MapBasedShotInfo(
-      double hoodAngleRadians, double shooterRPM, double yawRadians, boolean isReal) {}
+      double hoodAngleRadians, double shooterRPM, Rotation2d yaw, boolean isReal) {}
 
+  /**
+   * Calculate a MapBasedShotInfo by looking ahead from the current position and accounting for motion using time of flight.
+   * 
+   * @param robotPose The current robot position
+   * @param robotRelativeChassisSpeeds The ROBOT CENTRIC chassis speeds of the robot
+   * @param fieldRelativeShooterVelocity the velocity of the shooter, field relative, as a Translation2d.
+   * @param target the ShotTarget to aim for
+   * @return
+   */
   public static MapBasedShotInfo calculateShotFromMap(
-      Translation3d shooterPosition,
+      Pose2d robotPose,
+      ChassisSpeeds robotRelativeChassisSpeeds,
       Translation2d fieldRelativeShooterVelocity,
       ShotTarget target) {
-    Translation3d targetPose =
+    Translation2d targetPosition =
         switch (target) {
-          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
+          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };
 
-    Logger.recordOutput("ShotCalculations/MapBased/succeeded", false);
+    double lookaheadTimeSeconds = JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
+
+    Pose2d lookaheadPose = robotPose.exp(new Twist2d(
+      robotRelativeChassisSpeeds.vxMetersPerSecond * lookaheadTimeSeconds,
+      robotRelativeChassisSpeeds.vyMetersPerSecond * lookaheadTimeSeconds,
+      robotRelativeChassisSpeeds.omegaRadiansPerSecond * lookaheadTimeSeconds));
+  
+    Logger.recordOutput("ShotCalculations/MapBased/lookaheadPose", lookaheadPose);
+
+    Pose2d shooterPose = lookaheadPose.plus(JsonConstants.robotInfo.robotToShooter2d);
+
+    Logger.recordOutput("ShotCalculations/MapBased/shooterPose", shooterPose);
 
     double distanceXYMeters =
-        shooterPosition.toTranslation2d().getDistance(targetPose.toTranslation2d());
+        shooterPose.getTranslation().getDistance(targetPosition);
     Logger.recordOutput("ShotCalculations/MapBased/ShotDistanceMeters", distanceXYMeters);
 
     double minDistanceMeters =
@@ -227,6 +251,7 @@ class ShotCalculations {
         target == ShotTarget.Hub
             ? JsonConstants.shotMaps.maxHubDistanceMeters
             : JsonConstants.shotMaps.maxPassDistanceMeters;
+
     Logger.recordOutput("ShotCalculations/MapBased/MinDistanceMeters", minDistanceMeters);
     Logger.recordOutput("ShotCalculations/MapBased/MaxDistanceMeters", maxDistanceMeters);
 
@@ -250,18 +275,12 @@ class ShotCalculations {
     double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
     Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
 
-    // Account for the time it will take to actually command the mechanism to its goal setpoint.
-    flightTimeSeconds += JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
-    Logger.recordOutput(
-        "ShotCalculations/MapBased/CompensatedFlightTimeSeconds", flightTimeSeconds);
-
-    Translation2d offsetXY = fieldRelativeShooterVelocity.times(flightTimeSeconds);
-    Translation3d offset = new Translation3d(offsetXY.getX(), offsetXY.getY(), 0.0);
-    Translation3d virtualTarget = targetPose.minus(offset);
+    Translation2d offset = fieldRelativeShooterVelocity.times(flightTimeSeconds);
+    Translation2d virtualTarget = targetPosition.minus(offset);
     Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
 
     double virtualDistanceXYMeters =
-        shooterPosition.toTranslation2d().getDistance(virtualTarget.toTranslation2d());
+        shooterPose.getTranslation().getDistance(virtualTarget);
     Logger.recordOutput("ShotCalculations/MapBased/VirtualDistanceMeters", virtualDistanceXYMeters);
 
     if (virtualDistanceXYMeters < minDistanceMeters
@@ -276,11 +295,10 @@ class ShotCalculations {
 
     double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
     double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
-    double yawRadians = calculateYawRadians(shooterPosition, virtualTarget);
+    Rotation2d yawRadians = virtualTarget.minus(shooterPose.getTranslation()).getAngle();
 
     MapBasedShotInfo shot =
         new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yawRadians, isShotReal);
-    Logger.recordOutput("ShotCalculations/MapBased/succeeded", true);
     Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);
     return shot;
   }

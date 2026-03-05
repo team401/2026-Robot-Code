@@ -965,11 +965,14 @@ public class CoordinationLayer {
    */
   private boolean runShotCalculatorWithDrive(Drive driveInstance) {
     Pose2d robotPose = driveInstance.getPose();
-    Translation3d shooterPosition =
-        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
+    Pose2d shooterPose =
+        robotPose.plus(JsonConstants.robotInfo.robotToShooter2d);
+      
+    Logger.recordOutput("CoordinationLayer/shooterPose", shooterPose);
 
     ShotTarget target = getShotTargetFromPose(robotPose);
 
+    ChassisSpeeds robotRelativeSpeeds = driveInstance.getChassisSpeeds();
     ChassisSpeeds fieldCentricSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
             driveInstance.getChassisSpeeds(), robotPose.getRotation());
@@ -993,7 +996,7 @@ public class CoordinationLayer {
 
       However, we can accomplish this math using Translation3d.cross instead:
     */
-    double omega = fieldCentricSpeeds.omegaRadiansPerSecond;
+    double omega = robotRelativeSpeeds.omegaRadiansPerSecond;
     Translation3d omega_vec = new Translation3d(0, 0, omega);
 
     Translation3d robotToShooterTranslation =
@@ -1015,11 +1018,11 @@ public class CoordinationLayer {
             fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
 
     MapBasedShotInfo shot =
-        ShotCalculations.calculateShotFromMap(shooterPosition, shooterVelocity, target);
+        ShotCalculations.calculateShotFromMap(robotPose, robotRelativeSpeeds, shooterVelocity, target);
 
     turret.ifPresent(
         turret -> {
-          turret.targetGoalHeading(new Rotation2d(shot.yawRadians()));
+          turret.targetGoalHeading(shot.yaw());
         });
 
     hood.ifPresent(

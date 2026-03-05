@@ -14,6 +14,7 @@ import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
@@ -43,6 +44,14 @@ public class RobotInfo {
           Units.inchesToMeters(-2.088),
           Units.inchesToMeters(17.0),
           new Rotation3d());
+  
+  @JSONExclude
+  public Transform2d robotToShooter2d;
+
+  @AfterJsonLoad
+  private void initializeRobotToShooter2d() {
+    robotToShooter2d = new Transform2d(robotToShooter.getX(), robotToShooter.getY(), robotToShooter.getRotation().toRotation2d());
+  }
 
   public final CANdiSignal homingSwitchSignal = CANdiSignal.S1;
 
