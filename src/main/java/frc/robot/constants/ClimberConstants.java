@@ -33,7 +33,6 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import frc.robot.util.PIDGains;
 
 // Copilot was used to help write this file
 public class ClimberConstants {
@@ -69,7 +68,11 @@ public class ClimberConstants {
   public Double climberKG = 0.2;
   public Double climberKA = 0.0;
 
-  public PIDGains slot1Gains = new PIDGains(500.0, 50.0, 50.0, 0.0, 0.0, 0.2, 0.0);
+  /**
+   * This voltage will be applied while trying to hang whenever the position is greater than the
+   * target position
+   */
+  public Voltage hangClimbVoltage = Volts.of(-3.0);
 
   public Double climberExpoKV = 2.0;
   public Double climberExpoKA = 37.5;
@@ -111,7 +114,6 @@ public class ClimberConstants {
                 .withKV(climberKV)
                 .withKG(climberKG)
                 .withKA(climberKA))
-        .withSlot1(slot1Gains.toSlot1Config())
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(climberSupplyCurrentLimit)

@@ -70,18 +70,14 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
 
   public static class HangState extends ClimberState {
     @Override
-    public void onEntry(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      climber.switchToGainSlot1();
-    }
-
-    @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      climber.setToHangClimbPosition();
-    }
-
-    @Override
-    public void onExit(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      climber.switchToGainSlot0();
+      // Bang-bang control down to the hang position; the brake module will handle holding us in
+      // place once we get there.
+      if (climber.isAboveHangPosition()) {
+        climber.applyHangVoltage();
+      } else {
+        climber.coast();
+      }
     }
   }
 }

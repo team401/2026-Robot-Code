@@ -13,7 +13,6 @@ import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
-import coppercore.wpilib_interface.subsystems.motors.MotorIO.GainSlot;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -80,9 +79,6 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
   public ClimberSubsystem(MotorIO motor) {
     this.motor = motor;
-
-    Logger.recordOutput("Climber/slot", GainSlot.Slot0);
-    motor.selectGainSlot(GainSlot.Slot0);
 
     stateMachine = new StateMachine<>(this);
 
@@ -279,14 +275,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         JsonConstants.climberConstants.hangClimbAngle); // TODO: Find
   }
 
-  protected void switchToGainSlot0() {
-    Logger.recordOutput("Climber/slot", GainSlot.Slot0);
-    motor.selectGainSlot(GainSlot.Slot0);
-  }
-
-  protected void switchToGainSlot1() {
-    Logger.recordOutput("Climber/slot", GainSlot.Slot1);
-    motor.selectGainSlot(GainSlot.Slot1);
+  protected void applyHangVoltage() {
+    motor.controlOpenLoopVoltage(JsonConstants.climberConstants.hangClimbVoltage);
   }
 
   public boolean isStowed() {
@@ -368,5 +358,15 @@ public class ClimberSubsystem extends MonitoredSubsystem {
    */
   public boolean isStowedOrHasntBeenHomed() {
     return stateMachine.getCurrentState() == waitForHomingState || isStowed();
+  }
+
+  /**
+   * Checks whether the climber is above its hanging setpoint. If this method returns true and the
+   * climber is trying to hang, it should drive downward.
+   *
+   * @return {@code true} if the climber is above its hanging setpoint, {@code false} otherwise.
+   */
+  public boolean isAboveHangPosition() {
+    return inputs.positionRadians > JsonConstants.climberConstants.hangClimbAngle.in(Radians);
   }
 }
