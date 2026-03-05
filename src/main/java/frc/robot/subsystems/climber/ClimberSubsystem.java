@@ -13,6 +13,7 @@ import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
+import coppercore.wpilib_interface.subsystems.motors.MotorIO.GainSlot;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -79,6 +80,10 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
   public ClimberSubsystem(MotorIO motor) {
     this.motor = motor;
+
+    Logger.recordOutput("Climber/slot", GainSlot.Slot0);
+    motor.selectGainSlot(GainSlot.Slot0);
+
     stateMachine = new StateMachine<>(this);
 
     waitForHomingState = stateMachine.registerState(new ClimberState.WaitForHomingState());
@@ -107,7 +112,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
     searchState
         .when(() -> requestedAction == ClimberAction.Stow, "Should stow")
-        .transitionTo(stowState);
+        .transitionTo(homingWaitForMovementState);
     searchState
         .when(() -> requestedAction == ClimberAction.Hang, "Should hang")
         .transitionTo(hangState);
@@ -272,6 +277,16 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   public void setToHangClimbPosition() {
     motor.controlToPositionExpoProfiled(
         JsonConstants.climberConstants.hangClimbAngle); // TODO: Find
+  }
+
+  protected void switchToGainSlot0() {
+    Logger.recordOutput("Climber/slot", GainSlot.Slot0);
+    motor.selectGainSlot(GainSlot.Slot0);
+  }
+
+  protected void switchToGainSlot1() {
+    Logger.recordOutput("Climber/slot", GainSlot.Slot1);
+    motor.selectGainSlot(GainSlot.Slot1);
   }
 
   public boolean isStowed() {

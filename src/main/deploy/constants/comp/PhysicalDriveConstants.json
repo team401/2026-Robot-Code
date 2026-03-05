@@ -82,7 +82,7 @@
   },
   "backRightModule": {
     "encoderOffset": {
-      "value": -0.171142578125,
+      "value": -0.32470703125,
       "unit": "Rotation"
     },
     "steerMotorInverted": false,

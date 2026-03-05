@@ -1,6 +1,6 @@
 {
   "homingVoltage": {
-    "value": -1.0,
+    "value": -5.0,
     "unit": "Volts"
   },
   "climberReduction": 1.0,
@@ -17,15 +17,15 @@
     "unit": "Degrees"
   },
   "stowAngle": {
-    "value": 0.0,
+    "value": 65.0,
     "unit": "Degrees"
   },
   "upperClimbAngle": {
-    "value": 90,
+    "value": 22700,
     "unit": "Degrees"
   },
   "hangClimbAngle": {
-    "value": 15000,
+    "value": 7500,
     "unit": "Degrees"
   },
   "maxStowedAngle": {
@@ -47,8 +47,17 @@
   "climberKV": 0.0,
   "climberKG": 0.0,
   "climberKA": 0.0,
-  "climberExpoKV": 10.0,
-  "climberExpoKA": 65.0,
+  "slot1Gains": {
+    "kP": 256,
+    "kI": 20.0,
+    "kD": 5.0,
+    "kS": 2.0,
+    "kG": 0.0,
+    "kV": 0.0,
+    "kA": 0.0
+  },
+  "climberExpoKV": 0.25,
+  "climberExpoKA": 0.5,
   "climberSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amps"

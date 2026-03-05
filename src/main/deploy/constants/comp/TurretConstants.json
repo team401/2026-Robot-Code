@@ -1,7 +1,7 @@
 {
   "wearInTurret": false,
   "homingVoltage": {
-    "value": -1.0,
+    "value": -2.0,
     "unit": "Volt"
   },
   "turretReduction": 37.5,
@@ -17,15 +17,15 @@
     "value": 0.0,
     "unit": "Degree"
   },
-  "turretKP": 512.0,
+  "turretKP": 1024.0,
   "turretKI": 0.0,
-  "turretKD": 48.0,
+  "turretKD": 80.0,
   "turretKS": 4.0,
   "turretKV": 1.0,
   "turretKG": 0.0,
-  "turretKA": 1.6,
+  "turretKA": 2.0,
   "turretExpoKV": 1.8,
-  "turretExpoKA": 3.6,
+  "turretExpoKA": 1.8,
   "turretSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
@@ -52,7 +52,7 @@
     "unit": "Degree"
   },
   "headingToTurretAngle": {
-    "value": 41.0,
+    "value": 39.0,
     "unit": "Degree"
   }
 }
