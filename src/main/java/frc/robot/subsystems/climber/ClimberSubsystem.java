@@ -15,11 +15,15 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
+import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import java.io.PrintWriter;
@@ -73,6 +77,13 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   LoggedTunableNumber climberTuningSetpointDegrees;
   LoggedTunableNumber climberTuningAmps;
   LoggedTunableNumber climberTuningVolts;
+
+  LoggedTunableMeasure<MutVoltage, Voltage, VoltageUnit> hangVoltage =
+      new LoggedTunableMeasure<>(
+          "ClimberTunables/hangVoltage",
+          JsonConstants.climberConstants.hangClimbVoltage.mutableCopy(),
+          Volts,
+          true);
 
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Climber", TestMode.class);
@@ -276,7 +287,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   }
 
   protected void applyHangVoltage() {
-    motor.controlOpenLoopVoltage(JsonConstants.climberConstants.hangClimbVoltage);
+    // TODO: Switch back to the constant after we find a good value for this
+    motor.controlOpenLoopVoltage(hangVoltage.get());
   }
 
   public boolean isStowed() {
