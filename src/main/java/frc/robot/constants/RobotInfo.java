@@ -47,15 +47,6 @@ public class RobotInfo {
 
   @JSONExclude public Transform2d robotToShooter2d;
 
-  @AfterJsonLoad
-  private void initializeRobotToShooter2d() {
-    robotToShooter2d =
-        new Transform2d(
-            robotToShooter.getX(),
-            robotToShooter.getY(),
-            robotToShooter.getRotation().toRotation2d());
-  }
-
   public final CANdiSignal homingSwitchSignal = CANdiSignal.S1;
 
   public final CANdiConfiguration buildHomingSwitchConfig() {
@@ -82,5 +73,11 @@ public class RobotInfo {
   public void loadFieldsFromJSON() {
     CANBus = new CANBus(canivoreBusName, logFilePath);
     ODOMETRY_FREQUENCY = CANBus.isNetworkFD() ? 250.0 : 100.0;
+
+    robotToShooter2d =
+        new Transform2d(
+            robotToShooter.getX(),
+            robotToShooter.getY(),
+            robotToShooter.getRotation().toRotation2d());
   }
 }
