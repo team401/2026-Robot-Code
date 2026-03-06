@@ -21,6 +21,8 @@ import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
+import frc.robot.util.math.Lazy;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class TransferRollerSubsystem extends MonitoredSubsystem {
@@ -43,7 +45,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("TransferRoller", TestMode.class);
 
-  TuningModeHelper<TestMode> tuningModeHelper;
+  Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
 
   public TransferRollerSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -91,35 +93,39 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
     StateMachineDump.write("transferroller", stateMachine);
 
     // Initialize tuning mode helper
-    TunableMotor tunableMotor =
-        TunableMotorConfiguration.defaultConfiguration()
-            .withVelocityTuning()
-            .profiled()
-            .withDefaultMotionProfileConfig(
-                JsonConstants.transferRollerConstants.transferRollerMotionProfileConfig)
-            .withDefaultPIDGains(JsonConstants.transferRollerConstants.transferRollerGains)
-            .onPIDGainsChanged(
-                newGains -> JsonConstants.transferRollerConstants.transferRollerGains = newGains)
-            .onMotionProfileConfigChanged(
-                newProfile ->
-                    JsonConstants.transferRollerConstants.transferRollerMotionProfileConfig =
-                        newProfile)
-            .withTunableAngularVelocityUnit(RPM)
-            .build("TransferRoller/MotorTuning", motor);
+    Supplier<TunableMotor> createTunableMotor =
+        () ->
+            TunableMotorConfiguration.defaultConfiguration()
+                .withVelocityTuning()
+                .profiled()
+                .withDefaultMotionProfileConfig(
+                    JsonConstants.transferRollerConstants.transferRollerMotionProfileConfig)
+                .withDefaultPIDGains(JsonConstants.transferRollerConstants.transferRollerGains)
+                .onPIDGainsChanged(
+                    newGains ->
+                        JsonConstants.transferRollerConstants.transferRollerGains = newGains)
+                .onMotionProfileConfigChanged(
+                    newProfile ->
+                        JsonConstants.transferRollerConstants.transferRollerMotionProfileConfig =
+                            newProfile)
+                .withTunableAngularVelocityUnit(RPM)
+                .build("TransferRoller/MotorTuning", motor);
 
     tuningModeHelper =
-        new TuningModeHelper<TestMode>(TestMode.class)
-            .addMotorTuningModes(
-                tunableMotor,
-                MotorTuningMode.of(
-                    TestMode.TransferRollerClosedLoopTuning, ControlMode.CLOSED_LOOP),
-                MotorTuningMode.of(
-                    TestMode.TransferRollerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
-                MotorTuningMode.of(
-                    TestMode.TransferRollerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
-                MotorTuningMode.of(
-                    TestMode.TransferRollerPhoenixTuning, ControlMode.PHOENIX_TUNING),
-                MotorTuningMode.of(TestMode.None, ControlMode.NONE));
+        new Lazy<>(
+            () ->
+                new TuningModeHelper<TestMode>(TestMode.class)
+                    .addMotorTuningModes(
+                        createTunableMotor.get(),
+                        MotorTuningMode.of(
+                            TestMode.TransferRollerClosedLoopTuning, ControlMode.CLOSED_LOOP),
+                        MotorTuningMode.of(
+                            TestMode.TransferRollerCurrentTuning, ControlMode.OPEN_LOOP_CURRENT),
+                        MotorTuningMode.of(
+                            TestMode.TransferRollerVoltageTuning, ControlMode.OPEN_LOOP_VOLTAGE),
+                        MotorTuningMode.of(
+                            TestMode.TransferRollerPhoenixTuning, ControlMode.PHOENIX_TUNING),
+                        MotorTuningMode.of(TestMode.None, ControlMode.NONE)));
   }
 
   @Override
@@ -133,7 +139,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
   }
 
   protected void testPeriodic() {
-    tuningModeHelper.testPeriodic(testModeManager.getTestMode());
+    tuningModeHelper.get().testPeriodic(testModeManager.getTestMode());
   }
 
   /**
