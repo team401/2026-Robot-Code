@@ -85,7 +85,7 @@ public class OptionalTypeAdapterFactory implements TypeAdapterFactory {
         in.nextNull();
         return Optional.empty();
       }
-      return Optional.of(innerAdapter.read(in));
+      return Optional.ofNullable(innerAdapter.read(in));
     }
   }
 }

@@ -23,7 +23,7 @@ const autoFiles = process.argv.slice(2);
 
 if (autoFiles.length === 0) {
   console.error(
-    "Usage: node scripts/run_autos.mjs <compiled_auto1.js> [compiled_auto2.js ...]"
+    "Usage: node scripts/write_autos.mjs <compiled_auto1.js> [compiled_auto2.js ...]"
   );
   process.exit(1);
 }

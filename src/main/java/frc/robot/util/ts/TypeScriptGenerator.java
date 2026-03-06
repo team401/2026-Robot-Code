@@ -329,7 +329,7 @@ public final class TypeScriptGenerator {
         if (field.isTypeScriptOptional) {
           defaultValue = "undefined";
         }
-        ;
+
         sb.append(" = ").append(defaultValue);
       }
       if (i < fields.size() - 1) {

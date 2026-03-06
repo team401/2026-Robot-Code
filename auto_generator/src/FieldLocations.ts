@@ -8,7 +8,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-// The aforementioned license can be found in the file FieldConstants_LICENSE
+// The aforementioned license can be found in the file FieldConstants_LICENSE.
 // All modifications made after 16:47 ET 2026-1-28 were made by FRC Team 401 Copperhead Robotics
 // Docs Written by Claude Opus 4.6
 

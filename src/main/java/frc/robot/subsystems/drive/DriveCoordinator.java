@@ -153,7 +153,9 @@ public class DriveCoordinator extends SubsystemBase {
     if (currentCommand != null && currentCommand.isFinished()) {
       currentCommand.end(false);
       currentCommand = null;
-      defaultCommand.initialize();
+      if (defaultCommand != null) {
+        defaultCommand.initialize();
+      }
     } else {
       if (defaultCommand != null && defaultCommand.isFinished()) {
         defaultCommand.end(false);

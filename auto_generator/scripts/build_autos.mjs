@@ -19,7 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 
 // Helper modules that should not be treated as auto files
-const EXCLUDED_FILES = new Set(["AutoLib.js", "Shorthands.js"]);
+const EXCLUDED_FILES = new Set(["AutoLib.js", "Shorthands.js", "Constants.js", "FieldLocations.js"]);
 
 // Step 1: Compile TypeScript
 console.log("Compiling TypeScript...");
