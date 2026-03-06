@@ -205,7 +205,8 @@ public class InitSubsystems {
         return new HopperSubsystem(
             MotorIOTalonFX.newLeader(
                 JsonConstants.hopperConstants.buildMechanismConfig(),
-                JsonConstants.hopperConstants.buildTalonFXConfigs()));
+                JsonConstants.hopperConstants.buildTalonFXConfigs(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates));
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -213,6 +214,7 @@ public class InitSubsystems {
             MotorIOTalonFXSim.newLeader(
                 JsonConstants.hopperConstants.buildMechanismConfig(),
                 JsonConstants.hopperConstants.buildTalonFXConfigs(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates,
                 JsonConstants.hopperConstants.buildHopperSim()));
 
       case REPLAY:
@@ -230,7 +232,8 @@ public class InitSubsystems {
         return new IndexerSubsystem(
             MotorIOTalonFX.newLeader(
                 JsonConstants.indexerConstants.buildMechanismConfig(),
-                JsonConstants.indexerConstants.buildTalonFXConfigs()));
+                JsonConstants.indexerConstants.buildTalonFXConfigs(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.indexerConstants.buildMechanismConfig();
@@ -238,6 +241,7 @@ public class InitSubsystems {
             MotorIOTalonFXSim.newLeader(
                     config,
                     JsonConstants.indexerConstants.buildTalonFXConfigs(),
+                    JsonConstants.robotInfo.nonFireControllingRefreshRates,
                     JsonConstants.indexerConstants.buildIndexerSim())
                 .withMotorType(MotorType.KrakenX44));
       case REPLAY:
@@ -403,14 +407,17 @@ public class InitSubsystems {
         return new IntakeSubsystem(
             MotorIOTalonFX.newLeader(
                 JsonConstants.intakeConstants.buildPivotMechanismConfig(),
-                JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig()),
+                JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates),
             MotorIOTalonFX.newLeader(
                 JsonConstants.intakeConstants.buildRollersMechanismConfig(),
-                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()),
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates),
             MotorIOTalonFX.newFollower(
                 JsonConstants.intakeConstants.buildRollersMechanismConfig(),
                 0,
-                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig()));
+                JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig pivotConfig = JsonConstants.intakeConstants.buildPivotMechanismConfig();
@@ -422,15 +429,18 @@ public class InitSubsystems {
             MotorIOTalonFXSim.newLeader(
                 pivotConfig,
                 JsonConstants.intakeConstants.buildPivotTalonFXMotorConfig(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates,
                 JsonConstants.intakeConstants.buildPivotSim()),
             MotorIOTalonFXSim.newLeader(
                 rollersConfig,
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates,
                 rollerSim),
             MotorIOTalonFXSim.newFollower(
                 rollersConfig,
                 0,
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates,
                 rollerSim));
 
       case REPLAY:

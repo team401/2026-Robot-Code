@@ -14,7 +14,7 @@ digraph {
 
   // States
 
-  VelocityControlState ;
+  VelocityControlState [shape=doublecircle];
   CoastState ;
   TestModeState ;
 

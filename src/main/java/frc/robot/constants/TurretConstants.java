@@ -101,8 +101,10 @@ public class TurretConstants {
   /**
    * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
    * headingToTurretAngle = turretRelativeAngle
+   *
+   * <p>FieldCentricTurretHeading = TurretAngle - headingToTurretAngle + RobotHeading
    */
-  public final Angle headingToTurretAngle = Degrees.of(-45.0); // TODO: Real value
+  public final Angle headingToTurretAngle = Degrees.of(41.706);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()

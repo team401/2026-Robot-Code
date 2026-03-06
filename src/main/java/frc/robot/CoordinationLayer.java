@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.vision.VisionLocalizer;
 import coppercore.wpilib_interface.controllers.Controller.Button;
 import coppercore.wpilib_interface.controllers.Controllers;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -35,7 +37,9 @@ import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
 import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
+import frc.robot.coordination.CoordinationTestMode;
 import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.drive.Drive;
@@ -50,10 +54,13 @@ import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.OptionalUtil;
 import frc.robot.util.StateMachineDump;
+import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
+import frc.robot.util.math.Lazy;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -146,6 +153,29 @@ public class CoordinationLayer {
 
   @AutoLogOutput(key = "CoordinationLayer/shotMode")
   private ShotMode shotMode = ShotMode.Hub;
+
+  /**
+   * Whether the shot we were aiming for last cycle was a real shot or an approximation of the
+   * nearest possible shot
+   *
+   * <p>This is needed because, when it encounters a shot that's outside of its shot map, the shot
+   * calculator simply clamps the distance to the nearest possible distance and aims for that
+   * instead. This is done so that, whenever the circumstances change so that we can shoot again,
+   * the robot is already aimed to shoot.
+   */
+  private boolean isShotReal = false;
+
+  // Tunable numbers for shot tuning
+  private final Lazy<LoggedTunableNumber> hoodTuningAngleDegrees =
+      new Lazy<>(
+          () ->
+              new LoggedTunableNumber(
+                  "CoordinationLayer/ShotTuning/hoodAngleDegrees",
+                  JsonConstants.hoodConstants.minHoodAngle.in(Degrees)));
+  private final Lazy<LoggedTunableNumber> shooterTuningRPM =
+      new Lazy<>(() -> new LoggedTunableNumber("CoordinationLayer/ShotTuning/shooterRPM", 0.0));
+  private final TestModeManager<CoordinationTestMode> testModeManager =
+      new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
 
   // Logging
   private final Alert autonomyOverriddenAlert =
@@ -275,6 +305,10 @@ public class CoordinationLayer {
         .whenFinished("Intake finished retracting")
         .transitionTo(noExtensionState);
 
+    this.waitForIntakeRetractState
+        .when(() -> goalExtensionState == ExtensionState.IntakeDeployed, "Goal is IntakeDeployed")
+        .transitionTo(intakeDeployedState);
+
     this.climberDeployedState
         .when(() -> goalExtensionState != ExtensionState.ClimbDeployed, "Goal is not ClimbDeployed")
         .transitionTo(waitForClimbRetractState);
@@ -283,8 +317,14 @@ public class CoordinationLayer {
         .whenFinished("Climb finished retracting")
         .transitionTo(noExtensionState);
 
+    this.waitForClimbRetractState
+        .when(() -> goalExtensionState == ExtensionState.ClimbDeployed, "Goal is ClimbDeployed")
+        .transitionTo(climberDeployedState);
+
     extensionStateMachine.setState(noExtensionState);
     StateMachineDump.write("coordination", extensionStateMachine);
+
+    AutoLogOutputManager.addObject(this);
   }
 
   // Controller bindings
@@ -647,7 +687,11 @@ public class CoordinationLayer {
                 "CoordinationLayer/distanceToHub",
                 AllianceBasedFieldConstants.hubInnerCenterPoint()
                     .toTranslation2d()
-                    .getDistance(drive.getPose().getTranslation()));
+                    .getDistance(
+                        new Pose3d(drive.getPose())
+                            .plus(JsonConstants.robotInfo.robotToShooter)
+                            .getTranslation()
+                            .toTranslation2d()));
           });
     }
 
@@ -665,9 +709,8 @@ public class CoordinationLayer {
 
     // Determine if vision is enabled and functioning
     boolean visionConnected = vision.map(VisionLocalizer::coprocessorConnected).orElse(false);
-    Logger.recordOutput("CoordinationLayer/visionConnected", visionConnected);
     boolean visionConnectedDebounced = visionConnectedDebouncer.calculate(visionConnected);
-    Logger.recordOutput("CoordinationLayer/visionConnectedDebounced", visionConnectedDebounced);
+    Logger.recordOutput("CoordinationLayer/visionConnected", visionConnectedDebounced);
 
     visionDisconnectedAlert.set(JsonConstants.featureFlags.runVision && !visionConnected);
 
@@ -677,12 +720,47 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
+    // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
+    // shot we were looking ahead to last cycle.
+    // This should improve the performance of shoot on the move.
+    // If this isn't sufficient, we can calculate 2 shots: one with compensation delay and one
+    // without compensation delay, and then just test the one without compensation delay.
+    boolean canShoot =
+        isForceShootPressed.getAsBoolean()
+            || (shootingEnabled
+                && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
+                && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
+                // When the turret isn't enabled, assume that it's been locked into the correct
+                // location for a manual mode shot if we ever have to run "no turret"
+                && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
+    Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
+
+    if (canShoot) {
+      hopper.ifPresent(
+          hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
+      indexer.ifPresent(
+          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
+    } else {
+      hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
+      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+    }
+
     // Aim for a shot based on the current autonomy level
-    boolean isShotReal =
-        switch (effectiveAutonomyLevel) {
-          case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
-          case Manual -> aimForManualShot();
-        };
+    if (testModeManager.isInTestMode()) {
+      drive.ifPresent(this::aimForTestModeShot);
+      // When in test mode, always assume the shot is real to avoid locking ourselves out of shots.
+      // Assume that the tuner knows what they are doing.
+      isShotReal = true;
+    } else {
+      isShotReal =
+          switch (effectiveAutonomyLevel) {
+            // If the drivetrain doesn't exist, we won't shoot. Not sure when this would ever come
+            // into play. If this ever becomes an outreach bot, this will need to change.
+            case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
+            case Manual -> aimForManualShot();
+          };
+    }
+
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
 
     boolean shouldStowHoodBasedOnMovement =
@@ -781,7 +859,38 @@ public class CoordinationLayer {
       }
     }
 
+    // Manual shot is always real, as the manual shot we're aiming for is a shot that we know is
+    // possible.
     return true;
+  }
+
+  private void aimForTestModeShot(Drive driveInstance) {
+    double hoodAngleRadians = Units.degreesToRadians(hoodTuningAngleDegrees.get().getAsDouble());
+    double shooterRPM = shooterTuningRPM.get().getAsDouble();
+
+    hood.ifPresent(
+        hood -> {
+          hood.targetAngleRadians(hoodAngleRadians);
+        });
+
+    shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
+
+    Pose2d robotPose = driveInstance.getPose();
+    Translation3d shooterPosition =
+        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
+
+    ShotTarget target = getShotTargetFromPose(robotPose);
+
+    Translation3d targetPose =
+        switch (target) {
+          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
+          case PassLeft -> FieldLocations.leftPassingTarget();
+          case PassRight -> FieldLocations.rightPassingTarget();
+        };
+
+    double yawRadians = ShotCalculations.calculateYawRadians(shooterPosition, targetPose);
+
+    turret.ifPresent(turret -> turret.targetGoalHeading(new Rotation2d(yawRadians)));
   }
 
   private final EnhancedLine2d leftBlueTrench =

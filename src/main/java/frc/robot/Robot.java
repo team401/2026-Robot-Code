@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -77,6 +78,9 @@ public class Robot extends LoggedRobot {
     // Optionally switch the thread to high priority to improve loop
     // timing (see the template project documentation for details)
     // Threads.setCurrentThreadPriority(true, 99);
+
+    // Refresh all status signals, must be done before any IOs run updateInputs
+    StatusSignalRefresher.refreshAll();
 
     // Run the DependencyOrderedExecutor, which executes all registered actions in order so that all
     // dependencies are satisfied.

@@ -32,7 +32,7 @@
     "unit": "Degree"
   },
   "hoodSetpointEpsilon": {
-    "value": 1.0,
+    "value": 2.0,
     "unit": "Degree"
   },
   "timeToStowHood": {

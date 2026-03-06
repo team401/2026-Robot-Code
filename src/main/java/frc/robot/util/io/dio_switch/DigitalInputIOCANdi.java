@@ -2,12 +2,12 @@ package frc.robot.util.io.dio_switch;
 
 import static edu.wpi.first.units.Units.Hertz;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.hardware.CANdi;
 import coppercore.wpilib_interface.CTREUtil;
+import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -63,12 +63,14 @@ public class DigitalInputIOCANdi implements DigitalInputIO {
       default -> throw new UnsupportedOperationException("Unknown CANdi signal " + signal);
     }
 
+    StatusSignalRefresher.addSignal(id.canbus(), closedSignal);
+
     CTREUtil.tryUntilOk(() -> closedSignal.setUpdateFrequency(Hertz.of(50)), id, code -> {});
     CTREUtil.tryUntilOk(() -> candi.optimizeBusUtilization(), id, code -> {});
   }
 
   public void updateInputs(DigitalInputInputs inputs) {
-    StatusCode code = BaseStatusSignal.refreshAll(closedSignal);
+    StatusCode code = closedSignal.getStatus();
 
     disconnectedAlert.set(!code.isOK());
 
