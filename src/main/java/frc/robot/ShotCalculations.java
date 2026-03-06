@@ -197,8 +197,8 @@ class ShotCalculations {
    *
    * @param hoodAngleRadians The angle of the hood (NOT the pitch) in radians.
    * @param shooterRPM The desired angular velocity of the shooter, in RPM.
-   * @param yaw The desired field-relative yaw (NOT the angle setpoint) of the turret, in
-   *     a Rotation2d.
+   * @param yaw The desired field-relative yaw (NOT the angle setpoint) of the turret, in a
+   *     Rotation2d.
    * @param isReal {@code true} if the shot is a real shot aimed at the target and {@code false} if
    *     the shot is a "best guess" because the real shot is impossible.
    */
@@ -206,11 +206,13 @@ class ShotCalculations {
       double hoodAngleRadians, double shooterRPM, Rotation2d yaw, boolean isReal) {}
 
   /**
-   * Calculate a MapBasedShotInfo by looking ahead from the current position and accounting for motion using time of flight.
-   * 
+   * Calculate a MapBasedShotInfo by looking ahead from the current position and accounting for
+   * motion using time of flight.
+   *
    * @param robotPose The current robot position
    * @param robotRelativeChassisSpeeds The ROBOT CENTRIC chassis speeds of the robot
-   * @param fieldRelativeShooterVelocity the velocity of the shooter, field relative, as a Translation2d.
+   * @param fieldRelativeShooterVelocity the velocity of the shooter, field relative, as a
+   *     Translation2d.
    * @param target the ShotTarget to aim for
    * @return
    */
@@ -228,19 +230,20 @@ class ShotCalculations {
 
     double lookaheadTimeSeconds = JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
 
-    Pose2d lookaheadPose = robotPose.exp(new Twist2d(
-      robotRelativeChassisSpeeds.vxMetersPerSecond * lookaheadTimeSeconds,
-      robotRelativeChassisSpeeds.vyMetersPerSecond * lookaheadTimeSeconds,
-      robotRelativeChassisSpeeds.omegaRadiansPerSecond * lookaheadTimeSeconds));
-  
+    Pose2d lookaheadPose =
+        robotPose.exp(
+            new Twist2d(
+                robotRelativeChassisSpeeds.vxMetersPerSecond * lookaheadTimeSeconds,
+                robotRelativeChassisSpeeds.vyMetersPerSecond * lookaheadTimeSeconds,
+                robotRelativeChassisSpeeds.omegaRadiansPerSecond * lookaheadTimeSeconds));
+
     Logger.recordOutput("ShotCalculations/MapBased/lookaheadPose", lookaheadPose);
 
     Pose2d shooterPose = lookaheadPose.plus(JsonConstants.robotInfo.robotToShooter2d);
 
     Logger.recordOutput("ShotCalculations/MapBased/shooterPose", shooterPose);
 
-    double distanceXYMeters =
-        shooterPose.getTranslation().getDistance(targetPosition);
+    double distanceXYMeters = shooterPose.getTranslation().getDistance(targetPosition);
     Logger.recordOutput("ShotCalculations/MapBased/ShotDistanceMeters", distanceXYMeters);
 
     double minDistanceMeters =
@@ -279,8 +282,7 @@ class ShotCalculations {
     Translation2d virtualTarget = targetPosition.minus(offset);
     Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
 
-    double virtualDistanceXYMeters =
-        shooterPose.getTranslation().getDistance(virtualTarget);
+    double virtualDistanceXYMeters = shooterPose.getTranslation().getDistance(virtualTarget);
     Logger.recordOutput("ShotCalculations/MapBased/VirtualDistanceMeters", virtualDistanceXYMeters);
 
     if (virtualDistanceXYMeters < minDistanceMeters

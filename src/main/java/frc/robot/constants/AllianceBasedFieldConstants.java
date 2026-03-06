@@ -12,8 +12,9 @@ import frc.robot.util.AllianceUtil;
 public class AllianceBasedFieldConstants {
   /**
    * Tracks caching of a field location of unknown type based on what alliance we're on.
-   * 
-   * <p>By checking for which alliance the cache was generated, it can be updated for different alliances without restarting code
+   *
+   * <p>By checking for which alliance the cache was generated, it can be updated for different
+   * alliances without restarting code
    */
   private record CachedLocation<T>(Alliance alliance, T value) {}
 
@@ -23,9 +24,10 @@ public class AllianceBasedFieldConstants {
     Alliance alliance = AllianceUtil.getAlliance();
 
     if (hubInnerCenterPoint == null || hubInnerCenterPoint.alliance() != alliance) {
-      Translation3d value = AllianceUtil.isRed()
-          ? FieldConstants.Hub.oppInnerCenterPoint()
-          : FieldConstants.Hub.innerCenterPoint();
+      Translation3d value =
+          AllianceUtil.isRed()
+              ? FieldConstants.Hub.oppInnerCenterPoint()
+              : FieldConstants.Hub.innerCenterPoint();
       hubInnerCenterPoint = new CachedLocation<Translation3d>(AllianceUtil.getAlliance(), value);
     }
 
@@ -38,11 +40,12 @@ public class AllianceBasedFieldConstants {
     Alliance alliance = AllianceUtil.getAlliance();
 
     if (hubCenterPoint2d == null || hubCenterPoint2d.alliance() != alliance) {
-      Translation2d value = AllianceUtil.isRed()
-        ? FieldConstants.Hub.oppInnerCenterPoint().toTranslation2d()
-        : FieldConstants.Hub.innerCenterPoint().toTranslation2d();
+      Translation2d value =
+          AllianceUtil.isRed()
+              ? FieldConstants.Hub.oppInnerCenterPoint().toTranslation2d()
+              : FieldConstants.Hub.innerCenterPoint().toTranslation2d();
 
-        hubCenterPoint2d = new CachedLocation<Translation2d>(alliance, value);
+      hubCenterPoint2d = new CachedLocation<Translation2d>(alliance, value);
     }
 
     return hubCenterPoint2d.value();

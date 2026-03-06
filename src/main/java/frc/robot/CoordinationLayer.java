@@ -845,21 +845,21 @@ public class CoordinationLayer {
     shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
 
     Pose2d robotPose = driveInstance.getPose();
-    Translation3d shooterPosition =
-        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
+    Translation2d shooterPosition =
+        robotPose.plus(JsonConstants.robotInfo.robotToShooter2d).getTranslation();
 
     ShotTarget target = getShotTargetFromPose(robotPose);
 
-    Translation3d targetPose =
+    Translation2d targetPose =
         switch (target) {
-          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
+          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };
 
-    double yawRadians = ShotCalculations.calculateYawRadians(shooterPosition, targetPose);
+    Rotation2d yaw = targetPose.minus(shooterPosition).getAngle();
 
-    turret.ifPresent(turret -> turret.targetGoalHeading(new Rotation2d(yawRadians)));
+    turret.ifPresent(turret -> turret.targetGoalHeading(yaw));
   }
 
   private final EnhancedLine2d leftBlueTrench =
@@ -965,9 +965,8 @@ public class CoordinationLayer {
    */
   private boolean runShotCalculatorWithDrive(Drive driveInstance) {
     Pose2d robotPose = driveInstance.getPose();
-    Pose2d shooterPose =
-        robotPose.plus(JsonConstants.robotInfo.robotToShooter2d);
-      
+    Pose2d shooterPose = robotPose.plus(JsonConstants.robotInfo.robotToShooter2d);
+
     Logger.recordOutput("CoordinationLayer/shooterPose", shooterPose);
 
     ShotTarget target = getShotTargetFromPose(robotPose);
@@ -1018,7 +1017,8 @@ public class CoordinationLayer {
             fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
 
     MapBasedShotInfo shot =
-        ShotCalculations.calculateShotFromMap(robotPose, robotRelativeSpeeds, shooterVelocity, target);
+        ShotCalculations.calculateShotFromMap(
+            robotPose, robotRelativeSpeeds, shooterVelocity, target);
 
     turret.ifPresent(
         turret -> {

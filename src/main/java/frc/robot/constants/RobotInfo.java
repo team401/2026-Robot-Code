@@ -44,13 +44,16 @@ public class RobotInfo {
           Units.inchesToMeters(-2.088),
           Units.inchesToMeters(17.0),
           new Rotation3d());
-  
-  @JSONExclude
-  public Transform2d robotToShooter2d;
+
+  @JSONExclude public Transform2d robotToShooter2d;
 
   @AfterJsonLoad
   private void initializeRobotToShooter2d() {
-    robotToShooter2d = new Transform2d(robotToShooter.getX(), robotToShooter.getY(), robotToShooter.getRotation().toRotation2d());
+    robotToShooter2d =
+        new Transform2d(
+            robotToShooter.getX(),
+            robotToShooter.getY(),
+            robotToShooter.getRotation().toRotation2d());
   }
 
   public final CANdiSignal homingSwitchSignal = CANdiSignal.S1;
