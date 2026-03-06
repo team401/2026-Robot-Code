@@ -1,4 +1,4 @@
-package frc.robot.subsystems.transferRoller;
+package frc.robot.subsystems.transferroller;
 
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -10,10 +10,10 @@ import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.JsonConstants;
-import frc.robot.subsystems.transferRoller.TransferRollerState.DeJamState;
-import frc.robot.subsystems.transferRoller.TransferRollerState.IdleState;
-import frc.robot.subsystems.transferRoller.TransferRollerState.SpinState;
-import frc.robot.subsystems.transferRoller.TransferRollerState.TestModeState;
+import frc.robot.subsystems.transferroller.TransferRollerState.DeJamState;
+import frc.robot.subsystems.transferroller.TransferRollerState.IdleState;
+import frc.robot.subsystems.transferroller.TransferRollerState.SpinState;
+import frc.robot.subsystems.transferroller.TransferRollerState.TestModeState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.TuningModeHelper;
