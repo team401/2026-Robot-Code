@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
+import frc.robot.auto.AutoAction;
+import frc.robot.auto.AutoManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
@@ -192,7 +194,21 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    // return autoChooser.get();
+    return AutoManager.autos
+        .map(
+            (autos) -> {
+              var auto = autos.autos.get("Test Auto");
+              if (auto != null) {
+                return auto.toCommand(
+                    new AutoAction.AutoActionContext(
+                        driveCoordinator.orElseThrow(), coordinationLayer));
+              } else {
+                System.err.println("Auto 'Test Auto' not found!");
+                return null;
+              }
+            })
+        .orElse(null);
   }
 
   /**

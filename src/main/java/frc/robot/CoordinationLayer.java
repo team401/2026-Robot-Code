@@ -402,9 +402,9 @@ public class CoordinationLayer {
 
   // Docs Written by Claude Opus 4.6
   /**
-   * Deploys the intake mechanism and activates the intake rollers for autonomous operation.
-   * Sets the goal extension state to {@link ExtensionState#IntakeDeployed} and enables
-   * the intake rollers to begin collecting game pieces.
+   * Deploys the intake mechanism and activates the intake rollers for autonomous operation. Sets
+   * the goal extension state to {@link ExtensionState#IntakeDeployed} and enables the intake
+   * rollers to begin collecting game pieces.
    */
   public void deployIntakeForAuto() {
     goalExtensionState = ExtensionState.IntakeDeployed;
@@ -413,16 +413,17 @@ public class CoordinationLayer {
 
   // Docs Written by Claude Opus 4.6
   /**
-   * Stows the intake mechanism for autonomous mode by retracting the extension
-   * and stopping the intake rollers.
+   * Stows the intake mechanism for autonomous mode by retracting the extension and stopping the
+   * intake rollers.
    *
-   * <p>This method should be called before or during autonomous routines to ensure
-   * the intake is in a safe, retracted position and not actively running.
+   * <p>This method should be called before or during autonomous routines to ensure the intake is in
+   * a safe, retracted position and not actively running.
    *
    * <p>Effects:
+   *
    * <ul>
-   *   <li>Sets the goal extension state to {@link ExtensionState#None}, retracting the intake.</li>
-   *   <li>Stops the intake rollers by setting {@code runningIntakeRollers} to {@code false}.</li>
+   *   <li>Sets the goal extension state to {@link ExtensionState#None}, retracting the intake.
+   *   <li>Stops the intake rollers by setting {@code runningIntakeRollers} to {@code false}.
    * </ul>
    */
   public void stowIntakeForAuto() {
