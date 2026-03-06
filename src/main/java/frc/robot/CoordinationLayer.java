@@ -740,9 +740,14 @@ public class CoordinationLayer {
           hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
       indexer.ifPresent(
           indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
+      transferRoller.ifPresent(
+          transferRoller ->
+              transferRoller.setTargetVelocity(
+                  JsonConstants.transferRollerConstants.transferRollerSpinningVelocity));
     } else {
       hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
       indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+      transferRoller.ifPresent(transferRoller -> transferRoller.coast());
     }
 
     // Aim for a shot based on the current autonomy level
@@ -780,30 +785,6 @@ public class CoordinationLayer {
     // a ton of energy
     if (!shootingEnabled || shouldStowHood) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
-    }
-
-    boolean canShoot =
-        isForceShootPressed.getAsBoolean()
-            || (shootingEnabled
-                && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
-                && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
-                // When the turret isn't enabled, assume that it's been locked into the correct
-                // location for a manual mode shot if we ever have to run "no turret"
-                && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
-
-    if (canShoot) {
-      hopper.ifPresent(
-          hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
-      indexer.ifPresent(
-          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
-      transferRoller.ifPresent(
-          transferRoller ->
-              transferRoller.setTargetVelocity(
-                  JsonConstants.transferRollerConstants.transferRollerSpinningVelocity));
-    } else {
-      hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
-      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
-      transferRoller.ifPresent(transferRoller -> transferRoller.setTargetVelocity(RPM.zero()));
     }
   }
 

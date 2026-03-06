@@ -169,7 +169,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
     return targetVelocity.in(Units.RadiansPerSecond) < 0;
   }
 
-  void coast() {
+  public void coast() {
     motor.controlCoast();
   }
 }
