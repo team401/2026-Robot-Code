@@ -52,7 +52,7 @@ public abstract class AutoAction {
   public String type;
 
   public record AutoActionContext(
-      DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer, Autos auto) {}
+      DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer) {}
 
   public abstract Command toCommand(AutoActionContext data);
 }

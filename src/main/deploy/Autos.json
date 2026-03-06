@@ -1,54 +1,54 @@
 {
-    "autos": {
-        "Test Auto": {
-            "type": "Sequence",
-            "actions": [
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
-                            "translation": {
-                                "x": 2.003933,
-                                "y": 4.0215
-                            }
-                        },
-                        "velocity": 0
-                    }
-                },
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
-                            "translation": {
-                                "x": 4.604766,
-                                "y": 0.639318
-                            }
-                        },
-                        "velocity": 0
-                    }
-                },
-                {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
-                            "translation": {
-                                "x": 8.259,
-                                "y": 4.0215
-                            }
-                        },
-                        "velocity": 0
-                    }
-                }
-            ]
+  "autos": {
+    "Test Auto": {
+      "type": "Sequence",
+      "actions": [
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "degrees": 0
+              },
+              "translation": {
+                "x": 2.003933,
+                "y": 4.0215
+              }
+            },
+            "velocity": 0
+          }
+        },
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "degrees": 0
+              },
+              "translation": {
+                "x": 4.604766,
+                "y": 0.639318
+              }
+            },
+            "velocity": 0
+          }
+        },
+        {
+          "type": "AutoPilotAction",
+          "target": {
+            "reference": {
+              "rotation": {
+                "degrees": 0
+              },
+              "translation": {
+                "x": 8.259,
+                "y": 4.0215
+              }
+            },
+            "velocity": 0
+          }
         }
+      ]
     }
+  }
 }

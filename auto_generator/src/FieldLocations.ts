@@ -10,6 +10,7 @@
 
 // The aforementioned license can be found in the file FieldConstants_LICENSE
 // All modifications made after 16:47 ET 2026-1-28 were made by FRC Team 401 Copperhead Robotics
+// Docs Written by Claude Opus 4.6
 
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";

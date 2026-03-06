@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
 import frc.robot.auto.AutoAction;
+import frc.robot.auto.AutoManager;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.FixedJSONSyncConfigBuilder;
@@ -150,6 +151,7 @@ public class JsonConstants {
           Translation2d.class,
           Translation3d.class);
     }
+    AutoManager.loadAutos();
   }
 
   public static RobotInfo robotInfo;

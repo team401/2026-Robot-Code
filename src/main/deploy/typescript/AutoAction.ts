@@ -216,7 +216,29 @@ export class StopDriveAction {
   }
 }
 
-export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | undefined | null;
+export class DeployIntakeAction {
+  type: "DeployIntakeAction" = "DeployIntakeAction";
+	constructor({}: Partial<{}>) {
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
+}
+
+export class StowIntakeAction {
+  type: "StowIntakeAction" = "StowIntakeAction";
+	constructor({}: Partial<{}>) {
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
+}
+
+export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | DeployIntakeAction | StowIntakeAction | undefined | null;
 
 let _addCommandHook: ((command: NonNullable<AutoAction>) => void) | null = null;
 export function setAddCommandHook(hook: (command: NonNullable<AutoAction>) => void) { _addCommandHook = hook; }
