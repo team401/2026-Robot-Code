@@ -3,6 +3,9 @@ package frc.robot.auto;
 import coppercore.parameter_tools.json.annotations.JsonSubtype;
 import coppercore.parameter_tools.json.annotations.JsonType;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.CoordinationLayer;
+import frc.robot.auto.coordinationLayer.DeployIntakeAction;
+import frc.robot.auto.coordinationLayer.StowIntakeAction;
 import frc.robot.auto.drive.AutoPilotAction;
 import frc.robot.auto.drive.StopDriveAction;
 import frc.robot.auto.drive.XBasedAutoPilotAction;
@@ -40,12 +43,16 @@ import frc.robot.util.ts.TypeScriptMethod;
       @JsonSubtype(clazz = AutoPilotAction.class, name = "AutoPilotAction"),
       @JsonSubtype(clazz = XBasedAutoPilotAction.class, name = "XBasedAutoPilotAction"),
       @JsonSubtype(clazz = StopDriveAction.class, name = "StopDriveAction"),
+      // Coordination layer actions
+      @JsonSubtype(clazz = DeployIntakeAction.class, name = "DeployIntakeAction"),
+      @JsonSubtype(clazz = StowIntakeAction.class, name = "StowIntakeAction"),
     })
 public abstract class AutoAction {
 
   public String type;
 
-  public record AutoActionContext(DriveCoordinator driveCoordinator, Autos auto) {}
+  public record AutoActionContext(
+      DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer, Autos auto) {}
 
   public abstract Command toCommand(AutoActionContext data);
 }

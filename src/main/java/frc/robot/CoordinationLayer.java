@@ -397,6 +397,20 @@ public class CoordinationLayer {
     return makeTriggerFromCondition(button.getPrimitiveIsPressedSupplier());
   }
 
+
+  // AUTO METHOD
+  // Only autos are allowed to call these methods
+
+  public void deployIntakeForAuto() {
+    goalExtensionState = ExtensionState.IntakeDeployed;
+    runningIntakeRollers = true;
+  }
+
+  public void stowIntakeForAuto() {
+    goalExtensionState = ExtensionState.None;
+    runningIntakeRollers = false;
+  }
+
   /**
    * If the climber is deployed, stow it and then deploy the intake. If nothing is deployed, deploy
    * the intake. If the intake is deployed, stow the intake.
