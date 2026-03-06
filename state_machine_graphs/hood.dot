@@ -20,7 +20,7 @@ digraph {
   IdleState ;
   TargetExitPitchState ;
   TestModeState ;
-  HomingWaitForButtonState ;
+  HomingWaitForButtonState [shape=doublecircle];
 
   // Transitions
 

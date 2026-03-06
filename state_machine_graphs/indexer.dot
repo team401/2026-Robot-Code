@@ -16,7 +16,7 @@ digraph {
 
   ShootingState ;
   WarmupState ;
-  IdleState ;
+  IdleState [shape=doublecircle];
   TestModeState ;
 
   // Transitions
