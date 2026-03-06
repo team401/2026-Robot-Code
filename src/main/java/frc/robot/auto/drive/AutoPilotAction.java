@@ -4,6 +4,7 @@ import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
+import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,6 +21,11 @@ import java.util.Optional;
 public class AutoPilotAction extends AutoAction {
 
   public APTarget target = null;
+
+  @JSONExclude
+  APTarget fixedTarget =
+      null; // This is the target after alliance-relative transformation is applied
+
   @TypeScriptOptional public APProfile profile = null;
   @TypeScriptOptional public APConstraints constraints = null;
   @TypeScriptOptional public PIDGains pidGains = null;
@@ -30,6 +36,7 @@ public class AutoPilotAction extends AutoAction {
     Objects.requireNonNull(
         target.getReference(), "Target Pose cannot be null for AutoPilot Action");
 
+    fixedTarget = target;
     if (allianceRelative) {
       var originalTarget = target.getReference();
       var flippedTarget =
@@ -37,7 +44,7 @@ public class AutoPilotAction extends AutoAction {
               new Translation2d(
                   FieldConstants.fieldLength() / 2.0, FieldConstants.fieldWidth() / 2.0),
               Rotation2d.fromDegrees(180));
-      target = target.withReference(flippedTarget);
+      fixedTarget = target.withReference(flippedTarget);
     }
 
     profile =
@@ -76,6 +83,6 @@ public class AutoPilotAction extends AutoAction {
     handleNullValues();
     var headingController = getHeadingController();
     return DriveCoordinatorCommands.autoPilotCommand(
-        data.driveCoordinator(), new Autopilot(profile), target, headingController);
+        data.driveCoordinator(), new Autopilot(profile), fixedTarget, headingController);
   }
 }

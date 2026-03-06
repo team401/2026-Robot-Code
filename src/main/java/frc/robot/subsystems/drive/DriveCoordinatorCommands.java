@@ -97,7 +97,7 @@ public class DriveCoordinatorCommands extends Command {
   }
 
   public static class XBasedAutoPilotCommand extends AutoPilotCommand {
-    protected final double directionOfTravelSign;
+    protected double directionOfTravelSign;
 
     public XBasedAutoPilotCommand(
         DriveCoordinator driveCoordinator,
@@ -105,7 +105,11 @@ public class DriveCoordinatorCommands extends Command {
         APTarget target,
         PIDController headingController) {
       super(driveCoordinator, autoPilot, target, headingController);
+    }
 
+    @Override
+    public void initialize() {
+      super.initialize();
       double x = driveCoordinator.drive.getPose().getX();
 
       directionOfTravelSign = x < target.getReference().getX() ? 1.0 : -1.0;
@@ -125,8 +129,8 @@ public class DriveCoordinatorCommands extends Command {
 
   public static APProfile createDefaultAPProfile() {
     return new APProfile(createDefaultAPConstraints())
-        .withErrorTheta(Degrees.of(0.05))
-        .withErrorXY(Meters.of(0.01));
+        .withErrorTheta(JsonConstants.driveConstants.defaultAutoPilotHeadingTolerance)
+        .withErrorXY(JsonConstants.driveConstants.defaultAutoPilotXYTolerance);
   }
 
   public static Command joystickDrive(DriveCoordinator driveCoordinator) {

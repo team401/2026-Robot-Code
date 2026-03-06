@@ -85,6 +85,20 @@ export function autoPilot({ targetPose, entryAngle, velocity }: {
     }).add();
 }
 
+export function xBasedAutoPilotAction({ targetPose, entryAngle, velocity }: {
+    targetPose: AutoActions.Pose2d;
+    entryAngle?: AutoActions.Rotation2d;
+    velocity?: number;
+}) {
+    return new AutoActions.XBasedAutoPilotAction({
+        target: new AutoActions.APTarget({
+            reference: targetPose,
+            ...(entryAngle !== undefined && { entryAngle }),
+            ...(velocity !== undefined && { velocity }),
+        }),
+    }).add();
+}
+
 // ---------------------------------------------------------------------------
 // Container helpers
 // ---------------------------------------------------------------------------
