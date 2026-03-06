@@ -23,6 +23,42 @@ export function pose2d({ x = 0, y = 0, angleDegrees = 0 }: { x?: number; y?: num
     });
 }
 
+export function translation3d({ x = 0, y = 0, z = 0 }: { x?: number; y?: number; z?: number }) {
+    return new AutoActions.Translation3d({ x, y, z });
+}
+
+export function rotation3d({ rollDegrees = 0, pitchDegrees = 0, yawDegrees = 0 }: { rollDegrees?: number; pitchDegrees?: number; yawDegrees?: number }) {
+    return new AutoActions.Rotation3d({ roll: rollDegrees, pitch: pitchDegrees, yaw: yawDegrees });
+}
+
+export function pose3d({ x = 0, y = 0, z = 0, rollDegrees = 0, pitchDegrees = 0, yawDegrees = 0 }: { x?: number; y?: number; z?: number; rollDegrees?: number; pitchDegrees?: number; yawDegrees?: number }) {
+    return new AutoActions.Pose3d({
+        translation: translation3d({ x, y, z }),
+        rotation: rotation3d({ rollDegrees, pitchDegrees, yawDegrees }),
+    });
+}
+
+export function translation3dToPose2d({ x = 0, y = 0, z = 0 }: { x?: number; y?: number; z?: number }) {
+    return new AutoActions.Pose2d({
+        translation: translation2d({ x, y }),
+        rotation: rotation2d({}),
+    });
+}
+
+export function pose2dToPose3d({pose2d, z = 0}: {pose2d: AutoActions.Pose2d; z?: number}): AutoActions.Pose3d {
+    return new AutoActions.Pose3d({
+        translation: translation3d({ x: pose2d.translation?.x ?? 0, y: pose2d.translation?.y ?? 0, z }),
+        rotation: rotation3d({ rollDegrees: 0, pitchDegrees: 0, yawDegrees: pose2d.rotation?.degrees ?? 0 }),
+    });
+}
+
+export function pose3dToPose2d({pose3d}: {pose3d: AutoActions.Pose3d}): AutoActions.Pose2d {
+    return new AutoActions.Pose2d({
+        translation: translation2d({ x: pose3d.translation?.x ?? 0, y: pose3d.translation?.y ?? 0 }),
+        rotation: rotation2d({ angleDegrees: pose3d.rotation ? (pose3d.rotation.yaw ?? 0) : 0 }),
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Primitive commands
 // ---------------------------------------------------------------------------

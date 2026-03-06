@@ -12,10 +12,14 @@ import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.auto.AutoAction;
 import frc.robot.constants.drive.DriveConstants;
@@ -132,7 +136,17 @@ public class JsonConstants {
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
-    TypeScriptGenerator.generateForClasses("AutoAction.ts", AutoAction.class);
+    TypeScriptGenerator.generateForClasses(
+        "AutoAction.ts",
+        AutoAction.class,
+        Transform2d.class,
+        Transform3d.class,
+        Rotation2d.class,
+        Rotation3d.class,
+        Pose2d.class,
+        Pose3d.class,
+        Translation2d.class,
+        Translation3d.class);
   }
 
   public static RobotInfo robotInfo;

@@ -220,3 +220,52 @@ export type AutoAction = Deadline | Sequence | Parallel | Race | Wait | Print | 
 
 let _addCommandHook: ((command: NonNullable<AutoAction>) => void) | null = null;
 export function setAddCommandHook(hook: (command: NonNullable<AutoAction>) => void) { _addCommandHook = hook; }
+export class Transform2d {
+  rotation?: Rotation2d;
+  translation?: Translation2d;
+	constructor({rotation = new Rotation2d({}), translation = new Translation2d({})}: Partial<{rotation: Rotation2d; translation: Translation2d}>) {
+    this.rotation = rotation;
+    this.translation = translation;
+  }
+}
+
+export class Rotation3d {
+  roll?: number;
+  pitch?: number;
+  yaw?: number;
+	constructor({roll = 0, pitch = 0, yaw = 0}: Partial<{roll: number; pitch: number; yaw: number}>) {
+    this.roll = roll;
+    this.pitch = pitch;
+    this.yaw = yaw;
+  }
+}
+
+export class Translation3d {
+  x?: number;
+  y?: number;
+  z?: number;
+	constructor({x = 0, y = 0, z = 0}: Partial<{x: number; y: number; z: number}>) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+}
+
+export class Transform3d {
+  rotation?: Rotation3d;
+  translation?: Translation3d;
+	constructor({rotation = new Rotation3d({}), translation = new Translation3d({})}: Partial<{rotation: Rotation3d; translation: Translation3d}>) {
+    this.rotation = rotation;
+    this.translation = translation;
+  }
+}
+
+export class Pose3d {
+  rotation?: Rotation3d;
+  translation?: Translation3d;
+	constructor({rotation = new Rotation3d({}), translation = new Translation3d({})}: Partial<{rotation: Rotation3d; translation: Translation3d}>) {
+    this.rotation = rotation;
+    this.translation = translation;
+  }
+}
+

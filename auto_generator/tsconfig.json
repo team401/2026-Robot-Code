@@ -7,7 +7,7 @@
     "outDir": "./dist",
     "module": "esnext",
     "target": "esnext",
-    "types": [],
+    "types": ["node"],
     "sourceMap": true,
     "declaration": false,
     "declarationMap": false,
