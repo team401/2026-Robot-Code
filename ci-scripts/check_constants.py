@@ -25,6 +25,7 @@ JSON_TO_CLASS = {
     "ShooterConstants.json": "frc.robot.constants.ShooterConstants",
     "HoodConstants.json": "frc.robot.constants.HoodConstants",
     "ClimberConstants.json": "frc.robot.constants.ClimberConstants",
+    "TransferRollerConstants.json": "frc.robot.constants.TransferRollerConstants",
     "ShotMaps.json": "frc.robot.constants.ShotMaps",
     "RedFieldLocations.json": "frc.robot.constants.FieldLocationInstance",
     "BlueFieldLocations.json": "frc.robot.constants.FieldLocationInstance",

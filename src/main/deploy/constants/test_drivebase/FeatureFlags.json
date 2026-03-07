@@ -9,6 +9,7 @@
   "runIntake": false,
   "runHood": false,
   "runClimber": false,
+  "runTransferRoller": false,
   "useHomingSwitch": false,
   "useTuningServer": true,
   "pretendCamerasAreMobile": true
