@@ -62,7 +62,8 @@ public class JsonConstants {
     JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
-  public static void loadConstants(RobotContainer robotContainer) {
+  public static JSONHandler loadConstants(RobotContainer robotContainer) {
+
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
@@ -99,6 +100,8 @@ public class JsonConstants {
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
     climberConstants = jsonHandler.getObject(new ClimberConstants(), "ClimberConstants.json");
+    transferRollerConstants =
+        jsonHandler.getObject(new TransferRollerConstants(), "TransferRollerConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
 
     redFieldLocations =
@@ -120,6 +123,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
+        jsonHandler.addRoute("/transferroller", transferRollerConstants);
         jsonHandler.addRoute("/intake", intakeConstants);
         jsonHandler.addRoute("/climber", climberConstants);
         jsonHandler.addRoute("/vision", visionConstants);
@@ -165,6 +169,7 @@ public class JsonConstants {
           Translation2d.class,
           Translation3d.class);
     }
+    return jsonHandler;
   }
 
   public static RobotInfo robotInfo;
@@ -181,6 +186,7 @@ public class JsonConstants {
   public static IntakeConstants intakeConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
+  public static TransferRollerConstants transferRollerConstants;
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;

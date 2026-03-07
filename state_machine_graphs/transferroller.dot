@@ -1,0 +1,34 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  SpinState ;
+  DeJamState ;
+  IdleState [shape=doublecircle];
+  TestModeState ;
+
+  // Transitions
+
+  SpinState -> IdleState [label="Non-positive target velocity requested"];
+
+  DeJamState -> IdleState [label="Non-negative target velocity requested"];
+
+  IdleState -> TestModeState [label="In transfer roller test mode"];
+  IdleState -> SpinState [label="Postive target velocity requested"];
+  IdleState -> DeJamState [label="Negative target velocity requested"];
+
+  TestModeState -> IdleState [label="Not in transfer roller test mode"];
+
+}

@@ -8,6 +8,7 @@
 package frc.robot;
 
 import coppercore.metadata.CopperCoreMetadata;
+import coppercore.parameter_tools.json.JSONHandler;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +26,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -51,13 +53,16 @@ public class RobotContainer {
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
 
+  // JSON jsonHandler
+  private JSONHandler jsonHandler;
+
   public static final ActionKey RUN_COMMAND_SCHEDULER = new ActionKey("CommandScheduler::run");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     CopperCoreMetadata.printInfo();
 
-    JsonConstants.loadConstants(this);
+    jsonHandler = JsonConstants.loadConstants(this);
     JsonConstants.featureFlags.logFlags();
 
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
@@ -95,6 +100,11 @@ public class RobotContainer {
     if (JsonConstants.featureFlags.runIndexer) {
       IndexerSubsystem indexer = InitSubsystems.initIndexerSubsystem();
       coordinationLayer.setIndexer(indexer);
+    }
+
+    if (JsonConstants.featureFlags.runTransferRoller) {
+      TransferRollerSubsystem transferRoller = InitSubsystems.initTransferRollerSubsystem();
+      coordinationLayer.setTransferRoller(transferRoller);
     }
 
     if (JsonConstants.featureFlags.runIntake) {
@@ -150,6 +160,18 @@ public class RobotContainer {
     JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
 
     createAutoChooser(drive.orElse(null));
+
+  }
+  /*
+   * Process any pending HTTP requests from the tuning server
+   * Calling this method in periodic ensures that the updates to the JSONConstants
+   * objects are done within the context of the robot main thread, thus avoiding
+   * race conditions.
+   */
+  void processHTTPRequests() {
+    if (JsonConstants.featureFlags.useTuningServer) {
+      jsonHandler.drainQueuedHttpActions();
+    }
   }
 
   /**

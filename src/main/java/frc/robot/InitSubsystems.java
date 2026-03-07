@@ -29,6 +29,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
@@ -272,6 +273,32 @@ public class InitSubsystems {
       case REPLAY:
         // Replayed robot, disable IO implementations
         return new IndexerSubsystem(new MotorIOReplay());
+      default:
+        throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
+    }
+  }
+
+  public static TransferRollerSubsystem initTransferRollerSubsystem() {
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        return new TransferRollerSubsystem(
+            MotorIOTalonFX.newLeader(
+                JsonConstants.transferRollerConstants.buildMechanismConfig(),
+                JsonConstants.transferRollerConstants.buildTalonFXConfigs(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates));
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        MechanismConfig config = JsonConstants.transferRollerConstants.buildMechanismConfig();
+        return new TransferRollerSubsystem(
+            MotorIOTalonFXSim.newLeader(
+                    config,
+                    JsonConstants.transferRollerConstants.buildTalonFXConfigs(),
+                    JsonConstants.transferRollerConstants.buildTransferRollerSim())
+                .withMotorType(MotorType.KrakenX44));
+      case REPLAY:
+        // Replayed robot, disable IO implementations
+        return new TransferRollerSubsystem(new MotorIOReplay());
       default:
         throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
