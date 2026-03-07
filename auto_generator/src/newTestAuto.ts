@@ -8,10 +8,8 @@ import { FieldConstants } from './FieldLocations.js';
 
 AutoLib.auto("Test Auto", () => {
     // NOTE: These coordinates are placeholders and should be replaced with actual field positions.
-    autoPilot({ targetPose: pose2d({ x: FieldConstants.LinesVertical.allianceZone / 2.0,
-        y: FieldConstants.LinesHorizontal.center
-    }) });             // Center of Alliance Zone
-    autoPilot({ targetPose: pose3dToPose2d({ pose3d: FieldConstants.RightTrench.openingFloorCenter() }),
+    autoPilot({ targetPose: FieldConstants.Alliance.center });             // Center of Alliance Zone
+    xBasedAutoPilotAction({ targetPose: pose3dToPose2d({ pose3d: FieldConstants.RightTrench.openingFloorCenter() }),
         entryAngle: rotation2d({ angleDegrees: 180 }),
         velocity: 100.0,
     });            // Middle of trench (right side)

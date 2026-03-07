@@ -9,6 +9,7 @@ import frc.robot.auto.coordinationLayer.StowIntakeAction;
 import frc.robot.auto.drive.AutoPilotAction;
 import frc.robot.auto.drive.StopDriveAction;
 import frc.robot.auto.drive.XBasedAutoPilotAction;
+import frc.robot.auto.general.AutoReference;
 import frc.robot.auto.general.Deadline;
 import frc.robot.auto.general.Parallel;
 import frc.robot.auto.general.Print;
@@ -33,6 +34,7 @@ import frc.robot.util.ts.TypeScriptMethod;
     property = "type",
     subtypes = {
       // General actions
+      @JsonSubtype(clazz = AutoReference.class, name = "AutoReference"),
       @JsonSubtype(clazz = Deadline.class, name = "Deadline"),
       @JsonSubtype(clazz = Sequence.class, name = "Sequence"),
       @JsonSubtype(clazz = Parallel.class, name = "Parallel"),
@@ -52,7 +54,7 @@ public abstract class AutoAction {
   public String type;
 
   public record AutoActionContext(
-      DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer) {}
+      DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer, Autos autos) {}
 
   public abstract Command toCommand(AutoActionContext data);
 }

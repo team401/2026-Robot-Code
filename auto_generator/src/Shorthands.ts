@@ -45,6 +45,13 @@ export function translation3dToPose2d({ x = 0, y = 0, z = 0 }: { x?: number; y?:
     });
 }
 
+export function translation2dToPose2d(translation: AutoActions.Translation2d): AutoActions.Pose2d {
+    return new AutoActions.Pose2d({
+        translation,
+        rotation: rotation2d({}),
+    });
+}
+
 export function pose2dToPose3d({pose2d, z = 0}: {pose2d: AutoActions.Pose2d; z?: number}): AutoActions.Pose3d {
     return new AutoActions.Pose3d({
         translation: translation3d({ x: pose2d.translation?.x ?? 0, y: pose2d.translation?.y ?? 0, z }),
@@ -56,6 +63,17 @@ export function pose3dToPose2d({pose3d}: {pose3d: AutoActions.Pose3d}): AutoActi
     return new AutoActions.Pose2d({
         translation: translation2d({ x: pose3d.translation?.x ?? 0, y: pose3d.translation?.y ?? 0 }),
         rotation: rotation2d({ angleDegrees: pose3d.rotation ? (pose3d.rotation.yaw ?? 0) : 0 }),
+    });
+}
+
+export function translate2dPose({ pose, translation }: { pose: AutoActions.Pose2d; translation: AutoActions.Translation2d }): AutoActions.Pose2d {
+    const currentX = pose.translation?.x ?? 0;
+    const currentY = pose.translation?.y ?? 0;
+    const deltaX = translation.x ?? 0;
+    const deltaY = translation.y ?? 0;
+    return new AutoActions.Pose2d({
+        translation: translation2d({ x: currentX + deltaX, y: currentY + deltaY }),
+        rotation: pose.rotation ?? rotation2d({}),
     });
 }
 

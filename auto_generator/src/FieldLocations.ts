@@ -661,4 +661,20 @@ export namespace FieldConstants {
       return translation2d(0, getTagPose(29).translation.y);
     }
   }
+
+  export namespace Alliance {
+    export const center: Pose2d = pose2d(
+      LinesVertical.allianceZone / 2.0,
+      LinesHorizontal.center,
+      0
+    );
+  }
+
+  export namespace OppAlliance {
+    export const center: Pose2d = pose2d(
+      LinesVertical.oppAllianceZone + (fieldLength - LinesVertical.oppAllianceZone) / 2.0,
+      LinesHorizontal.center,
+      0
+    );
+  }
 }
