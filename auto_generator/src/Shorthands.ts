@@ -132,3 +132,7 @@ export function parallel(build: () => void) {
 export function race(build: () => void) {
     AutoLib.withContainer(new AutoActions.Race({}), build);
 }
+
+export function reference(auto: string) {
+    return new AutoActions.AutoReference({ name: auto }).add();
+}

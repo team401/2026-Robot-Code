@@ -1,5 +1,6 @@
 import * as AutoLib from './AutoLib.js';
-import { autoPilot, pose2d, pose3dToPose2d, rotation2d, xBasedAutoPilotAction } from './Shorthands.js';
+import { autoPilot, pose2d, pose3dToPose2d, rotation2d, xBasedAutoPilotAction, reference } from './Shorthands.js';
+import * as AutoActions from '@/typescript/AutoAction.js';
 import { FieldConstants } from './FieldLocations.js';
 
 // TODO: Add alliance-relative coordinate utilities.
@@ -16,4 +17,10 @@ AutoLib.auto("Test Auto", () => {
     autoPilot({ targetPose: pose2d({ x: FieldConstants.LinesVertical.center, y: FieldConstants.LinesHorizontal.center }),
         entryAngle: rotation2d({ angleDegrees: -90 })
     });             // Center of field
+    xBasedAutoPilotAction({ targetPose: pose3dToPose2d({ pose3d: FieldConstants.RightTrench.openingFloorCenter() }),
+        entryAngle: rotation2d({ angleDegrees: 0 }),
+        velocity: 100.0,
+    });
+    autoPilot({ targetPose: FieldConstants.Alliance.center });
+    reference("LeftClimbLineup");
 });
