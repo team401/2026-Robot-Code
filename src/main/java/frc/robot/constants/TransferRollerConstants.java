@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.util.PIDGains;
 
@@ -30,9 +32,7 @@ public class TransferRollerConstants {
 
   public final Double transferRollerReduction = 1.0; // TODO: find actual value
 
-  // Constant for maximum relative velocity error between the desired motor output and the actual
-  // motor output
-  public final Double transferRollerMaximumRelativeVelocityError = 0.01;
+  public final Time velocityFilterTime = Seconds.of(0.05);
 
   public PIDGains transferRollerGains = PIDGains.kPID(10.0, 5.0, 0.0);
 
@@ -79,7 +79,8 @@ public class TransferRollerConstants {
                 .withStatorCurrentLimit(transferRollerStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs().withInverted(transferRollerMotorDirection))
-        .withMotionMagic(transferRollerMotionProfileConfig.asMotionMagicConfigs());
+        .withMotionMagic(transferRollerMotionProfileConfig.asMotionMagicConfigs())
+        .withFeedback(new FeedbackConfigs().withVelocityFilterTimeConstant(velocityFilterTime));
   }
 
   public CoppercoreSimAdapter buildTransferRollerSim() {

@@ -1,6 +1,6 @@
 {
   "transferRollerReduction": 1.0,
-  "transferRollerMaximumRelativeVelocityError": 0.01,
+  "velocityFilterTime": 0.05,
   "transferRollerGains": {
     "kP": 10.0,
     "kI": 7.0,
