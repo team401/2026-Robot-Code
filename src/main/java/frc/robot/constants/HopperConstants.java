@@ -25,6 +25,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.util.PIDGains;
@@ -38,6 +39,8 @@ public class HopperConstants {
   public final AngularVelocity spinningMovementThreshold = RadiansPerSecond.of(3.0);
 
   public PIDGains hopperGains = PIDGains.kPID(16.0, 0.0, 0.0);
+
+  public final Time dejamDebounceTime = Seconds.of(0.5);
 
   // The important values here are maxAcceleration and maxJerk because it uses
   // a profiled velocity request

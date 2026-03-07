@@ -3,12 +3,15 @@ package frc.robot.subsystems.hopper;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -40,6 +43,10 @@ public class HopperSubsystem extends MonitoredSubsystem {
   private final HopperState dejamState;
   private final HopperState idleState;
   private final HopperState testModeState;
+
+  private final Debouncer dejamRequiredDebouncer =
+      new Debouncer(
+          JsonConstants.hopperConstants.dejamDebounceTime.in(Seconds), DebounceType.kRising);
 
   Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
 
@@ -164,9 +171,8 @@ public class HopperSubsystem extends MonitoredSubsystem {
     boolean highCurrent =
         inputs.statorCurrentAmps
             > JsonConstants.hopperConstants.dejamCurrentThreshold.in(Amps); // Figure out this logic
-    if (notSpinning && highCurrent) {
-      return true;
-    }
-    return false;
+    boolean currentDataPoint = notSpinning && highCurrent;
+
+    return dejamRequiredDebouncer.calculate(currentDataPoint);
   }
 }

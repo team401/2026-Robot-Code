@@ -1,12 +1,16 @@
 package frc.robot.subsystems.transferroller;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.JsonConstants;
@@ -32,6 +36,10 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
 
   // Desired roller velocity
   private AngularVelocity targetVelocity = RadiansPerSecond.of(0.0);
+
+  private final Debouncer shouldDejamDebouncer =
+      new Debouncer(
+          JsonConstants.transferRollerConstants.dejamTime.in(Seconds), DebounceType.kRising);
 
   // State machine and states
   private final StateMachine<TransferRollerSubsystem> stateMachine;
@@ -83,11 +91,11 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
             "Non-positive target velocity requested")
         .transitionTo(idleState);
 
-    deJamState
-        .when(
-            transferRoller -> !transferRoller.shouldDeJam(),
-            "Non-negative target velocity requested")
-        .transitionTo(idleState);
+    spinState
+        .when(transferRoller -> transferRoller.shouldDeJam(), "Should dejam")
+        .transitionTo(deJamState);
+
+    deJamState.whenTimeout(JsonConstants.transferRollerConstants.dejamTime).transitionTo(spinState);
 
     stateMachine.setState(idleState);
     StateMachineDump.write("transferroller", stateMachine);
@@ -172,7 +180,11 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
   }
 
   public boolean shouldDeJam() {
-    return targetVelocity.in(Units.RadiansPerSecond) < 0;
+    return shouldDejamDebouncer.calculate(
+        targetVelocity.in(Units.RadiansPerSecond) < targetVelocity.in(RadiansPerSecond) / 10
+            && inputs.statorCurrentAmps
+                > JsonConstants.transferRollerConstants.transferRollerStatorCurrentLimit.in(Amps)
+                    / 2);
   }
 
   void coast() {

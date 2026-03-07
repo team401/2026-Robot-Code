@@ -278,11 +278,22 @@ class ShotCalculations {
     double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
     Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
 
-    Translation2d offset = fieldRelativeShooterVelocity.times(flightTimeSeconds);
-    Translation2d virtualTarget = targetPosition.minus(offset);
-    Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
+    Translation2d virtualTarget = new Translation2d();
 
-    double virtualDistanceXYMeters = shooterPose.getTranslation().getDistance(virtualTarget);
+    double virtualDistanceXYMeters = 0.0;
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+      Translation2d offset = fieldRelativeShooterVelocity.times(flightTimeSeconds);
+      virtualTarget = targetPosition.minus(offset);
+
+      virtualDistanceXYMeters = shooterPose.getTranslation().getDistance(virtualTarget);
+
+      double lastFlightTimeSeconds = flightTimeSeconds;
+      flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(virtualDistanceXYMeters);
+      if (Math.abs(flightTimeSeconds - lastFlightTimeSeconds) < ACCEPTABLE_TIME_VARIATION) {
+        break;
+      }
+    }
+    Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
     Logger.recordOutput("ShotCalculations/MapBased/VirtualDistanceMeters", virtualDistanceXYMeters);
 
     if (virtualDistanceXYMeters < minDistanceMeters
