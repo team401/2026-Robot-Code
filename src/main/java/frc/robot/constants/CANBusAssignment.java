@@ -41,6 +41,6 @@ public class CANBusAssignment {
   public final Integer shooterFollowerId = 23;
 
   public final Integer climberKrakenId = 24;
-  
+
   public final Integer transferRollerKrakenId = 25;
 }

@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.State;
@@ -767,7 +768,8 @@ public class CoordinationLayer {
     } else {
       hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
       indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
-      transferRoller.ifPresent(transferRoller -> transferRoller.coast());
+      transferRoller.ifPresent(
+          transferRoller -> transferRoller.setTargetVelocity(RadiansPerSecond.zero()));
     }
 
     // Aim for a shot based on the current autonomy level

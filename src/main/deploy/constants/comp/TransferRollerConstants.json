@@ -3,11 +3,11 @@
   "transferRollerMaximumRelativeVelocityError": 0.01,
   "transferRollerGains": {
     "kP": 10.0,
-    "kI": 5.0,
+    "kI": 7.0,
     "kD": 0.0,
-    "kS": 0.0,
+    "kS": 2.0,
     "kG": 0.0,
-    "kV": 0.0,
+    "kV": 0.1,
     "kA": 0.0
   },
   "transferRollerMotionProfileConfig": {
@@ -21,7 +21,7 @@
       "unit": "Rotation per Second per Second"
     },
     "maxJerk": {
-      "value": 999.9999999999999,
+      "value": 0.0,
       "unit": "Rotation per Second per Second per Second"
     },
     "expoKV": {
