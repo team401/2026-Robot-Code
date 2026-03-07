@@ -73,6 +73,8 @@ public class JsonConstants {
 
     jsonSyncSettings.addJsonTypeAdapterFactory(new OptionalTypeAdapterFactory());
 
+    jsonSyncSettings.setUpPolymorphAdapter(AutoAction.class);
+
     var pathProvider = environmentHandler.getEnvironmentPathProvider();
 
     System.out.println("[JsonConstants] Environment name: " + pathProvider.getEnvironmentName());

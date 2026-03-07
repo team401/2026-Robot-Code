@@ -142,6 +142,8 @@ public class RobotContainer {
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+
+    loadAutoCommands();
   }
 
   public void loadAutoCommands() {
@@ -176,6 +178,10 @@ public class RobotContainer {
       autoChooser.addOption(
           "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
+
+    for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
+      autoChooser.addOption(auto.getKey(), auto.getValue());
+    }
   }
 
   /**
@@ -195,10 +201,6 @@ public class RobotContainer {
                 ControllerSetup.initDriveBindings(driveCoordinator, drive);
               });
         });
-
-    for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
-      autoChooser.addOption(auto.getKey(), auto.getValue());
-    }
   }
 
   /**

@@ -349,16 +349,20 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("stopShooting"))
         .onTrue(new InstantCommand(this::stopShooting));
 
-    // TODO: Add smart mode climb controls
+    Trigger climbLeft = makeTriggerFromButton(controllers.getButton("climbLeft"));
+    Trigger climbRight = makeTriggerFromButton(controllers.getButton("climbRight"));
+
+    climbLeft.and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart)).whileTrue(JsonConstants.autos.getAutoCommand("LeftClimbLineup"));
+    climbRight.and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart)).whileTrue(JsonConstants.autos.getAutoCommand("RightClimbLineup"));
+
     Trigger eitherClimbPressed =
-        makeTriggerFromButton(controllers.getButton("climbLeft"))
-            .or(controllers.getButton("climbRight").getPrimitiveIsPressedSupplier());
-    eitherClimbPressed
+        climbLeft.or(climbRight);
+    eitherClimbPressed.and(new Trigger(() -> autonomyLevel == AutonomyLevel.Manual))
         .onTrue(
             new InstantCommand(
                 () -> {
-                  // Deploy the climber to a searching state when ready
-                  goalExtensionState = ExtensionState.ClimbDeployed;
+                    // Deploy the climber to a searching state when ready
+                    goalExtensionState = ExtensionState.ClimbDeployed;
                 }))
         .onFalse(
             new InstantCommand(

@@ -7,7 +7,7 @@ import { pose2d, translate2dPose, translation2dToPose2d } from './Shorthands.js'
 // TODO: Maybe make these loaded from the constants files in the main robot code instead of hardcoded here,
 // to avoid duplication and potential inconsistencies.
 
-export const climbOffset: AutoActions.Translation2d = new AutoActions.Translation2d({ x: 0.1, y: 0 });
+export const climbOffset: AutoActions.Translation2d = new AutoActions.Translation2d({ x: 0.4, y: 0 });
 
 export const leftClimbLocation = translate2dPose({ pose: translation2dToPose2d(FieldConstants.Tower.leftUpright()), translation: climbOffset });
 export const rightClimbLocation = translate2dPose({ pose: translation2dToPose2d(FieldConstants.Tower.rightUpright()), translation: climbOffset });
