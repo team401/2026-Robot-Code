@@ -8,6 +8,7 @@
 package frc.robot;
 
 import coppercore.metadata.CopperCoreMetadata;
+import coppercore.parameter_tools.json.JSONHandler;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,13 +53,16 @@ public class RobotContainer {
   // Dashboard inputs
   private LoggedDashboardChooser<Command> autoChooser;
 
+  // JSON jsonHandler
+  private JSONHandler jsonHandler;
+
   public static final ActionKey RUN_COMMAND_SCHEDULER = new ActionKey("CommandScheduler::run");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     CopperCoreMetadata.printInfo();
 
-    JsonConstants.loadConstants();
+    jsonHandler = JsonConstants.loadConstants();
     JsonConstants.featureFlags.logFlags();
 
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
@@ -148,6 +152,18 @@ public class RobotContainer {
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+  }
+
+  /*
+   * Process any pending HTTP requests from the tuning server
+   * Calling this method in periodic ensures that the updates to the JSONConstants
+   * objects are done within the context of the robot main thread, thus avoiding
+   * race conditions.
+   */
+  void processHTTPRequests() {
+    if (JsonConstants.featureFlags.useTuningServer) {
+      jsonHandler.drainQueuedHttpActions();
+    }
   }
 
   /**
