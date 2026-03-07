@@ -220,7 +220,6 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
 
                 climber.ifPresent(ClimberSubsystem::stayStowed);
               }
@@ -233,12 +232,6 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
-                if (runningIntakeRollers) {
-                  intake.ifPresent(
-                      intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
-                } else {
-                  intake.ifPresent(IntakeSubsystem::stopRollers);
-                }
 
                 climber.ifPresent(ClimberSubsystem::stayStowed);
               }
@@ -251,7 +244,6 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
 
                 climber.ifPresent(ClimberSubsystem::stayStowed);
 
@@ -275,7 +267,6 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
 
                 /* We don't need to command the climber in periodic; its actions within this state are commanded by individual button bindings. This not might be the cleanest solution, but it will work for now with manual climbing. When we automate driving to climb, the CoordinationLayer state machine will likely need to morph from an extension state machine to a whole robot coordination state machine that tracks driving to climb, extending climber, climbing, and eventually unclimbing in addition to protecting against double extension. */
               }
@@ -288,7 +279,6 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
 
                 climber.ifPresent(ClimberSubsystem::stayStowed);
 
@@ -714,6 +704,14 @@ public class CoordinationLayer {
 
     // Poll buttons. This will modify state variables depending on the states of the buttons
     buttonLoop.poll();
+
+    // Allow running rollers when the intake is retracted
+    if (runningIntakeRollers) {
+      intake.ifPresent(
+          intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
+    } else {
+      intake.ifPresent(IntakeSubsystem::stopRollers);
+    }
 
     // Handle extension coordination and command intake/climber to their correct positions
     Logger.recordOutput(

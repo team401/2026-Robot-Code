@@ -72,7 +72,7 @@ public class ClimberConstants {
    * This voltage will be applied while trying to hang whenever the position is greater than the
    * target position
    */
-  public Voltage hangClimbVoltage = Volts.of(-3.0);
+  public Voltage hangClimbVoltage = Volts.of(-12.0);
 
   public Double climberExpoKV = 2.0;
   public Double climberExpoKA = 37.5;

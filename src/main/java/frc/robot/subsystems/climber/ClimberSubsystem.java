@@ -288,7 +288,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
   protected void applyHangVoltage() {
     // TODO: Switch back to the constant after we find a good value for this
-    motor.controlOpenLoopVoltage(hangVoltage.get());
+    motor.controlOpenLoopVoltage(JsonConstants.climberConstants.hangClimbVoltage);
   }
 
   public boolean isStowed() {

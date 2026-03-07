@@ -1,5 +1,5 @@
 {
-  "runDrive": false,
+  "runDrive": true,
   "useMAPoseEstimator": true,
   "runVision": true,
   "runHopper": true,

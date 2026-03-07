@@ -4,7 +4,7 @@
     "value": -2.0,
     "unit": "Volt"
   },
-  "turretReduction": 37.5,
+  "turretReduction": 35.625,
   "homingMovementThreshold": {
     "value": 1.0,
     "unit": "Degree per Second"
@@ -40,11 +40,11 @@
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
   },
   "minTurretAngle": {
-    "value": -5.0,
+    "value": 0.0,
     "unit": "Degree"
   },
   "maxTurretAngle": {
-    "value": 330.0,
+    "value": 352.0,
     "unit": "Degree"
   },
   "turretSetpointEpsilon": {
@@ -52,7 +52,7 @@
     "unit": "Degree"
   },
   "headingToTurretAngle": {
-    "value": 39.0,
+    "value": 43.7,
     "unit": "Degree"
   }
 }
