@@ -352,17 +352,21 @@ public class CoordinationLayer {
     Trigger climbLeft = makeTriggerFromButton(controllers.getButton("climbLeft"));
     Trigger climbRight = makeTriggerFromButton(controllers.getButton("climbRight"));
 
-    climbLeft.and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart)).whileTrue(JsonConstants.autos.getAutoCommand("LeftClimbLineup"));
-    climbRight.and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart)).whileTrue(JsonConstants.autos.getAutoCommand("RightClimbLineup"));
+    climbLeft
+        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
+        .whileTrue(JsonConstants.autos.getAutoCommand("LeftClimbLineup"));
+    climbRight
+        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
+        .whileTrue(JsonConstants.autos.getAutoCommand("RightClimbLineup"));
 
-    Trigger eitherClimbPressed =
-        climbLeft.or(climbRight);
-    eitherClimbPressed.and(new Trigger(() -> autonomyLevel == AutonomyLevel.Manual))
+    Trigger eitherClimbPressed = climbLeft.or(climbRight);
+    eitherClimbPressed
+        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Manual))
         .onTrue(
             new InstantCommand(
                 () -> {
-                    // Deploy the climber to a searching state when ready
-                    goalExtensionState = ExtensionState.ClimbDeployed;
+                  // Deploy the climber to a searching state when ready
+                  goalExtensionState = ExtensionState.ClimbDeployed;
                 }))
         .onFalse(
             new InstantCommand(

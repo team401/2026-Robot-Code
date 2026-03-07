@@ -123,10 +123,10 @@
                                             "target": {
                                                 "reference": {
                                                     "rotation": {
-                                                        "degrees": 0
+                                                        "degrees": -90
                                                     },
                                                     "translation": {
-                                                        "x": 2.003933,
+                                                        "x": 2.313933,
                                                         "y": 4.0215
                                                     }
                                                 },
@@ -138,10 +138,10 @@
                                             "target": {
                                                 "reference": {
                                                     "rotation": {
-                                                        "degrees": 0
+                                                        "degrees": -90
                                                     },
                                                     "translation": {
-                                                        "x": 1.505154,
+                                                        "x": 1.415154,
                                                         "y": 4.1588182
                                                     }
                                                 },
@@ -182,10 +182,10 @@
                                             "target": {
                                                 "reference": {
                                                     "rotation": {
-                                                        "degrees": 0
+                                                        "degrees": -90
                                                     },
                                                     "translation": {
-                                                        "x": 2.003933,
+                                                        "x": 2.313933,
                                                         "y": 4.0215
                                                     }
                                                 },
@@ -197,10 +197,10 @@
                                             "target": {
                                                 "reference": {
                                                     "rotation": {
-                                                        "degrees": 0
+                                                        "degrees": -90
                                                     },
                                                     "translation": {
-                                                        "x": 1.505154,
+                                                        "x": 1.415154,
                                                         "y": 3.3015682
                                                     }
                                                 },

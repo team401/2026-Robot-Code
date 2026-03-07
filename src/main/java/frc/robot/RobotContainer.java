@@ -138,12 +138,12 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
+    loadAutoCommands();
+
     // Configure the button bindings
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
-
-    loadAutoCommands();
   }
 
   public void loadAutoCommands() {
