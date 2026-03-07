@@ -19,6 +19,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
@@ -123,7 +124,8 @@ public class HoodConstants {
                 .withKS(hoodKS)
                 .withKG(hoodKG)
                 .withKV(hoodKV)
-                .withKA(hoodKA))
+                .withKA(hoodKA)
+                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(hoodSupplyCurrentLimit)

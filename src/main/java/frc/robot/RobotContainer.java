@@ -9,7 +9,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Radians;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import coppercore.metadata.CopperCoreMetadata;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -25,6 +24,7 @@ import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
@@ -32,6 +32,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -76,6 +77,10 @@ public class RobotContainer {
 
     coordinationLayer = new CoordinationLayer(dependencyOrderedExecutor);
 
+    if (JsonConstants.featureFlags.runClimber) {
+      ClimberSubsystem climber = InitSubsystems.initClimberSubsystem();
+      coordinationLayer.setClimber(climber);
+    }
     if (JsonConstants.featureFlags.runDrive) {
       Drive drive = InitSubsystems.initDriveSubsystem();
       DriveCoordinator driveCoordinator = new DriveCoordinator(drive);
@@ -99,6 +104,11 @@ public class RobotContainer {
     if (JsonConstants.featureFlags.runIndexer) {
       IndexerSubsystem indexer = InitSubsystems.initIndexerSubsystem();
       coordinationLayer.setIndexer(indexer);
+    }
+
+    if (JsonConstants.featureFlags.runTransferRoller) {
+      TransferRollerSubsystem transferRoller = InitSubsystems.initTransferRollerSubsystem();
+      coordinationLayer.setTransferRoller(transferRoller);
     }
 
     if (JsonConstants.featureFlags.runIntake) {
@@ -228,9 +238,8 @@ public class RobotContainer {
    * @param drive The Drive instance to use for the auto chooser
    */
   private void createAutoChooser(Drive drive) {
-    // TODO: Stop using pathplanner AutoBuilder
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
     // Set up SysId routines
     autoChooser.addOption(

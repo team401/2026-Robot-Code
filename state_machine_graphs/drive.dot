@@ -14,7 +14,7 @@ digraph {
 
   // States
 
-  DriveWithJoysticks ;
+  DriveWithJoysticks [shape=doublecircle];
   Drive Test Mode ;
   LinearDrive ;
 

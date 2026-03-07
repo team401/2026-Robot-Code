@@ -15,7 +15,7 @@ digraph {
   // States
 
   SpinningState ;
-  IdleState ;
+  IdleState [shape=doublecircle];
   TestModeState ;
   DejamState ;
 

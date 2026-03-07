@@ -230,9 +230,13 @@ class ShotCalculations {
     Logger.recordOutput("ShotCalculations/MapBased/MinDistanceMeters", minDistanceMeters);
     Logger.recordOutput("ShotCalculations/MapBased/MaxDistanceMeters", maxDistanceMeters);
 
+    // Track whether or not the shot has been clamped to make it fit into the distance map.
+    // If it hasn't been clamped, it is no longer real: it is a best approximation of the shot we
+    // will take soon.
     boolean isShotReal = true;
 
     if (distanceXYMeters < minDistanceMeters || distanceXYMeters > maxDistanceMeters) {
+      // When clamping, the shot is no longer real.
       isShotReal = false;
       distanceXYMeters = MathUtil.clamp(distanceXYMeters, minDistanceMeters, maxDistanceMeters);
     }
@@ -262,6 +266,7 @@ class ShotCalculations {
 
     if (virtualDistanceXYMeters < minDistanceMeters
         || virtualDistanceXYMeters > maxDistanceMeters) {
+      // When clamping, the shot is no longer real.
       isShotReal = false;
       virtualDistanceXYMeters =
           MathUtil.clamp(virtualDistanceXYMeters, minDistanceMeters, maxDistanceMeters);
