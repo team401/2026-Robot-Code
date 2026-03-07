@@ -43,6 +43,8 @@ public class LED extends SubsystemBase {
   private boolean isHomed = false;
   // colors
   private Color mistyNeonTeal = new Color(93, 231, 223);
+  public static LEDPattern rainbowPattern =
+      LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(40)).reversed();
   // direct leds stuff
   private DirectLED leftBackLED;
   private DirectLED rightBackLED;
@@ -50,12 +52,12 @@ public class LED extends SubsystemBase {
       new AddressableLEDBuffer(47); // length of both back sides
   private Distance ledSpacing = Meters.of(1.0 / 160.0);
   // time left in shift mask
-  private LEDPattern matchShiftProgressMask =
-      LEDPattern.progressMaskLayer(
-          () -> matchState.getTimeLeftInCurrentShift() / matchState.getMaxTimeInCurrentShift());
   private LEDPattern matchShiftProgressPattern =
-      matchShiftProgressMask.overlayOn(
-          LEDPattern.solid(mistyNeonTeal).atBrightness(Percent.of(50)));
+      rainbowPattern.mask(
+          LEDPattern.progressMaskLayer(
+              () ->
+                  matchState.getTimeLeftInCurrentShift() / matchState.getMaxTimeInCurrentShift()));
+
   // Track the last animation parameters sent per group so we only send changes.
   private final Map<String, String> lastAnimationKey = new HashMap<>();
 
@@ -109,7 +111,6 @@ public class LED extends SubsystemBase {
     this.matchState = matchState;
     this.coordinationLayer = coordinationLayer;
 
-    led.Connect(USBPort.kUSB1);
     led.ApplyConfiguration(buildConfig());
     // direct leds
     leftBackLED = led.leds.createDirectLED("leftBack", 47);
@@ -141,7 +142,7 @@ public class LED extends SubsystemBase {
         rightBackLED.update(directLEDBackBuffer);
       }
       if (DriverStation.isAutonomous()) {
-        setAnimationIfDifferent("frontStrip", Animation.Scanner, mistyNeonTeal, 5, true);
+
         playMultiFramedAnimationOnce("frontStrip", 100, Animation.Scanner, Color.kYellowGreen);
       }
 
@@ -189,7 +190,6 @@ public class LED extends SubsystemBase {
     setAnimationIfDifferent(group, Animation.Fill, color, -1, true);
   }
 
-  //Method created with Copilot
   /**
    * Send an animation to a group only if it's different from the last animation we sent for that
    * group. This prevents resending identical commands every periodic and avoids interrupting
@@ -201,6 +201,7 @@ public class LED extends SubsystemBase {
    * @param delayMillis delay in ms, -1 for none
    * @param runOnce whether to RunOnce on the device
    */
+  // Method created with Copilot
   private void setAnimationIfDifferent(
       String group, Animation animation, Color color, int delayMillis, boolean runOnce) {
     String key =
