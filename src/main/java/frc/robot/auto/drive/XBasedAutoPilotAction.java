@@ -11,7 +11,9 @@ public class XBasedAutoPilotAction extends AutoPilotAction {
 
     handleNullValues();
 
-    return new DriveCoordinatorCommands.XBasedAutoPilotCommand(
-        data.driveCoordinator(), new Autopilot(profile), fixedTarget, getHeadingController());
+    return wrapCommand(
+        data,
+        new DriveCoordinatorCommands.XBasedAutoPilotCommand(
+            data.driveCoordinator(), new Autopilot(profile), fixedTarget, getHeadingController()));
   }
 }

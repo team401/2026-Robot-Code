@@ -9,12 +9,18 @@ import { pose2d, rotation2d, transform2dPose, translate2dPose, translation2d, tr
 
 export const climbOffset: AutoActions.Transform2d = new AutoActions.Transform2d({ 
     translation: translation2d({
-        x: 0.31,
-        y: 0
+        x: 0.41,
+        y: 0.0225
     }),
     rotation: rotation2d({
         angleDegrees: -90.0
     })
+});
+
+export const climbConstraints: AutoActions.APConstraints = new AutoActions.APConstraints({
+    velocity: 2.0,
+    acceleration: 2.0,
+    jerk: 0.1
 });
 
 export const leftClimbLocation = transform2dPose({ pose: translation2dToPose2d(FieldConstants.Tower.leftUpright()), transform: climbOffset });

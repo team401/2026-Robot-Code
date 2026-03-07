@@ -104,16 +104,18 @@ export function print({ message }: { message: string }) {
     return new AutoActions.Print({ message }).add();
 }
 
-export function autoPilot({ targetPose, entryAngle, velocity }: {
+export function autoPilot({ targetPose, entryAngle, velocity, rotationRadius }: {
     targetPose: AutoActions.Pose2d;
     entryAngle?: AutoActions.Rotation2d;
     velocity?: number;
+    rotationRadius?: Units.Distance;
 }) {
     return new AutoActions.AutoPilotAction({
         target: new AutoActions.APTarget({
             reference: targetPose,
             ...(entryAngle !== undefined && { entryAngle }),
             ...(velocity !== undefined && { velocity }),
+            ...(rotationRadius !== undefined && { rotationRadius })
         }),
     }).add();
 }

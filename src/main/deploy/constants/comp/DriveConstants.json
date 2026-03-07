@@ -51,7 +51,7 @@
     "kA": 0.0
   },
   "driveGains": {
-    "kP": 0.1,
+    "kP": 1.0,
     "kI": 0.0,
     "kD": 0.0,
     "kS": 0.32275,
@@ -68,9 +68,9 @@
     "kV": 0.0,
     "kA": 0.0
   },
-  "defaultAutoPilotVelocity": 3.0,
-  "defaultAutoPilotAcceleration": 3.0,
-  "defaultAutoPilotJerk": 3.0,
+  "defaultAutoPilotVelocity": 1.0,
+  "defaultAutoPilotAcceleration": 2.0,
+  "defaultAutoPilotJerk": 0.5,
   "defaultAutoPilotBeelineRadius": {
     "value": 0.1,
     "unit": "Meter"

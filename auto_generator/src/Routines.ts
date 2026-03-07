@@ -1,5 +1,5 @@
 import * as AutoLib from './AutoLib.js';
-import { autoPilot, parallel, pose2d, pose3dToPose2d, rotation2d, sequence, xBasedAutoPilotAction, transform2dPose } from './Shorthands.js';
+import { wait, autoPilot, parallel, pose2d, pose3dToPose2d, rotation2d, sequence, xBasedAutoPilotAction, transform2dPose } from './Shorthands.js';
 import * as AutoActions from '@/typescript/AutoAction.js';
 import { FieldConstants } from './FieldLocations.js';
 import * as Constants from './Constants.js';
@@ -14,19 +14,25 @@ function climbLineup({ targetPose, entryAngle, velocity }: {
     sequence(() => {
         parallel(() => {
             sequence(() => {
-                xBasedAutoPilotAction({targetPose: 
-                    transform2dPose({
-                        pose:FieldConstants.Alliance.center,
-                        transform: Constants.climbOffset
-                    })});
-                autoPilot({
-                    targetPose,
-                    ...(entryAngle !== undefined && { entryAngle }),
-                    ...(velocity !== undefined && { velocity }),
-                });
+                new AutoActions.XBasedAutoPilotAction({
+                    target: new AutoActions.APTarget({
+                        reference: transform2dPose({
+                            pose:FieldConstants.Alliance.center,
+                            transform: Constants.climbOffset
+                    })}),
+                constraints: Constants.climbConstraints}).add();
+                new AutoActions.XBasedAutoPilotAction({
+                    target: new AutoActions.APTarget({
+                        reference: targetPose,
+                        ...(entryAngle !== undefined && { entryAngle }),
+                        ...(velocity !== undefined && { velocity }),
+                    },
+                    ),
+                constraints: Constants.climbConstraints}).add();
             });
             new AutoActions.ClimbSearchAction({}).add();
         });
+        wait({seconds:0.5});
         new AutoActions.ClimbHangAction({}).add();
     });
 }
