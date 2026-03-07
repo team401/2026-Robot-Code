@@ -1,5 +1,5 @@
 import * as AutoLib from './AutoLib.js';
-import { autoPilot, parallel, pose2d, pose3dToPose2d, rotation2d, sequence, xBasedAutoPilotAction } from './Shorthands.js';
+import { autoPilot, parallel, pose2d, pose3dToPose2d, rotation2d, sequence, xBasedAutoPilotAction, transform2dPose } from './Shorthands.js';
 import * as AutoActions from '@/typescript/AutoAction.js';
 import { FieldConstants } from './FieldLocations.js';
 import * as Constants from './Constants.js';
@@ -14,7 +14,11 @@ function climbLineup({ targetPose, entryAngle, velocity }: {
     sequence(() => {
         parallel(() => {
             sequence(() => {
-                xBasedAutoPilotAction({targetPose: FieldConstants.Alliance.center});
+                xBasedAutoPilotAction({targetPose: 
+                    transform2dPose({
+                        pose:FieldConstants.Alliance.center,
+                        transform: Constants.climbOffset
+                    })});
                 autoPilot({
                     targetPose,
                     ...(entryAngle !== undefined && { entryAngle }),

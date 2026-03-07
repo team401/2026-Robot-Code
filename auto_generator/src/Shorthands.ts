@@ -77,6 +77,21 @@ export function translate2dPose({ pose, translation }: { pose: AutoActions.Pose2
     });
 }
 
+export function transform2dPose({ pose, transform } : {
+    pose: AutoActions.Pose2d; transform: AutoActions.Transform2d}
+): AutoActions.Pose2d {
+    const currentX = pose.translation?.x ?? 0;
+    const currentY = pose.translation?.y ?? 0;
+    const deltaX = transform.translation?.x ?? 0;
+    const deltaY = transform.translation?.y ?? 0;
+    const currentTheta = pose.rotation?.degrees ?? 0;
+    const deltaTheta = transform.rotation?.degrees ?? 0;
+    return new AutoActions.Pose2d({
+        translation: translation2d({ x: currentX + deltaX, y: currentY + deltaY }),
+        rotation: rotation2d({angleDegrees: currentTheta + deltaTheta}),
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Primitive commands
 // ---------------------------------------------------------------------------
