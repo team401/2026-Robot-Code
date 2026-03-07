@@ -285,7 +285,8 @@ public class InitSubsystems {
         return new TransferRollerSubsystem(
             MotorIOTalonFX.newLeader(
                 JsonConstants.transferRollerConstants.buildMechanismConfig(),
-                JsonConstants.transferRollerConstants.buildTalonFXConfigs()));
+                JsonConstants.transferRollerConstants.buildTalonFXConfigs(),
+                JsonConstants.robotInfo.nonFireControllingRefreshRates));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.transferRollerConstants.buildMechanismConfig();
