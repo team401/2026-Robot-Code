@@ -18,6 +18,7 @@ public class FeatureFlags {
   public final Boolean runTurret = false;
   public final Boolean runIntake = false;
   public final Boolean runHood = false;
+  public final Boolean runClimber = true;
   public final Boolean useHomingSwitch = false;
   public final Boolean useTuningServer = false;
   public final Boolean pretendCamerasAreMobile = false;
@@ -35,6 +36,7 @@ public class FeatureFlags {
     System.out.println(" - runTurret: " + runTurret);
     System.out.println(" - runIntake: " + runIntake);
     System.out.println(" - runHood: " + runHood);
+    System.out.println(" - runClimber: " + runClimber);
     System.out.println(" - useHomingSwitch: " + useHomingSwitch);
     System.out.println(" - useTuningServer: " + useTuningServer);
     System.out.println(" - pretendCamerasAreMobile: " + pretendCamerasAreMobile);
@@ -48,6 +50,7 @@ public class FeatureFlags {
     Logger.recordOutput("FeatureFlags/runTurret", runTurret);
     Logger.recordOutput("FeatureFlags/runIntake", runIntake);
     Logger.recordOutput("FeatureFlags/runHood", runHood);
+    Logger.recordOutput("FeatureFlags/runClimber", runClimber);
     Logger.recordOutput("FeatureFlags/useHomingSwitch", useHomingSwitch);
     Logger.recordOutput("FeatureFlags/useTuningServer", useTuningServer);
     Logger.recordOutput("FeatureFlags/pretendCamerasAreMobile", pretendCamerasAreMobile);

@@ -34,7 +34,7 @@
   "kSteerMotorType": "TalonFX_Integrated",
   "frontLeftModule": {
     "encoderOffset": {
-      "value": -0.349365234375,
+      "value": -0.336181640625,
       "unit": "Rotation"
     },
     "steerMotorInverted": false,
@@ -50,7 +50,7 @@
   },
   "frontRightModule": {
     "encoderOffset": {
-      "value": -0.135498046875,
+      "value": -0.136474609375,
       "unit": "Rotation"
     },
     "steerMotorInverted": false,
@@ -66,7 +66,7 @@
   },
   "backLeftModule": {
     "encoderOffset": {
-      "value": 0.094482421875,
+      "value": 0.10595703125,
       "unit": "Rotation"
     },
     "steerMotorInverted": false,
@@ -82,7 +82,7 @@
   },
   "backRightModule": {
     "encoderOffset": {
-      "value": -0.171142578125,
+      "value": -0.301025390625,
       "unit": "Rotation"
     },
     "steerMotorInverted": false,

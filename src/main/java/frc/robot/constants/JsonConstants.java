@@ -95,6 +95,7 @@ public class JsonConstants {
     intakeConstants = jsonHandler.getObject(new IntakeConstants(), "IntakeConstants.json");
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
+    climberConstants = jsonHandler.getObject(new ClimberConstants(), "ClimberConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
 
     redFieldLocations =
@@ -115,6 +116,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
         jsonHandler.addRoute("/intake", intakeConstants);
+        jsonHandler.addRoute("/climber", climberConstants);
         jsonHandler.addRoute("/vision", visionConstants);
         jsonHandler.registerPostCallback(
             "/vision",
@@ -171,6 +173,7 @@ public class JsonConstants {
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
+  public static ClimberConstants climberConstants;
   public static ManualModeConstants manualModeConstants;
   public static StrategyConstants strategyConstants;
 
