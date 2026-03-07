@@ -42,6 +42,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.coordination.CoordinationTestMode;
 import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
@@ -71,6 +72,7 @@ import org.littletonrobotics.junction.Logger;
  */
 public class CoordinationLayer {
   // Subsystems
+  private Optional<ClimberSubsystem> climber = Optional.empty();
   private Optional<Drive> drive = Optional.empty();
   private Optional<DriveCoordinator> driveCoordinator = Optional.empty();
   private Optional<VisionLocalizer> vision = Optional.empty();
@@ -220,8 +222,8 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber stow method call when it is defined
+
+                climber.ifPresent(ClimberSubsystem::stayStowed);
               }
             });
 
@@ -232,13 +234,8 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
-                if (runningIntakeRollers) {
-                  intake.ifPresent(
-                      intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
-                } else {
-                  intake.ifPresent(IntakeSubsystem::stopRollers);
-                }
-                // TODO: Add climber stow method call when it is defined
+
+                climber.ifPresent(ClimberSubsystem::stayStowed);
               }
             });
 
@@ -249,8 +246,8 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber stow method call when it is defined
+
+                climber.ifPresent(ClimberSubsystem::stayStowed);
 
                 // Assume the intake is stowed if it is disabled
                 if (intake.map(IntakeSubsystem::isStowed).orElse(true)) {
@@ -263,11 +260,17 @@ public class CoordinationLayer {
         extensionStateMachine.registerState(
             new State<CoordinationLayer>("ClimberDeployed") {
               @Override
+              protected void onEntry(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+                climber.ifPresent(ClimberSubsystem::search);
+              }
+
+              @Override
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber extend method call when it is defined
+
+                /* We don't need to command the climber in periodic; its actions within this state are commanded by individual button bindings. This not might be the cleanest solution, but it will work for now with manual climbing. When we automate driving to climb, the CoordinationLayer state machine will likely need to morph from an extension state machine to a whole robot coordination state machine that tracks driving to climb, extending climber, climbing, and eventually unclimbing in addition to protecting against double extension. */
               }
             });
 
@@ -278,12 +281,11 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber stow method call when it is defined
 
-                // TODO: Add check for whether or not the climber is stowed
+                climber.ifPresent(ClimberSubsystem::stayStowed);
+
                 // Assume the climber is stowed if it is disabled
-                if (true) {
+                if (climber.map(ClimberSubsystem::isStowedOrHasntBeenHomed).orElse(true)) {
                   finish();
                 }
               }
@@ -357,13 +359,14 @@ public class CoordinationLayer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  // TODO: Add real climber controls once the climber exists
-                  System.out.println("Climb going up!");
+                  // Deploy the climber to a searching state when ready
+                  goalExtensionState = ExtensionState.ClimbDeployed;
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  System.out.println("Climb going down!");
+                  goalExtensionState = ExtensionState.ClimbDeployed;
+                  climber.ifPresent(ClimberSubsystem::hang);
                 }));
 
     var goUnderTrenchButton = controllers.getButton("goUnderTrench");
@@ -499,7 +502,11 @@ public class CoordinationLayer {
 
   private void stowClimber() {
     if (goalExtensionState == ExtensionState.ClimbDeployed) {
-      goalExtensionState = ExtensionState.None;
+      boolean willClimberStow = climber.map(ClimberSubsystem::stowPressed).orElse(true);
+
+      if (willClimberStow) {
+        goalExtensionState = ExtensionState.None;
+      }
     }
   }
 
@@ -525,6 +532,11 @@ public class CoordinationLayer {
     if (optionalSubsystem.isPresent()) {
       throw new IllegalStateException("CoordinationLayer set" + name + " was called twice!");
     }
+  }
+
+  public void setClimber(ClimberSubsystem climber) {
+    checkForDuplicateSubsystem(this.climber, "Climber");
+    this.climber = Optional.of(climber);
   }
 
   public void setDrive(Drive drive) {
@@ -699,6 +711,14 @@ public class CoordinationLayer {
 
     // Poll buttons. This will modify state variables depending on the states of the buttons
     buttonLoop.poll();
+
+    // Allow running rollers when the intake is retracted
+    if (runningIntakeRollers) {
+      intake.ifPresent(
+          intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
+    } else {
+      intake.ifPresent(IntakeSubsystem::stopRollers);
+    }
 
     // Handle extension coordination and command intake/climber to their correct positions
     Logger.recordOutput(

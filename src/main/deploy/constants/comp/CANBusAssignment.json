@@ -22,5 +22,6 @@
   "intakeRollersFollowerMotorId": 21,
   "shooterLeaderId": 22,
   "shooterFollowerId": 23,
+  "climberKrakenId": 24,
   "transferRollerKrakenId": 25
 }

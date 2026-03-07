@@ -130,7 +130,7 @@
         {
           "command": "stowClimber",
           "commandType": "button",
-          "threshold": 270,
+          "threshold": 90,
           "thresholdRange": 91,
           "hapticControlElement": {
             "elementType": "pov",
