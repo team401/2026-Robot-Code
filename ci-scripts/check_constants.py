@@ -32,7 +32,7 @@ JSON_TO_CLASS = {
     "ManualModeConstants.json": "frc.robot.constants.ManualModeConstants"
 }
 
-SKIP_FILES = {"config.json", "controllers-xbox.json", "autos.json"}
+SKIP_FILES = {"config.json", "controllers-xbox.json", "Autos.json"}
 
 BUILD_CLASSES_DIR = "build/classes/java/main"
 
