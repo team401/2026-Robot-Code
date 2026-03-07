@@ -1,0 +1,89 @@
+{
+  "homingVoltage": {
+    "value": -5.0,
+    "unit": "Volts"
+  },
+  "climberReduction": 1.0,
+  "homingMovementThreshold": {
+    "value": 2.0,
+    "unit": "DegreesPerSecond"
+  },
+  "homingMaxUnmovingTime": {
+    "value": 5.0,
+    "unit": "Seconds"
+  },
+  "homingAngle": {
+    "value": 0.0,
+    "unit": "Degrees"
+  },
+  "stowAngle": {
+    "value": 65.0,
+    "unit": "Degrees"
+  },
+  "upperClimbAngle": {
+    "value": 22700,
+    "unit": "Degrees"
+  },
+  "hangClimbAngle": {
+    "value": 15000,
+    "unit": "Degrees"
+  },
+  "maxStowedAngle": {
+    "value": 500,
+    "unit": "Degrees"
+  },
+  "stowCoastMargin": {
+    "value": 500.0,
+    "unit": "Degrees"
+  },
+  "climberToMechanismRatio": {
+    "value": 1.0,
+    "unit": "Meters"
+  },
+  "climberKP": 128.0,
+  "climberKI": 0.0,
+  "climberKD": 5.0,
+  "climberKS": 2.0,
+  "climberKV": 0.0,
+  "climberKG": 0.0,
+  "climberKA": 0.0,
+  "hangClimbVoltage": {
+    "value": -12.0,
+    "unit": "Volts"
+  },
+  "climberExpoKV": 0.25,
+  "climberExpoKA": 0.5,
+  "climberSupplyCurrentLimit": {
+    "value": 60.0,
+    "unit": "Amps"
+  },
+  "climberStatorCurrentLimit": {
+    "value": 80.0,
+    "unit": "Amps"
+  },
+  "climberMotorDirection": "CounterClockwise_Positive",
+  "simClimberWeight": {
+    "value": 0.5,
+    "unit": "Kilograms"
+  },
+  "simClimberRadius": {
+    "value": 2.0,
+    "unit": "Inches"
+  },
+  "minClimberHeightMeters": {
+    "value": 0.0,
+    "unit": "Meters"
+  },
+  "maxClimberHeightMeters": {
+    "value": 1.0,
+    "unit": "Meters"
+  },
+  "climberStartingHeightMeters": {
+    "value": 0.0,
+    "unit": "Meters"
+  },
+  "climberMeasurementStdDevs": {
+    "value": 0.001,
+    "unit": "Meters"
+  }
+}

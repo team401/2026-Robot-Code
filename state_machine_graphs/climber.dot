@@ -1,0 +1,45 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  WaitForHomingState [shape=doublecircle];
+  HomingWaitForMovementState ;
+  SearchState ;
+  HomingWaitForStoppingState ;
+  HangState ;
+  StowState ;
+  TestModeState ;
+
+  // Transitions
+
+  WaitForHomingState -> HomingWaitForMovementState [label="In climber test mode (must home first)"];
+  WaitForHomingState -> HomingWaitForMovementState [label="Should home"];
+
+  HomingWaitForMovementState -> HomingWaitForStoppingState [label="Moved"];
+  HomingWaitForMovementState -> HomingWaitForStoppingState [label="timeout"];
+
+  SearchState -> StowState [label="Should stow"];
+  SearchState -> HangState [label="Should hang"];
+
+  HomingWaitForStoppingState -> StowState [label="Stopped"];
+
+  HangState -> SearchState [label="Requested action is Search (Should declimb)"];
+
+  StowState -> SearchState [label="Should search"];
+  StowState -> TestModeState [label="In climber test mode"];
+
+  TestModeState -> StowState [label="Not in climber test mode"];
+
+}

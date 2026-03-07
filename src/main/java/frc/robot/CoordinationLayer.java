@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.State;
@@ -42,6 +43,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.coordination.CoordinationTestMode;
 import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.HomingSwitch;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import frc.robot.subsystems.hood.HoodSubsystem;
@@ -49,6 +51,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.OptionalUtil;
@@ -70,11 +73,13 @@ import org.littletonrobotics.junction.Logger;
  */
 public class CoordinationLayer {
   // Subsystems
+  private Optional<ClimberSubsystem> climber = Optional.empty();
   private Optional<Drive> drive = Optional.empty();
   private Optional<DriveCoordinator> driveCoordinator = Optional.empty();
   private Optional<VisionLocalizer> vision = Optional.empty();
   private Optional<HopperSubsystem> hopper = Optional.empty();
   private Optional<IndexerSubsystem> indexer = Optional.empty();
+  private Optional<TransferRollerSubsystem> transferRoller = Optional.empty();
   private Optional<TurretSubsystem> turret = Optional.empty();
   private Optional<ShooterSubsystem> shooter = Optional.empty();
   private Optional<HoodSubsystem> hood = Optional.empty();
@@ -218,8 +223,8 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber stow method call when it is defined
+
+                climber.ifPresent(ClimberSubsystem::stayStowed);
               }
             });
 
@@ -230,13 +235,8 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
-                if (runningIntakeRollers) {
-                  intake.ifPresent(
-                      intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
-                } else {
-                  intake.ifPresent(IntakeSubsystem::stopRollers);
-                }
-                // TODO: Add climber stow method call when it is defined
+
+                climber.ifPresent(ClimberSubsystem::stayStowed);
               }
             });
 
@@ -247,8 +247,8 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber stow method call when it is defined
+
+                climber.ifPresent(ClimberSubsystem::stayStowed);
 
                 // Assume the intake is stowed if it is disabled
                 if (intake.map(IntakeSubsystem::isStowed).orElse(true)) {
@@ -261,11 +261,17 @@ public class CoordinationLayer {
         extensionStateMachine.registerState(
             new State<CoordinationLayer>("ClimberDeployed") {
               @Override
+              protected void onEntry(
+                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
+                climber.ifPresent(ClimberSubsystem::search);
+              }
+
+              @Override
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber extend method call when it is defined
+
+                /* We don't need to command the climber in periodic; its actions within this state are commanded by individual button bindings. This not might be the cleanest solution, but it will work for now with manual climbing. When we automate driving to climb, the CoordinationLayer state machine will likely need to morph from an extension state machine to a whole robot coordination state machine that tracks driving to climb, extending climber, climbing, and eventually unclimbing in addition to protecting against double extension. */
               }
             });
 
@@ -276,12 +282,11 @@ public class CoordinationLayer {
               protected void periodic(
                   StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
                 intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-                intake.ifPresent(IntakeSubsystem::stopRollers);
-                // TODO: Add climber stow method call when it is defined
 
-                // TODO: Add check for whether or not the climber is stowed
+                climber.ifPresent(ClimberSubsystem::stayStowed);
+
                 // Assume the climber is stowed if it is disabled
-                if (true) {
+                if (climber.map(ClimberSubsystem::isStowedOrHasntBeenHomed).orElse(true)) {
                   finish();
                 }
               }
@@ -355,13 +360,14 @@ public class CoordinationLayer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  // TODO: Add real climber controls once the climber exists
-                  System.out.println("Climb going up!");
+                  // Deploy the climber to a searching state when ready
+                  goalExtensionState = ExtensionState.ClimbDeployed;
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  System.out.println("Climb going down!");
+                  goalExtensionState = ExtensionState.ClimbDeployed;
+                  climber.ifPresent(ClimberSubsystem::hang);
                 }));
 
     var goUnderTrenchButton = controllers.getButton("goUnderTrench");
@@ -497,7 +503,11 @@ public class CoordinationLayer {
 
   private void stowClimber() {
     if (goalExtensionState == ExtensionState.ClimbDeployed) {
-      goalExtensionState = ExtensionState.None;
+      boolean willClimberStow = climber.map(ClimberSubsystem::stowPressed).orElse(true);
+
+      if (willClimberStow) {
+        goalExtensionState = ExtensionState.None;
+      }
     }
   }
 
@@ -525,6 +535,11 @@ public class CoordinationLayer {
     }
   }
 
+  public void setClimber(ClimberSubsystem climber) {
+    checkForDuplicateSubsystem(this.climber, "Climber");
+    this.climber = Optional.of(climber);
+  }
+
   public void setDrive(Drive drive) {
     checkForDuplicateSubsystem(this.drive, "Drive");
     this.drive = Optional.of(drive);
@@ -548,6 +563,11 @@ public class CoordinationLayer {
   public void setIndexer(IndexerSubsystem indexer) {
     checkForDuplicateSubsystem(this.indexer, "Indexer");
     this.indexer = Optional.of(indexer);
+  }
+
+  public void setTransferRoller(TransferRollerSubsystem transferRoller) {
+    checkForDuplicateSubsystem(this.transferRoller, "TransferRoller");
+    this.transferRoller = Optional.of(transferRoller);
   }
 
   public void setIntake(IntakeSubsystem intake) {
@@ -693,6 +713,14 @@ public class CoordinationLayer {
     // Poll buttons. This will modify state variables depending on the states of the buttons
     buttonLoop.poll();
 
+    // Allow running rollers when the intake is retracted
+    if (runningIntakeRollers) {
+      intake.ifPresent(
+          intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
+    } else {
+      intake.ifPresent(IntakeSubsystem::stopRollers);
+    }
+
     // Handle extension coordination and command intake/climber to their correct positions
     Logger.recordOutput(
         "CoordinationLayer/extensionState", extensionStateMachine.getCurrentState().getName());
@@ -733,9 +761,15 @@ public class CoordinationLayer {
           hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
       indexer.ifPresent(
           indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
+      transferRoller.ifPresent(
+          transferRoller ->
+              transferRoller.setTargetVelocity(
+                  JsonConstants.transferRollerConstants.transferRollerSpinningVelocity));
     } else {
       hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
       indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+      transferRoller.ifPresent(
+          transferRoller -> transferRoller.setTargetVelocity(RadiansPerSecond.zero()));
     }
 
     // Aim for a shot based on the current autonomy level
