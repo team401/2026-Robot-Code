@@ -122,7 +122,10 @@ public class DriveCoordinatorCommands extends Command {
   }
 
   public static APConstraints createDefaultAPConstraints() {
-    return new APConstraints().withAcceleration(3).withJerk(3);
+    return new APConstraints()
+        .withVelocity(JsonConstants.driveConstants.defaultAutoPilotVelocity)
+        .withAcceleration(JsonConstants.driveConstants.defaultAutoPilotAcceleration)
+        .withJerk(JsonConstants.driveConstants.defaultAutoPilotJerk);
   }
 
   public static APProfile createDefaultAPProfile() {

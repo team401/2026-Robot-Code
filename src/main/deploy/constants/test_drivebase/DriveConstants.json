@@ -68,6 +68,9 @@
     "kV": 0.0,
     "kA": 0.0
   },
+  "defaultAutoPilotVelocity": 3.0,
+  "defaultAutoPilotAcceleration": 3.0,
+  "defaultAutoPilotJerk": 3.0,
   "defaultAutoPilotBeelineRadius": {
     "value": 0.1,
     "unit": "Meter"
