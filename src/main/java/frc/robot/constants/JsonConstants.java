@@ -78,6 +78,8 @@ public class JsonConstants {
     shooterConstants = jsonHandler.getObject(new ShooterConstants(), "ShooterConstants.json");
     hoodConstants = jsonHandler.getObject(new HoodConstants(), "HoodConstants.json");
     climberConstants = jsonHandler.getObject(new ClimberConstants(), "ClimberConstants.json");
+    transferRollerConstants =
+        jsonHandler.getObject(new TransferRollerConstants(), "TransferRollerConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
     redFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
@@ -96,6 +98,7 @@ public class JsonConstants {
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
+        jsonHandler.addRoute("/transferroller", transferRollerConstants);
         jsonHandler.addRoute("/intake", intakeConstants);
         jsonHandler.addRoute("/climber", climberConstants);
         jsonHandler.addRoute("/vision", visionConstants);
@@ -136,6 +139,7 @@ public class JsonConstants {
   public static IntakeConstants intakeConstants;
   public static ShooterConstants shooterConstants;
   public static HoodConstants hoodConstants;
+  public static TransferRollerConstants transferRollerConstants;
   public static ShotMaps shotMaps;
   public static FieldLocationInstance redFieldLocations;
   public static FieldLocationInstance blueFieldLocations;
