@@ -1,5 +1,5 @@
 import * as AutoLib from './AutoLib.js';
-import { autoPilot, pose2d, pose3dToPose2d, rotation2d, xBasedAutoPilotAction, reference, translate2dPose, translation2d } from './Shorthands.js';
+import { autoPilot, pose2d, pose3dToPose2d, rotation2d, xBasedAutoPilotAction, reference, translate2dPose, translation2d, wait } from './Shorthands.js';
 import * as AutoActions from '@/typescript/AutoAction.js';
 import { FieldConstants } from './FieldLocations.js';
 
@@ -17,7 +17,8 @@ AutoLib.auto("Test Auto", () => {
     autoPilot({ targetPose: pose2d({ x: FieldConstants.LinesVertical.center, y: FieldConstants.LinesHorizontal.center }),
         entryAngle: rotation2d({ angleDegrees: -90 })
     });             // Center of field
-    xBasedAutoPilotAction({ targetPose: pose3dToPose2d({ pose3d: FieldConstants.LeftTrench.openingFloorCenter() }),
+    wait({ seconds: 1.0 }); // Wait for 1 second
+    xBasedAutoPilotAction({ targetPose: pose3dToPose2d({ pose3d: FieldConstants.RightTrench.openingFloorCenter() }),
         entryAngle: rotation2d({ angleDegrees: 0 }),
         velocity: 100.0,
     });
@@ -26,7 +27,7 @@ AutoLib.auto("Test Auto", () => {
             pose: FieldConstants.Alliance.center, 
             translation: translation2d({ x: 0, y: 0 })
         }),
-        entryAngle: rotation2d({ angleDegrees: 90 })
+        entryAngle: rotation2d({ angleDegrees: -90 })
     }); 
     reference("LeftClimbLineup");
 });

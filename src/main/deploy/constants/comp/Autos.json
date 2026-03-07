@@ -55,6 +55,16 @@
                     }
                 },
                 {
+                    "type": "Wait",
+                    "delay": {
+                        "value": 1,
+                        "unit": "Second",
+                        "_unitType": {
+                            "name": "Time"
+                        }
+                    }
+                },
+                {
                     "type": "XBasedAutoPilotAction",
                     "target": {
                         "reference": {
@@ -63,7 +73,7 @@
                             },
                             "translation": {
                                 "x": 4.604766,
-                                "y": 7.403681999999999
+                                "y": 0.639318
                             }
                         },
                         "entryAngle": {
@@ -85,7 +95,7 @@
                             }
                         },
                         "entryAngle": {
-                            "degrees": 90
+                            "degrees": -90
                         },
                         "velocity": 0
                     }
