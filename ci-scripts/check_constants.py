@@ -29,11 +29,10 @@ JSON_TO_CLASS = {
     "RedFieldLocations.json": "frc.robot.constants.FieldLocationInstance",
     "BlueFieldLocations.json": "frc.robot.constants.FieldLocationInstance",
     "StrategyConstants.json": "frc.robot.constants.StrategyConstants",
-    "ManualModeConstants.json": "frc.robot.constants.ManualModeConstants",
-    "Autos.json": "frc.robot.auto.Autos",
+    "ManualModeConstants.json": "frc.robot.constants.ManualModeConstants"
 }
 
-SKIP_FILES = {"config.json", "controllers-xbox.json"}
+SKIP_FILES = {"config.json", "controllers-xbox.json", "autos.json"}
 
 BUILD_CLASSES_DIR = "build/classes/java/main"
 
