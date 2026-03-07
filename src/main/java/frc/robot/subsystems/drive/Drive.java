@@ -175,7 +175,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
-    Twist2d totalTwist = new Twist2d();
+    Pose2d totalDeltaPose = Pose2d.kZero;
 
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
@@ -209,15 +209,15 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         if (i == 0) {
           deltaYaw = rawGyroRotation.minus(lastGyroYaw);
         } else {
-          deltaYaw = rawGyroRotation.minus(gyroInputs.odometryYawPositions[i - 1]);
+          deltaYaw =
+              rawGyroRotation.minus(
+                  gyroInputs.connected
+                      ? gyroInputs.odometryYawPositions[i - 1]
+                      : rawGyroRotation.minus(new Rotation2d(twist.dtheta)));
         }
         twist = new Twist2d(twist.dx, twist.dy, deltaYaw.getRadians());
 
-        totalTwist =
-            new Twist2d(
-                totalTwist.dx + twist.dx,
-                totalTwist.dy + twist.dy,
-                totalTwist.dtheta + twist.dtheta);
+        totalDeltaPose = totalDeltaPose.exp(twist);
       } else {
         poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       }
@@ -225,14 +225,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Apply update
     if (JsonConstants.featureFlags.useMAPoseEstimator) {
-      if (gyroInputs.connected) {
-        totalTwist.dtheta = gyroInputs.yawPosition.minus(lastGyroYaw).getRadians();
-        lastGyroYaw = gyroInputs.yawPosition;
-      } else {
-        totalTwist.dtheta = rawGyroRotation.minus(lastGyroYaw).getRadians();
-        lastGyroYaw = rawGyroRotation;
-      }
-
+      Twist2d totalTwist = Pose2d.kZero.log(totalDeltaPose);
+      lastGyroYaw = gyroInputs.connected ? gyroInputs.yawPosition : rawGyroRotation;
       maPoseEstimator.addDriveData(Timer.getTimestamp(), totalTwist);
     }
 
