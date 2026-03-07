@@ -30,7 +30,7 @@ digraph {
   HomingWaitForMovementState -> HomingWaitForStoppingState [label="Moved"];
   HomingWaitForMovementState -> HomingWaitForStoppingState [label="timeout"];
 
-  SearchState -> StowState [label="Should stow"];
+  SearchState -> HomingWaitForMovementState [label="Should stow"];
   SearchState -> HangState [label="Should hang"];
 
   HomingWaitForStoppingState -> StowState [label="Stopped"];
