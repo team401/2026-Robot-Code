@@ -16,7 +16,7 @@ digraph {
 
   SpinState ;
   DeJamState ;
-  IdleState ;
+  IdleState [shape=doublecircle];
   TestModeState ;
 
   // Transitions
