@@ -2,7 +2,6 @@ package frc.robot.subsystems.led;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.lumynlabs.connection.usb.USBPort;
 import com.lumynlabs.devices.ConnectorXAnimate;
 import com.lumynlabs.domain.config.ConfigBuilder;
 import com.lumynlabs.domain.config.LumynDeviceConfig;
@@ -124,8 +123,6 @@ public class LED extends SubsystemBase {
   public void periodic() {
 
     boolean disabled = DriverStation.isDisabled();
-    // TODO: replace with homed switch
-    isHomed = SmartDashboard.getBoolean("led/isHomed", false);
     // check if isHomed, if not disable all animations and set all strips to be orange
     if (!isHomed) {
       setGroupColor("all", Color.kOrangeRed);

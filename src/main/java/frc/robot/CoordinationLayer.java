@@ -606,7 +606,8 @@ public class CoordinationLayer {
     }
   }
 
-  private boolean isHomingSwitchPressed() {
+  @AutoLogOutput(key = "CoordinationLayer/isHomingSwitchPressed")
+  public boolean isHomingSwitchPressed() {
     return homingSwitch.map(homingSwitch -> homingSwitch.isHomingSwitchPressed()).orElse(false);
   }
 
@@ -726,6 +727,8 @@ public class CoordinationLayer {
       hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
       indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
     }
+
+    led.ifPresent(led -> led.setHomed(isHomingSwitchPressed()));
   }
 
   /**

@@ -8,7 +8,7 @@
   "runShooter": false,
   "runIntake": false,
   "runHood": false,
-  "useHomingSwitch": false,
+  "useHomingSwitch": true,
   "useTuningServer": false,
   "pretendCamerasAreMobile": false,
   "runLEDs": true
