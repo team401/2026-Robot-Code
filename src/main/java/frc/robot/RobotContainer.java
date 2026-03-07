@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
-import frc.robot.auto.AutoManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.HomingSwitch;
@@ -58,7 +57,7 @@ public class RobotContainer {
   public RobotContainer() {
     CopperCoreMetadata.printInfo();
 
-    JsonConstants.loadConstants();
+    JsonConstants.loadConstants(this);
     JsonConstants.featureFlags.logFlags();
 
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
@@ -143,11 +142,12 @@ public class RobotContainer {
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+  }
 
-    AutoManager.autos.ifPresent(
-        auto -> {
-          auto.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
-        });
+  public void loadAutoCommands() {
+    JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
+
+    createAutoChooser(drive.orElse(null));
   }
 
   /**
@@ -160,20 +160,22 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
     // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    if (drive != null) {
+      autoChooser.addOption(
+          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+      autoChooser.addOption(
+          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    }
   }
 
   /**
@@ -193,6 +195,10 @@ public class RobotContainer {
                 ControllerSetup.initDriveBindings(driveCoordinator, drive);
               });
         });
+
+    for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
+      autoChooser.addOption(auto.getKey(), auto.getValue());
+    }
   }
 
   /**
@@ -201,12 +207,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return AutoManager.autos
-        .map(
-            autos -> {
-              return autos.getAutoCommand("Test Auto");
-            })
-        .orElse(null);
+    return autoChooser.get();
   }
 
   /**

@@ -17,7 +17,7 @@ import * as path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUTPUT_FILE = path.resolve(__dirname, "../../src/main/deploy/Autos.json");
+const OUTPUT_FILE = path.resolve(__dirname, "../../src/main/deploy/constants/comp/Autos.json");
 
 const autoFiles = process.argv.slice(2);
 

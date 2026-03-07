@@ -22,8 +22,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.auto.AutoAction;
-import frc.robot.auto.AutoManager;
+import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.FixedJSONSyncConfigBuilder;
@@ -61,7 +62,7 @@ public class JsonConstants {
     JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
-  public static void loadConstants() {
+  public static void loadConstants(RobotContainer robotContainer) {
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
@@ -106,6 +107,8 @@ public class JsonConstants {
         jsonHandler.getObject(new ManualModeConstants(), "ManualModeConstants.json");
     strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
 
+    autos = jsonHandler.getObject(new Autos(), "Autos.json");
+
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
       try {
@@ -118,6 +121,13 @@ public class JsonConstants {
         jsonHandler.addRoute("/intake", intakeConstants);
         jsonHandler.addRoute("/climber", climberConstants);
         jsonHandler.addRoute("/vision", visionConstants);
+        jsonHandler.addRoute("/autos", autos);
+        jsonHandler.registerPostCallback(
+            "/autos",
+            (autos) -> {
+              robotContainer.loadAutoCommands();
+              return true;
+            });
         jsonHandler.registerPostCallback(
             "/vision",
             (visionConstants) -> {
@@ -153,7 +163,6 @@ public class JsonConstants {
           Translation2d.class,
           Translation3d.class);
     }
-    AutoManager.loadAutos();
   }
 
   public static RobotInfo robotInfo;
@@ -176,6 +185,8 @@ public class JsonConstants {
   public static ClimberConstants climberConstants;
   public static ManualModeConstants manualModeConstants;
   public static StrategyConstants strategyConstants;
+
+  public static Autos autos;
 
   public static Controllers controllers;
 }
