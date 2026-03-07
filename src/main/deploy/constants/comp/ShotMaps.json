@@ -139,7 +139,7 @@
     }
   ],
   "mechanismCompensationDelay": {
-    "value": 0.0,
+    "value": 0.03,
     "unit": "Second"
   }
 }
