@@ -1,10 +1,10 @@
 {
   "wearInTurret": false,
   "homingVoltage": {
-    "value": -1.0,
+    "value": -2.0,
     "unit": "Volt"
   },
-  "turretReduction": 37.5,
+  "turretReduction": 35.625,
   "homingMovementThreshold": {
     "value": 1.0,
     "unit": "Degree per Second"
@@ -17,15 +17,15 @@
     "value": 0.0,
     "unit": "Degree"
   },
-  "turretKP": 512.0,
+  "turretKP": 1024.0,
   "turretKI": 0.0,
-  "turretKD": 48.0,
+  "turretKD": 80.0,
   "turretKS": 4.0,
   "turretKV": 1.0,
   "turretKG": 0.0,
-  "turretKA": 1.6,
+  "turretKA": 2.0,
   "turretExpoKV": 1.8,
-  "turretExpoKA": 3.6,
+  "turretExpoKA": 1.8,
   "turretSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
@@ -40,11 +40,11 @@
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
   },
   "minTurretAngle": {
-    "value": -5.0,
+    "value": 0.0,
     "unit": "Degree"
   },
   "maxTurretAngle": {
-    "value": 330.0,
+    "value": 352.0,
     "unit": "Degree"
   },
   "turretSetpointEpsilon": {
@@ -52,7 +52,7 @@
     "unit": "Degree"
   },
   "headingToTurretAngle": {
-    "value": 41.0,
+    "value": 43.7,
     "unit": "Degree"
   }
 }
