@@ -21,7 +21,7 @@
     "unit": "Degrees"
   },
   "upperClimbAngle": {
-    "value": 22700,
+    "value": 23700,
     "unit": "Degrees"
   },
   "hangClimbAngle": {
@@ -30,6 +30,10 @@
   },
   "maxStowedAngle": {
     "value": 500,
+    "unit": "Degrees"
+  },
+  "climbSearchAngleMargin" : {
+    "value": 250,
     "unit": "Degrees"
   },
   "stowCoastMargin": {

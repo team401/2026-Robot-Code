@@ -474,6 +474,20 @@ public class CoordinationLayer {
     runningIntakeRollers = false;
   }
 
+  public void climbSearchForAuto() {
+    goalExtensionState = ExtensionState.ClimbDeployed;
+    climber.ifPresent(ClimberSubsystem::search);
+  }
+
+  public boolean isClimbSearchFinishedForAuto() {
+    return climber.map(ClimberSubsystem::isAtSearchPosition).orElse(true);
+  }
+
+  public void climbHangForAuto() {
+    goalExtensionState = ExtensionState.ClimbDeployed;
+    climber.ifPresent(ClimberSubsystem::hang);
+  }
+
   /**
    * If the climber is deployed, stow it and then deploy the intake. If nothing is deployed, deploy
    * the intake. If the intake is deployed, stow the intake.

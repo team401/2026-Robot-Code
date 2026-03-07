@@ -471,6 +471,14 @@ export namespace FieldConstants {
       );
     }
 
+    export function openingFloorCenter(): Pose3d {
+      return pose3d({
+            x: LinesVertical.hubCenter(),
+            y: fieldWidth - openingWidth / 2,
+            z: 0
+      });
+    }
+
     // Relevant reference points on opposing side
     export function oppOpeningTopLeft(): Translation3d {
       return translation3d(

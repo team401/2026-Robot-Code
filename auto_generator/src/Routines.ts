@@ -12,16 +12,18 @@ function climbLineup({ targetPose, entryAngle, velocity }: {
     velocity?: number;
 }) {
     sequence(() => {
-        xBasedAutoPilotAction({targetPose: FieldConstants.Alliance.center});
         parallel(() => {
-            autoPilot({
-                targetPose,
-                ...(entryAngle !== undefined && { entryAngle }),
-                ...(velocity !== undefined && { velocity }),
+            sequence(() => {
+                xBasedAutoPilotAction({targetPose: FieldConstants.Alliance.center});
+                autoPilot({
+                    targetPose,
+                    ...(entryAngle !== undefined && { entryAngle }),
+                    ...(velocity !== undefined && { velocity }),
+                });
             });
-            // Climb Search Action
+            new AutoActions.ClimbSearchAction({}).add();
         });
-        // Hang Climb Action
+        new AutoActions.ClimbHangAction({}).add();
     });
 }
 

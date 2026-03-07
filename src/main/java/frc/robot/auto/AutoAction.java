@@ -4,6 +4,8 @@ import coppercore.parameter_tools.json.annotations.JsonSubtype;
 import coppercore.parameter_tools.json.annotations.JsonType;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.CoordinationLayer;
+import frc.robot.auto.coordinationLayer.ClimbHangAction;
+import frc.robot.auto.coordinationLayer.ClimbSearchAction;
 import frc.robot.auto.coordinationLayer.DeployIntakeAction;
 import frc.robot.auto.coordinationLayer.StowIntakeAction;
 import frc.robot.auto.drive.AutoPilotAction;
@@ -48,6 +50,8 @@ import frc.robot.util.ts.TypeScriptMethod;
       // Coordination layer actions
       @JsonSubtype(clazz = DeployIntakeAction.class, name = "DeployIntakeAction"),
       @JsonSubtype(clazz = StowIntakeAction.class, name = "StowIntakeAction"),
+      @JsonSubtype(clazz = ClimbSearchAction.class, name = "ClimbSearchAction"),
+      @JsonSubtype(clazz = ClimbHangAction.class, name = "ClimbHangAction")
     })
 public abstract class AutoAction {
 

@@ -251,7 +251,29 @@ export class StowIntakeAction {
   }
 }
 
-export type AutoAction = AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | DeployIntakeAction | StowIntakeAction | undefined | null;
+export class ClimbSearchAction {
+  type: "ClimbSearchAction" = "ClimbSearchAction";
+	constructor({}: Partial<{}>) {
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
+}
+
+export class ClimbHangAction {
+  type: "ClimbHangAction" = "ClimbHangAction";
+	constructor({}: Partial<{}>) {
+  }
+  /** Adds this command to the current auto and returns itself for chaining. */
+  add(): this {
+    _addCommandHook?.(this);
+    return this;
+  }
+}
+
+export type AutoAction = AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | DeployIntakeAction | StowIntakeAction | ClimbSearchAction | ClimbHangAction | undefined | null;
 
 let _addCommandHook: ((command: NonNullable<AutoAction>) => void) | null = null;
 export function setAddCommandHook(hook: (command: NonNullable<AutoAction>) => void) { _addCommandHook = hook; }
