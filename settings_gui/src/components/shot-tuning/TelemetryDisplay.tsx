@@ -1,17 +1,21 @@
 import { Box, Typography } from '@mui/material';
 import type { Telemetry } from '../../services/nt4';
+import CheckIcon from '@mui/icons-material/Check';
+import type { DistanceSource, TargetCoordinates } from '../../types/ShotTuning';
 
 interface TelemetryDisplayProps {
   telemetry: Telemetry;
+  distanceSource: DistanceSource;
+  targetCoordinates: TargetCoordinates;
 }
 
 function fmt(value: number, decimals = 3): string {
   return value.toFixed(decimals);
 }
 
-export function TelemetryDisplay({ telemetry }: TelemetryDisplayProps) {
+export function TelemetryDisplay({ telemetry, distanceSource, targetCoordinates }: TelemetryDisplayProps) {
   const ntDist = telemetry.distanceToHubMeters;
-  const poseDist = telemetry.distanceMeters;
+  const odometryDist = telemetry.distanceMeters;
 
   return (
     <Box>
@@ -19,13 +23,21 @@ export function TelemetryDisplay({ telemetry }: TelemetryDisplayProps) {
         Live Telemetry
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
-        <Typography variant="body2" color="text.secondary">Distance to Hub:</Typography>
-        <Typography variant="body2" fontFamily="monospace">
+        <Typography variant="body2" color="text.secondary">NetworkTables Distance:</Typography>
+        <Typography variant="body2" fontFamily="monospace" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {ntDist !== null ? fmt(ntDist) : '--'} m
-          {' '}
-          <Typography component="span" variant="caption" color="text.secondary">
-            (pose: {fmt(poseDist)} m)
-          </Typography>
+          {distanceSource === 'networkTables' && <CheckIcon color="success" sx={{ fontSize: 20 }} />}
+        </Typography>
+
+        <Typography variant="body2" color="text.secondary">Odometry Distance:</Typography>
+        <Typography variant="body2" fontFamily="monospace" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          {fmt(odometryDist)} m
+          {distanceSource === 'odometry' && <CheckIcon color="success" sx={{ fontSize: 20 }} />}
+        </Typography>
+
+        <Typography variant="body2" color="text.secondary">Target (x, y):</Typography>
+        <Typography variant="body2" fontFamily="monospace">
+          ({fmt(targetCoordinates.x)}, {fmt(targetCoordinates.y)})
         </Typography>
 
         <Typography variant="body2" color="text.secondary">Shooter Setpoint:</Typography>
