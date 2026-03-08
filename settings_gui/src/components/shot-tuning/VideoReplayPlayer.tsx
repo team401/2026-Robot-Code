@@ -12,6 +12,7 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import type { TuningAttempt } from '../../types/ShotTuning';
+import { getAttemptDistanceSource, getAttemptSampleDistance, getAttemptTargetCoordinates } from '../../types/ShotTuning';
 import type { ShotMaps, ShotMapDataPoint } from '../../types/ShotMaps';
 import { clipUrl } from '../../services/shotTuningStorage';
 import { loadLocal, saveLocal } from '../../services/api';
@@ -36,6 +37,9 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
+  const sampleDistance = getAttemptSampleDistance(attempt);
+  const distanceSource = getAttemptDistanceSource(attempt);
+  const targetCoordinates = getAttemptTargetCoordinates(attempt);
 
 
   // Webm files often report wrong duration until fully buffered.
@@ -180,9 +184,8 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
   const handleExport = async (target: 'hub' | 'pass') => {
     if (attempt.flightTimeSec === null) return;
     setExportError(null);
-    const distance = attempt.distanceToHubMeters ?? attempt.distanceMeters;
     const newPoint: ShotMapDataPoint = {
-      distance: { value: distance, unit: 'Meter' },
+      distance: { value: sampleDistance, unit: 'Meter' },
       shooterRPM: attempt.shooterRPM,
       hoodAngle: { value: attempt.hoodAngleDegrees, unit: 'Degree' },
       flightTime: { value: attempt.flightTimeSec, unit: 'Second' },
@@ -332,12 +335,20 @@ export function VideoReplayPlayer({ attempt, onUpdate, attempts, onAttemptsChang
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.25, mb: 1 }}>
         <Typography variant="caption" color="text.secondary">Distance:</Typography>
         <Typography variant="caption" fontFamily="monospace">
-          {(attempt.distanceToHubMeters ?? attempt.distanceMeters).toFixed(3)} m
-          {attempt.distanceToHubMeters !== null && (
-            <Typography component="span" variant="caption" color="text.secondary">
-              {' '}(pose: {attempt.distanceMeters.toFixed(3)} m)
-            </Typography>
-          )}
+          {sampleDistance.toFixed(3)} m
+          <Typography component="span" variant="caption" color="text.secondary">
+            {' '}({distanceSource === 'networkTables' ? 'NetworkTables' : 'Odometry'})
+          </Typography>
+        </Typography>
+        <Typography variant="caption" color="text.secondary">NetworkTables:</Typography>
+        <Typography variant="caption" fontFamily="monospace">
+          {attempt.distanceToHubMeters !== null ? `${attempt.distanceToHubMeters.toFixed(3)} m` : '-- m'}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">Odometry:</Typography>
+        <Typography variant="caption" fontFamily="monospace">{attempt.distanceMeters.toFixed(3)} m</Typography>
+        <Typography variant="caption" color="text.secondary">Target (x, y):</Typography>
+        <Typography variant="caption" fontFamily="monospace">
+          ({targetCoordinates.x.toFixed(3)}, {targetCoordinates.y.toFixed(3)})
         </Typography>
         <Typography variant="caption" color="text.secondary">Shooter:</Typography>
         <Typography variant="caption" fontFamily="monospace">{attempt.shooterRPM.toFixed(1)} RPM</Typography>
