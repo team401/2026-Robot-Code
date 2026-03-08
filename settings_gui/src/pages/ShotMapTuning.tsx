@@ -6,8 +6,14 @@ import {
   Snackbar,
   Paper,
   Grid,
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
-import type { TuningAttempt } from '../types/ShotTuning';
+import CheckIcon from '@mui/icons-material/Check';
+import type { DistanceSource, TargetCoordinates, TuningAttempt } from '../types/ShotTuning';
+import { DEFAULT_DISTANCE_SOURCE, DEFAULT_TARGET_COORDINATES } from '../types/ShotTuning';
 import { loadAttempts, saveAttempts, uploadClip, deleteClip } from '../services/shotTuningStorage';
 import { loadLocal } from '../services/api';
 import { NTConnectionStatus } from '../components/shot-tuning/NTConnectionStatus';
@@ -23,13 +29,46 @@ interface RobotInfo {
   robotToShooter: { translation: { x: number; y: number; z: number } };
 }
 
+interface DistanceSettings {
+  distanceSource: DistanceSource;
+  targetCoordinates: TargetCoordinates;
+}
+
+const DISTANCE_SETTINGS_STORAGE_KEY = 'shot-map-tuning.distance-settings';
+
+function loadDistanceSettings(): DistanceSettings {
+  try {
+    const raw = localStorage.getItem(DISTANCE_SETTINGS_STORAGE_KEY);
+    if (!raw) {
+      return {
+        distanceSource: DEFAULT_DISTANCE_SOURCE,
+        targetCoordinates: DEFAULT_TARGET_COORDINATES,
+      };
+    }
+    const parsed = JSON.parse(raw) as Partial<DistanceSettings>;
+    const source = parsed.distanceSource === 'odometry' ? 'odometry' : DEFAULT_DISTANCE_SOURCE;
+    const x = typeof parsed.targetCoordinates?.x === 'number' ? parsed.targetCoordinates.x : DEFAULT_TARGET_COORDINATES.x;
+    const y = typeof parsed.targetCoordinates?.y === 'number' ? parsed.targetCoordinates.y : DEFAULT_TARGET_COORDINATES.y;
+    return {
+      distanceSource: source,
+      targetCoordinates: { x, y },
+    };
+  } catch {
+    return {
+      distanceSource: DEFAULT_DISTANCE_SOURCE,
+      targetCoordinates: DEFAULT_TARGET_COORDINATES,
+    };
+  }
+}
+
 export function ShotMapTuning() {
   const { environment } = useConnection();
   const [attempts, setAttempts] = useState<TuningAttempt[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [snack, setSnack] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const shooterOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [distanceSettings, setDistanceSettings] = useState<DistanceSettings>(loadDistanceSettings);
+  const [shooterOffset, setShooterOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [telemetry, setTelemetry] = useState<Telemetry>({
     distanceMeters: 0,
     distanceToHubMeters: null,
@@ -44,6 +83,11 @@ export function ShotMapTuning() {
   telemetryRef.current = telemetry;
   // Snapshot taken at the moment the user presses "Start Recording"
   const startSnapshotRef = useRef<Telemetry>(telemetry);
+  const startDistanceSettingsRef = useRef<DistanceSettings>(distanceSettings);
+
+  useEffect(() => {
+    localStorage.setItem(DISTANCE_SETTINGS_STORAGE_KEY, JSON.stringify(distanceSettings));
+  }, [distanceSettings]);
 
   const fetchAttempts = useCallback(async () => {
     try {
@@ -61,7 +105,7 @@ export function ShotMapTuning() {
     loadLocal<RobotInfo>(environment, 'RobotInfo.json')
       .then((info) => {
         const { x, y } = info.robotToShooter.translation;
-        shooterOffsetRef.current = { x, y };
+        setShooterOffset({ x, y });
       })
       .catch(() => { /* keep default {0,0} if unavailable */ });
   }, [environment]);
@@ -70,10 +114,13 @@ export function ShotMapTuning() {
     if (nt4Ref.current) {
       nt4Ref.current.disconnect();
     }
-    const svc = await createNT4Service(address, setTelemetry, shooterOffsetRef.current);
+    const svc = await createNT4Service(address, setTelemetry, {
+      shooterOffset,
+      targetCoordinates: distanceSettings.targetCoordinates,
+    });
     nt4Ref.current = svc;
     return svc;
-  }, []);
+  }, [distanceSettings.targetCoordinates, shooterOffset]);
 
   const handleDisconnect = useCallback(() => {
     if (nt4Ref.current) {
@@ -88,18 +135,33 @@ export function ShotMapTuning() {
     };
   }, []);
 
+  useEffect(() => {
+    nt4Ref.current?.updateDistanceConfig({
+      shooterOffset,
+      targetCoordinates: distanceSettings.targetCoordinates,
+    });
+  }, [distanceSettings.targetCoordinates, shooterOffset]);
+
   const handleRecordStart = useCallback(() => {
     startSnapshotRef.current = telemetryRef.current;
-  }, []);
+    startDistanceSettingsRef.current = distanceSettings;
+  }, [distanceSettings]);
 
   const handleStore = useCallback(async (blob: Blob) => {
     const id = crypto.randomUUID();
     const snap = startSnapshotRef.current;
+    const settingsAtStart = startDistanceSettingsRef.current;
+    const sampleDistanceMeters = settingsAtStart.distanceSource === 'networkTables'
+      ? snap.distanceToHubMeters ?? snap.distanceMeters
+      : snap.distanceMeters;
     const attempt: TuningAttempt = {
       id,
       createdAt: new Date().toISOString(),
       distanceMeters: snap.distanceMeters,
       distanceToHubMeters: snap.distanceToHubMeters,
+      sampleDistanceMeters,
+      distanceSource: settingsAtStart.distanceSource,
+      targetCoordinates: settingsAtStart.targetCoordinates,
       shooterRPM: snap.shooterRPM,
       hoodAngleDegrees: snap.hoodAngleDegrees,
       robotPoseX: snap.robotPoseX,
@@ -120,7 +182,7 @@ export function ShotMapTuning() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to store attempt');
     }
-  }, [attempts]);
+  }, [attempts, recordingFps]);
 
   const handleDelete = useCallback(async (id: string) => {
     try {
@@ -162,7 +224,108 @@ export function ShotMapTuning() {
         {/* Left column: Recording */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2, mb: 2 }}>
-            <TelemetryDisplay telemetry={telemetry} />
+            <Stack spacing={2}>
+              <Box>
+                <ToggleButtonGroup
+                  value={distanceSettings.distanceSource}
+                  exclusive
+                  onChange={(_, value: DistanceSource | null) => {
+                    if (!value) return;
+                    setDistanceSettings((current) => ({
+                      ...current,
+                      distanceSource: value,
+                    }));
+                  }}
+                  size="small"
+                >
+                  <ToggleButton value="networkTables">
+                    {distanceSettings.distanceSource === 'networkTables' && <CheckIcon fontSize="small" sx={{ mr: 0.5 }} />}
+                    Read dist from NT
+                  </ToggleButton>
+                  <ToggleButton value="odometry">
+                    {distanceSettings.distanceSource === 'odometry' && <CheckIcon fontSize="small" sx={{ mr: 0.5 }} />}
+                    Compute distance via Odometry
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+
+              {distanceSettings.distanceSource === 'odometry' && (
+                <Box>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }}>
+                    <TextField
+                      label="Target X (m)"
+                      type="number"
+                      value={distanceSettings.targetCoordinates.x}
+                      onChange={(event) => {
+                        const value = Number.parseFloat(event.target.value);
+                        setDistanceSettings((current) => ({
+                          ...current,
+                          targetCoordinates: {
+                            ...current.targetCoordinates,
+                            x: Number.isFinite(value) ? value : 0,
+                          },
+                        }));
+                      }}
+                      inputProps={{ step: '0.1' }}
+                      size="small"
+                      fullWidth
+                    />
+                    <TextField
+                      label="Target Y (m)"
+                      type="number"
+                      value={distanceSettings.targetCoordinates.y}
+                      onChange={(event) => {
+                        const value = Number.parseFloat(event.target.value);
+                        setDistanceSettings((current) => ({
+                          ...current,
+                          targetCoordinates: {
+                            ...current.targetCoordinates,
+                            y: Number.isFinite(value) ? value : 0,
+                          },
+                        }));
+                      }}
+                      inputProps={{ step: '0.1' }}
+                      size="small"
+                      fullWidth
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'center' } }}>
+                      <Typography
+                        component="button"
+                        type="button"
+                        onClick={() => {
+                          setDistanceSettings((current) => ({
+                            ...current,
+                            targetCoordinates: { ...DEFAULT_TARGET_COORDINATES },
+                          }));
+                        }}
+                        sx={{
+                          border: 'none',
+                          background: 'none',
+                          p: 0,
+                          m: 0,
+                          color: 'primary.main',
+                          cursor: 'pointer',
+                          font: 'inherit',
+                          fontSize: '0.75rem',
+                          textDecoration: 'underline',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        reset to
+                        <br />
+                        hub coords
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+              )}
+
+              <TelemetryDisplay
+                telemetry={telemetry}
+                distanceSource={distanceSettings.distanceSource}
+                targetCoordinates={distanceSettings.targetCoordinates}
+              />
+            </Stack>
           </Paper>
 
           <Paper sx={{ p: 2, mb: 2 }}>
