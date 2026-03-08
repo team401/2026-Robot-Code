@@ -54,7 +54,7 @@ public class RobotInfo {
         .withDigitalInputs(
             new DigitalInputsConfigs()
                 .withS1CloseState(S1CloseStateValue.CloseWhenHigh)
-                .withS1FloatState(S1FloatStateValue.PullLow));
+                .withS1FloatState(S1FloatStateValue.PullHigh));
   }
 
   /** The refresh rates that should be used for subsystems that don't effect fire control */

@@ -45,7 +45,7 @@ public class JsonConstants {
     JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
-  public static void loadConstants() {
+  public static JSONHandler loadConstants() {
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
@@ -123,6 +123,7 @@ public class JsonConstants {
 
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
+    return jsonHandler;
   }
 
   public static RobotInfo robotInfo;
