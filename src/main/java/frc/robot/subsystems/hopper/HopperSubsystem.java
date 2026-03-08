@@ -67,9 +67,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
         .transitionTo(testModeState);
     spinningState.when(hopper -> hopper.dejamRequired(), "Dejam required").transitionTo(dejamState);
-    dejamState
-        .when(hopper -> !hopper.dejamRequired(), "Dejam not required")
-        .transitionTo(spinningState);
+    dejamState.whenTimeout(Seconds.of(0.5)).transitionTo(spinningState);
     idleState.when(hopper -> !hopper.shouldIdle(), "Should spin").transitionTo(spinningState);
     idleState
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")

@@ -5,7 +5,7 @@
   },
   "hopperReduction": 1.0,
   "spinningMovementThreshold": {
-    "value": 500.0,
+    "value": 1500.0,
     "unit": "RPM"
   },
   "indexingVelocity": {
@@ -65,7 +65,7 @@
     "unit": "Amp"
   },
   "dejamCurrentThreshold": {
-    "value": 25.0,
+    "value": 20.0,
     "unit": "Amp"
   },
   "hopperMotorDirection": "CounterClockwise_Positive",
