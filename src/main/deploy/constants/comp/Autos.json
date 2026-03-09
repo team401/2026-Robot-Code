@@ -7,97 +7,94 @@
                     "type": "AutoPilotAction",
                     "target": {
                         "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
                             "translation": {
                                 "x": 2.003933,
                                 "y": 4.0215
+                            },
+                            "rotation": {
+                                "degrees": 0
                             }
                         },
-                        "velocity": 0
+                        "velocity": 0.0
                     }
                 },
                 {
                     "type": "XBasedAutoPilotAction",
                     "target": {
                         "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
                             "translation": {
                                 "x": 4.604766,
                                 "y": 0.639318
+                            },
+                            "rotation": {
+                                "degrees": 0.0
                             }
                         },
+                        "velocity": 100.0,
                         "entryAngle": {
                             "degrees": 180
-                        },
-                        "velocity": 100
+                        }
                     }
                 },
                 {
                     "type": "AutoPilotAction",
                     "target": {
                         "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
                             "translation": {
                                 "x": 8.259,
                                 "y": 4.0215
+                            },
+                            "rotation": {
+                                "degrees": 0.0
                             }
                         },
+                        "velocity": 0.0,
                         "entryAngle": {
                             "degrees": -90
-                        },
-                        "velocity": 0
+                        }
                     }
                 },
                 {
                     "type": "Wait",
                     "delay": {
-                        "value": 1,
-                        "unit": "Second",
-                        "_unitType": {
-                            "name": "Time"
-                        }
+                        "value": 1.0,
+                        "unit": "Second"
                     }
                 },
                 {
                     "type": "XBasedAutoPilotAction",
                     "target": {
                         "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
                             "translation": {
                                 "x": 4.604766,
                                 "y": 0.639318
+                            },
+                            "rotation": {
+                                "degrees": 0.0
                             }
                         },
+                        "velocity": 100.0,
                         "entryAngle": {
                             "degrees": 0
-                        },
-                        "velocity": 100
+                        }
                     }
                 },
                 {
                     "type": "AutoPilotAction",
                     "target": {
                         "reference": {
-                            "rotation": {
-                                "degrees": 0
-                            },
                             "translation": {
                                 "x": 2.003933,
                                 "y": 4.0215
+                            },
+                            "rotation": {
+                                "degrees": 0
                             }
                         },
+                        "velocity": 0.0,
                         "entryAngle": {
                             "degrees": -90
-                        },
-                        "velocity": 0
+                        }
                     }
                 },
                 {
@@ -122,33 +119,33 @@
                                             "type": "XBasedAutoPilotAction",
                                             "target": {
                                                 "reference": {
-                                                    "rotation": {
-                                                        "degrees": -90
-                                                    },
                                                     "translation": {
                                                         "x": 2.313933,
                                                         "y": 4.0215
+                                                    },
+                                                    "rotation": {
+                                                        "degrees": -90.0
                                                     }
                                                 },
-                                                "velocity": 0
+                                                "velocity": 0.0
                                             }
                                         },
                                         {
                                             "type": "AutoPilotAction",
                                             "target": {
                                                 "reference": {
-                                                    "rotation": {
-                                                        "degrees": -90
-                                                    },
                                                     "translation": {
                                                         "x": 1.415154,
                                                         "y": 4.1588182
+                                                    },
+                                                    "rotation": {
+                                                        "degrees": -90.0
                                                     }
                                                 },
+                                                "velocity": 100.0,
                                                 "entryAngle": {
                                                     "degrees": 0
-                                                },
-                                                "velocity": 100
+                                                }
                                             }
                                         }
                                     ]
@@ -181,33 +178,33 @@
                                             "type": "XBasedAutoPilotAction",
                                             "target": {
                                                 "reference": {
-                                                    "rotation": {
-                                                        "degrees": -90
-                                                    },
                                                     "translation": {
                                                         "x": 2.313933,
                                                         "y": 4.0215
+                                                    },
+                                                    "rotation": {
+                                                        "degrees": -90.0
                                                     }
                                                 },
-                                                "velocity": 0
+                                                "velocity": 0.0
                                             }
                                         },
                                         {
                                             "type": "AutoPilotAction",
                                             "target": {
                                                 "reference": {
-                                                    "rotation": {
-                                                        "degrees": -90
-                                                    },
                                                     "translation": {
                                                         "x": 1.415154,
                                                         "y": 3.3015682
+                                                    },
+                                                    "rotation": {
+                                                        "degrees": -90.0
                                                     }
                                                 },
+                                                "velocity": 100.0,
                                                 "entryAngle": {
                                                     "degrees": 0
-                                                },
-                                                "velocity": 100
+                                                }
                                             }
                                         }
                                     ]
