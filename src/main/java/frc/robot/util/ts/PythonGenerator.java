@@ -720,8 +720,16 @@ public final class PythonGenerator {
     if (methods == null) return;
     for (String methodCode : methods) {
       sb.append("\n");
-      // Each methodCode string is already indented with 4-space class-level indent
-      sb.append(methodCode).append("\n");
+      // Re-indent each line with 4-space class-level indent.
+      // Java text blocks strip the common leading whitespace, so the code
+      // arrives unindented — we need to add the class body indent back.
+      for (String line : methodCode.split("\n", -1)) {
+        if (line.isEmpty()) {
+          sb.append("\n");
+        } else {
+          sb.append("    ").append(line).append("\n");
+        }
+      }
     }
   }
 
@@ -782,6 +790,8 @@ public final class PythonGenerator {
   private static String getPythonDefaultValue(Type type, String pyTypeName) {
     if (type instanceof Class<?> clazz) {
       if (primitiveMap.containsKey(clazz)) {
+        defaultChecked.add(type);
+        defaultSupported.add(type);
         String pyType = primitiveMap.get(clazz);
         switch (pyType) {
           case "int":

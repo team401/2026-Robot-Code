@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import Optional
 
 from . import auto_action as AutoAction
+from .units import Second
 
 # Re-export context-manager containers so callers can do:
 #   from .shorthands import sequence, parallel, race
@@ -113,7 +114,7 @@ def transform2d_pose(
 
 def wait(seconds: float) -> None:
     """Insert a Wait action into the current context."""
-    AutoAction.Wait(delay=AutoAction.Second.of(seconds)).add()
+    AutoAction.Wait(delay=Second.of(seconds)).add()
 
 
 def print_msg(message: str) -> None:

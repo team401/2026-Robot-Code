@@ -18,6 +18,7 @@ from .shorthands import (
     translation2d_to_pose2d,
     x_based_autopilot,
 )
+from .units import Meter
 
 # TODO: Add alliance-relative coordinate utilities.
 # TODO: Replace placeholder coordinates with real field positions.
@@ -40,7 +41,7 @@ def _test_auto():
             angle_degrees=90,
         ),
         entry_angle=rotation2d(angle_degrees=-90),
-        rotation_radius=AutoAction.Meter.of(2.5),
+        rotation_radius=Meter.of(2.5),
     )  # Center of field
     x_based_autopilot(
         target_pose=transform2d_pose(

@@ -37,6 +37,10 @@ import frc.robot.util.ts.PythonMethod;
             + "        return None\n"
             + "    if hasattr(obj, 'to_dict'):\n"
             + "        return obj.to_dict()\n"
+            + "    if isinstance(obj, list):\n"
+            + "        return [_to_dict(item) for item in obj]\n"
+            + "    if isinstance(obj, dict):\n"
+            + "        return {k: _to_dict(v) for k, v in obj.items()}\n"
             + "    return obj\n")
 @PythonMethod(
     name = "add",

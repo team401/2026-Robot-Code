@@ -143,7 +143,7 @@ def _serialize_value(obj: Any) -> Any:
     if obj is None:
         return None
     if hasattr(obj, "to_dict"):
-        return obj.to_dict()
+        return _serialize_value(obj.to_dict())
     if isinstance(obj, list):
         return [_serialize_value(item) for item in obj]
     if isinstance(obj, dict):
