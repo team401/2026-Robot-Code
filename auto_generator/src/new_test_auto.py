@@ -44,7 +44,7 @@ def _test_auto():
 
     #swipe center for balls
 
-
+    
 
     # Stow intake before moving to avoid potential collisions with field elements
 
@@ -67,4 +67,4 @@ def _test_auto():
 
     # Go climb on Left Tower Support
 
-    reference("LeftClimbLineup")
+    reference("LeftClimb")

@@ -74,7 +74,7 @@ def go_to_center_under_right_trench_from_alliance():
         )
 
 
-def climb_lineup(
+def _climb(
     target_pose: AutoAction.Pose2d,
     entry_angle: Optional[AutoAction.Rotation2d] = None,
     velocity: Optional[float] = None,
@@ -101,18 +101,18 @@ def climb_lineup(
 # Register climb lineup autos
 
 
-@auto("LeftClimbLineup")
-def _left_climb_lineup():
-    climb_lineup(
+@auto("LeftClimb")
+def _left_climb():
+    _climb(
         target_pose=Constants.left_climb_location,
         entry_angle=Constants.climb_left_lineup_entry_angle,
         velocity=Constants.climb_lineup_velocity,
     )
 
 
-@auto("RightClimbLineup")
-def _right_climb_lineup():
-    climb_lineup(
+@auto("RightClimb")
+def _right_climb():
+    _climb(
         target_pose=Constants.right_climb_location,
         entry_angle=Constants.climb_right_lineup_entry_angle,
         velocity=Constants.climb_lineup_velocity,
