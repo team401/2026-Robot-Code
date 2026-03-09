@@ -15,6 +15,8 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO.GainSlot;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -96,6 +98,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
+
+  private boolean isAtGoalVelocity = false;
+  private final Debouncer isAtGoalVelocityDebouncer = new Debouncer(0.2, DebounceType.kFalling);
 
   // State variables for FF characterization
   private SimpleRegression ffRegression = new SimpleRegression();
@@ -212,6 +217,14 @@ public class ShooterSubsystem extends MonitoredSubsystem {
           JsonConstants.canBusAssignment.shooterLeaderId,
           JsonConstants.shooterConstants.invertFollower);
     }
+
+    isAtGoalVelocity =
+        isAtGoalVelocityDebouncer.calculate(
+            requestedAction == ShooterAction.ControlVelocity
+                && getVelocity()
+                    .isNear(
+                        targetVelocity,
+                        JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon));
   }
 
   /** Runs when test mode is entered. Should be called by the test mode state. */
@@ -384,8 +397,6 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    */
   @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
   public boolean isAtGoalVelocity() {
-    return requestedAction == ShooterAction.ControlVelocity
-        && getVelocity()
-            .isNear(targetVelocity, JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon);
+    return isAtGoalVelocity;
   }
 }

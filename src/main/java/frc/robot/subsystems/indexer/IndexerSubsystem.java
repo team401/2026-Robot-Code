@@ -152,7 +152,11 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   }
 
   public void setToTargetVelocity() {
-    motor.controlToVelocityProfiled(targetVelocity);
+    if (targetVelocity.abs(RPM) < 5.0) {
+      motor.controlBrake();
+    } else {
+      motor.controlToVelocityProfiled(targetVelocity);
+    }
   }
 
   // If the target velocity is not zero, the indexer should start the shooting process

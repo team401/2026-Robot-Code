@@ -5,7 +5,7 @@
         "value": 1.4824410225417508,
         "unit": "Meter"
       },
-      "shooterRPM": 1900,
+      "shooterRPM": 1900.0,
       "hoodAngle": {
         "value": 13.753210881199998,
         "unit": "Degree"
@@ -20,7 +20,7 @@
         "value": 1.5864266902802466,
         "unit": "Meter"
       },
-      "shooterRPM": 1975,
+      "shooterRPM": 1975.0,
       "hoodAngle": {
         "value": 13.753210881199998,
         "unit": "Degree"
@@ -35,7 +35,7 @@
         "value": 1.691497879218404,
         "unit": "Meter"
       },
-      "shooterRPM": 2000,
+      "shooterRPM": 2000.0,
       "hoodAngle": {
         "value": 13.753210881199998,
         "unit": "Degree"
@@ -50,7 +50,7 @@
         "value": 1.7030201002488894,
         "unit": "Meter"
       },
-      "shooterRPM": 2050,
+      "shooterRPM": 2050.0,
       "hoodAngle": {
         "value": 13.7,
         "unit": "Degree"
@@ -65,9 +65,9 @@
         "value": 1.798216307862277,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
-        "value": 16,
+        "value": 16.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -80,9 +80,9 @@
         "value": 1.9063993227032732,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
-        "value": 16,
+        "value": 16.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -95,7 +95,7 @@
         "value": 2.0001604484640083,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
         "value": 20.5,
         "unit": "Degree"
@@ -110,9 +110,9 @@
         "value": 1.95260153417123,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
-        "value": 19,
+        "value": 19.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -125,9 +125,9 @@
         "value": 2.09713699923193,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
-        "value": 21,
+        "value": 21.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -140,7 +140,7 @@
         "value": 2.193075489241096,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
         "value": 22.5,
         "unit": "Degree"
@@ -155,7 +155,7 @@
         "value": 2.2959990680595364,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
         "value": 22.5,
         "unit": "Degree"
@@ -170,9 +170,9 @@
         "value": 2.4127211277220044,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
-        "value": 24,
+        "value": 24.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -185,9 +185,9 @@
         "value": 2.490886413846592,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
-        "value": 25,
+        "value": 25.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -200,7 +200,7 @@
         "value": 2.6052148888897446,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
         "value": 27.5,
         "unit": "Degree"
@@ -215,7 +215,7 @@
         "value": 2.7038780122962667,
         "unit": "Meter"
       },
-      "shooterRPM": 2100,
+      "shooterRPM": 2100.0,
       "hoodAngle": {
         "value": 28.5,
         "unit": "Degree"
@@ -230,7 +230,7 @@
         "value": 2.811820418243703,
         "unit": "Meter"
       },
-      "shooterRPM": 2125,
+      "shooterRPM": 2125.0,
       "hoodAngle": {
         "value": 28.5,
         "unit": "Degree"
@@ -245,9 +245,9 @@
         "value": 2.9047864752971027,
         "unit": "Meter"
       },
-      "shooterRPM": 2150,
+      "shooterRPM": 2150.0,
       "hoodAngle": {
-        "value": 30,
+        "value": 30.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -260,9 +260,9 @@
         "value": 3.0198111555100837,
         "unit": "Meter"
       },
-      "shooterRPM": 2175,
+      "shooterRPM": 2175.0,
       "hoodAngle": {
-        "value": 31,
+        "value": 31.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -275,7 +275,7 @@
         "value": 3.1020130639026187,
         "unit": "Meter"
       },
-      "shooterRPM": 2190,
+      "shooterRPM": 2190.0,
       "hoodAngle": {
         "value": 31.5,
         "unit": "Degree"
@@ -290,7 +290,7 @@
         "value": 3.207507896624148,
         "unit": "Meter"
       },
-      "shooterRPM": 2200,
+      "shooterRPM": 2200.0,
       "hoodAngle": {
         "value": 31.5,
         "unit": "Degree"
@@ -305,7 +305,7 @@
         "value": 3.296177061894842,
         "unit": "Meter"
       },
-      "shooterRPM": 2250,
+      "shooterRPM": 2250.0,
       "hoodAngle": {
         "value": 32.5,
         "unit": "Degree"
@@ -320,7 +320,7 @@
         "value": 3.412015703987465,
         "unit": "Meter"
       },
-      "shooterRPM": 2290,
+      "shooterRPM": 2290.0,
       "hoodAngle": {
         "value": 33.5,
         "unit": "Degree"
@@ -335,7 +335,7 @@
         "value": 3.5142705662293983,
         "unit": "Meter"
       },
-      "shooterRPM": 2290,
+      "shooterRPM": 2290.0,
       "hoodAngle": {
         "value": 33.25,
         "unit": "Degree"
@@ -350,7 +350,7 @@
         "value": 3.6206121727277893,
         "unit": "Meter"
       },
-      "shooterRPM": 2295,
+      "shooterRPM": 2295.0,
       "hoodAngle": {
         "value": 33.25,
         "unit": "Degree"
@@ -365,7 +365,7 @@
         "value": 3.7076725188815263,
         "unit": "Meter"
       },
-      "shooterRPM": 2310,
+      "shooterRPM": 2310.0,
       "hoodAngle": {
         "value": 33.25,
         "unit": "Degree"
@@ -380,9 +380,9 @@
         "value": 3.795317039057986,
         "unit": "Meter"
       },
-      "shooterRPM": 2350,
+      "shooterRPM": 2350.0,
       "hoodAngle": {
-        "value": 34,
+        "value": 34.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -395,7 +395,7 @@
         "value": 3.9108582502279003,
         "unit": "Meter"
       },
-      "shooterRPM": 2390,
+      "shooterRPM": 2390.0,
       "hoodAngle": {
         "value": 35.5,
         "unit": "Degree"
@@ -410,7 +410,7 @@
         "value": 4.0035047924676155,
         "unit": "Meter"
       },
-      "shooterRPM": 2425,
+      "shooterRPM": 2425.0,
       "hoodAngle": {
         "value": 35.5,
         "unit": "Degree"
@@ -425,9 +425,9 @@
         "value": 4.097890144032731,
         "unit": "Meter"
       },
-      "shooterRPM": 2470,
+      "shooterRPM": 2470.0,
       "hoodAngle": {
-        "value": 36,
+        "value": 36.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -440,7 +440,7 @@
         "value": 4.196403332254286,
         "unit": "Meter"
       },
-      "shooterRPM": 2490,
+      "shooterRPM": 2490.0,
       "hoodAngle": {
         "value": 36.5,
         "unit": "Degree"
@@ -455,7 +455,7 @@
         "value": 4.313507300001387,
         "unit": "Meter"
       },
-      "shooterRPM": 2500,
+      "shooterRPM": 2500.0,
       "hoodAngle": {
         "value": 36.5,
         "unit": "Degree"
@@ -464,21 +464,111 @@
         "value": 1.4999840000000002,
         "unit": "Second"
       }
+    },
+    {
+      "distance": {
+        "value": 4.395539800116781,
+        "unit": "Meter"
+      },
+      "shooterRPM": 2450.0,
+      "hoodAngle": {
+        "value": 36.0,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 1.2999869999999998,
+        "unit": "Second"
+      }
+    },
+    {
+      "distance": {
+        "value": 4.489728416446044,
+        "unit": "Meter"
+      },
+      "shooterRPM": 2525.0,
+      "hoodAngle": {
+        "value": 35.5,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 1.3999849999999998,
+        "unit": "Second"
+      }
+    },
+    {
+      "distance": {
+        "value": 4.612752080539507,
+        "unit": "Meter"
+      },
+      "shooterRPM": 2500.0,
+      "hoodAngle": {
+        "value": 35.5,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 1.399972,
+        "unit": "Second"
+      }
+    },
+    {
+      "distance": {
+        "value": 4.702460934818463,
+        "unit": "Meter"
+      },
+      "shooterRPM": 2500.0,
+      "hoodAngle": {
+        "value": 35.5,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 1.333319,
+        "unit": "Second"
+      }
+    },
+    {
+      "distance": {
+        "value": 5.29757085387262,
+        "unit": "Meter"
+      },
+      "shooterRPM": 2750.0,
+      "hoodAngle": {
+        "value": 39.0,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 1.46665,
+        "unit": "Second"
+      }
+    },
+    {
+      "distance": {
+        "value": 5.006859720205795,
+        "unit": "Meter"
+      },
+      "shooterRPM": 2550.0,
+      "hoodAngle": {
+        "value": 37.0,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 1.4999850000000001,
+        "unit": "Second"
+      }
     }
   ],
   "passDataPoints": [
     {
       "distance": {
-        "value": 4,
+        "value": 4.0,
         "unit": "Meter"
       },
-      "shooterRPM": 2500,
+      "shooterRPM": 2500.0,
       "hoodAngle": {
-        "value": 40,
+        "value": 40.0,
         "unit": "Degree"
       },
       "flightTime": {
-        "value": 3,
+        "value": 3.0,
         "unit": "Second"
       }
     }
