@@ -21,6 +21,10 @@
     "kG": 0.0,
     "kA": 0.0
   },
+  "dejamDebounceTime": {
+    "value": 0.5,
+    "unit": "Second"
+  },
   "hopperMotionProfileConfig": {
     "isMutable": false,
     "maxVelocity": {
