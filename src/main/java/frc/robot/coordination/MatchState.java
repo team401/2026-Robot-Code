@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -30,6 +31,15 @@ public class MatchState {
   private boolean canScore = true;
 
   private LoggedDashboardChooser<MatchType> matchTypeChooser;
+
+  private final Timer preciseMatchTimer = new Timer();
+
+  /**
+   * Tracks whether or not teleop has enabled yet. This value is used to prevent us from losing
+   * track of match time if the robot is temporarily disabled during a match (e..g for a
+   * disconnect).
+   */
+  private boolean hasTeleopEnabled = false;
 
   /**
    * @return {@code true} if we are in a match (FMS is attached or DriverStation.getMatchType()
@@ -131,10 +141,43 @@ public class MatchState {
     getAutoWinner();
   }
 
+  /** Must be called by the coordination layer when disabled */
+  public void disabledPeriodic() {
+    if (!hasTeleopEnabled) {
+      preciseMatchTimer.restart();
+    }
+  }
+
+  private double getPreciseMatchTime() {
+    double timerTime = preciseMatchTimer.get();
+
+    if (DriverStation.isAutonomous()) {
+      return StrategyConstants.autoStart - timerTime;
+    } else {
+      return StrategyConstants.transitionStart - timerTime;
+    }
+  }
+
+  private double getMatchTime() {
+    double dsMatchTime = DriverStation.getMatchTime();
+    double preciseMatchTime = getPreciseMatchTime();
+
+    if (Math.abs(dsMatchTime - preciseMatchTime)
+        < JsonConstants.strategyConstants.acceptablePreciseMatchTimeError.in(Seconds)) {
+      return preciseMatchTime;
+    } else {
+      return dsMatchTime;
+    }
+  }
+
   /** Must be called by the coordination layer when enabled */
   public void enabledPeriodic(boolean weWonAutoOverridePressed, boolean weLostAutoOverridePressed) {
     if (Constants.currentMode == Mode.SIM) {
       DriverStationSim.setMatchType(matchTypeChooser.get());
+    }
+
+    if (DriverStation.isTeleop()) {
+      hasTeleopEnabled = true;
     }
 
     // If we haven't yet received the auto winner, continue to check for it periodically.
@@ -158,7 +201,7 @@ public class MatchState {
     Logger.recordOutput("MatchState/weLostAutoOverridePressed", weLostAutoOverridePressed);
     Logger.recordOutput("MatchState/autoWinner", wonAuto.orElse(null));
     // Determine if it's possible to shoot by checking the current match shift
-    double matchTime = DriverStation.getMatchTime();
+    double matchTime = getMatchTime();
     currentShift = getCurrentShift(matchTime);
 
     double shiftStartGracePeriodSeconds =
@@ -250,9 +293,21 @@ public class MatchState {
 
   @AutoLogOutput(key = "MatchState/timeLeftInShift")
   public double getTimeLeftInCurrentShift() {
-    double matchTime = DriverStation.getMatchTime();
+    double matchTime = getMatchTime();
 
+    return getTimeLeftInCurrentShift(matchTime);
+  }
+
+  @AutoLogOutput(key = "MatchState/timeLeftInShiftPrecise")
+  public double getPreciseTimeLeftInCurrentShift() {
+    double matchTime = getPreciseMatchTime();
+
+    return getTimeLeftInCurrentShift(matchTime);
+  }
+
+  private double getTimeLeftInCurrentShift(double matchTime) {
     return switch (currentShift) {
+      case Auto -> matchTime;
       case Transition -> Math.max(matchTime - StrategyConstants.shift1Start, 0);
       case Shift1 -> Math.max(matchTime - StrategyConstants.shift2Start, 0);
       case Shift2 -> Math.max(matchTime - StrategyConstants.shift3Start, 0);

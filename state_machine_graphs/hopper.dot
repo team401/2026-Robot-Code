@@ -30,6 +30,6 @@ digraph {
 
   TestModeState -> IdleState [label="Not in hopper test mode"];
 
-  DejamState -> SpinningState [label="Dejam not required"];
+  DejamState -> SpinningState [label="timeout"];
 
 }

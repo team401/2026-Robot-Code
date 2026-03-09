@@ -1076,6 +1076,8 @@ public class CoordinationLayer {
   private void updateMatchState() {
     if (DriverStation.isEnabled()) {
       matchState.enabledPeriodic(isWonAutoPressed.getAsBoolean(), isLostAutoPressed.getAsBoolean());
+    } else {
+      matchState.disabledPeriodic();
     }
 
     // This is temporary code left here to make it easy to integrate the time left functionality
