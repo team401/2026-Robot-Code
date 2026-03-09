@@ -19,6 +19,8 @@ import frc.robot.auto.general.Race;
 import frc.robot.auto.general.Sequence;
 import frc.robot.auto.general.Wait;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.util.ts.PythonAppend;
+import frc.robot.util.ts.PythonMethod;
 import frc.robot.util.ts.TypeScriptAppend;
 import frc.robot.util.ts.TypeScriptMethod;
 
@@ -31,6 +33,27 @@ import frc.robot.util.ts.TypeScriptMethod;
     name = "add",
     returnType = "this",
     body = {"_addCommandHook?.(this);", "return this;"},
+    comment = "Adds this command to the current auto and returns itself for chaining.")
+@PythonAppend(
+    value =
+        "\n_add_command_hook: Callable[[Any], None] | None = None\n\n\n"
+            + "def set_add_command_hook(hook: Callable[[Any], None]) -> None:\n"
+            + "    global _add_command_hook\n"
+            + "    _add_command_hook = hook\n\n\n"
+            + "def _call_hook(obj: Any) -> None:\n"
+            + "    if _add_command_hook is not None:\n"
+            + "        _add_command_hook(obj)\n\n\n"
+            + "def _to_dict(obj: Any) -> Any:\n"
+            + "    \"\"\"Recursively convert an object to a JSON-serializable dict.\"\"\"\n"
+            + "    if obj is None:\n"
+            + "        return None\n"
+            + "    if hasattr(obj, 'to_dict'):\n"
+            + "        return obj.to_dict()\n"
+            + "    return obj\n")
+@PythonMethod(
+    name = "add",
+    returnType = "self",
+    body = {"_call_hook(self)", "return self"},
     comment = "Adds this command to the current auto and returns itself for chaining.")
 @JsonType(
     property = "type",

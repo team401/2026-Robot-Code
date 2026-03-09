@@ -1,13 +1,22 @@
 """
-Python equivalent of AutoLib.ts.
-
-Provides the auto registration system with a pointer-stack DSL for building
+Auto registration system with a context-manager DSL for building
 nested command trees (Sequence, Parallel, Race).
+
+Usage::
+
+    @auto("My Auto")
+    def my_auto():
+        with sequence():
+            autopilot(target_pose=...)
+            with parallel():
+                wait(1.0)
+                climb_search()
 """
 
 from __future__ import annotations
 
 import json
+from contextlib import contextmanager
 from typing import Any, Callable, Dict, List, Optional
 
 from . import auto_action as AutoAction
@@ -43,36 +52,41 @@ def _add_command(command: Any) -> None:
 set_add_command_hook(_add_command)
 
 # ---------------------------------------------------------------------------
-# Public API
+# Context-manager containers
 # ---------------------------------------------------------------------------
 
 
-def get_last_command() -> Optional[Any]:
-    """Returns the last command added in the current context, or None."""
-    ptr = _current_pointer()
-    if ptr:
-        return ptr[-1]
-    return None
-
-
-def with_container(
-    container: AutoAction.Sequence | AutoAction.Parallel | AutoAction.Race,
-    build: Callable[[], None],
-) -> None:
-    """
-    Runs ``build`` with a container command as the active context, then adds the
-    finished container to the parent context.
-
-    Example::
-
-        with_container(AutoAction.Parallel(), lambda: (
-            drive(target_pose=...).add(),
-            shoot().add(),
-        ))
-    """
+@contextmanager
+def sequence():
+    """Context manager that groups all commands inside into a Sequence."""
+    container = AutoAction.Sequence()
     _push_pointer(container.actions)
     try:
-        build()
+        yield container
+    finally:
+        _pop_pointer()
+    _add_command(container)
+
+
+@contextmanager
+def parallel():
+    """Context manager that groups all commands inside into a Parallel."""
+    container = AutoAction.Parallel()
+    _push_pointer(container.actions)
+    try:
+        yield container
+    finally:
+        _pop_pointer()
+    _add_command(container)
+
+
+@contextmanager
+def race():
+    """Context manager that groups all commands inside into a Race."""
+    container = AutoAction.Race()
+    _push_pointer(container.actions)
+    try:
+        yield container
     finally:
         _pop_pointer()
     _add_command(container)
@@ -85,24 +99,31 @@ def with_container(
 _autos: Dict[str, Any] = {}
 
 
-def auto(name: str, build: Callable[[], None]) -> None:
+def auto(name: str):
     """
-    Defines and registers a named autonomous routine.
+    Decorator that defines and registers a named autonomous routine.
 
-    The ``build`` callback runs synchronously; commands created inside it are
-    appended to a top-level Sequence via the pointer stack.
+    Usage::
+
+        @auto("My Auto")
+        def my_auto():
+            autopilot(target_pose=...)
+            wait(1.0)
     """
-    global _command_pointers
-    _command_pointers = []
-    root = AutoAction.Sequence()
-    _push_pointer(root.actions)
-
-    try:
-        build()
-    finally:
+    def decorator(build: Callable[[], None]):
+        global _command_pointers
         _command_pointers = []
+        root = AutoAction.Sequence()
+        _push_pointer(root.actions)
 
-    _autos[name] = root
+        try:
+            build()
+        finally:
+            _command_pointers = []
+
+        _autos[name] = root
+        return build
+    return decorator
 
 
 def get_auto(name: str) -> Optional[Any]:

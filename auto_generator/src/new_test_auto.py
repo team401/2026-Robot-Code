@@ -1,12 +1,10 @@
 """
-Python equivalent of newTestAuto.ts.
-
-Defines the "Test Auto" autonomous routine.
+"Test Auto" autonomous routine.
 """
 
 from __future__ import annotations
 
-from . import auto_lib as AutoLib
+from .auto_lib import auto
 from .field_locations import FieldConstants
 from .shorthands import (
     autopilot,
@@ -17,7 +15,7 @@ from .shorthands import (
     translate2d_pose,
     translation2d,
     wait,
-    x_based_autopilot_action,
+    x_based_autopilot,
 )
 
 # TODO: Add alliance-relative coordinate utilities.
@@ -25,10 +23,11 @@ from .shorthands import (
 # TODO: Switch to AutoPilotAction with entry angle and exit velocity for trench segments.
 
 
-def _build_test_auto() -> None:
+@auto("Test Auto")
+def _test_auto():
     # NOTE: These coordinates are placeholders and should be replaced with actual field positions.
     autopilot(target_pose=FieldConstants.Alliance.center)  # Center of Alliance Zone
-    x_based_autopilot_action(
+    x_based_autopilot(
         target_pose=pose3d_to_pose2d(FieldConstants.RightTrench.opening_floor_center()),
         entry_angle=rotation2d(angle_degrees=180),
         velocity=100.0,
@@ -40,8 +39,8 @@ def _build_test_auto() -> None:
         ),
         entry_angle=rotation2d(angle_degrees=-90),
     )  # Center of field
-    wait(seconds=1.0)  # Wait for 1 second
-    x_based_autopilot_action(
+    wait(1.0)  # Wait for 1 second
+    x_based_autopilot(
         target_pose=pose3d_to_pose2d(FieldConstants.RightTrench.opening_floor_center()),
         entry_angle=rotation2d(angle_degrees=0),
         velocity=100.0,
@@ -54,6 +53,3 @@ def _build_test_auto() -> None:
         entry_angle=rotation2d(angle_degrees=-90),
     )
     reference("LeftClimbLineup")
-
-
-AutoLib.auto("Test Auto", _build_test_auto)

@@ -160,8 +160,8 @@ public class RobotContainer {
     JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
 
     createAutoChooser(drive.orElse(null));
-
   }
+
   /*
    * Process any pending HTTP requests from the tuning server
    * Calling this method in periodic ensures that the updates to the JSONConstants
