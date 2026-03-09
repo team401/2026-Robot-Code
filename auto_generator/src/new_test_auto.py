@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from .routines import go_to_alliance_under_left_trench, go_to_alliance_under_right_trench, go_to_center_under_left_trench_from_alliance, go_to_center_under_right_trench_from_alliance
+from .routines import go_to_alliance_under_right_trench, go_to_center_under_right_trench_from_alliance
 
 from .auto_action import Transform2d
 from .auto_lib import auto, routines
@@ -12,16 +12,13 @@ from .field_locations import FieldConstants
 from .shorthands import (
     autopilot,
     deploy_intake,
-    pose2d,
-    pose3d_to_pose2d,
     rotation2d,
+    transform2d,
+    startShooting,
+    stopShooting,
     stow_intake,
-    transform2d_pose,
-    translation2d,
-    translation2d_to_pose2d,
-    x_based_autopilot,
+    translation2d
 )
-from .units import Meter
 
 # TODO: Add alliance-relative coordinate utilities.
 # TODO: Replace placeholder coordinates with real field positions.
@@ -42,7 +39,15 @@ def _test_auto():
 
     #swipe center for balls
 
-    
+    autopilot(
+        target_pose=FieldConstants.Center.center_point().to_pose2d().transform_by(
+            transform2d(
+                translation=translation2d(x=-1, y=1),
+                rotation=rotation2d(degrees=90),
+            )
+        ),
+        entry_angle=rotation2d(degrees=90),
+    )
 
     # Stow intake before moving to avoid potential collisions with field elements
 
@@ -54,6 +59,8 @@ def _test_auto():
 
     # Go to outpost
 
+    startShooting()
+
     autopilot(
         target_pose=FieldConstants.Outpost.center_point().to_pose2d().transform_by(
             Transform2d(
@@ -62,6 +69,8 @@ def _test_auto():
             ),
         ),
     )
+
+    stopShooting()
 
     # Go climb on Left Tower Support
 

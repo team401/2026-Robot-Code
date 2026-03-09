@@ -499,6 +499,14 @@ public class CoordinationLayer {
     climber.ifPresent(ClimberSubsystem::hang);
   }
 
+  public void startShootingForAuto() {
+    shootingEnabled = true;
+  }
+
+  public void stopShootingForAuto() {
+    shootingEnabled = false;
+  }
+
   /**
    * If the climber is deployed, stow it and then deploy the intake. If nothing is deployed, deploy
    * the intake. If the intake is deployed, stow the intake.

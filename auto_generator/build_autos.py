@@ -42,6 +42,7 @@ EXCLUDED_MODULES = {
     "shorthands",
     "constants",
     "field_locations",
+    "routines",
 }
 
 OUTPUT_DIR = _SCRIPT_DIR.parent / "src" / "main" / "deploy" / "constants"
@@ -122,7 +123,12 @@ def main() -> None:
     args = parse_args()
     env = args.env if args.env else detect_environment()
 
-    # Step 1: Discover auto modules
+    # Step 1: Import routines first so @routine decorators register before
+    #         any auto modules try to reference them via routines.<name>()
+    print("  Importing src.routines...")
+    importlib.import_module("src.routines")
+
+    # Step 2: Discover and import auto modules
     auto_modules = discover_auto_modules()
 
     if not auto_modules:
@@ -131,7 +137,6 @@ def main() -> None:
 
     print(f"Found {len(auto_modules)} auto module(s): {[m.split('.')[-1] for m in auto_modules]}")
 
-    # Step 2: Import each auto module so it registers its autos with auto_lib
     for module_name in auto_modules:
         print(f"  Importing {module_name}...")
         importlib.import_module(module_name)

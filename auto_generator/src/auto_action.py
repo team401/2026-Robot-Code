@@ -495,7 +495,35 @@ class ClimbHangAction:
         return self
 
 
-AutoAction = Optional[AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | DeployIntakeAction | StowIntakeAction | ClimbSearchAction | ClimbHangAction]
+@dataclass
+class StartShooting:
+    type: str = field(default="StartShooting", init=False)
+
+    def to_dict(self) -> dict:
+        d: dict = {"type": self.type}
+        return d
+
+    def add(self):
+        """Adds this command to the current auto and returns itself for chaining."""
+        _call_hook(self)
+        return self
+
+
+@dataclass
+class StopShooting:
+    type: str = field(default="StopShooting", init=False)
+
+    def to_dict(self) -> dict:
+        d: dict = {"type": self.type}
+        return d
+
+    def add(self):
+        """Adds this command to the current auto and returns itself for chaining."""
+        _call_hook(self)
+        return self
+
+
+AutoAction = Optional[AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | DeployIntakeAction | StowIntakeAction | ClimbSearchAction | ClimbHangAction | StartShooting | StopShooting]
 
 
 _add_command_hook: Callable[[Any], None] | None = None

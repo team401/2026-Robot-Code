@@ -7,6 +7,8 @@ import frc.robot.CoordinationLayer;
 import frc.robot.auto.coordinationLayer.ClimbHangAction;
 import frc.robot.auto.coordinationLayer.ClimbSearchAction;
 import frc.robot.auto.coordinationLayer.DeployIntakeAction;
+import frc.robot.auto.coordinationLayer.StartShooting;
+import frc.robot.auto.coordinationLayer.StopShooting;
 import frc.robot.auto.coordinationLayer.StowIntakeAction;
 import frc.robot.auto.drive.AutoPilotAction;
 import frc.robot.auto.drive.StopDriveAction;
@@ -66,7 +68,9 @@ import frc.robot.util.ts.PythonMethod;
       @JsonSubtype(clazz = DeployIntakeAction.class, name = "DeployIntakeAction"),
       @JsonSubtype(clazz = StowIntakeAction.class, name = "StowIntakeAction"),
       @JsonSubtype(clazz = ClimbSearchAction.class, name = "ClimbSearchAction"),
-      @JsonSubtype(clazz = ClimbHangAction.class, name = "ClimbHangAction")
+      @JsonSubtype(clazz = ClimbHangAction.class, name = "ClimbHangAction"),
+      @JsonSubtype(clazz = StartShooting.class, name = "StartShooting"),
+      @JsonSubtype(clazz = StopShooting.class, name = "StopShooting"),
     })
 public abstract class AutoAction {
 

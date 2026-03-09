@@ -192,12 +192,13 @@ def routine(func_or_name):
         routines.add(name, build)
 
         # The returned wrapper inlines the body with a warning
-        def inner() -> None:
-            print(
-                f"WARNING: routine method {name} was called directly. "
-                f"This results in the routine being inlined into the auto, "
-                f"which may result in large file sizes. To rectify the issue, "
-                f"replace the call with `routines.{name}()`"
+        def inner(ignore_warning=False) -> None:
+            if not ignore_warning:
+                print(
+                    f"WARNING: routine method {name} was called directly. "
+                    f"This results in the routine being inlined into the auto, "
+                    f"which may result in large file sizes. To rectify the issue, "
+                    f"replace the call with `routines.{name}()`"
             )
             build()
 

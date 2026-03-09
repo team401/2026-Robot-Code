@@ -70,41 +70,14 @@ def pose3d(
     )
 
 
-def translation3d_to_pose2d(
-    x: float = 0.0, y: float = 0.0, z: float = 0.0
-) -> AutoAction.Pose2d:
-    return AutoAction.Pose2d(
-        translation=translation2d(x, y),
-        rotation=rotation2d(),
+def transform2d(
+    translation: Optional[AutoAction.Translation2d] = None,
+    rotation: Optional[AutoAction.Rotation2d] = None,
+) -> AutoAction.Transform2d:
+    return AutoAction.Transform2d(
+        translation=translation if translation is not None else AutoAction.Translation2d(),
+        rotation=rotation if rotation is not None else AutoAction.Rotation2d(),
     )
-
-
-def translation2d_to_pose2d(
-    t: AutoAction.Translation2d,
-) -> AutoAction.Pose2d:
-    return t.to_pose2d()
-
-
-def pose2d_to_pose3d(
-    p: AutoAction.Pose2d, z: float = 0.0
-) -> AutoAction.Pose3d:
-    return p.to_pose3d(z)
-
-
-def pose3d_to_pose2d(p: AutoAction.Pose3d) -> AutoAction.Pose2d:
-    return p.to_pose2d()
-
-
-def translate2d_pose(
-    p: AutoAction.Pose2d, t: AutoAction.Translation2d
-) -> AutoAction.Pose2d:
-    return p.translate_by(t)
-
-
-def transform2d_pose(
-    p: AutoAction.Pose2d, transform: AutoAction.Transform2d
-) -> AutoAction.Pose2d:
-    return p.transform_by(transform)
 
 
 # ---------------------------------------------------------------------------
@@ -217,3 +190,11 @@ def climb_hang() -> None:
 def reference(auto_name: str) -> None:
     """Insert an AutoReference into the current context."""
     AutoAction.AutoReference(name=auto_name).add()
+
+def startShooting() -> None:
+    """Insert a StartShootingAction into the current context."""
+    AutoAction.StartShooting().add()
+
+def stopShooting() -> None:
+    """Insert a StopShootingAction into the current context."""
+    AutoAction.StopShooting().add()
