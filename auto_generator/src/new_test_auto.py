@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from auto_generator.src.routines import go_to_alliance_under_left_trench, go_to_center_under_left_trench_from_alliance
+from auto_generator.src.routines import go_to_alliance_under_left_trench, go_to_alliance_under_right_trench, go_to_center_under_left_trench_from_alliance, go_to_center_under_right_trench_from_alliance
 
 
 from .auto_action import Transform2d
@@ -34,9 +34,9 @@ from .units import Meter
 def _test_auto():
     autopilot(target_pose=FieldConstants.Alliance.center)
 
-    # go under left trench
+    # go under right trench
 
-    go_to_center_under_left_trench_from_alliance()
+    go_to_center_under_right_trench_from_alliance()
 
     # Deploy intake after safely out of trench to swipe center for balls
 
@@ -50,9 +50,9 @@ def _test_auto():
 
     stow_intake()
 
-    # go back under left trench to get back to alliance side
+    # go back under right trench to get back to alliance side
 
-    go_to_alliance_under_left_trench()
+    go_to_alliance_under_right_trench()
 
     # Go to outpost
 
