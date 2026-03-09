@@ -19,8 +19,14 @@ from .shorthands import (
 # instead of hardcoded here, to avoid duplication and potential inconsistencies.
 
 climb_offset = AutoAction.Transform2d(
-    translation=translation2d(x=0.31, y=0),
+    translation=translation2d(x=0.41, y=0.0225),
     rotation=rotation2d(angle_degrees=-90.0),
+)
+
+climb_constraints = AutoAction.APConstraints(
+    velocity=2.0,
+    acceleration=2.0,
+    jerk=0.1,
 )
 
 left_climb_location = transform2d_pose(

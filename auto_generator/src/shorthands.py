@@ -127,6 +127,7 @@ def autopilot(
     target_pose: Optional[AutoAction.Pose2d] = None,
     entry_angle: Optional[AutoAction.Rotation2d] = None,
     velocity: Optional[float] = None,
+    rotation_radius: Optional[AutoAction.Measure] = None,
     constraints: Optional[AutoAction.APConstraints] = None,
     profile: Optional[AutoAction.APProfile] = None,
     pid_gains: Optional[AutoAction.PIDGains] = None,
@@ -135,14 +136,15 @@ def autopilot(
     """Insert an AutoPilotAction into the current context.
 
     You can pass a pre-built ``APTarget`` as the first argument, or use the
-    convenience keyword arguments ``target_pose``, ``entry_angle``, and
-    ``velocity`` to build one inline.
+    convenience keyword arguments ``target_pose``, ``entry_angle``,
+    ``velocity``, and ``rotation_radius`` to build one inline.
     """
     if target is None:
         target = AutoAction.APTarget(
             reference=target_pose,
             entry_angle=entry_angle,
             velocity=velocity if velocity is not None else 0.0,
+            rotation_radius=rotation_radius,
         )
     AutoAction.AutoPilotAction(
         target=target,
@@ -159,6 +161,7 @@ def x_based_autopilot(
     target_pose: Optional[AutoAction.Pose2d] = None,
     entry_angle: Optional[AutoAction.Rotation2d] = None,
     velocity: Optional[float] = None,
+    rotation_radius: Optional[AutoAction.Measure] = None,
     constraints: Optional[AutoAction.APConstraints] = None,
     profile: Optional[AutoAction.APProfile] = None,
     pid_gains: Optional[AutoAction.PIDGains] = None,
@@ -170,6 +173,7 @@ def x_based_autopilot(
             reference=target_pose,
             entry_angle=entry_angle,
             velocity=velocity if velocity is not None else 0.0,
+            rotation_radius=rotation_radius,
         )
     AutoAction.XBasedAutoPilotAction(
         target=target,

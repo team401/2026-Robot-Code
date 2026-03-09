@@ -11,10 +11,10 @@ from .auto_lib import auto, parallel, sequence
 from . import constants as Constants
 from .field_locations import FieldConstants
 from .shorthands import (
-    autopilot,
     climb_hang,
     climb_search,
     transform2d_pose,
+    wait,
     x_based_autopilot,
 )
 
@@ -33,13 +33,16 @@ def climb_lineup(
                         p=FieldConstants.Alliance.center,
                         transform=Constants.climb_offset,
                     ),
+                    constraints=Constants.climb_constraints,
                 )
-                autopilot(
+                x_based_autopilot(
                     target_pose=target_pose,
                     entry_angle=entry_angle,
                     velocity=velocity,
+                    constraints=Constants.climb_constraints,
                 )
             climb_search()
+        wait(0.5)
         climb_hang()
 
 

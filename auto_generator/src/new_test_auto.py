@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from . import auto_action as AutoAction
 from .auto_lib import auto
 from .field_locations import FieldConstants
 from .shorthands import (
@@ -12,9 +13,9 @@ from .shorthands import (
     pose3d_to_pose2d,
     reference,
     rotation2d,
-    translate2d_pose,
+    transform2d_pose,
     translation2d,
-    wait,
+    translation2d_to_pose2d,
     x_based_autopilot,
 )
 
@@ -36,20 +37,29 @@ def _test_auto():
         target_pose=pose2d(
             x=FieldConstants.LinesVertical.center,
             y=FieldConstants.LinesHorizontal.center,
+            angle_degrees=90,
         ),
         entry_angle=rotation2d(angle_degrees=-90),
+        rotation_radius=AutoAction.Meter.of(2.5),
     )  # Center of field
-    wait(1.0)  # Wait for 1 second
     x_based_autopilot(
-        target_pose=pose3d_to_pose2d(FieldConstants.RightTrench.opening_floor_center()),
+        target_pose=transform2d_pose(
+            p=pose3d_to_pose2d(FieldConstants.RightTrench.opening_floor_center()),
+            transform=AutoAction.Transform2d(
+                translation=translation2d(x=0, y=0),
+                rotation=rotation2d(angle_degrees=180),
+            ),
+        ),
         entry_angle=rotation2d(angle_degrees=0),
         velocity=100.0,
     )
     autopilot(
-        target_pose=translate2d_pose(
-            p=FieldConstants.Alliance.center,
-            t=translation2d(x=0, y=0),
+        target_pose=transform2d_pose(
+            p=translation2d_to_pose2d(FieldConstants.Outpost.center_point()),
+            transform=AutoAction.Transform2d(
+                translation=translation2d(x=1, y=0),
+                rotation=rotation2d(angle_degrees=180),
+            ),
         ),
-        entry_angle=rotation2d(angle_degrees=-90),
     )
     reference("LeftClimbLineup")

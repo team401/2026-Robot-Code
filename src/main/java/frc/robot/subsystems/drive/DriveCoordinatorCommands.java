@@ -84,6 +84,8 @@ public class DriveCoordinatorCommands extends Command {
 
       driveCoordinator.drive.setGoalSpeedsBlueOrigins(speeds);
 
+      Logger.recordOutput("DriveCoordinator/AutoPilot/speeds", speeds);
+
       Logger.recordOutput("DriveCoordinator/AutoPilot/goalPose", target.getReference());
     }
 
