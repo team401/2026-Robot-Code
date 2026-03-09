@@ -11,12 +11,67 @@ from .auto_lib import auto, parallel, sequence
 from . import constants as Constants
 from .field_locations import FieldConstants
 from .shorthands import (
+    autopilot,
     climb_hang,
     climb_search,
-    transform2d_pose,
+    rotation2d,
     wait,
     x_based_autopilot,
 )
+
+# I really want to rename these commands or do something about them
+
+def go_to_alliance_under_left_trench(velocity = Constants.default_trench_velocity):
+    with sequence():
+        x_based_autopilot(
+            target_pose=Constants.left_trench_center_side_pose,
+            velocity=velocity,
+            entry_angle=rotation2d(0)
+        )
+        x_based_autopilot(
+            target_pose=Constants.left_trench_alliance_side_pose,
+            velocity=velocity,
+            entry_angle=rotation2d(0)
+        )
+
+def go_to_alliance_under_right_trench(velocity = Constants.default_trench_velocity):
+    with sequence():
+        x_based_autopilot(
+            target_pose=Constants.right_trench_center_side_pose,
+            velocity=velocity,
+            entry_angle=rotation2d(0)
+        )
+        x_based_autopilot(
+            target_pose=Constants.right_trench_alliance_side_pose,
+            velocity=velocity,
+            entry_angle=rotation2d(0)
+        )
+
+def go_to_center_under_left_trench_from_alliance():
+    with sequence():
+        x_based_autopilot(
+            target_pose=Constants.left_trench_alliance_side_pose,
+            velocity=Constants.default_trench_velocity,
+            entry_angle=rotation2d(180)
+        )
+        x_based_autopilot(
+            target_pose=Constants.left_trench_center_side_pose,
+            velocity=Constants.default_trench_velocity,
+            entry_angle=rotation2d(180)
+        )
+
+def go_to_center_under_right_trench_from_alliance():
+    with sequence():
+        x_based_autopilot(
+            target_pose=Constants.right_trench_alliance_side_pose,
+            velocity=Constants.default_trench_velocity,
+            entry_angle=rotation2d(180)
+        )
+        x_based_autopilot(
+            target_pose=Constants.right_trench_center_side_pose,
+            velocity=Constants.default_trench_velocity,
+            entry_angle=rotation2d(180)
+        )
 
 
 def climb_lineup(
@@ -29,22 +84,19 @@ def climb_lineup(
         with parallel():
             with sequence():
                 x_based_autopilot(
-                    target_pose=transform2d_pose(
-                        p=FieldConstants.Alliance.center,
-                        transform=Constants.climb_offset,
-                    ),
+                    target_pose=FieldConstants.Alliance.center.transform_by(Constants.climb_offset),
                     constraints=Constants.climb_constraints,
+                    velocity=velocity,
                 )
                 x_based_autopilot(
                     target_pose=target_pose,
                     entry_angle=entry_angle,
-                    velocity=velocity,
                     constraints=Constants.climb_constraints,
+                    velocity=velocity,
                 )
             climb_search()
         wait(0.5)
         climb_hang()
-
 
 # Register climb lineup autos
 

@@ -27,8 +27,8 @@ def translation2d(x: float = 0.0, y: float = 0.0) -> AutoAction.Translation2d:
     return AutoAction.Translation2d(x=x, y=y)
 
 
-def rotation2d(angle_degrees: float = 0.0) -> AutoAction.Rotation2d:
-    return AutoAction.Rotation2d(degrees=angle_degrees)
+def rotation2d(degrees: float = 0.0) -> AutoAction.Rotation2d:
+    return AutoAction.Rotation2d(degrees=degrees)
 
 
 def pose2d(
