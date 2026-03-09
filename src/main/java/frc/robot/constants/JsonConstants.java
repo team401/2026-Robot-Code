@@ -37,7 +37,6 @@ import frc.robot.util.json.JSONTransform3d;
 import frc.robot.util.json.OptionalTypeAdapterFactory;
 import frc.robot.util.ts.PythonGenerator;
 import frc.robot.util.ts.PythonGeometryMethods;
-import frc.robot.util.ts.TypeScriptGenerator;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -159,17 +158,6 @@ public class JsonConstants {
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
     if (Constants.currentMode == Constants.Mode.SIM) {
-      TypeScriptGenerator.generateForClasses(
-          "AutoAction.ts",
-          AutoAction.class,
-          Transform2d.class,
-          Transform3d.class,
-          Rotation2d.class,
-          Rotation3d.class,
-          Pose2d.class,
-          Pose3d.class,
-          Translation2d.class,
-          Translation3d.class);
       PythonGeometryMethods.registerAll();
       PythonGenerator.generateForClasses(
           "auto_action.py",

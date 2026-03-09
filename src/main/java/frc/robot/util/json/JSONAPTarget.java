@@ -5,15 +5,15 @@ import coppercore.parameter_tools.json.helpers.JSONObject;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
-import frc.robot.util.ts.TypeScriptOptional;
+import frc.robot.util.ts.GeneratedOptional;
 import java.lang.reflect.Constructor;
 
 public class JSONAPTarget extends JSONObject<APTarget> {
   protected Pose2d reference;
 
-  @TypeScriptOptional protected Rotation2d entryAngle;
+  @GeneratedOptional protected Rotation2d entryAngle;
   protected double velocity;
-  @TypeScriptOptional protected Distance rotationRadius;
+  @GeneratedOptional protected Distance rotationRadius;
 
   public JSONAPTarget(APTarget target) {
     super(target);

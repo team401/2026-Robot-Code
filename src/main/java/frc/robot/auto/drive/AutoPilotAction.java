@@ -14,7 +14,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import frc.robot.util.PIDGains;
-import frc.robot.util.ts.TypeScriptOptional;
+import frc.robot.util.ts.GeneratedOptional;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,10 +26,10 @@ public class AutoPilotAction extends AutoAction {
   APTarget fixedTarget =
       null; // This is the target after alliance-relative transformation is applied
 
-  @TypeScriptOptional public APProfile profile = null;
-  @TypeScriptOptional public APConstraints constraints = null;
-  @TypeScriptOptional public PIDGains pidGains = null;
-  @TypeScriptOptional public boolean allianceRelative = true;
+  @GeneratedOptional public APProfile profile = null;
+  @GeneratedOptional public APConstraints constraints = null;
+  @GeneratedOptional public PIDGains pidGains = null;
+  @GeneratedOptional public boolean allianceRelative = true;
 
   protected void handleNullValues() {
     Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");

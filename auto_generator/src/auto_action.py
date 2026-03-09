@@ -135,6 +135,43 @@ class Rotation2d:
         d["degrees"] = _to_dict(self.degrees)
         return d
 
+@property
+def radians(self) -> float:
+    return _math.radians(self.degrees)
+
+@property
+def cos(self) -> float:
+    return _math.cos(self.radians)
+
+@property
+def sin(self) -> float:
+    return _math.sin(self.radians)
+
+@staticmethod
+def from_radians(radians: float) -> Rotation2d:
+    return Rotation2d(degrees=_math.degrees(radians))
+
+def plus(self, other: Rotation2d) -> Rotation2d:
+    return Rotation2d(degrees=self.degrees + other.degrees)
+
+def minus(self, other: Rotation2d) -> Rotation2d:
+    return Rotation2d(degrees=self.degrees - other.degrees)
+
+def unary_minus(self) -> Rotation2d:
+    return Rotation2d(degrees=-self.degrees)
+
+def rotate_by(self, other: Rotation2d) -> Rotation2d:
+    return self.plus(other)
+
+def __neg__(self) -> Rotation2d:
+    return self.unary_minus()
+
+def __add__(self, other: Rotation2d) -> Rotation2d:
+    return self.plus(other)
+
+def __sub__(self, other: Rotation2d) -> Rotation2d:
+    return self.minus(other)
+
 
 @dataclass
 class Translation2d:
@@ -147,6 +184,55 @@ class Translation2d:
         d["y"] = _to_dict(self.y)
         return d
 
+@property
+def norm(self) -> float:
+    return _math.hypot(self.x, self.y)
+
+def plus(self, other: Translation2d) -> Translation2d:
+    return Translation2d(x=self.x + other.x, y=self.y + other.y)
+
+def minus(self, other: Translation2d) -> Translation2d:
+    return Translation2d(x=self.x - other.x, y=self.y - other.y)
+
+def unary_minus(self) -> Translation2d:
+    return Translation2d(x=-self.x, y=-self.y)
+
+def times(self, scalar: float) -> Translation2d:
+    return Translation2d(x=self.x * scalar, y=self.y * scalar)
+
+def div(self, scalar: float) -> Translation2d:
+    return Translation2d(x=self.x / scalar, y=self.y / scalar)
+
+def rotate_by(self, rotation: Rotation2d) -> Translation2d:
+    c = rotation.cos
+    s = rotation.sin
+    return Translation2d(x=self.x * c - self.y * s, y=self.x * s + self.y * c)
+
+def distance(self, other: Translation2d) -> float:
+    return self.minus(other).norm
+
+def __neg__(self) -> Translation2d:
+    return self.unary_minus()
+
+def __add__(self, other: Translation2d) -> Translation2d:
+    return self.plus(other)
+
+def __sub__(self, other: Translation2d) -> Translation2d:
+    return self.minus(other)
+
+def __mul__(self, scalar: float) -> Translation2d:
+    return self.times(scalar)
+
+def __truediv__(self, scalar: float) -> Translation2d:
+    return self.div(scalar)
+
+def to_pose2d(self, rotation: Optional[Rotation2d] = None) -> Pose2d:
+    """Convert to a Pose2d, optionally with a rotation (defaults to 0 deg)."""
+    return Pose2d(
+        translation=Translation2d(x=self.x, y=self.y),
+        rotation=rotation if rotation is not None else Rotation2d(),
+    )
+
 
 @dataclass
 class Pose2d:
@@ -158,6 +244,59 @@ class Pose2d:
         d["rotation"] = _to_dict(self.rotation)
         d["translation"] = _to_dict(self.translation)
         return d
+
+def plus(self, other: Transform2d) -> Pose2d:
+    """Apply a transform (equivalent to transform_by)."""
+    return self.transform_by(other)
+
+def transform_by(self, transform: Transform2d) -> Pose2d:
+    """Apply a Transform2d to this pose (WPILib transformBy)."""
+    t_trans = transform.translation if transform.translation else Translation2d()
+    t_rot = transform.rotation if transform.rotation else Rotation2d()
+    new_translation = self.translation.plus(t_trans.rotate_by(self.rotation))
+    new_rotation = self.rotation.plus(t_rot)
+    return Pose2d(translation=new_translation, rotation=new_rotation)
+
+def translate_by(self, translation: Translation2d) -> Pose2d:
+    """Translate this pose by a Translation2d (no rotation change)."""
+    return Pose2d(
+        translation=self.translation.plus(translation),
+        rotation=Rotation2d(degrees=self.rotation.degrees),
+    )
+
+def rotate_by(self, rotation: Rotation2d) -> Pose2d:
+    """Rotate this pose by a Rotation2d."""
+    return Pose2d(
+        translation=self.translation.rotate_by(rotation),
+        rotation=self.rotation.plus(rotation),
+    )
+
+def rotate_around(self, point: Translation2d, rotation: Rotation2d) -> Pose2d:
+    """Rotate this pose around a given point."""
+    new_translation = self.translation.minus(point).rotate_by(rotation).plus(point)
+    new_rotation = self.rotation.plus(rotation)
+    return Pose2d(translation=new_translation, rotation=new_rotation)
+
+def relative_to(self, other: Pose2d) -> Pose2d:
+    """Express this pose relative to other's coordinate frame."""
+    inv_rot = other.rotation.unary_minus()
+    delta = self.translation.minus(other.translation).rotate_by(inv_rot)
+    new_rot = self.rotation.minus(other.rotation)
+    return Pose2d(translation=delta, rotation=new_rot)
+
+def inverse(self) -> Pose2d:
+    inv_rot = self.rotation.unary_minus()
+    inv_trans = self.translation.unary_minus().rotate_by(inv_rot)
+    return Pose2d(translation=inv_trans, rotation=inv_rot)
+
+def to_pose3d(self, z: float = 0.0) -> Pose3d:
+    return Pose3d(
+        translation=Translation3d(x=self.translation.x, y=self.translation.y, z=z),
+        rotation=Rotation3d(yaw=self.rotation.degrees),
+    )
+
+def to_translation2d(self) -> Translation2d:
+    return Translation2d(x=self.translation.x, y=self.translation.y)
 
 
 @dataclass
@@ -392,6 +531,18 @@ class Transform2d:
         d["translation"] = _to_dict(self.translation)
         return d
 
+def plus(self, other: Transform2d) -> Transform2d:
+    """Compose two transforms."""
+    return Transform2d(
+        translation=self.translation.plus(other.translation.rotate_by(self.rotation)),
+        rotation=self.rotation.plus(other.rotation),
+    )
+
+def inverse(self) -> Transform2d:
+    inv_rot = self.rotation.unary_minus()
+    inv_trans = self.translation.unary_minus().rotate_by(inv_rot)
+    return Transform2d(translation=inv_trans, rotation=inv_rot)
+
 
 @dataclass
 class Rotation3d:
@@ -405,6 +556,18 @@ class Rotation3d:
         d["pitch"] = _to_dict(self.pitch)
         d["yaw"] = _to_dict(self.yaw)
         return d
+
+def plus(self, other: Rotation3d) -> Rotation3d:
+    return Rotation3d(roll=self.roll + other.roll, pitch=self.pitch + other.pitch, yaw=self.yaw + other.yaw)
+
+def minus(self, other: Rotation3d) -> Rotation3d:
+    return Rotation3d(roll=self.roll - other.roll, pitch=self.pitch - other.pitch, yaw=self.yaw - other.yaw)
+
+def unary_minus(self) -> Rotation3d:
+    return Rotation3d(roll=-self.roll, pitch=-self.pitch, yaw=-self.yaw)
+
+def to_rotation2d(self) -> Rotation2d:
+    return Rotation2d(degrees=self.yaw)
 
 
 @dataclass
@@ -420,6 +583,35 @@ class Translation3d:
         d["z"] = _to_dict(self.z)
         return d
 
+def plus(self, other: Translation3d) -> Translation3d:
+    return Translation3d(x=self.x + other.x, y=self.y + other.y, z=self.z + other.z)
+
+def minus(self, other: Translation3d) -> Translation3d:
+    return Translation3d(x=self.x - other.x, y=self.y - other.y, z=self.z - other.z)
+
+def unary_minus(self) -> Translation3d:
+    return Translation3d(x=-self.x, y=-self.y, z=-self.z)
+
+def times(self, scalar: float) -> Translation3d:
+    return Translation3d(x=self.x * scalar, y=self.y * scalar, z=self.z * scalar)
+
+@property
+def norm(self) -> float:
+    return _math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+
+def distance(self, other: Translation3d) -> float:
+    return self.minus(other).norm
+
+def to_translation2d(self) -> Translation2d:
+    return Translation2d(x=self.x, y=self.y)
+
+def to_pose2d(self, rotation: Optional[Rotation2d] = None) -> Pose2d:
+    """Convert to a Pose2d (dropping Z), optionally with a rotation."""
+    return Pose2d(
+        translation=Translation2d(x=self.x, y=self.y),
+        rotation=rotation if rotation is not None else Rotation2d(),
+    )
+
 
 @dataclass
 class Transform3d:
@@ -432,6 +624,18 @@ class Transform3d:
         d["translation"] = _to_dict(self.translation)
         return d
 
+def plus(self, other: Transform3d) -> Transform3d:
+    return Transform3d(
+        translation=self.translation.plus(other.translation),
+        rotation=self.rotation.plus(other.rotation),
+    )
+
+def inverse(self) -> Transform3d:
+    return Transform3d(
+        translation=self.translation.unary_minus(),
+        rotation=self.rotation.unary_minus(),
+    )
+
 
 @dataclass
 class Pose3d:
@@ -443,4 +647,19 @@ class Pose3d:
         d["rotation"] = _to_dict(self.rotation)
         d["translation"] = _to_dict(self.translation)
         return d
+
+def translate_by(self, translation: Translation3d) -> Pose3d:
+    return Pose3d(
+        translation=self.translation.plus(translation),
+        rotation=Rotation3d(roll=self.rotation.roll, pitch=self.rotation.pitch, yaw=self.rotation.yaw),
+    )
+
+def to_pose2d(self) -> Pose2d:
+    return Pose2d(
+        translation=Translation2d(x=self.translation.x, y=self.translation.y),
+        rotation=Rotation2d(degrees=self.rotation.yaw),
+    )
+
+def to_translation2d(self) -> Translation2d:
+    return Translation2d(x=self.translation.x, y=self.translation.y)
 

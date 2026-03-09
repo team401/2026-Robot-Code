@@ -22,7 +22,7 @@ import java.util.*;
 
 /**
  * Generates Python dataclass definitions from any Java class using the same config rules as
- * JSONSync / JSONHandler. Parallel to TypeScriptGenerator but outputs Python.
+ * JSONSync / JSONHandler.
  */
 public final class PythonGenerator {
 
@@ -54,6 +54,9 @@ public final class PythonGenerator {
 
   // Extra methods to inject into generated classes we can't annotate (e.g. WPILib geometry classes)
   private static final Map<Class<?>, List<String>> extraMethods = new HashMap<>();
+
+  // Reverse mapping: JSONConverter wrapper class → original WPILib class
+  private static final Map<Class<?>, Class<?>> convertedToOriginal = new HashMap<>();
 
   /**
    * Register additional Python methods to be injected into the generated dataclass for a given Java
@@ -188,6 +191,7 @@ public final class PythonGenerator {
     emitted.clear();
     output.setLength(0);
     toDictMethods.clear();
+    convertedToOriginal.clear();
     hasImportedUnits = false;
 
     output.append(
@@ -319,7 +323,7 @@ public final class PythonGenerator {
       String pyName = toSnakeCase(jsonName);
 
       boolean isOptional =
-          jField.isAnnotationPresent(TypeScriptOptional.class)
+          jField.isAnnotationPresent(GeneratedOptional.class)
               || Optional.class.isAssignableFrom(fieldType);
 
       boolean supportsDefault = supportsDefaultValue(originalFieldType);
@@ -475,7 +479,7 @@ public final class PythonGenerator {
       String pyName = toSnakeCase(jsonName);
 
       boolean isOptional =
-          jField.isAnnotationPresent(TypeScriptOptional.class)
+          jField.isAnnotationPresent(GeneratedOptional.class)
               || Optional.class.isAssignableFrom(fieldType);
 
       boolean supportsDefault = supportsDefaultValue(originalFieldType);
@@ -574,6 +578,7 @@ public final class PythonGenerator {
         Class<? extends JSONObject<?>> wrapper = JSONConverter.convert(clazz);
         if (wrapper != null) {
           suggestedName = clazz.getSimpleName();
+          convertedToOriginal.put(wrapper, clazz);
           clazz = wrapper;
         }
       } catch (JSONConverter.ConversionException ignored) {
@@ -624,6 +629,7 @@ public final class PythonGenerator {
           Class<? extends JSONObject<?>> wrapper = JSONConverter.convert(rawClass);
           if (wrapper != null) {
             suggestedName = rawClass.getSimpleName();
+            convertedToOriginal.put(wrapper, rawClass);
             rawClass = wrapper;
           }
         } catch (JSONConverter.ConversionException ignored) {
@@ -704,6 +710,13 @@ public final class PythonGenerator {
 
   private static void emitExtraMethods(Class<?> clazz, StringBuilder sb) {
     List<String> methods = extraMethods.get(clazz);
+    // If not found directly, try the original (pre-JSONConverter) class
+    if (methods == null) {
+      Class<?> original = convertedToOriginal.get(clazz);
+      if (original != null) {
+        methods = extraMethods.get(original);
+      }
+    }
     if (methods == null) return;
     for (String methodCode : methods) {
       sb.append("\n");
@@ -825,7 +838,7 @@ public final class PythonGenerator {
       // Check if all sub-fields support defaults
       for (Field field : getAllFields(clazz)) {
         if (shouldSkipField(field)) continue;
-        if (field.isAnnotationPresent(TypeScriptOptional.class)) continue;
+        if (field.isAnnotationPresent(GeneratedOptional.class)) continue;
         if (!supportsDefaultValue(field.getType())) {
           defaultChecked.add(type);
           return "None";
