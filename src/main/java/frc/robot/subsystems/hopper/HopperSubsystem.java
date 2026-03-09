@@ -15,6 +15,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hopper.HopperState.DejamState;
 import frc.robot.subsystems.hopper.HopperState.IdleState;
@@ -47,6 +48,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
   private final Debouncer dejamRequiredDebouncer =
       new Debouncer(
           JsonConstants.hopperConstants.dejamDebounceTime.in(Seconds), DebounceType.kRising);
+  private final Timer dejamCooldownTimer = new Timer();
 
   Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
 
@@ -67,7 +69,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
         .transitionTo(testModeState);
     spinningState.when(hopper -> hopper.dejamRequired(), "Dejam required").transitionTo(dejamState);
-    dejamState.whenTimeout(Seconds.of(0.5)).transitionTo(spinningState);
+    dejamState.whenTimeout(JsonConstants.hopperConstants.dejamTime).transitionTo(spinningState);
     idleState.when(hopper -> !hopper.shouldIdle(), "Should spin").transitionTo(spinningState);
     idleState
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
@@ -171,6 +173,16 @@ public class HopperSubsystem extends MonitoredSubsystem {
             > JsonConstants.hopperConstants.dejamCurrentThreshold.in(Amps); // Figure out this logic
     boolean currentDataPoint = notSpinning && highCurrent;
 
-    return dejamRequiredDebouncer.calculate(currentDataPoint);
+    return dejamCooldownTimer.hasElapsed(JsonConstants.hopperConstants.dejamCooldownTime)
+        && dejamRequiredDebouncer.calculate(currentDataPoint);
+  }
+
+  /**
+   * Restart the dejam cooldown timer
+   *
+   * <p>this method should be called whenever the spinning state is entered
+   */
+  protected void restartDejamCooldownTimer() {
+    dejamCooldownTimer.restart();
   }
 }

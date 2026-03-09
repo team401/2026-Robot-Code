@@ -42,6 +42,16 @@ public class HopperConstants {
 
   public final Time dejamDebounceTime = Seconds.of(0.5);
 
+  /** How long the dejam state should last before transitioning back to spinning state */
+  public final Time dejamTime = Seconds.of(0.25);
+
+  /**
+   * How long the hopper must spend in spinning state before it is allowed to try dejamming again;
+   * this exists to prevent an infinite loop of dejamming if the dejam routine also causes the
+   * current to spike.
+   */
+  public final Time dejamCooldownTime = Seconds.of(0.25);
+
   // The important values here are maxAcceleration and maxJerk because it uses
   // a profiled velocity request
   public MotionProfileConfig hopperMotionProfileConfig =

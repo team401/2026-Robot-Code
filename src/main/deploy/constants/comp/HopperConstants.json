@@ -25,6 +25,14 @@
     "value": 0.5,
     "unit": "Second"
   },
+  "dejamTime": {
+    "value": 0.25,
+    "unit": "Second"
+  },
+  "dejamCooldownTime": {
+    "value": 0.25,
+    "unit": "Second"
+  },
   "hopperMotionProfileConfig": {
     "isMutable": false,
     "maxVelocity": {
