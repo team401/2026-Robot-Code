@@ -639,6 +639,13 @@ class FieldConstants:
         pass  # populated below
 
 
+    class Center:
+        @staticmethod
+        def center_point() -> Translation2d:
+            return _translation2d(
+                FieldConstants.field_length / 2.0, FieldConstants.field_width / 2.0
+            )
+
 # ---------------------------------------------------------------------------
 # Deferred initialization for values that depend on other FieldConstants members
 # ---------------------------------------------------------------------------

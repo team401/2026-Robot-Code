@@ -19,6 +19,7 @@ from .shorthands import (
     stow_intake,
     translation2d
 )
+from . import constants
 
 # TODO: Add alliance-relative coordinate utilities.
 # TODO: Replace placeholder coordinates with real field positions.
@@ -33,6 +34,15 @@ def _test_auto():
 
     go_to_center_under_right_trench_from_alliance()
 
+    autopilot(
+        target_pose=constants.right_trench_center_side_pose.transform_by(
+            transform2d(
+                translation=translation2d(x=1, y=1),
+                rotation=rotation2d(degrees=0),
+            )
+        ),
+    )
+
     # Deploy intake after safely out of trench to swipe center for balls
 
     deploy_intake()
@@ -46,7 +56,16 @@ def _test_auto():
                 rotation=rotation2d(degrees=90),
             )
         ),
-        entry_angle=rotation2d(degrees=90),
+        entry_angle=rotation2d(degrees=-90),
+    )
+
+    autopilot(
+        target_pose=constants.right_trench_center_side_pose.transform_by(
+            transform2d(
+                translation=translation2d(x=1, y=1),
+                rotation=rotation2d(degrees=0),
+            )
+        ),
     )
 
     # Stow intake before moving to avoid potential collisions with field elements
