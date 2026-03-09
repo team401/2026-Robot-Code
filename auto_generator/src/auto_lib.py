@@ -97,6 +97,7 @@ def race():
 # ---------------------------------------------------------------------------
 
 _autos: Dict[str, Any] = {}
+_routines: Dict[str, Any] = {}
 
 
 def auto(name: str):
@@ -126,12 +127,106 @@ def auto(name: str):
     return decorator
 
 
+# ---------------------------------------------------------------------------
+# Routine registration (reusable subroutines referenced by name)
+# ---------------------------------------------------------------------------
+
+class _Routines:
+    """
+    Registry of named routines.
+
+    Accessing ``routines.<name>()`` emits an AutoReference into the current
+    context (compact, no inlining).  Calling the decorated function directly
+    inlines the body and prints a warning.
+    """
+
+    _registry: Dict[str, Callable[[], None]] = {}
+
+    def add(self, name: str, func: Callable[[], None]) -> None:
+        self._registry[name] = func
+
+    def __getattr__(self, name: str) -> Callable[[], None]:
+        if name.startswith("_"):
+            raise AttributeError(name)
+        if name in self._registry:
+            def _emit_reference() -> None:
+                AutoAction.AutoReference(name=name).add()
+            return _emit_reference
+        raise AttributeError(f"Unknown routine '{name}'. Registered: {list(self._registry.keys())}")
+
+
+routines = _Routines()
+
+
+def routine(func_or_name):
+    """
+    Decorator that registers a function as a named routine.
+
+    Can be used with or without an explicit name::
+
+        @routine
+        def climb_left():
+            ...
+
+        @routine("ClimbRight")
+        def _climb_right():
+            ...
+
+    The routine body is built eagerly and stored in ``_routines`` so it
+    appears under the "routines" key in Autos.json.  Use ``routines.<name>()``
+    inside an auto to emit an AutoReference instead of inlining.
+    """
+
+    def _register(name: str, build: Callable[[], None]) -> Callable[[], None]:
+        # Build and register the routine body
+        global _command_pointers
+        _command_pointers = []
+        root = AutoAction.Sequence()
+        _push_pointer(root.actions)
+        try:
+            build()
+        finally:
+            _command_pointers = []
+        _routines[name] = root
+
+        routines.add(name, build)
+
+        # The returned wrapper inlines the body with a warning
+        def inner() -> None:
+            print(
+                f"WARNING: routine method {name} was called directly. "
+                f"This results in the routine being inlined into the auto, "
+                f"which may result in large file sizes. To rectify the issue, "
+                f"replace the call with `routines.{name}()`"
+            )
+            build()
+
+        return inner
+
+    if callable(func_or_name):
+        # @routine  (no parentheses — use the function name)
+        return _register(func_or_name.__name__, func_or_name)
+    else:
+        # @routine("CustomName")
+        def decorator(func: Callable[[], None]) -> Callable[[], None]:
+            return _register(func_or_name, func)
+        return decorator
+
+
 def get_auto(name: str) -> Optional[Any]:
     return _autos.get(name)
 
 
 def get_autos() -> Dict[str, Any]:
     return _autos
+
+
+def get_routine(name: str) -> Optional[Any]:
+    return _routines.get(name)
+
+
+def get_routines() -> Dict[str, Any]:
+    return _routines
 
 
 # ---------------------------------------------------------------------------

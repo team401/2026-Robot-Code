@@ -9,41 +9,6 @@ public class AutoReference extends AutoAction {
 
   @Override
   public Command toCommand(AutoActionContext data) {
-    return new Command() {
-      public Command command = null;
-
-      @Override
-      public void initialize() {
-        command = data.autos().getAutoCommand(name);
-        if (command == null) {
-          throw new RuntimeException("Auto with name '" + name + "' not found.");
-        }
-        command.initialize();
-      }
-
-      @Override
-      public void execute() {
-        if (command == null) {
-          throw new RuntimeException("Command for auto '" + name + "' not initialized.");
-        }
-        command.execute();
-      }
-
-      @Override
-      public boolean isFinished() {
-        if (command == null) {
-          throw new RuntimeException("Command for auto '" + name + "' not initialized.");
-        }
-        return command.isFinished();
-      }
-
-      @Override
-      public void end(boolean interrupted) {
-        if (command == null) {
-          throw new RuntimeException("Command for auto '" + name + "' not initialized.");
-        }
-        command.end(interrupted);
-      }
-    };
+    return data.autos().getRoutineCommandReference(name);
   }
 }

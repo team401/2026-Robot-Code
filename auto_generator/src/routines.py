@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Optional
 
 from . import auto_action as AutoAction
-from .auto_lib import auto, parallel, sequence
+from .auto_lib import auto, parallel, routine, routines, sequence
 from . import constants as Constants
 from .field_locations import FieldConstants
 from .shorthands import (
@@ -80,28 +80,27 @@ def _climb(
     velocity: Optional[float] = None,
 ) -> None:
     """Reusable climb lineup subroutine. Call inside a context."""
-    with sequence():
-        with parallel():
-            with sequence():
-                x_based_autopilot(
-                    target_pose=FieldConstants.Alliance.center.transform_by(Constants.climb_offset),
-                    constraints=Constants.climb_constraints,
-                    velocity=velocity,
-                )
-                x_based_autopilot(
-                    target_pose=target_pose,
-                    entry_angle=entry_angle,
-                    constraints=Constants.climb_constraints,
-                    velocity=velocity,
-                )
-            climb_search()
-        wait(0.5)
-        climb_hang()
+    with parallel():
+        with sequence():
+            x_based_autopilot(
+                target_pose=FieldConstants.Alliance.center.transform_by(Constants.climb_offset),
+                constraints=Constants.climb_constraints,
+                velocity=velocity,
+            )
+            x_based_autopilot(
+                target_pose=target_pose,
+                entry_angle=entry_angle,
+                constraints=Constants.climb_constraints,
+                velocity=velocity,
+            )
+        climb_search()
+    wait(0.5)
+    climb_hang()
 
-# Register climb lineup autos
+# Register climb lineup routines
 
 
-@auto("LeftClimb")
+@routine("LeftClimb")
 def _left_climb():
     _climb(
         target_pose=Constants.left_climb_location,
@@ -110,7 +109,7 @@ def _left_climb():
     )
 
 
-@auto("RightClimb")
+@routine("RightClimb")
 def _right_climb():
     _climb(
         target_pose=Constants.right_climb_location,
