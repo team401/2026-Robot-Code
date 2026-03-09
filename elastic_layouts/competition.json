@@ -9,9 +9,9 @@
         "containers": [
           {
             "title": "Auto Choices",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 256.0,
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 384.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -21,27 +21,11 @@
             }
           },
           {
-            "title": "timeLeftInShiftPrecise",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Match Time",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/MatchState/timeLeftInShiftPrecise",
-              "period": 0.06,
-              "data_type": "double",
-              "time_display_mode": "Minutes and Seconds",
-              "red_start_time": 20,
-              "yellow_start_time": 30
-            }
-          },
-          {
             "title": "timeLeftInShift",
             "x": 0.0,
-            "y": 128.0,
+            "y": 0.0,
             "width": 256.0,
-            "height": 128.0,
+            "height": 256.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/MatchState/timeLeftInShift",
@@ -93,7 +77,7 @@
           },
           {
             "title": "Alerts",
-            "x": 768.0,
+            "x": 512.0,
             "y": 0.0,
             "width": 256.0,
             "height": 384.0,
@@ -105,7 +89,7 @@
           },
           {
             "title": "PhotonAlerts",
-            "x": 512.0,
+            "x": 768.0,
             "y": 0.0,
             "width": 256.0,
             "height": 384.0,
@@ -118,9 +102,9 @@
           {
             "title": "MatchTime",
             "x": 0.0,
-            "y": 384.0,
+            "y": 256.0,
             "width": 256.0,
-            "height": 128.0,
+            "height": 256.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
