@@ -298,13 +298,6 @@ public class MatchState {
     return getTimeLeftInCurrentShift(matchTime);
   }
 
-  @AutoLogOutput(key = "MatchState/timeLeftInShiftPrecise")
-  public double getPreciseTimeLeftInCurrentShift() {
-    double matchTime = getPreciseMatchTime();
-
-    return getTimeLeftInCurrentShift(matchTime);
-  }
-
   private double getTimeLeftInCurrentShift(double matchTime) {
     return switch (currentShift) {
       case Auto -> matchTime;

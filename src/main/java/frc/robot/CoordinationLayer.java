@@ -137,6 +137,14 @@ public class CoordinationLayer {
   private AutonomyLevel autonomyLevel = AutonomyLevel.Smart;
 
   /**
+   * Tracks the "effective autonomy level": if autonomy level is set to smart but we lose vision,
+   * our autonomy will automatically be disabled and our effective autonomy level will become
+   * manual. These are separate values because an alert should be displayed if effective autonomy
+   * level is overridden.
+   */
+  private AutonomyLevel effectiveAutonomyLevel = autonomyLevel;
+
+  /**
    * Tracks our target "extension state": either the intake, climber, or neither may deploy at once.
    */
   @AutoLogOutput(key = "CoordinationLayer/goalExtensionState")
@@ -328,6 +336,34 @@ public class CoordinationLayer {
     StateMachineDump.write("coordination", extensionStateMachine);
 
     AutoLogOutputManager.addObject(this);
+
+    initializePositionBasedStrategyTriggers();
+  }
+
+  /** Initialize triggers that change the robot's goal scoring location based on position */
+  private void initializePositionBasedStrategyTriggers() {
+    new Trigger(
+            buttonLoop,
+            () ->
+                drive
+                    .map(drive -> AllianceBasedFieldConstants.isInAllianceZone(drive.getPose()))
+                    .orElse(false))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  if (DriverStation.isTeleopEnabled()
+                      && effectiveAutonomyLevel == AutonomyLevel.Smart) {
+                    shotMode = ShotMode.Hub;
+                  }
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  if (DriverStation.isTeleopEnabled()
+                      && effectiveAutonomyLevel == AutonomyLevel.Smart) {
+                    shotMode = ShotMode.Pass;
+                  }
+                }));
   }
 
   // Controller bindings
@@ -735,8 +771,7 @@ public class CoordinationLayer {
 
     visionDisconnectedAlert.set(JsonConstants.featureFlags.runVision && !visionConnected);
 
-    AutonomyLevel effectiveAutonomyLevel =
-        visionConnectedDebounced ? autonomyLevel : AutonomyLevel.Manual;
+    effectiveAutonomyLevel = visionConnectedDebounced ? autonomyLevel : AutonomyLevel.Manual;
     Logger.recordOutput("CoordinationLayer/effectiveAutonomyLevel", effectiveAutonomyLevel);
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
@@ -746,9 +781,12 @@ public class CoordinationLayer {
     // This should improve the performance of shoot on the move.
     // If this isn't sufficient, we can calculate 2 shots: one with compensation delay and one
     // without compensation delay, and then just test the one without compensation delay.
+    boolean canScoreInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
+
     boolean canShoot =
         isForceShootPressed.getAsBoolean()
             || (shootingEnabled
+                && canScoreInCurrentMatchState
                 && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
                 && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
                 // When the turret isn't enabled, assume that it's been locked into the correct

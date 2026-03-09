@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -49,5 +50,20 @@ public class AllianceBasedFieldConstants {
     }
 
     return hubCenterPoint2d.value();
+  }
+
+  /**
+   * Check whether the given pose is within the alliance zone.
+   *
+   * @param robotPose A Pose2d containing the current position of the robot to verify
+   * @return {@code true} if the robot is within its own alliance zone, {@code false} otherwise.
+   */
+  public static final boolean isInAllianceZone(Pose2d robotPose) {
+    Alliance alliance = AllianceUtil.getAlliance();
+
+    return switch (alliance) {
+      case Red -> robotPose.getX() > FieldConstants.LinesVertical.oppAllianceZone();
+      case Blue -> robotPose.getX() < FieldConstants.LinesVertical.allianceZone();
+    };
   }
 }
