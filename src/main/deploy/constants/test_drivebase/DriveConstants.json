@@ -58,5 +58,17 @@
     "kG": 0.0,
     "kV": 0.75722,
     "kA": 0.0
+  },
+  "bumpOdometryIgnoreTime": {
+    "value": 0.25,
+    "unit": "Second"
+  },
+  "maxOdometryTilt": {
+    "value": 5.0,
+    "unit": "Degree"
+  },
+  "maxOdometryZAcceleration": {
+    "value": 5.0,
+    "unit": "Meter per Second per Second"
   }
 }

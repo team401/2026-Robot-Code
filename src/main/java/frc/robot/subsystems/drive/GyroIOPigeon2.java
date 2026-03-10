@@ -7,6 +7,9 @@
 
 package frc.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
@@ -16,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import frc.robot.constants.JsonConstants;
 import java.util.Queue;
 
@@ -30,7 +34,12 @@ public class GyroIOPigeon2 implements GyroIO {
   private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
 
-  private final BaseStatusSignal[] signals = new BaseStatusSignal[] {yaw, yawVelocity};
+  private final StatusSignal<Angle> pitch = pigeon.getPitch();
+  private final StatusSignal<Angle> roll = pigeon.getRoll();
+  private final StatusSignal<LinearAcceleration> zAccel = pigeon.getAccelerationZ();
+
+  private final BaseStatusSignal[] signals =
+      new BaseStatusSignal[] {yaw, yawVelocity, pitch, roll, zAccel};
 
   public GyroIOPigeon2() {
     if (JsonConstants.physicalDriveConstants.DrivetrainConstants.Pigeon2Configs != null) {
@@ -65,5 +74,9 @@ public class GyroIOPigeon2 implements GyroIO {
             .toArray(Rotation2d[]::new);
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
+
+    inputs.pitchRadians = pitch.getValue().in(Radians);
+    inputs.rollRadians = roll.getValue().in(Radians);
+    inputs.zAccelerationMetersPerSecondPerSecond = zAccel.getValue().in(MetersPerSecondPerSecond);
   }
 }

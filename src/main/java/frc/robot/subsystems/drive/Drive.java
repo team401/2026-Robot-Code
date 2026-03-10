@@ -18,6 +18,8 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -93,6 +95,17 @@ public class Drive extends SubsystemBase implements DriveTemplate {
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
   private PoseEstimator maPoseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
+
+  /**
+   * Whether or not we think we're on or just came off of the bump and should fully trust vision to
+   * prevent crazy odometry.
+   */
+  @AutoLogOutput(key = "Odometry/BumpDetected")
+  private boolean bumpDetected = false;
+
+  private final Debouncer bumpOdometryDebouncer =
+      new Debouncer(
+          JsonConstants.driveConstants.bumpOdometryIgnoreTime.in(Seconds), DebounceType.kFalling);
 
   public Drive(
       GyroIO gyroIO,
@@ -232,6 +245,18 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    // Check for bump
+    double cumulativeTiltRadians =
+        Math.abs(gyroInputs.rollRadians) + Math.abs(gyroInputs.pitchRadians);
+    double zAccelMagnitude = Math.abs(gyroInputs.zAccelerationMetersPerSecondPerSecond);
+    boolean bumpDetectedNow =
+        cumulativeTiltRadians > JsonConstants.driveConstants.maxOdometryTilt.in(Radians)
+            || zAccelMagnitude
+                > JsonConstants.driveConstants.maxOdometryZAcceleration.in(
+                    MetersPerSecondPerSecond);
+
+    this.bumpDetected = bumpOdometryDebouncer.calculate(bumpDetectedNow);
   }
 
   /**
@@ -396,6 +421,12 @@ public class Drive extends SubsystemBase implements DriveTemplate {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
+    if (bumpDetected) {
+      visionMeasurementStdDevs.set(0, 0, 0.0);
+      visionMeasurementStdDevs.set(1, 0, 0.0);
+      visionMeasurementStdDevs.set(2, 0, 0.0);
+    }
+
     if (JsonConstants.featureFlags.useMAPoseEstimator) {
       maPoseEstimator.addVisionData(
           List.of(
