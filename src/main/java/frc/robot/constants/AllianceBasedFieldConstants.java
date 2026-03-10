@@ -5,22 +5,22 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.util.AllianceUtil;
-import frc.robot.util.AllianceUtil.CachedLocation;
+import frc.robot.util.AllianceUtil.AllianceBasedValue;
 
 /**
  * The AllianceBasedFieldConstants class provides methods for getting relevant field locations from
  * FieldConstants.java based on which alliance we're on.
  */
 public class AllianceBasedFieldConstants {
-  public static final CachedLocation<Translation3d> hubInnerCenterPoint =
-      new CachedLocation<>(
+  public static final AllianceBasedValue<Translation3d> hubInnerCenterPoint =
+      new AllianceBasedValue<>(
           () ->
               AllianceUtil.isRed()
                   ? FieldConstants.Hub.oppInnerCenterPoint()
                   : FieldConstants.Hub.innerCenterPoint());
 
-  public static final CachedLocation<Translation2d> hubCenterPoint2d =
-      new CachedLocation<>(
+  public static final AllianceBasedValue<Translation2d> hubCenterPoint2d =
+      new AllianceBasedValue<>(
           () ->
               AllianceUtil.isRed()
                   ? FieldConstants.Hub.oppInnerCenterPoint().toTranslation2d()
