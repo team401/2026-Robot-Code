@@ -416,14 +416,26 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     }
   }
 
-  private final Matrix<N3, N1> zeroStdDevs = VecBuilder.fill(0.0, 0.0, 0.0);
+  // Assume we're at a certain tiny distance away from every tag when dropping standard deviations
+  private final double droppedStdDevApproxDistance = 0.01;
+  private final Matrix<N3, N1> droppedStdDevs =
+      VecBuilder.fill(
+          JsonConstants.visionConstants.gainConstants.linearStdDevFactor
+              * droppedStdDevApproxDistance
+              * droppedStdDevApproxDistance,
+          JsonConstants.visionConstants.gainConstants.linearStdDevFactor
+              * droppedStdDevApproxDistance
+              * droppedStdDevApproxDistance,
+          JsonConstants.visionConstants.gainConstants.angularStdDevFactor
+              * droppedStdDevApproxDistance
+              * droppedStdDevApproxDistance);
 
   /** Adds a new timestamped vision measurement. */
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    var stdDevs = bumpDetected ? zeroStdDevs : visionMeasurementStdDevs;
+    var stdDevs = bumpDetected ? droppedStdDevs : visionMeasurementStdDevs;
 
     if (JsonConstants.featureFlags.useMAPoseEstimator) {
       maPoseEstimator.addVisionData(
