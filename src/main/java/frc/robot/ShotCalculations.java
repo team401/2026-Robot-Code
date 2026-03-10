@@ -223,7 +223,7 @@ class ShotCalculations {
       ShotTarget target) {
     Translation2d targetPosition =
         switch (target) {
-          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d();
+          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };

@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.util.AllianceUtil;
+import java.util.function.Supplier;
 
 /**
  * The AllianceBasedFieldConstants class provides methods for getting relevant field locations from
@@ -14,43 +15,43 @@ public class AllianceBasedFieldConstants {
   /**
    * Tracks caching of a field location of unknown type based on what alliance we're on.
    *
+   * <p>Call {@link #get()} to get the value.
+   *
    * <p>By checking for which alliance the cache was generated, it can be updated for different
    * alliances without restarting code
    */
-  private record CachedLocation<T>(Alliance alliance, T value) {}
+  public static class CachedLocation<T> {
+    private Alliance allianceForCache = null;
+    private T cachedValue = null;
+    private final Supplier<T> initializer;
 
-  private static CachedLocation<Translation3d> hubInnerCenterPoint;
-
-  public static final Translation3d hubInnerCenterPoint() {
-    Alliance alliance = AllianceUtil.getAlliance();
-
-    if (hubInnerCenterPoint == null || hubInnerCenterPoint.alliance() != alliance) {
-      Translation3d value =
-          AllianceUtil.isRed()
-              ? FieldConstants.Hub.oppInnerCenterPoint()
-              : FieldConstants.Hub.innerCenterPoint();
-      hubInnerCenterPoint = new CachedLocation<Translation3d>(AllianceUtil.getAlliance(), value);
+    private CachedLocation(Supplier<T> initializer) {
+      this.initializer = initializer;
     }
 
-    return hubInnerCenterPoint.value();
-  }
+    public T get() {
+      Alliance currentAlliance = AllianceUtil.getAlliance();
+      if (cachedValue == null || allianceForCache != currentAlliance) {
+        cachedValue = initializer.get();
+      }
 
-  private static CachedLocation<Translation2d> hubCenterPoint2d;
-
-  public static final Translation2d hubCenterPoint2d() {
-    Alliance alliance = AllianceUtil.getAlliance();
-
-    if (hubCenterPoint2d == null || hubCenterPoint2d.alliance() != alliance) {
-      Translation2d value =
-          AllianceUtil.isRed()
-              ? FieldConstants.Hub.oppInnerCenterPoint().toTranslation2d()
-              : FieldConstants.Hub.innerCenterPoint().toTranslation2d();
-
-      hubCenterPoint2d = new CachedLocation<Translation2d>(alliance, value);
+      return cachedValue;
     }
-
-    return hubCenterPoint2d.value();
   }
+
+  public static final CachedLocation<Translation3d> hubInnerCenterPoint =
+      new CachedLocation<>(
+          () ->
+              AllianceUtil.isRed()
+                  ? FieldConstants.Hub.oppInnerCenterPoint()
+                  : FieldConstants.Hub.innerCenterPoint());
+
+  public static final CachedLocation<Translation2d> hubCenterPoint2d =
+      new CachedLocation<>(
+          () ->
+              AllianceUtil.isRed()
+                  ? FieldConstants.Hub.oppInnerCenterPoint().toTranslation2d()
+                  : FieldConstants.Hub.innerCenterPoint().toTranslation2d());
 
   /**
    * Check whether the given pose is within the alliance zone.

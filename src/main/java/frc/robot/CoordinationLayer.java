@@ -734,7 +734,8 @@ public class CoordinationLayer {
           drive -> {
             Logger.recordOutput(
                 "CoordinationLayer/distanceToHub",
-                AllianceBasedFieldConstants.hubInnerCenterPoint()
+                AllianceBasedFieldConstants.hubInnerCenterPoint
+                    .get()
                     .toTranslation2d()
                     .getDistance(
                         new Pose3d(drive.getPose())
@@ -924,7 +925,7 @@ public class CoordinationLayer {
 
     Translation2d targetPose =
         switch (target) {
-          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d();
+          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };
