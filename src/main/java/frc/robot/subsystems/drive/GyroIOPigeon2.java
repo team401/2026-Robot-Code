@@ -54,6 +54,10 @@ public class GyroIOPigeon2 implements GyroIO {
     yaw.setUpdateFrequency(JsonConstants.robotInfo.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(50.0);
 
+    // These signals are refreshed at the periodic rate (50hz) (just like yaw velocity) rather than
+    // the odometry frequency (like yaw), because they are used for robot code decisionmaking rather
+    // than high frequency odometry.
+    // This shouldn't have any effect on the currently existing odometry code
     pitch.setUpdateFrequency(50.0);
     roll.setUpdateFrequency(50.0);
     zAccel.setUpdateFrequency(50.0);
