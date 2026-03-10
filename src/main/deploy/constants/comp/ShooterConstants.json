@@ -76,6 +76,10 @@
     "value": 140.0,
     "unit": "RPM"
   },
+  "atSetpointDebounceTime": {
+    "value": 0.2,
+    "unit": "Second"
+  },
   "shooterSlot0Epsilon": {
     "value": 150.0,
     "unit": "RPM"

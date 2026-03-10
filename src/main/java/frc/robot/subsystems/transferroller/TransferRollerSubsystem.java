@@ -181,7 +181,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
 
   public boolean shouldDeJam() {
     return shouldDejamDebouncer.calculate(
-        targetVelocity.in(Units.RadiansPerSecond) < targetVelocity.in(RadiansPerSecond) / 10
+        inputs.velocityRadiansPerSecond < targetVelocity.in(RadiansPerSecond) / 10
             && inputs.statorCurrentAmps
                 > JsonConstants.transferRollerConstants.transferRollerStatorCurrentLimit.in(Amps)
                     / 2);

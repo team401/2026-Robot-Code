@@ -214,7 +214,7 @@ class ShotCalculations {
    * @param fieldRelativeShooterVelocity the velocity of the shooter, field relative, as a
    *     Translation2d.
    * @param target the ShotTarget to aim for
-   * @return
+   * @return A MapBasedShotInfo containing the aiming parameters for the robot.
    */
   public static MapBasedShotInfo calculateShotFromMap(
       Pose2d robotPose,
@@ -308,10 +308,9 @@ class ShotCalculations {
 
     double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
     double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
-    Rotation2d yawRadians = virtualTarget.minus(shooterPose.getTranslation()).getAngle();
+    Rotation2d yaw = virtualTarget.minus(shooterPose.getTranslation()).getAngle();
 
-    MapBasedShotInfo shot =
-        new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yawRadians, isShotReal);
+    MapBasedShotInfo shot = new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yaw, isShotReal);
     Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);
     return shot;
   }

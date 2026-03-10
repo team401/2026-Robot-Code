@@ -24,14 +24,6 @@ public abstract class HopperState extends State<HopperSubsystem> {
     }
   }
 
-  /** Wiggles the hopper forward in idle when the shouldWiggleInIdle constant is set to true */
-  public static class WiggleState extends HopperState {
-    @Override
-    public void periodic(StateMachine<HopperSubsystem> stateMachine, HopperSubsystem hopper) {
-      hopper.coast();
-    }
-  }
-
   public static class DejamState extends HopperState {
     @Override
     public void periodic(

@@ -36,7 +36,7 @@ public class MatchState {
 
   /**
    * Tracks whether or not teleop has enabled yet. This value is used to prevent us from losing
-   * track of match time if the robot is temporarily disabled during a match (e..g for a
+   * track of match time if the robot is temporarily disabled during a match (e.g. for a
    * disconnect).
    */
   private boolean hasTeleopEnabled = false;
@@ -48,6 +48,7 @@ public class MatchState {
   @AutoLogOutput(key = "MatchState/isInMatch")
   public boolean isInMatch() {
     Logger.recordOutput("MatchState/matchType", DriverStation.getMatchType());
+    // Hardcode true for shop testing; getMatchType doesn't return a correct value here
     return true;
     // || DriverStation.getMatchType() == DriverStation.MatchType.Practice
     // || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
@@ -143,6 +144,10 @@ public class MatchState {
 
   /** Must be called by the coordination layer when disabled */
   public void disabledPeriodic() {
+    // The only time we don't restart the timer is if we've already enabled teleop:
+    // It doesn't really matter if we lose match time during auto, as the value isn't used.
+    // It *should* reset between auto and teleop, because match time goes from 20-0 in auto and then
+    // back up to the total teleop+endgame time for the start of teleop.
     if (!hasTeleopEnabled) {
       preciseMatchTimer.restart();
     }

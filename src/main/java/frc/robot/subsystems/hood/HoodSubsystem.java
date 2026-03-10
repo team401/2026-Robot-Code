@@ -472,7 +472,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   /**
    * Returns whether or not the hood is currently aimed at its goal angle
    *
-   * @param shotMode A ShotMade to determine if we are shooting at the hub (tight thresholds) or
+   * @param shotMode A ShotMode to determine if we are shooting at the hub (tight thresholds) or
    *     passing (loose thresholds)
    * @return {@code true} if the hood is targeting an angle or pitch and it's at that goal, {@code
    *     false} otherwise.
