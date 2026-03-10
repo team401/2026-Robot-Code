@@ -278,20 +278,45 @@ class ShotCalculations {
     double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
     Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
 
-    Translation2d virtualTarget = new Translation2d();
+    /**
+     * The following code calculates shoot on the move by:
+     *
+     * <p>1. Take the distance to the target 2. Find the time of flight for that distance 3.
+     * Calculate how much the robot's velocity will have moved the ball in the air across that time
+     * of flight 4. Find a new "virtual target" by shifting the target to account for that
+     * difference. 5. Loop over this process until a maximum iteration count is hit or the time of
+     * flight variance decreases below a certain threshold.
+     *
+     * <p>This iterative process helps to account for the fact that, when driving toward or away
+     * from the goal, the arc of the shot that is being taken is actually drastically different from
+     * the original shot arc that was used: when driving toward the target, the long, arcing shot
+     * that would be taken when stationary is replaced by a very short, low shot. This low shot
+     * drastically reduces time of flight and would cause the robot to undershoot the goal if we
+     * didn't iterate on that new time of flight.
+     */
+    Translation2d virtualTarget = targetPosition;
 
     double virtualDistanceXYMeters = 0.0;
     for (int i = 0; i < MAX_ITERATIONS; i++) {
+      // Find how much the fuel's flight will be changed by the initial velocity imparted by the
+      // robot
       Translation2d offset = fieldRelativeShooterVelocity.times(flightTimeSeconds);
+      // The goal is basically "moved" by the velocity (when moving toward the goal, the 'virtual
+      // goal' is actually closer to the robot)
       virtualTarget = targetPosition.minus(offset);
 
+      // Find the new distance
       virtualDistanceXYMeters = shooterPose.getTranslation().getDistance(virtualTarget);
 
+      // Find the new time of flight
       double lastFlightTimeSeconds = flightTimeSeconds;
       flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(virtualDistanceXYMeters);
+      // If the time of flight is very similar, the shot is probably close enough ("solution has
+      // converged")
       if (Math.abs(flightTimeSeconds - lastFlightTimeSeconds) < ACCEPTABLE_TIME_VARIATION) {
         break;
       }
+      // Otherwise, iterate again.
     }
     Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
     Logger.recordOutput("ShotCalculations/MapBased/VirtualDistanceMeters", virtualDistanceXYMeters);

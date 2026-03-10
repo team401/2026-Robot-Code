@@ -39,7 +39,7 @@
   },
   "intakeRollerSpeed": {
     "value": 1200.0,
-    "unit": "Rotation per Minute"
+    "unit": "RPM"
   },
   "homingMovementThreshold": {
     "value": 0.1,
