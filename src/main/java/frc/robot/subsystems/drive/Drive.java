@@ -416,25 +416,20 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     }
   }
 
+  private final Matrix<N3, N1> zeroStdDevs = VecBuilder.fill(0.0, 0.0, 0.0);
+
   /** Adds a new timestamped vision measurement. */
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    if (bumpDetected) {
-      visionMeasurementStdDevs.set(0, 0, 0.0);
-      visionMeasurementStdDevs.set(1, 0, 0.0);
-      visionMeasurementStdDevs.set(2, 0, 0.0);
-    }
+    var stdDevs = bumpDetected ? zeroStdDevs : visionMeasurementStdDevs;
 
     if (JsonConstants.featureFlags.useMAPoseEstimator) {
       maPoseEstimator.addVisionData(
-          List.of(
-              new TimestampedVisionUpdate(
-                  timestampSeconds, visionRobotPoseMeters, visionMeasurementStdDevs)));
+          List.of(new TimestampedVisionUpdate(timestampSeconds, visionRobotPoseMeters, stdDevs)));
     } else {
-      poseEstimator.addVisionMeasurement(
-          visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+      poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, stdDevs);
     }
   }
 

@@ -60,8 +60,8 @@ public class DriveConstants {
   public PIDGains driveGains = new PIDGains(0.1, 0.0, 0.0, 0.20845, 0.0, 0.75722, 0.0);
 
   /**
-   * How much time after we last detected that we were on the bump to continue ignoring vision. This
-   * value should be as small as possible without accidentally trusting odometry while still
+   * How much time after we last detected that we were on the bump to continue ignoring odometry.
+   * This value should be as small as possible without accidentally trusting odometry while still
    * on/falling off of the bump
    */
   public Time bumpOdometryIgnoreTime = Seconds.of(0.25);
