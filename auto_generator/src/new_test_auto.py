@@ -34,14 +34,6 @@ def _test_auto():
 
     go_to_center_under_right_trench_from_alliance()
 
-    # autopilot(
-    #     target_pose=constants.right_trench_center_side_pose.transform_by(
-    #         transform2d(
-    #             translation=translation2d(x=1, y=1),
-    #             rotation=rotation2d(degrees=0),
-    #         )
-    #     ),
-    # )
 
     # Deploy intake after safely out of trench to swipe center for balls
 
@@ -58,15 +50,6 @@ def _test_auto():
         ),
         entry_angle=rotation2d(degrees=-90),
     )
-
-    # autopilot(
-    #     target_pose=constants.right_trench_center_side_pose.transform_by(
-    #         transform2d(
-    #             translation=translation2d(x=1, y=1),
-    #             rotation=rotation2d(degrees=-180),
-    #         )
-    #     ),
-    # )
 
     # go back under right trench to get back to alliance side
 
