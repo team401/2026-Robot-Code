@@ -95,7 +95,7 @@ public class IntakeConstants {
   public TalonFXConfiguration buildPivotTalonFXMotorConfig() {
     TalonFXConfiguration config =
         new TalonFXConfiguration()
-            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
+            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withSupplyCurrentLimit(pivotSupplyCurrentLimit)

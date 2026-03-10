@@ -1,15 +1,15 @@
 {
   "dejamVoltage": {
-    "value": 3.0,
+    "value": -8.0,
     "unit": "Volt"
   },
   "hopperReduction": 1.0,
   "spinningMovementThreshold": {
-    "value": 3.0,
-    "unit": "Radian per Second"
+    "value": 1500.0,
+    "unit": "RPM"
   },
   "indexingVelocity": {
-    "value": 5000,
+    "value": 5800,
     "unit": "RPM"
   },
   "hopperGains": {
@@ -20,6 +20,18 @@
     "kV": 0.0,
     "kG": 0.0,
     "kA": 0.0
+  },
+  "dejamDebounceTime": {
+    "value": 0.5,
+    "unit": "Second"
+  },
+  "dejamTime": {
+    "value": 0.25,
+    "unit": "Second"
+  },
+  "dejamCooldownTime": {
+    "value": 0.25,
+    "unit": "Second"
   },
   "hopperMotionProfileConfig": {
     "isMutable": false,
@@ -65,7 +77,7 @@
     "unit": "Amp"
   },
   "dejamCurrentThreshold": {
-    "value": 35.0,
+    "value": 20.0,
     "unit": "Amp"
   },
   "hopperMotorDirection": "CounterClockwise_Positive",

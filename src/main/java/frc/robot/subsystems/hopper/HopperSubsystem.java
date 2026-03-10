@@ -3,15 +3,19 @@ package frc.robot.subsystems.hopper;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hopper.HopperState.DejamState;
 import frc.robot.subsystems.hopper.HopperState.IdleState;
@@ -41,6 +45,11 @@ public class HopperSubsystem extends MonitoredSubsystem {
   private final HopperState idleState;
   private final HopperState testModeState;
 
+  private final Debouncer dejamRequiredDebouncer =
+      new Debouncer(
+          JsonConstants.hopperConstants.dejamDebounceTime.in(Seconds), DebounceType.kRising);
+  private final Timer dejamCooldownTimer = new Timer();
+
   Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
 
   TestModeManager<TestMode> testModeManager =
@@ -60,9 +69,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
         .transitionTo(testModeState);
     spinningState.when(hopper -> hopper.dejamRequired(), "Dejam required").transitionTo(dejamState);
-    dejamState
-        .when(hopper -> !hopper.dejamRequired(), "Dejam not required")
-        .transitionTo(spinningState);
+    dejamState.whenTimeout(JsonConstants.hopperConstants.dejamTime).transitionTo(spinningState);
     idleState.when(hopper -> !hopper.shouldIdle(), "Should spin").transitionTo(spinningState);
     idleState
         .when(hopper -> hopper.isHopperTestMode(), "In hopper test mode")
@@ -164,9 +171,18 @@ public class HopperSubsystem extends MonitoredSubsystem {
     boolean highCurrent =
         inputs.statorCurrentAmps
             > JsonConstants.hopperConstants.dejamCurrentThreshold.in(Amps); // Figure out this logic
-    if (notSpinning && highCurrent) {
-      return true;
-    }
-    return false;
+    boolean currentDataPoint = notSpinning && highCurrent;
+
+    return dejamRequiredDebouncer.calculate(currentDataPoint)
+        && dejamCooldownTimer.hasElapsed(JsonConstants.hopperConstants.dejamCooldownTime);
+  }
+
+  /**
+   * Restart the dejam cooldown timer
+   *
+   * <p>this method should be called whenever the spinning state is entered
+   */
+  protected void restartDejamCooldownTimer() {
+    dejamCooldownTimer.restart();
   }
 }

@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
@@ -337,15 +338,26 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   /**
+   * @param shotMode A ShotMode describing whether the robot is passing or shooting at the hub, used
+   *     to determine if it should use strict or loose thresholds.
    * @return {@code true} if the turret is targeting a robot relative heading and is at that
    *     heading, {@code false} otherwise
    */
-  @AutoLogOutput(key = "Turret/isAimedCorrectly")
-  public boolean isAimedCorrectly() {
-    return requestedAction == TurretAction.TrackHeading
-        // Subtract the rotations to automatically
-        && Math.abs(getFieldCentricTurretHeading().minus(goalTurretHeading).getRadians())
-            < JsonConstants.turretConstants.turretSetpointEpsilon.in(Radians);
+  public boolean isAimedCorrectly(ShotMode shotMode) {
+    Angle threshold =
+        switch (shotMode) {
+          case Hub -> JsonConstants.turretConstants.turretSetpointEpsilon;
+          case Pass -> JsonConstants.turretConstants.turretPassingSetpointEpsilon;
+        };
+
+    boolean aimedCorrectly =
+        requestedAction == TurretAction.TrackHeading
+            // Subtract the rotations to automatically
+            && Math.abs(getFieldCentricTurretHeading().minus(goalTurretHeading).getRadians())
+                < threshold.in(Radians);
+    Logger.recordOutput("Turret/isAimedCorrectly", aimedCorrectly);
+
+    return aimedCorrectly;
   }
 
   protected void setPositionToHomedPosition() {
