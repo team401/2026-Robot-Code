@@ -21,55 +21,67 @@ from .shorthands import (
 
 # I really want to rename these commands or do something about them
 
-def go_to_alliance_under_left_trench(velocity = Constants.default_trench_velocity):
+def go_to_alliance_under_left_trench(velocity = Constants.default_trench_velocity, rotation = rotation2d(0)):
+    transform = AutoAction.Transform2d(
+        rotation=rotation,
+    )
     with sequence():
         x_based_autopilot(
-            target_pose=Constants.left_trench_center_side_pose,
+            target_pose=Constants.left_trench_center_side_pose.transform_by(transform),
             velocity=velocity,
             entry_angle=rotation2d(0)
         )
         x_based_autopilot(
-            target_pose=Constants.left_trench_alliance_side_pose,
-            velocity=velocity,
-            entry_angle=rotation2d(0)
-        )
-
-def go_to_alliance_under_right_trench(velocity = Constants.default_trench_velocity):
-    with sequence():
-        x_based_autopilot(
-            target_pose=Constants.right_trench_center_side_pose,
-            velocity=velocity,
-            entry_angle=rotation2d(0)
-        )
-        x_based_autopilot(
-            target_pose=Constants.right_trench_alliance_side_pose,
+            target_pose=Constants.left_trench_alliance_side_pose.transform_by(transform),
             velocity=velocity,
             entry_angle=rotation2d(0)
         )
 
-def go_to_center_under_left_trench_from_alliance():
+def go_to_alliance_under_right_trench(velocity = Constants.default_trench_velocity, rotation = rotation2d(0)):
+    transform = AutoAction.Transform2d(
+        rotation=rotation,
+    )
     with sequence():
         x_based_autopilot(
-            target_pose=Constants.left_trench_alliance_side_pose,
-            velocity=Constants.default_trench_velocity,
+            target_pose=Constants.right_trench_center_side_pose.transform_by(transform),
+            velocity=velocity,
+            entry_angle=rotation2d(0)
+        )
+        x_based_autopilot(
+            target_pose=Constants.right_trench_alliance_side_pose.transform_by(transform),
+            velocity=velocity,
+            entry_angle=rotation2d(0)
+        )
+
+def go_to_center_under_left_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(0)):
+    transform = AutoAction.Transform2d(
+        rotation=rotation,
+    )
+    with sequence():
+        x_based_autopilot(
+            target_pose=Constants.left_trench_alliance_side_pose.transform_by(transform),
+            velocity=velocity,
             entry_angle=rotation2d(180)
         )
         x_based_autopilot(
-            target_pose=Constants.left_trench_center_side_pose,
-            velocity=Constants.default_trench_velocity,
+            target_pose=Constants.left_trench_center_side_pose.transform_by(transform),
+            velocity=velocity,
             entry_angle=rotation2d(180)
         )
 
-def go_to_center_under_right_trench_from_alliance():
+def go_to_center_under_right_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(0)):
+    transform = AutoAction.Transform2d(
+        rotation=rotation,
+    )
     with sequence():
         x_based_autopilot(
-            target_pose=Constants.right_trench_alliance_side_pose,
-            velocity=Constants.default_trench_velocity,
+            target_pose=Constants.right_trench_alliance_side_pose.transform_by(transform),
+            velocity=velocity,
             entry_angle=rotation2d(180)
         )
         x_based_autopilot(
-            target_pose=Constants.right_trench_center_side_pose,
-            velocity=Constants.default_trench_velocity,
+            target_pose=Constants.right_trench_center_side_pose.transform_by(transform),
+            velocity=velocity,
             entry_angle=rotation2d(180)
         )
 

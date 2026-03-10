@@ -34,14 +34,14 @@ def _test_auto():
 
     go_to_center_under_right_trench_from_alliance()
 
-    autopilot(
-        target_pose=constants.right_trench_center_side_pose.transform_by(
-            transform2d(
-                translation=translation2d(x=1, y=1),
-                rotation=rotation2d(degrees=0),
-            )
-        ),
-    )
+    # autopilot(
+    #     target_pose=constants.right_trench_center_side_pose.transform_by(
+    #         transform2d(
+    #             translation=translation2d(x=1, y=1),
+    #             rotation=rotation2d(degrees=0),
+    #         )
+    #     ),
+    # )
 
     # Deploy intake after safely out of trench to swipe center for balls
 
@@ -52,29 +52,25 @@ def _test_auto():
     autopilot(
         target_pose=FieldConstants.Center.center_point().to_pose2d().transform_by(
             transform2d(
-                translation=translation2d(x=-1, y=1),
+                translation=translation2d(x=-0.2, y=1),
                 rotation=rotation2d(degrees=90),
             )
         ),
         entry_angle=rotation2d(degrees=-90),
     )
 
-    autopilot(
-        target_pose=constants.right_trench_center_side_pose.transform_by(
-            transform2d(
-                translation=translation2d(x=1, y=1),
-                rotation=rotation2d(degrees=0),
-            )
-        ),
-    )
-
-    # Stow intake before moving to avoid potential collisions with field elements
-
-    stow_intake()
+    # autopilot(
+    #     target_pose=constants.right_trench_center_side_pose.transform_by(
+    #         transform2d(
+    #             translation=translation2d(x=1, y=1),
+    #             rotation=rotation2d(degrees=-180),
+    #         )
+    #     ),
+    # )
 
     # go back under right trench to get back to alliance side
 
-    go_to_alliance_under_right_trench()
+    go_to_alliance_under_right_trench(rotation=rotation2d(degrees=-180))
 
     # Go to outpost
 
@@ -84,12 +80,13 @@ def _test_auto():
         target_pose=FieldConstants.Outpost.center_point().to_pose2d().transform_by(
             Transform2d(
                 translation=translation2d(x=1, y=0),
-                rotation=rotation2d(degrees=180),
+                rotation=rotation2d(degrees=-180),
             ),
         ),
     )
 
     stopShooting()
+    stow_intake()
 
     # Go climb on Left Tower Support
 

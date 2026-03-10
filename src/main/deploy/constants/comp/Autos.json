@@ -29,7 +29,7 @@
                                         "degrees": 0.0
                                     },
                                     "translation": {
-                                        "x": 4.104766,
+                                        "x": 3.6047659999999997,
                                         "y": 0.639318
                                     }
                                 },
@@ -47,7 +47,7 @@
                                         "degrees": 0.0
                                     },
                                     "translation": {
-                                        "x": 5.104766,
+                                        "x": 5.604766,
                                         "y": 0.639318
                                     }
                                 },
@@ -60,21 +60,6 @@
                     ]
                 },
                 {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "degrees": 0.0
-                            },
-                            "translation": {
-                                "x": 6.104766,
-                                "y": 1.639318
-                            }
-                        },
-                        "velocity": 0.0
-                    }
-                },
-                {
                     "type": "DeployIntakeAction"
                 },
                 {
@@ -85,7 +70,7 @@
                                 "degrees": 90.0
                             },
                             "translation": {
-                                "x": 7.259,
+                                "x": 8.059000000000001,
                                 "y": 5.0215
                             }
                         },
@@ -96,24 +81,6 @@
                     }
                 },
                 {
-                    "type": "AutoPilotAction",
-                    "target": {
-                        "reference": {
-                            "rotation": {
-                                "degrees": 0.0
-                            },
-                            "translation": {
-                                "x": 6.104766,
-                                "y": 1.639318
-                            }
-                        },
-                        "velocity": 0.0
-                    }
-                },
-                {
-                    "type": "StowIntakeAction"
-                },
-                {
                     "type": "Sequence",
                     "actions": [
                         {
@@ -121,10 +88,10 @@
                             "target": {
                                 "reference": {
                                     "rotation": {
-                                        "degrees": 0.0
+                                        "degrees": -180.0
                                     },
                                     "translation": {
-                                        "x": 5.104766,
+                                        "x": 5.604766,
                                         "y": 0.639318
                                     }
                                 },
@@ -139,10 +106,10 @@
                             "target": {
                                 "reference": {
                                     "rotation": {
-                                        "degrees": 0.0
+                                        "degrees": -180.0
                                     },
                                     "translation": {
-                                        "x": 4.104766,
+                                        "x": 3.6047659999999997,
                                         "y": 0.639318
                                     }
                                 },
@@ -162,7 +129,7 @@
                     "target": {
                         "reference": {
                             "rotation": {
-                                "degrees": 180.0
+                                "degrees": -180.0
                             },
                             "translation": {
                                 "x": 1.0,
