@@ -17,7 +17,7 @@ public class FeatureFlags {
   public final Boolean runShooter = false;
   public final Boolean runTurret = false;
   public final Boolean runIntake = false;
-  public final Boolean runLEDs = true;
+  public final Boolean runLEDs = false;
   public final Boolean runHood = false;
   public final Boolean useHomingSwitch = false;
   public final Boolean useTuningServer = false;

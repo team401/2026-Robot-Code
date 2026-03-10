@@ -2,6 +2,7 @@ package frc.robot.subsystems.led;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.lumynlabs.connection.usb.USBPort;
 import com.lumynlabs.devices.ConnectorXAnimate;
 import com.lumynlabs.domain.config.ConfigBuilder;
 import com.lumynlabs.domain.config.LumynDeviceConfig;
@@ -14,6 +15,8 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.CoordinationLayer;
 import frc.robot.coordination.MatchState;
 import frc.robot.subsystems.drive.Drive;
@@ -38,7 +41,6 @@ public class LED extends SubsystemBase {
 
   private boolean wasDisabled = false;
   private boolean multiFramedAnimationActive = false;
-  private boolean wasHomed = false;
   private boolean isHomed = false;
   // colors
   private Color mistyNeonTeal = new Color(93, 231, 223);
@@ -111,6 +113,7 @@ public class LED extends SubsystemBase {
     this.coordinationLayer = coordinationLayer;
 
     led.ApplyConfiguration(buildConfig());
+    led.Connect(USBPort.kUSB1);
     // direct leds
     leftBackLED = led.leds.createDirectLED("leftBack", 47);
     rightBackLED = led.leds.createDirectLED("rightBack", 47);
@@ -127,7 +130,6 @@ public class LED extends SubsystemBase {
     if (!isHomed) {
       setGroupColor("all", Color.kOrangeRed);
       multiFramedAnimationActive = false;
-      wasHomed = false;
       return;
     }
     // main stuff
@@ -137,9 +139,9 @@ public class LED extends SubsystemBase {
         matchShiftProgressPattern.applyTo(directLEDBackBuffer);
         leftBackLED.update(directLEDBackBuffer);
         rightBackLED.update(directLEDBackBuffer);
-      }
-      if (DriverStation.isAutonomous()) {
 
+      } else if (DriverStation.isAutonomous()) {
+        clearGroup("all");
         playMultiFramedAnimationOnce("frontStrip", 100, Animation.Scanner, Color.kYellowGreen);
       }
 

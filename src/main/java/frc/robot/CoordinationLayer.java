@@ -604,6 +604,8 @@ public class CoordinationLayer {
       dependencyOrderedExecutor.addDependencies(
           UPDATE_INTAKE_DEPENDENCIES, HomingSwitch.UPDATE_INPUTS);
     }
+
+    dependencyOrderedExecutor.addDependencies(COORDINATE_ROBOT_ACTIONS, HomingSwitch.UPDATE_INPUTS);
   }
 
   @AutoLogOutput(key = "CoordinationLayer/isHomingSwitchPressed")
