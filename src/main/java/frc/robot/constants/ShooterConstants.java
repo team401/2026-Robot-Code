@@ -133,6 +133,12 @@ public class ShooterConstants {
   public AngularVelocity shooterVelocitySetpointEpsilon = RPM.of(50);
 
   /**
+   * When the shooter's velocity is within the shooterPassVelocitySetpointEpsilon of its target
+   * velocity, it is close enough to pass
+   */
+  public AngularVelocity shooterPassingVelocitySetpointEpsilon = RPM.of(100.0);
+
+  /**
    * When the shooter less than shooterSlot0Epsilon less than its closed loop reference, it will use
    * slot 0. When it's more than shooterSlot0Epsilon below its setpoint, it will use slot 1.
    *

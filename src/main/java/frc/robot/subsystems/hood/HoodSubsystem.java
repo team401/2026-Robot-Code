@@ -23,6 +23,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
@@ -471,19 +472,27 @@ public class HoodSubsystem extends MonitoredSubsystem {
   /**
    * Returns whether or not the hood is currently aimed at its goal angle
    *
+   * @param shotMode A ShotMade to determine if we are shooting at the hub (tight thresholds) or
+   *     passing (loose thresholds)
    * @return {@code true} if the hood is targeting an angle or pitch and it's at that goal, {@code
    *     false} otherwise.
    */
-  @AutoLogOutput(key = "Hood/isAimedCorrectly")
-  public boolean isAimedCorrectly() {
-    return switch (requestedAction) {
-      case TargetAngle ->
-          getCurrentAngle().isNear(goalAngle, JsonConstants.hoodConstants.hoodSetpointEpsilon);
-      case TargetExitPitch ->
-          getCurrentExitPitch()
-              .isNear(goalExitPitch, JsonConstants.hoodConstants.hoodSetpointEpsilon);
-      case Idle -> false;
-    };
+  public boolean isAimedCorrectly(ShotMode shotMode) {
+    Angle threshold =
+        switch (shotMode) {
+          case Hub -> JsonConstants.hoodConstants.hoodSetpointEpsilon;
+          case Pass -> JsonConstants.hoodConstants.hoodPassingSetpointEpsilon;
+        };
+
+    boolean aimedCorrectly =
+        switch (requestedAction) {
+          case TargetAngle -> getCurrentAngle().isNear(goalAngle, threshold);
+          case TargetExitPitch -> getCurrentExitPitch().isNear(goalExitPitch, threshold);
+          case Idle -> false;
+        };
+
+    Logger.recordOutput("Hood/isAimedCorrectly", aimedCorrectly);
+    return aimedCorrectly;
   }
 
   /**

@@ -23,6 +23,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
@@ -99,7 +100,6 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
 
-  private boolean isAtGoalVelocity = false;
   private final Debouncer isAtGoalVelocityDebouncer = new Debouncer(0.2, DebounceType.kFalling);
 
   // State variables for FF characterization
@@ -217,14 +217,6 @@ public class ShooterSubsystem extends MonitoredSubsystem {
           JsonConstants.canBusAssignment.shooterLeaderId,
           JsonConstants.shooterConstants.invertFollower);
     }
-
-    isAtGoalVelocity =
-        isAtGoalVelocityDebouncer.calculate(
-            requestedAction == ShooterAction.ControlVelocity
-                && getVelocity()
-                    .isNear(
-                        targetVelocity,
-                        JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon));
   }
 
   /** Runs when test mode is entered. Should be called by the test mode state. */
@@ -395,8 +387,19 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    * @return {@code true} if the shooter is controlling to a velocity and its measured velocity is
    *     within the threshold of its target velocity, {@code false} otherwise.
    */
-  @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
-  public boolean isAtGoalVelocity() {
+  public boolean isAtGoalVelocity(ShotMode shotMode) {
+    AngularVelocity threshold =
+        switch (shotMode) {
+          case Hub -> JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon;
+          case Pass -> JsonConstants.shooterConstants.shooterPassingVelocitySetpointEpsilon;
+        };
+
+    boolean isAtGoalVelocity =
+        isAtGoalVelocityDebouncer.calculate(
+            requestedAction == ShooterAction.ControlVelocity
+                && getVelocity().isNear(targetVelocity, threshold));
+
+    Logger.recordOutput("Shooter/isAtGoalVelocity", isAtGoalVelocity);
     return isAtGoalVelocity;
   }
 }

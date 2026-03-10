@@ -72,6 +72,10 @@
     "value": 70.0,
     "unit": "RPM"
   },
+  "shooterPassingVelocitySetpointEpsilon": {
+    "value": 140.0,
+    "unit": "RPM"
+  },
   "shooterSlot0Epsilon": {
     "value": 150.0,
     "unit": "RPM"

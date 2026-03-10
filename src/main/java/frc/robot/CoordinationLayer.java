@@ -787,11 +787,11 @@ public class CoordinationLayer {
         isForceShootPressed.getAsBoolean()
             || (shootingEnabled
                 && canScoreInCurrentMatchState
-                && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
-                && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
+                && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
+                && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
                 // When the turret isn't enabled, assume that it's been locked into the correct
                 // location for a manual mode shot if we ever have to run "no turret"
-                && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
+                && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true));
     Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
 
     if (canShoot) {

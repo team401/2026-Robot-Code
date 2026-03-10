@@ -51,6 +51,10 @@
     "value": 2.5,
     "unit": "Degree"
   },
+  "turretPassingSetpointEpsilon": {
+    "value": 5.0,
+    "unit": "Degree"
+  },
   "headingToTurretAngle": {
     "value": 43.7,
     "unit": "Degree"
