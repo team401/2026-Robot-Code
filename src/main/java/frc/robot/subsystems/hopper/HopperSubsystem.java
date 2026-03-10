@@ -173,8 +173,8 @@ public class HopperSubsystem extends MonitoredSubsystem {
             > JsonConstants.hopperConstants.dejamCurrentThreshold.in(Amps); // Figure out this logic
     boolean currentDataPoint = notSpinning && highCurrent;
 
-    return dejamCooldownTimer.hasElapsed(JsonConstants.hopperConstants.dejamCooldownTime)
-        && dejamRequiredDebouncer.calculate(currentDataPoint);
+    return dejamRequiredDebouncer.calculate(currentDataPoint)
+        && dejamCooldownTimer.hasElapsed(JsonConstants.hopperConstants.dejamCooldownTime);
   }
 
   /**

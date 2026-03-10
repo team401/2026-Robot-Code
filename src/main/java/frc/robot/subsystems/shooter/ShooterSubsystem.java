@@ -100,7 +100,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
 
-  private final Debouncer isAtGoalVelocityDebouncer = new Debouncer(0.2, DebounceType.kFalling);
+  private final Debouncer isAtGoalVelocityDebouncer =
+      new Debouncer(
+          JsonConstants.shooterConstants.atSetpointDebounceTime.in(Seconds), DebounceType.kFalling);
 
   // State variables for FF characterization
   private SimpleRegression ffRegression = new SimpleRegression();
