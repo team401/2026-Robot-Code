@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.function.Supplier;
 
 /**
  * The AllianceUtil class provides an easy way to check which alliance we are currently on.
@@ -10,6 +11,33 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * ensure there are no inversion issues.
  */
 public class AllianceUtil {
+  /**
+   * Tracks caching of a field location of unknown type based on what alliance we're on.
+   *
+   * <p>Call {@link #get()} to get the value.
+   *
+   * <p>By checking for which alliance the cache was generated, it can be updated for different
+   * alliances without restarting code
+   */
+  public static class CachedLocation<T> {
+    private Alliance allianceForCache = null;
+    private T cachedValue = null;
+    private final Supplier<T> initializer;
+
+    public CachedLocation(Supplier<T> initializer) {
+      this.initializer = initializer;
+    }
+
+    public T get() {
+      Alliance currentAlliance = getAlliance();
+      if (cachedValue == null || allianceForCache != currentAlliance) {
+        cachedValue = initializer.get();
+      }
+
+      return cachedValue;
+    }
+  }
+
   private AllianceUtil() {}
 
   /**

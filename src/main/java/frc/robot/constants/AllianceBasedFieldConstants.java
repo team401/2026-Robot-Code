@@ -5,40 +5,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.util.AllianceUtil;
-import java.util.function.Supplier;
+import frc.robot.util.AllianceUtil.CachedLocation;
 
 /**
  * The AllianceBasedFieldConstants class provides methods for getting relevant field locations from
  * FieldConstants.java based on which alliance we're on.
  */
 public class AllianceBasedFieldConstants {
-  /**
-   * Tracks caching of a field location of unknown type based on what alliance we're on.
-   *
-   * <p>Call {@link #get()} to get the value.
-   *
-   * <p>By checking for which alliance the cache was generated, it can be updated for different
-   * alliances without restarting code
-   */
-  public static class CachedLocation<T> {
-    private Alliance allianceForCache = null;
-    private T cachedValue = null;
-    private final Supplier<T> initializer;
-
-    private CachedLocation(Supplier<T> initializer) {
-      this.initializer = initializer;
-    }
-
-    public T get() {
-      Alliance currentAlliance = AllianceUtil.getAlliance();
-      if (cachedValue == null || allianceForCache != currentAlliance) {
-        cachedValue = initializer.get();
-      }
-
-      return cachedValue;
-    }
-  }
-
   public static final CachedLocation<Translation3d> hubInnerCenterPoint =
       new CachedLocation<>(
           () ->
