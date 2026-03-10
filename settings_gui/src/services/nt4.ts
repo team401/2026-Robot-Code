@@ -1,9 +1,14 @@
-import { HUB_CENTER } from '../types/ShotTuning';
+import type { TargetCoordinates } from '../types/ShotTuning';
+
+export interface DistanceConfig {
+  shooterOffset: { x: number; y: number };
+  targetCoordinates: TargetCoordinates;
+}
 
 export interface Telemetry {
-  /** Pose-computed distance to hub (meters) */
+  /** Pose-computed distance to the configured target (meters) */
   distanceMeters: number;
-  /** NT-reported distance to hub from robot (meters); null until first value received */
+  /** NT-reported distance from the robot (meters); null until first value received */
   distanceToHubMeters: number | null;
   /** Shooter setpoint in RPM (from TunableNumbers) */
   shooterRPM: number;
@@ -17,6 +22,7 @@ export interface NT4Service {
   disconnect(): void;
   addConnectionListener(cb: (connected: boolean) => void): () => void;
   isConnected(): boolean;
+  updateDistanceConfig(config: DistanceConfig): void;
 }
 
 // AdvantageKit publishes Logger.recordOutput / @AutoLogOutput under this prefix.
@@ -36,7 +42,7 @@ const TOPIC_DISTANCE_HUB = `${AK_PREFIX}/CoordinationLayer/distanceToHub`;      
 export async function createNT4Service(
   address: string,
   onTelemetry: (update: Telemetry) => void,
-  shooterOffset: { x: number; y: number } = { x: 0, y: 0 },
+  initialDistanceConfig: DistanceConfig,
 ): Promise<NT4Service> {
   const { decodeMulti } = await import('@msgpack/msgpack');
 
@@ -46,13 +52,15 @@ export async function createNT4Service(
   let shooterRPM = 0;
   let hoodAngleDegrees = 0;
   let distanceToHubMeters: number | null = null;
+  let distanceConfig = initialDistanceConfig;
 
   function emitUpdate() {
     // Rotate the robot-frame shooter offset into field frame using the robot heading.
+    const { shooterOffset, targetCoordinates } = distanceConfig;
     const shooterX = poseX + shooterOffset.x * Math.cos(poseHeading) - shooterOffset.y * Math.sin(poseHeading);
     const shooterY = poseY + shooterOffset.x * Math.sin(poseHeading) + shooterOffset.y * Math.cos(poseHeading);
-    const dx = shooterX - HUB_CENTER.x;
-    const dy = shooterY - HUB_CENTER.y;
+    const dx = shooterX - targetCoordinates.x;
+    const dy = shooterY - targetCoordinates.y;
     onTelemetry({
       distanceMeters: Math.sqrt(dx * dx + dy * dy),
       distanceToHubMeters,
@@ -196,6 +204,10 @@ export async function createNT4Service(
     },
     isConnected() {
       return connected;
+    },
+    updateDistanceConfig(config: DistanceConfig) {
+      distanceConfig = config;
+      emitUpdate();
     },
   };
 }

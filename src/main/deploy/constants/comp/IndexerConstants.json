@@ -2,11 +2,11 @@
   "indexerReduction": 1.0,
   "indexerMaximumRelativeVelocityError": 0.01,
   "indexingVelocity": {
-    "value": 5000,
+    "value": 5800,
     "unit": "RPM"
   },
   "indexerGains": {
-    "kP": 10.0,
+    "kP": 20.0,
     "kI": 5.0,
     "kD": 0.0,
     "kS": 0.0,

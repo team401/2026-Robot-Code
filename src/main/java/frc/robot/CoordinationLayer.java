@@ -137,6 +137,14 @@ public class CoordinationLayer {
   private AutonomyLevel autonomyLevel = AutonomyLevel.Smart;
 
   /**
+   * Tracks the "effective autonomy level": if autonomy level is set to smart but we lose vision,
+   * our autonomy will automatically be disabled and our effective autonomy level will become
+   * manual. These are separate values because an alert should be displayed if effective autonomy
+   * level is overridden.
+   */
+  private AutonomyLevel effectiveAutonomyLevel = autonomyLevel;
+
+  /**
    * Tracks our target "extension state": either the intake, climber, or neither may deploy at once.
    */
   @AutoLogOutput(key = "CoordinationLayer/goalExtensionState")
@@ -328,6 +336,34 @@ public class CoordinationLayer {
     StateMachineDump.write("coordination", extensionStateMachine);
 
     AutoLogOutputManager.addObject(this);
+
+    initializePositionBasedStrategyTriggers();
+  }
+
+  /** Initialize triggers that change the robot's goal scoring location based on position */
+  private void initializePositionBasedStrategyTriggers() {
+    new Trigger(
+            buttonLoop,
+            () ->
+                drive
+                    .map(drive -> AllianceBasedFieldConstants.isInAllianceZone(drive.getPose()))
+                    .orElse(false))
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  if (DriverStation.isTeleopEnabled()
+                      && effectiveAutonomyLevel == AutonomyLevel.Smart) {
+                    shotMode = ShotMode.Hub;
+                  }
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  if (DriverStation.isTeleopEnabled()
+                      && effectiveAutonomyLevel == AutonomyLevel.Smart) {
+                    shotMode = ShotMode.Pass;
+                  }
+                }));
   }
 
   // Controller bindings
@@ -762,7 +798,8 @@ public class CoordinationLayer {
           drive -> {
             Logger.recordOutput(
                 "CoordinationLayer/distanceToHub",
-                AllianceBasedFieldConstants.hubInnerCenterPoint()
+                AllianceBasedFieldConstants.hubInnerCenterPoint
+                    .get()
                     .toTranslation2d()
                     .getDistance(
                         new Pose3d(drive.getPose())
@@ -799,8 +836,7 @@ public class CoordinationLayer {
 
     visionDisconnectedAlert.set(JsonConstants.featureFlags.runVision && !visionConnected);
 
-    AutonomyLevel effectiveAutonomyLevel =
-        visionConnectedDebounced ? autonomyLevel : AutonomyLevel.Manual;
+    effectiveAutonomyLevel = visionConnectedDebounced ? autonomyLevel : AutonomyLevel.Manual;
     Logger.recordOutput("CoordinationLayer/effectiveAutonomyLevel", effectiveAutonomyLevel);
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
@@ -810,14 +846,17 @@ public class CoordinationLayer {
     // This should improve the performance of shoot on the move.
     // If this isn't sufficient, we can calculate 2 shots: one with compensation delay and one
     // without compensation delay, and then just test the one without compensation delay.
+    boolean canScoreInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
+
     boolean canShoot =
         isForceShootPressed.getAsBoolean()
             || (shootingEnabled
-                && shooter.map(ShooterSubsystem::isAtGoalVelocity).orElse(false)
-                && hood.map(HoodSubsystem::isAimedCorrectly).orElse(false)
+                && canScoreInCurrentMatchState
+                && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
+                && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
                 // When the turret isn't enabled, assume that it's been locked into the correct
                 // location for a manual mode shot if we ever have to run "no turret"
-                && turret.map(TurretSubsystem::isAimedCorrectly).orElse(true));
+                && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true));
     Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
 
     if (canShoot) {
@@ -867,9 +906,9 @@ public class CoordinationLayer {
     // Don't need to log shouldStowHood here as it's logged in the hood subsystem
     hood.ifPresent(hood -> hood.setShouldStowForTrench(shouldStowHood));
 
-    // If shooting isn't enabled or we're stowing hood, stop the shooter flywheels to avoid wasting
+    // If shooting isn't enabled, stop the shooter flywheels to avoid wasting
     // a ton of energy
-    if (!shootingEnabled || shouldStowHood) {
+    if (!shootingEnabled) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
   }
@@ -943,21 +982,21 @@ public class CoordinationLayer {
     shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
 
     Pose2d robotPose = driveInstance.getPose();
-    Translation3d shooterPosition =
-        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
+    Translation2d shooterPosition =
+        robotPose.plus(JsonConstants.robotInfo.robotToShooter2d).getTranslation();
 
     ShotTarget target = getShotTargetFromPose(robotPose);
 
-    Translation3d targetPose =
+    Translation2d targetPose =
         switch (target) {
-          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
+          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };
 
-    double yawRadians = ShotCalculations.calculateYawRadians(shooterPosition, targetPose);
+    Rotation2d yaw = targetPose.minus(shooterPosition).getAngle();
 
-    turret.ifPresent(turret -> turret.targetGoalHeading(new Rotation2d(yawRadians)));
+    turret.ifPresent(turret -> turret.targetGoalHeading(yaw));
   }
 
   private final EnhancedLine2d leftBlueTrench =
@@ -1063,11 +1102,13 @@ public class CoordinationLayer {
    */
   private boolean runShotCalculatorWithDrive(Drive driveInstance) {
     Pose2d robotPose = driveInstance.getPose();
-    Translation3d shooterPosition =
-        new Pose3d(robotPose).plus(JsonConstants.robotInfo.robotToShooter).getTranslation();
+    Pose2d shooterPose = robotPose.plus(JsonConstants.robotInfo.robotToShooter2d);
+
+    Logger.recordOutput("CoordinationLayer/shooterPose", shooterPose);
 
     ShotTarget target = getShotTargetFromPose(robotPose);
 
+    ChassisSpeeds robotRelativeSpeeds = driveInstance.getChassisSpeeds();
     ChassisSpeeds fieldCentricSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
             driveInstance.getChassisSpeeds(), robotPose.getRotation());
@@ -1091,7 +1132,7 @@ public class CoordinationLayer {
 
       However, we can accomplish this math using Translation3d.cross instead:
     */
-    double omega = fieldCentricSpeeds.omegaRadiansPerSecond;
+    double omega = robotRelativeSpeeds.omegaRadiansPerSecond;
     Translation3d omega_vec = new Translation3d(0, 0, omega);
 
     Translation3d robotToShooterTranslation =
@@ -1113,11 +1154,12 @@ public class CoordinationLayer {
             fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
 
     MapBasedShotInfo shot =
-        ShotCalculations.calculateShotFromMap(shooterPosition, shooterVelocity, target);
+        ShotCalculations.calculateShotFromMap(
+            robotPose, robotRelativeSpeeds, shooterVelocity, target);
 
     turret.ifPresent(
         turret -> {
-          turret.targetGoalHeading(new Rotation2d(shot.yawRadians()));
+          turret.targetGoalHeading(shot.yaw());
         });
 
     hood.ifPresent(
@@ -1137,6 +1179,8 @@ public class CoordinationLayer {
   private void updateMatchState() {
     if (DriverStation.isEnabled()) {
       matchState.enabledPeriodic(isWonAutoPressed.getAsBoolean(), isLostAutoPressed.getAsBoolean());
+    } else {
+      matchState.disabledPeriodic();
     }
 
     // This is temporary code left here to make it easy to integrate the time left functionality

@@ -4,12 +4,14 @@ import {
   Button,
   IconButton,
   Paper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Tabs,
   TextField,
   Typography,
   Alert,
@@ -27,6 +29,7 @@ import { useConnection } from '../contexts/ConnectionContext';
 import { getData, putData, postData, saveLocal, loadLocal } from '../services/api';
 import type { ShotMaps, ShotMapDataPoint } from '../types/ShotMaps';
 import { shotMapsLocalSignal } from '../services/shotMapsStore';
+import { ShotMapChart } from '../components/shot-maps/ShotMapChart';
 
 function defaultDataPoint(): ShotMapDataPoint {
   return {
@@ -163,6 +166,7 @@ export function ShotMapsEditor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [snack, setSnack] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
+  const [activeTab, setActiveTab] = useState<'hub' | 'pass'>('hub');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -247,6 +251,20 @@ export function ShotMapsEditor() {
     );
   }
 
+  const activeConfig = activeTab === 'hub'
+    ? {
+        chartId: 'hub',
+        title: 'Hub Data Points',
+        rows: data.hubDataPoints,
+        onChange: (rows: ShotMapDataPoint[]) => setData({ ...data, hubDataPoints: rows }),
+      }
+    : {
+        chartId: 'pass',
+        title: 'Pass Data Points',
+        rows: data.passDataPoints,
+        onChange: (rows: ShotMapDataPoint[]) => setData({ ...data, passDataPoints: rows }),
+      };
+
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
@@ -274,16 +292,23 @@ export function ShotMapsEditor() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <DataPointTable
-        title="Hub Data Points"
-        rows={data.hubDataPoints}
-        onChange={(hubDataPoints) => setData({ ...data, hubDataPoints })}
-      />
+      <Paper variant="outlined" sx={{ mb: 2 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(_, value: 'hub' | 'pass') => setActiveTab(value)}
+          variant="fullWidth"
+        >
+          <Tab value="hub" label="Hub Data Points" />
+          <Tab value="pass" label="Pass Data Points" />
+        </Tabs>
+      </Paper>
+
+      <ShotMapChart chartId={activeConfig.chartId} rows={activeConfig.rows} />
 
       <DataPointTable
-        title="Pass Data Points"
-        rows={data.passDataPoints}
-        onChange={(passDataPoints) => setData({ ...data, passDataPoints })}
+        title={activeConfig.title}
+        rows={activeConfig.rows}
+        onChange={activeConfig.onChange}
       />
 
       {data.mechanismCompensationDelay !== undefined && (

@@ -35,6 +35,10 @@
     "value": 2.0,
     "unit": "Degree"
   },
+  "hoodPassingSetpointEpsilon": {
+    "value": 4.0,
+    "unit": "Degree"
+  },
   "timeToStowHood": {
     "value": 0.5,
     "unit": "Second"

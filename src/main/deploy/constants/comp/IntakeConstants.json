@@ -38,8 +38,8 @@
     "unit": "Degree"
   },
   "intakeRollerSpeed": {
-    "value": 1500.0,
-    "unit": "Rotation per Minute"
+    "value": 1200.0,
+    "unit": "RPM"
   },
   "homingMovementThreshold": {
     "value": 0.1,
@@ -50,7 +50,7 @@
     "unit": "Second"
   },
   "homingVoltage": {
-    "value": 2.0,
+    "value": -2.0,
     "unit": "Volt"
   },
   "pivotPIDGains": {
