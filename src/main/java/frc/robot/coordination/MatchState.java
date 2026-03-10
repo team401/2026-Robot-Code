@@ -48,10 +48,10 @@ public class MatchState {
   @AutoLogOutput(key = "MatchState/isInMatch")
   public boolean isInMatch() {
     Logger.recordOutput("MatchState/matchType", DriverStation.getMatchType());
-    return DriverStation.isFMSAttached()
-        || DriverStation.getMatchType() == DriverStation.MatchType.Practice
-        || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
-        || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
+    return true;
+    // || DriverStation.getMatchType() == DriverStation.MatchType.Practice
+    // || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
+    // || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
   }
 
   public enum MatchShift {
