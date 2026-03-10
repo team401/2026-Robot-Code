@@ -102,6 +102,8 @@ public class HoodConstants {
    */
   public final Angle hoodSetpointEpsilon = Degrees.of(1.0);
 
+  public final Angle hoodPassingSetpointEpsilon = Degrees.of(3.0);
+
   public final Voltage homingVoltage = Volts.of(-3.0);
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 

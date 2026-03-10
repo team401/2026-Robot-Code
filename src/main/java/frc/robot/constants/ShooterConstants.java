@@ -133,6 +133,20 @@ public class ShooterConstants {
   public AngularVelocity shooterVelocitySetpointEpsilon = RPM.of(50);
 
   /**
+   * When the shooter's velocity is within the shooterPassingVelocitySetpointEpsilon of its target
+   * velocity, it is close enough to pass
+   */
+  public AngularVelocity shooterPassingVelocitySetpointEpsilon = RPM.of(100.0);
+
+  /**
+   * The debounce time for the falling edge debouncer that smooths the "is at setpoint velocity"
+   * signal; this value allows us to continue shooting despite dropping shooter velocity (trusting
+   * our recovery time) but a value that is too long will result in shooting some shots while the
+   * flywheels are genuinely at the wrong speed.
+   */
+  public Time atSetpointDebounceTime = Seconds.of(0.2);
+
+  /**
    * When the shooter less than shooterSlot0Epsilon less than its closed loop reference, it will use
    * slot 0. When it's more than shooterSlot0Epsilon below its setpoint, it will use slot 1.
    *

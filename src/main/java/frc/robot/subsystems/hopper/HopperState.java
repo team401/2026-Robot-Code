@@ -7,6 +7,11 @@ import coppercore.controls.state_machine.StateMachine;
 public abstract class HopperState extends State<HopperSubsystem> {
   public static class SpinningState extends HopperState {
     @Override
+    public void onEntry(StateMachine<HopperSubsystem> stateMachine, HopperSubsystem hopper) {
+      hopper.restartDejamCooldownTimer();
+    }
+
+    @Override
     public void periodic(StateMachine<HopperSubsystem> stateMachine, HopperSubsystem hopper) {
       hopper.setToTargetVelocity();
     }

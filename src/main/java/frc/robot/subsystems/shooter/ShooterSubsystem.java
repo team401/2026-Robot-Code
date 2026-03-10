@@ -15,12 +15,15 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO.GainSlot;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
@@ -96,6 +99,10 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
+
+  private final Debouncer isAtGoalVelocityDebouncer =
+      new Debouncer(
+          JsonConstants.shooterConstants.atSetpointDebounceTime.in(Seconds), DebounceType.kFalling);
 
   // State variables for FF characterization
   private SimpleRegression ffRegression = new SimpleRegression();
@@ -382,10 +389,19 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    * @return {@code true} if the shooter is controlling to a velocity and its measured velocity is
    *     within the threshold of its target velocity, {@code false} otherwise.
    */
-  @AutoLogOutput(key = "Shooter/isAtGoalVelocity")
-  public boolean isAtGoalVelocity() {
-    return requestedAction == ShooterAction.ControlVelocity
-        && getVelocity()
-            .isNear(targetVelocity, JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon);
+  public boolean isAtGoalVelocity(ShotMode shotMode) {
+    AngularVelocity threshold =
+        switch (shotMode) {
+          case Hub -> JsonConstants.shooterConstants.shooterVelocitySetpointEpsilon;
+          case Pass -> JsonConstants.shooterConstants.shooterPassingVelocitySetpointEpsilon;
+        };
+
+    boolean isAtGoalVelocity =
+        isAtGoalVelocityDebouncer.calculate(
+            requestedAction == ShooterAction.ControlVelocity
+                && getVelocity().isNear(targetVelocity, threshold));
+
+    Logger.recordOutput("Shooter/isAtGoalVelocity", isAtGoalVelocity);
+    return isAtGoalVelocity;
   }
 }

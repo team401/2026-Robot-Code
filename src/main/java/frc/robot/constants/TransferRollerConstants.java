@@ -33,6 +33,7 @@ public class TransferRollerConstants {
   public final Double transferRollerReduction = 1.0; // TODO: find actual value
 
   public final Time velocityFilterTime = Seconds.of(0.05);
+  public final Time dejamTime = Seconds.of(0.5);
 
   public PIDGains transferRollerGains = PIDGains.kPID(10.0, 5.0, 0.0);
 
