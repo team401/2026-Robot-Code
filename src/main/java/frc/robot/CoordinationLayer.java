@@ -841,9 +841,9 @@ public class CoordinationLayer {
     // Don't need to log shouldStowHood here as it's logged in the hood subsystem
     hood.ifPresent(hood -> hood.setShouldStowForTrench(shouldStowHood));
 
-    // If shooting isn't enabled or we're stowing hood, stop the shooter flywheels to avoid wasting
+    // If shooting isn't enabled, stop the shooter flywheels to avoid wasting
     // a ton of energy
-    if (!shootingEnabled || shouldStowHood) {
+    if (!shootingEnabled) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
   }
