@@ -417,6 +417,13 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   }
 
   // Assume we're at a certain tiny distance away from every tag when dropping standard deviations
+  // This is used in place of just setting all standard deviations to zero in case pose estimators
+  // have genuine mathematical issues dealing with zero. Vision should be trusted very very heavily
+  // when odometry is untrustworthy to avoid allowing the pose estimate to get super wrong.
+  // This value is squared and then multiplied by the linear/angular std dev factors to match the
+  // formulas for std dev calculations in coppercore vision.
+  // Think of this like setting the trust level while odometry is untrustworthy to be equivalent to
+  // seeing 1 tag at this distance away from the camera. This distance is in meters.
   private final double droppedStdDevApproxDistance = 0.01;
   private final Matrix<N3, N1> droppedStdDevs =
       VecBuilder.fill(
