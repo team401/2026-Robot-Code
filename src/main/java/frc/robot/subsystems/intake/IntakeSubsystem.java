@@ -43,6 +43,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   private IntakeDependencies dependencies = new IntakeDependencies();
 
+  private boolean needsReHome = false;
+
   // Dependencies (these are what we would have fetched using extensive supplier networks in 2025
   // and before)
   public static class IntakeDependencies {
@@ -112,6 +114,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     IntakeState.controlToPositionState
         .when(IntakeState::shouldBeInTestMode, "Should be in test mode")
         .transitionTo(IntakeState.testModeState);
+    IntakeState.controlToPositionState.whenRequestedTransitionTo(
+        IntakeState.homingWaitForMovementState);
     IntakeState.testModeState.whenFinished().transitionTo(IntakeState.controlToPositionState);
 
     // ### Homing Button Transitions
@@ -190,10 +194,15 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   public void setTargetPositionStowed() {
     setTargetPivotAngle(JsonConstants.intakeConstants.stowPositionAngle);
+    needsReHome = true;
   }
 
   public void setTargetPositionIntaking() {
     setTargetPivotAngle(JsonConstants.intakeConstants.intakePositionAngle);
+    if (needsReHome) {
+      intakeStateMachine.requestState(IntakeState.homingWaitForMovementState);
+      needsReHome = false;
+    }
   }
 
   @Override

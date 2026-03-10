@@ -10,7 +10,7 @@
   "runHood": true,
   "runClimber": true,
   "runTransferRoller": false,
-  "useHomingSwitch": false,
+  "useHomingSwitch": true,
   "useTuningServer": true,
   "pretendCamerasAreMobile": false
 }
