@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { TuningAttempt } from '../../types/ShotTuning';
+import { getAttemptDistanceSource, getAttemptSampleDistance } from '../../types/ShotTuning';
 
 interface AttemptsListProps {
   attempts: TuningAttempt[];
@@ -44,8 +45,13 @@ export function AttemptsList({ attempts, selectedId, onSelect, onDelete }: Attem
                 primary={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <Typography variant="body2">
-                      {attempt.distanceMeters.toFixed(2)}m
+                      {getAttemptSampleDistance(attempt).toFixed(2)}m
                     </Typography>
+                    <Chip
+                      label={getAttemptDistanceSource(attempt) === 'networkTables' ? 'NT' : 'Odom'}
+                      size="small"
+                      variant="outlined"
+                    />
                     {attempt.flightTimeSec !== null && (
                       <Chip label={`${attempt.flightTimeSec.toFixed(3)}s`} size="small" color="primary" variant="outlined" />
                     )}

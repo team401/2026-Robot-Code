@@ -82,6 +82,9 @@ public class Robot extends LoggedRobot {
     // Refresh all status signals, must be done before any IOs run updateInputs
     StatusSignalRefresher.refreshAll();
 
+    // Poll for and process any outstanding HTTP requests
+    robotContainer.processHTTPRequests();
+
     // Run the DependencyOrderedExecutor, which executes all registered actions in order so that all
     // dependencies are satisfied.
     // One of these actions runs the CommandScheduler. This is responsible for polling buttons,

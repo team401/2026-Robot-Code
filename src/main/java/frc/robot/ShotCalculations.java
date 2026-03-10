@@ -4,8 +4,11 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.constants.AllianceBasedFieldConstants;
@@ -194,29 +197,53 @@ class ShotCalculations {
    *
    * @param hoodAngleRadians The angle of the hood (NOT the pitch) in radians.
    * @param shooterRPM The desired angular velocity of the shooter, in RPM.
-   * @param yawRadians The desired field-relative yaw (NOT the angle setpoint) of the turret, in
-   *     radians.
+   * @param yaw The desired field-relative yaw (NOT the angle setpoint) of the turret, in a
+   *     Rotation2d.
    * @param isReal {@code true} if the shot is a real shot aimed at the target and {@code false} if
    *     the shot is a "best guess" because the real shot is impossible.
    */
   public record MapBasedShotInfo(
-      double hoodAngleRadians, double shooterRPM, double yawRadians, boolean isReal) {}
+      double hoodAngleRadians, double shooterRPM, Rotation2d yaw, boolean isReal) {}
 
+  /**
+   * Calculate a MapBasedShotInfo by looking ahead from the current position and accounting for
+   * motion using time of flight.
+   *
+   * @param robotPose The current robot position
+   * @param robotRelativeChassisSpeeds The ROBOT CENTRIC chassis speeds of the robot
+   * @param fieldRelativeShooterVelocity the velocity of the shooter, field relative, as a
+   *     Translation2d.
+   * @param target the ShotTarget to aim for
+   * @return A MapBasedShotInfo containing the aiming parameters for the robot.
+   */
   public static MapBasedShotInfo calculateShotFromMap(
-      Translation3d shooterPosition,
+      Pose2d robotPose,
+      ChassisSpeeds robotRelativeChassisSpeeds,
       Translation2d fieldRelativeShooterVelocity,
       ShotTarget target) {
-    Translation3d targetPose =
+    Translation2d targetPosition =
         switch (target) {
-          case Hub -> AllianceBasedFieldConstants.hubInnerCenterPoint();
+          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
           case PassLeft -> FieldLocations.leftPassingTarget();
           case PassRight -> FieldLocations.rightPassingTarget();
         };
 
-    Logger.recordOutput("ShotCalculations/MapBased/succeeded", false);
+    double lookaheadTimeSeconds = JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
 
-    double distanceXYMeters =
-        shooterPosition.toTranslation2d().getDistance(targetPose.toTranslation2d());
+    Pose2d lookaheadPose =
+        robotPose.exp(
+            new Twist2d(
+                robotRelativeChassisSpeeds.vxMetersPerSecond * lookaheadTimeSeconds,
+                robotRelativeChassisSpeeds.vyMetersPerSecond * lookaheadTimeSeconds,
+                robotRelativeChassisSpeeds.omegaRadiansPerSecond * lookaheadTimeSeconds));
+
+    Logger.recordOutput("ShotCalculations/MapBased/lookaheadPose", lookaheadPose);
+
+    Pose2d shooterPose = lookaheadPose.plus(JsonConstants.robotInfo.robotToShooter2d);
+
+    Logger.recordOutput("ShotCalculations/MapBased/shooterPose", shooterPose);
+
+    double distanceXYMeters = shooterPose.getTranslation().getDistance(targetPosition);
     Logger.recordOutput("ShotCalculations/MapBased/ShotDistanceMeters", distanceXYMeters);
 
     double minDistanceMeters =
@@ -227,6 +254,7 @@ class ShotCalculations {
         target == ShotTarget.Hub
             ? JsonConstants.shotMaps.maxHubDistanceMeters
             : JsonConstants.shotMaps.maxPassDistanceMeters;
+
     Logger.recordOutput("ShotCalculations/MapBased/MinDistanceMeters", minDistanceMeters);
     Logger.recordOutput("ShotCalculations/MapBased/MaxDistanceMeters", maxDistanceMeters);
 
@@ -250,18 +278,47 @@ class ShotCalculations {
     double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
     Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
 
-    // Account for the time it will take to actually command the mechanism to its goal setpoint.
-    flightTimeSeconds += JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
-    Logger.recordOutput(
-        "ShotCalculations/MapBased/CompensatedFlightTimeSeconds", flightTimeSeconds);
+    /**
+     * The following code calculates shoot on the move by:
+     *
+     * <p>1. Take the distance to the target 2. Find the time of flight for that distance 3.
+     * Calculate how much the robot's velocity will have moved the ball in the air across that time
+     * of flight 4. Find a new "virtual target" by shifting the target to account for that
+     * difference. 5. Loop over this process until a maximum iteration count is hit or the time of
+     * flight variance decreases below a certain threshold.
+     *
+     * <p>This iterative process helps to account for the fact that, when driving toward or away
+     * from the goal, the arc of the shot that is being taken is actually drastically different from
+     * the original shot arc that was used: when driving toward the target, the long, arcing shot
+     * that would be taken when stationary is replaced by a very short, low shot. This low shot
+     * drastically reduces time of flight and would cause the robot to undershoot the goal if we
+     * didn't iterate on that new time of flight.
+     */
+    Translation2d virtualTarget = targetPosition;
 
-    Translation2d offsetXY = fieldRelativeShooterVelocity.times(flightTimeSeconds);
-    Translation3d offset = new Translation3d(offsetXY.getX(), offsetXY.getY(), 0.0);
-    Translation3d virtualTarget = targetPose.minus(offset);
+    double virtualDistanceXYMeters = 0.0;
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+      // Find how much the fuel's flight will be changed by the initial velocity imparted by the
+      // robot
+      Translation2d offset = fieldRelativeShooterVelocity.times(flightTimeSeconds);
+      // The goal is basically "moved" by the velocity (when moving toward the goal, the 'virtual
+      // goal' is actually closer to the robot)
+      virtualTarget = targetPosition.minus(offset);
+
+      // Find the new distance
+      virtualDistanceXYMeters = shooterPose.getTranslation().getDistance(virtualTarget);
+
+      // Find the new time of flight
+      double lastFlightTimeSeconds = flightTimeSeconds;
+      flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(virtualDistanceXYMeters);
+      // If the time of flight is very similar, the shot is probably close enough ("solution has
+      // converged")
+      if (Math.abs(flightTimeSeconds - lastFlightTimeSeconds) < ACCEPTABLE_TIME_VARIATION) {
+        break;
+      }
+      // Otherwise, iterate again.
+    }
     Logger.recordOutput("ShotCalculations/MapBased/VirtualTarget", virtualTarget);
-
-    double virtualDistanceXYMeters =
-        shooterPosition.toTranslation2d().getDistance(virtualTarget.toTranslation2d());
     Logger.recordOutput("ShotCalculations/MapBased/VirtualDistanceMeters", virtualDistanceXYMeters);
 
     if (virtualDistanceXYMeters < minDistanceMeters
@@ -276,11 +333,9 @@ class ShotCalculations {
 
     double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
     double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
-    double yawRadians = calculateYawRadians(shooterPosition, virtualTarget);
+    Rotation2d yaw = virtualTarget.minus(shooterPose.getTranslation()).getAngle();
 
-    MapBasedShotInfo shot =
-        new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yawRadians, isShotReal);
-    Logger.recordOutput("ShotCalculations/MapBased/succeeded", true);
+    MapBasedShotInfo shot = new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yaw, isShotReal);
     Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);
     return shot;
   }

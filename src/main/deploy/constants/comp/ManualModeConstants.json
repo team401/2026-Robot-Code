@@ -4,19 +4,19 @@
     "unit": "Meter"
   },
   "bluePassHeading": {
-    "radians": 0.0
+    "radians": 3.141592653589793
   },
   "redPassHeading": {
-    "radians": 3.141592653589793
+    "radians": 0.0
   },
   "assumedHubDistance": {
     "value": 3.1,
     "unit": "Meter"
   },
   "blueHubHeading": {
-    "radians": 3.141592653589793
+    "radians": 0.0
   },
   "redHubHeading": {
-    "radians": 0.0
+    "radians": 3.141592653589793
   }
 }

@@ -168,7 +168,7 @@ public class IntakeState {
 
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          world.pivotMotorIO.setCurrentPosition(JsonConstants.intakeConstants.stowPositionAngle);
+          world.pivotMotorIO.setCurrentPosition(JsonConstants.intakeConstants.minPivotAngle);
           finish();
         }
       };

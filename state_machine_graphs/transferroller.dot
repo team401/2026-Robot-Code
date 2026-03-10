@@ -16,14 +16,15 @@ digraph {
 
   SpinState ;
   DeJamState ;
-  IdleState ;
+  IdleState [shape=doublecircle];
   TestModeState ;
 
   // Transitions
 
   SpinState -> IdleState [label="Non-positive target velocity requested"];
+  SpinState -> DeJamState [label="Should dejam"];
 
-  DeJamState -> IdleState [label="Non-negative target velocity requested"];
+  DeJamState -> SpinState [label="timeout"];
 
   IdleState -> TestModeState [label="In transfer roller test mode"];
   IdleState -> SpinState [label="Postive target velocity requested"];

@@ -98,6 +98,8 @@ public class TurretConstants {
    */
   public final Angle turretSetpointEpsilon = Degrees.of(1.0);
 
+  public final Angle turretPassingSetpointEpsilon = Degrees.of(5.0);
+
   /**
    * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
    * headingToTurretAngle = turretRelativeAngle

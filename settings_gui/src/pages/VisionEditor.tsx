@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -191,7 +191,7 @@ function GainConstantsSection({ gain, onChange }: GainConstantsSectionProps) {
       </Typography>
       <Grid container spacing={2}>
         {gainFields.map(({ key, label }) => (
-          <Grid item xs={12} sm={6} key={key}>
+          <Grid size={{ xs: 12, sm: 6 }} key={key}>
             <TextField
               type="number"
               size="small"

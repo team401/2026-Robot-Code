@@ -6,5 +6,9 @@
   "shiftEndGracePeriod": {
     "value": 2.0,
     "unit": "Second"
+  },
+  "acceptablePreciseMatchTimeError": {
+    "value": 2.0,
+    "unit": "Second"
   }
 }

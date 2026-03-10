@@ -30,6 +30,20 @@ public class StrategyConstants {
    */
   public final Time shiftEndGracePeriod = Seconds.of(2.0);
 
+  /**
+   * How much time the "precise match time" may be different from the driver-station match time
+   * before MatchState should assume that its custom match timer has been disrupted/rendered
+   * incorrect. If the driver station reports a match time more than this amount of time away from
+   * the precise match time, the precise match time is ignored and DS match time is used instead.
+   *
+   * <p>This exists to safeguard against the robot power-cycling during a match and being restored
+   * with a completely incorrect match state.
+   */
+  public final Time acceptablePreciseMatchTimeError = Seconds.of(2.0);
+
+  // 20 seconds in auto
+  public static final double autoStart = 20.0;
+
   // list of shift start times in seconds from the start of the match
   // 2:20
   public static final Double transitionStart = 2 * 60 + 20.0; // 140

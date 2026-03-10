@@ -14,6 +14,7 @@ import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
@@ -44,6 +45,8 @@ public class RobotInfo {
           Units.inchesToMeters(17.0),
           new Rotation3d());
 
+  @JSONExclude public Transform2d robotToShooter2d;
+
   public final CANdiSignal homingSwitchSignal = CANdiSignal.S1;
 
   public final CANdiConfiguration buildHomingSwitchConfig() {
@@ -51,7 +54,7 @@ public class RobotInfo {
         .withDigitalInputs(
             new DigitalInputsConfigs()
                 .withS1CloseState(S1CloseStateValue.CloseWhenHigh)
-                .withS1FloatState(S1FloatStateValue.PullLow));
+                .withS1FloatState(S1FloatStateValue.PullHigh));
   }
 
   /** The refresh rates that should be used for subsystems that don't effect fire control */
@@ -70,5 +73,11 @@ public class RobotInfo {
   public void loadFieldsFromJSON() {
     CANBus = new CANBus(canivoreBusName, logFilePath);
     ODOMETRY_FREQUENCY = CANBus.isNetworkFD() ? 250.0 : 100.0;
+
+    robotToShooter2d =
+        new Transform2d(
+            robotToShooter.getX(),
+            robotToShooter.getY(),
+            robotToShooter.getRotation().toRotation2d());
   }
 }

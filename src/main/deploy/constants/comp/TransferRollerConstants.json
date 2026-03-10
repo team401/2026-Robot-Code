@@ -4,6 +4,10 @@
     "value": 0.05,
     "unit": "Seconds"
   },
+  "dejamTime": {
+    "value": 0.5,
+    "unit": "Seconds"
+  },
   "transferRollerGains": {
     "kP": 10.0,
     "kI": 7.0,
@@ -65,7 +69,7 @@
     "unit": "Rotation per Minute"
   },
   "transferRollerDeJamVelocity": {
-    "value": -2000.0,
+    "value": -4000.0,
     "unit": "Rotation per Minute"
   },
   "transferRollerMotorDirection": "CounterClockwise_Positive"
