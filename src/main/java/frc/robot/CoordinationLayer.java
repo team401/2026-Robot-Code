@@ -788,11 +788,15 @@ public class CoordinationLayer {
     // This should improve the performance of shoot on the move.
     // If this isn't sufficient, we can calculate 2 shots: one with compensation delay and one
     // without compensation delay, and then just test the one without compensation delay.
-    boolean canScoreInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
+    boolean canShootInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
 
+    // canPassPastNet is true when either:
+    // - We are not in passing mode (so net isn't a concern)
+    // OR
+    // - The line from the robot to its passing target doesn't intercept either net
     boolean canPassPastNet =
         this.shotMode != ShotMode.Pass
-            && drive
+            || drive
                 .map(
                     drive -> {
                       Pose2d pose = drive.getPose();
@@ -807,7 +811,7 @@ public class CoordinationLayer {
     boolean canShoot =
         isForceShootPressed.getAsBoolean()
             || (shootingEnabled
-                && canScoreInCurrentMatchState
+                && canShootInCurrentMatchState
                 && canPassPastNet
                 && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
                 && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
