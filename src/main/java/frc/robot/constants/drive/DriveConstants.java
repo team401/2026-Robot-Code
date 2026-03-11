@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -13,6 +14,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
 import frc.robot.util.PIDGains;
 
 /**
@@ -56,4 +58,23 @@ public class DriveConstants {
   public PIDGains steerGains = new PIDGains(100, 0.0, 0.5, 0.1, 0.0, 2.49, 0.0);
 
   public PIDGains driveGains = new PIDGains(0.1, 0.0, 0.0, 0.20845, 0.0, 0.75722, 0.0);
+
+  /**
+   * How much time after we last detected that we were on the bump to continue ignoring odometry.
+   * This value should be as small as possible without accidentally trusting odometry while still
+   * on/falling off of the bump
+   */
+  public Time bumpOdometryIgnoreTime = Seconds.of(0.25);
+
+  /**
+   * The maximum cumulative tilt (abs(pitch) + abs(roll)) that may be present before the bump
+   * odometry ignorance is triggered.
+   */
+  public Angle maxOdometryTilt = Degrees.of(5.0);
+
+  /**
+   * The maximum z acceleration (abs(z acceleration)) that may be present before the bump odometry
+   * ignorance is triggered.
+   */
+  public LinearAcceleration maxOdometryZAcceleration = MetersPerSecondPerSecond.of(5.0);
 }

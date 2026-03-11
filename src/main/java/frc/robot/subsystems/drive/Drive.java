@@ -18,6 +18,8 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -93,6 +95,17 @@ public class Drive extends SubsystemBase implements DriveTemplate {
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
   private PoseEstimator maPoseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
+
+  /**
+   * Whether or not we think we're on or just came off of the bump and should fully trust vision to
+   * prevent crazy odometry.
+   */
+  @AutoLogOutput(key = "Odometry/BumpDetected")
+  private boolean bumpDetected = false;
+
+  private final Debouncer bumpOdometryDebouncer =
+      new Debouncer(
+          JsonConstants.driveConstants.bumpOdometryIgnoreTime.in(Seconds), DebounceType.kFalling);
 
   public Drive(
       GyroIO gyroIO,
@@ -232,6 +245,18 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    // Check for bump
+    double cumulativeTiltRadians =
+        Math.abs(gyroInputs.rollRadians) + Math.abs(gyroInputs.pitchRadians);
+    double zAccelMagnitude = Math.abs(gyroInputs.zAccelerationMetersPerSecondPerSecond);
+    boolean bumpDetectedNow =
+        cumulativeTiltRadians > JsonConstants.driveConstants.maxOdometryTilt.in(Radians)
+            || zAccelMagnitude
+                > JsonConstants.driveConstants.maxOdometryZAcceleration.in(
+                    MetersPerSecondPerSecond);
+
+    this.bumpDetected = bumpOdometryDebouncer.calculate(bumpDetectedNow);
   }
 
   /**
@@ -391,19 +416,39 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     }
   }
 
+  // Assume we're at a certain tiny distance away from every tag when dropping standard deviations
+  // This is used in place of just setting all standard deviations to zero in case pose estimators
+  // have genuine mathematical issues dealing with zero. Vision should be trusted very very heavily
+  // when odometry is untrustworthy to avoid allowing the pose estimate to get super wrong.
+  // This value is squared and then multiplied by the linear/angular std dev factors to match the
+  // formulas for std dev calculations in coppercore vision.
+  // Think of this like setting the trust level while odometry is untrustworthy to be equivalent to
+  // seeing 1 tag at this distance away from the camera. This distance is in meters.
+  private final double droppedStdDevApproxDistance = 0.01;
+  private final Matrix<N3, N1> droppedStdDevs =
+      VecBuilder.fill(
+          JsonConstants.visionConstants.gainConstants.linearStdDevFactor
+              * droppedStdDevApproxDistance
+              * droppedStdDevApproxDistance,
+          JsonConstants.visionConstants.gainConstants.linearStdDevFactor
+              * droppedStdDevApproxDistance
+              * droppedStdDevApproxDistance,
+          JsonConstants.visionConstants.gainConstants.angularStdDevFactor
+              * droppedStdDevApproxDistance
+              * droppedStdDevApproxDistance);
+
   /** Adds a new timestamped vision measurement. */
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
+    var stdDevs = bumpDetected ? droppedStdDevs : visionMeasurementStdDevs;
+
     if (JsonConstants.featureFlags.useMAPoseEstimator) {
       maPoseEstimator.addVisionData(
-          List.of(
-              new TimestampedVisionUpdate(
-                  timestampSeconds, visionRobotPoseMeters, visionMeasurementStdDevs)));
+          List.of(new TimestampedVisionUpdate(timestampSeconds, visionRobotPoseMeters, stdDevs)));
     } else {
-      poseEstimator.addVisionMeasurement(
-          visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+      poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, stdDevs);
     }
   }
 
