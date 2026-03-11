@@ -186,7 +186,15 @@ class ShotCalculations {
   public static enum ShotTarget {
     Hub,
     PassLeft,
-    PassRight
+    PassRight;
+
+    public Translation2d getTranslation() {
+      return switch (this) {
+        case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
+        case PassLeft -> FieldLocations.leftPassingTarget();
+        case PassRight -> FieldLocations.rightPassingTarget();
+      };
+    }
   }
 
   /**
@@ -221,12 +229,7 @@ class ShotCalculations {
       ChassisSpeeds robotRelativeChassisSpeeds,
       Translation2d fieldRelativeShooterVelocity,
       ShotTarget target) {
-    Translation2d targetPosition =
-        switch (target) {
-          case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
-          case PassLeft -> FieldLocations.leftPassingTarget();
-          case PassRight -> FieldLocations.rightPassingTarget();
-        };
+    Translation2d targetPosition = target.getTranslation();
 
     double lookaheadTimeSeconds = JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
 

@@ -3,6 +3,7 @@ package frc.robot.util.geometry;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * EnhancedLine replaces Line to provide extra functionality that should make its way back to
@@ -60,5 +61,9 @@ public class EnhancedLine2d {
     return intersectionParameters(other)
         .map(params -> params.s >= 0.0 && params.s <= 1.0 && params.t >= 0.0 && params.t <= 1.0)
         .orElse(false);
+  }
+
+  public void logAsTrajectory(String path) {
+    Logger.recordOutput(path, new Translation2d[] {start, end});
   }
 }
