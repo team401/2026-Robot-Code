@@ -143,6 +143,9 @@
                     "type": "StopShooting"
                 },
                 {
+                    "type": "StowIntakeAction"
+                },
+                {
                     "type": "AutoReference",
                     "name": "LeftClimb"
                 }

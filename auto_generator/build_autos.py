@@ -85,18 +85,40 @@ def publish(base_url: str, env: str, content: str) -> None:
     req.add_header("Content-Type", "application/json")
     try:
         with urllib.request.urlopen(req, timeout=5) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
             print(f"  PUT {url} -> {resp.status}")
+            if body:
+                print(f"    Response: {body}")
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace") if e.fp else ""
+        print(f"  PUT {url} failed: HTTP {e.code} {e.reason}")
+        if body:
+            print(f"    Response: {body}")
+        return
     except urllib.error.URLError as e:
-        print(f"  PUT {url} failed: {e}")
+        print(f"  PUT {url} failed: {e.reason}")
+        return
+    except TimeoutError:
+        print(f"  PUT {url} failed: Connection timed out")
         return
 
     # POST — tell the robot to reload autos
     req = urllib.request.Request(url, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=5) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
             print(f"  POST {url} -> {resp.status}")
+            if body:
+                print(f"    Response: {body}")
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace") if e.fp else ""
+        print(f"  POST {url} failed: HTTP {e.code} {e.reason}")
+        if body:
+            print(f"    Response: {body}")
     except urllib.error.URLError as e:
-        print(f"  POST {url} failed: {e}")
+        print(f"  POST {url} failed: {e.reason}")
+    except TimeoutError:
+        print(f"  POST {url} failed: Connection timed out")
 
 
 def parse_args() -> argparse.Namespace:

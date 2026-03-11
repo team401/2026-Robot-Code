@@ -33,6 +33,7 @@ digraph {
   TestMode -> ControlToPosition [label="When TestMode finished"];
 
   ControlToPosition -> TestMode [label="Should be in test mode"];
+  ControlToPosition -> HomingWaitForMovement [label="When HomingWaitForMovement requested"];
 
   HomingWaitForMovement -> WaitForButton [label="When robot is disabled during homing"];
   HomingWaitForMovement -> HomingWaitForStopMoving [label="When HomingWaitForMovement finished"];
