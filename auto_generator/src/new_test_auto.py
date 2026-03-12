@@ -17,7 +17,8 @@ from .shorthands import (
     startShooting,
     stopShooting,
     stow_intake,
-    translation2d
+    translation2d,
+    wait
 )
 from . import constants
 
@@ -28,7 +29,7 @@ from . import constants
 
 @auto("Test Auto")
 def _test_auto():
-    autopilot(target_pose=FieldConstants.Alliance.center)
+    # autopilot(target_pose=FieldConstants.Alliance.center)
 
     # go under right trench
 
@@ -44,7 +45,7 @@ def _test_auto():
     autopilot(
         target_pose=FieldConstants.Center.center_point().to_pose2d().transform_by(
             transform2d(
-                translation=translation2d(x=-0.2, y=1),
+                translation=translation2d(x=-0.2, y=0),
                 rotation=rotation2d(degrees=90),
             )
         ),
@@ -53,20 +54,24 @@ def _test_auto():
 
     # go back under right trench to get back to alliance side
 
-    go_to_alliance_under_right_trench(rotation=rotation2d(degrees=-180))
+    go_to_alliance_under_right_trench(rotation=rotation2d(degrees=0))
 
     # Go to outpost
 
     startShooting()
 
-    autopilot(
-        target_pose=FieldConstants.Outpost.center_point().to_pose2d().transform_by(
-            Transform2d(
-                translation=translation2d(x=1, y=0),
-                rotation=rotation2d(degrees=-180),
-            ),
-        ),
-    )
+    # autopilot(
+    #     target_pose=FieldConstants.Outpost.center_point().to_pose2d().transform_by(
+    #         Transform2d(
+    #             translation=translation2d(x=1, y=0),
+    #             rotation=rotation2d(degrees=0),
+    #         ),
+    #     ),
+    # )
+
+    autopilot(target_pose=FieldConstants.Alliance.center)
+
+    wait(5)
 
     stopShooting()
     stow_intake()

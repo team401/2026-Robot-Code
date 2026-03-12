@@ -38,7 +38,7 @@
     "unit": "Degree"
   },
   "intakeRollerSpeed": {
-    "value": 1400.0,
+    "value": 2500.0,
     "unit": "RPM"
   },
   "homingMovementThreshold": {

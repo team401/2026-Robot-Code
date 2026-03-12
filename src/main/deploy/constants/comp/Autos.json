@@ -4,21 +4,6 @@
       "type": "Sequence",
       "actions": [
         {
-          "type": "AutoPilotAction",
-          "target": {
-            "reference": {
-              "rotation": {
-                "degrees": 0
-              },
-              "translation": {
-                "x": 2.003933,
-                "y": 4.0215
-              }
-            },
-            "velocity": 0.0
-          }
-        },
-        {
           "type": "Sequence",
           "actions": [
             {
@@ -71,7 +56,7 @@
               },
               "translation": {
                 "x": 8.059000000000001,
-                "y": 5.0215
+                "y": 4.0215
               }
             },
             "entryAngle": {
@@ -88,7 +73,7 @@
               "target": {
                 "reference": {
                   "rotation": {
-                    "degrees": -180.0
+                    "degrees": 0.0
                   },
                   "translation": {
                     "x": 5.604766,
@@ -106,7 +91,7 @@
               "target": {
                 "reference": {
                   "rotation": {
-                    "degrees": -180.0
+                    "degrees": 0.0
                   },
                   "translation": {
                     "x": 3.6047659999999997,
@@ -129,14 +114,21 @@
           "target": {
             "reference": {
               "rotation": {
-                "degrees": -180.0
+                "degrees": 0
               },
               "translation": {
-                "x": 1.0,
-                "y": 0.6507734
+                "x": 2.003933,
+                "y": 4.0215
               }
             },
             "velocity": 0.0
+          }
+        },
+        {
+          "type": "Wait",
+          "delay": {
+            "value": 5,
+            "unit": "Second"
           }
         },
         {
@@ -197,7 +189,7 @@
                     "entryAngle": {
                       "degrees": 0
                     },
-                    "velocity": 100.0
+                    "velocity": 0.0
                   },
                   "constraints": {
                     "velocity": 2.0,
@@ -268,7 +260,7 @@
                     "entryAngle": {
                       "degrees": 0
                     },
-                    "velocity": 100.0
+                    "velocity": 0.0
                   },
                   "constraints": {
                     "velocity": 2.0,
