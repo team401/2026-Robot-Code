@@ -15,12 +15,12 @@ public class StopDriveAction extends AutoAction {
     return new Command() {
       @Override
       public void initialize() {
-        data.driveCoordinator().setCurrentCommand(command);
+        data.driveCoordinator().setCurrentDriveCommand(command);
       }
 
       @Override
       public void end(boolean interrupted) {
-        data.driveCoordinator().cancelCurrentCommand();
+        data.driveCoordinator().cancelCurrentDriveCommand();
       }
 
       @Override

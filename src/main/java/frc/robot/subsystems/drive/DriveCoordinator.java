@@ -57,7 +57,7 @@ public class DriveCoordinator extends SubsystemBase {
   public void setDriveWithJoysticksCommand(DriveWithJoysticks command) {
     this.joystickCommand = command;
     // Maybe temporary
-    setDefaultCommand(command);
+    setDefaultDriveCommand(command);
   }
 
   /**
@@ -65,7 +65,7 @@ public class DriveCoordinator extends SubsystemBase {
    *
    * @return
    */
-  protected Command getCurrentActiveCommand() {
+  protected Command getCurrentActiveDriveCommand() {
     if (currentCommand != null) {
       return currentCommand;
     }
@@ -85,12 +85,12 @@ public class DriveCoordinator extends SubsystemBase {
    * @param command The new default command to set. If null, it will default to the joystick
    *     command.
    */
-  public void setDefaultCommand(Command command) {
+  public void setDefaultDriveCommand(Command command) {
     var newDefaultCommand = (command == null) ? joystickCommand : command;
     if (defaultCommand == newDefaultCommand) {
       return;
     }
-    var activeCommand = getCurrentActiveCommand();
+    var activeCommand = getCurrentActiveDriveCommand();
     if (defaultCommand == activeCommand) {
       activeCommand.end(!activeCommand.isFinished());
       if (newDefaultCommand != null) {
@@ -115,8 +115,8 @@ public class DriveCoordinator extends SubsystemBase {
    * @param command The new command to set as the current command. If null, the default command will
    *     be used.
    */
-  public void setCurrentCommand(Command command) {
-    var activeCommand = getCurrentActiveCommand();
+  public void setCurrentDriveCommand(Command command) {
+    var activeCommand = getCurrentActiveDriveCommand();
     var nextCommand = command == null ? defaultCommand : command;
     if (activeCommand != nextCommand) {
       if (activeCommand != null) {
@@ -129,27 +129,27 @@ public class DriveCoordinator extends SubsystemBase {
     }
   }
 
-  public void cancelCurrentCommand() {
-    setCurrentCommand(null);
+  public void cancelCurrentDriveCommand() {
+    setCurrentDriveCommand(null);
   }
 
-  public InstantCommand createInstantCommandToSetCurrent(Command command) {
-    return new InstantCommand(() -> setCurrentCommand(command));
+  public InstantCommand createInstantCommandToSetCurrentDriveCommand(Command command) {
+    return new InstantCommand(() -> setCurrentDriveCommand(command));
   }
 
   public InstantCommand createInstantCommandToCancelCommand() {
-    return new InstantCommand(this::cancelCurrentCommand);
+    return new InstantCommand(this::cancelCurrentDriveCommand);
   }
 
   public void forceRestartCurrentCommand() {
-    var activeCommand = getCurrentActiveCommand();
+    var activeCommand = getCurrentActiveDriveCommand();
     if (activeCommand != null) {
       activeCommand.end(!activeCommand.isFinished());
       activeCommand.initialize();
     }
   }
 
-  private void finishCurrentCommandIfFinished() {
+  private void finishCurrentDriveCommandIfFinished() {
     if (currentCommand != null && currentCommand.isFinished()) {
       currentCommand.end(false);
       currentCommand = null;
@@ -177,7 +177,7 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   public void autoPilotToPose(Pose2d pose) {
-    setCurrentCommand(DriveCoordinatorCommands.autoPilotToPoseCommand(this, pose));
+    setCurrentDriveCommand(DriveCoordinatorCommands.autoPilotToPoseCommand(this, pose));
   }
 
   public Command getDriveToClimbCommand(ClimbLocations climbLocation) {
@@ -202,7 +202,7 @@ public class DriveCoordinator extends SubsystemBase {
   }
 
   public void driveToClimbLocation(ClimbLocations climbLocation) {
-    setCurrentCommand(getDriveToClimbCommand(climbLocation));
+    setCurrentDriveCommand(getDriveToClimbCommand(climbLocation));
   }
 
   @Override
@@ -215,10 +215,10 @@ public class DriveCoordinator extends SubsystemBase {
     // Maybe decide if we want to check if it is finished before or after executing.
     // And if we check before executing, do we want it to be able to go through multiple commands
     // in one periodic if they are all finished, or just one command per periodic?
-    var activeCommand = getCurrentActiveCommand();
+    var activeCommand = getCurrentActiveDriveCommand();
     if (activeCommand != null) {
       activeCommand.execute();
-      finishCurrentCommandIfFinished();
+      finishCurrentDriveCommandIfFinished();
     }
 
     // While yes the active command technically could be different from what is logged here
