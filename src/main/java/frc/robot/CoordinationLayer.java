@@ -780,8 +780,14 @@ public class CoordinationLayer {
   }
 
   // Coordination and processing
-  /** Coordinates subsystem actions based on the desired action and subsystem inputs */
-  public void coordinateSubsystemActions() {}
+  private final EnhancedLine2d redNet =
+      new EnhancedLine2d(
+          FieldConstants.Hub.oppNearLeftCorner().plus(new Translation2d(-0.27, 0.13)),
+          FieldConstants.Hub.oppNearRightCorner().plus(new Translation2d(-0.27, -0.11)));
+  private final EnhancedLine2d blueNet =
+      new EnhancedLine2d(
+          FieldConstants.Hub.farLeftCorner().plus(new Translation2d(0.27, 0.13)),
+          FieldConstants.Hub.farRightCorner().plus(new Translation2d(0.27, -0.11)));
 
   /**
    * This method is like the "periodic" of the CoordinationLayer. It is run by the
@@ -846,12 +852,31 @@ public class CoordinationLayer {
     // This should improve the performance of shoot on the move.
     // If this isn't sufficient, we can calculate 2 shots: one with compensation delay and one
     // without compensation delay, and then just test the one without compensation delay.
-    boolean canScoreInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
+    boolean canShootInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
+
+    // canPassPastNet is true when either:
+    // - We are not in passing mode (so net isn't a concern)
+    // OR
+    // - The line from the robot to its passing target doesn't intercept either net
+    boolean canPassPastNet =
+        this.shotMode != ShotMode.Pass
+            || drive
+                .map(
+                    drive -> {
+                      Pose2d pose = drive.getPose();
+                      EnhancedLine2d lineToShot =
+                          new EnhancedLine2d(
+                              pose.getTranslation(), getShotTargetFromPose(pose).getTranslation());
+
+                      return !(lineToShot.intersects(redNet) || lineToShot.intersects(blueNet));
+                    })
+                .orElse(true);
 
     boolean canShoot =
         isForceShootPressed.getAsBoolean()
             || (shootingEnabled
-                && canScoreInCurrentMatchState
+                && canShootInCurrentMatchState
+                && canPassPastNet
                 && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
                 && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
                 // When the turret isn't enabled, assume that it's been locked into the correct
@@ -1089,6 +1114,10 @@ public class CoordinationLayer {
     };
   }
 
+  private final LoggedTunableNumber rpmCompensation =
+      new LoggedTunableNumber(
+          "CoordinationLayer/compensationRPM", JsonConstants.shotMaps.rpmCompensation.in(RPM));
+
   /**
    * Run the shot calculations, given an actual drive instance
    *
@@ -1169,7 +1198,7 @@ public class CoordinationLayer {
 
     shooter.ifPresent(
         shooter -> {
-          shooter.setTargetVelocityRPM(shot.shooterRPM());
+          shooter.setTargetVelocityRPM(shot.shooterRPM() + rpmCompensation.getAsDouble());
         });
 
     return shot.isReal();
