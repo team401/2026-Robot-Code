@@ -1050,6 +1050,10 @@ public class CoordinationLayer {
     };
   }
 
+  private final LoggedTunableNumber rpmCompensation =
+      new LoggedTunableNumber(
+          "CoordinationLayer/compensationRPM", JsonConstants.shotMaps.rpmCompensation.in(RPM));
+
   /**
    * Run the shot calculations, given an actual drive instance
    *
@@ -1130,7 +1134,7 @@ public class CoordinationLayer {
 
     shooter.ifPresent(
         shooter -> {
-          shooter.setTargetVelocityRPM(shot.shooterRPM());
+          shooter.setTargetVelocityRPM(shot.shooterRPM() + rpmCompensation.getAsDouble());
         });
 
     return shot.isReal();
