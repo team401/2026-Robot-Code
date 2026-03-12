@@ -517,7 +517,7 @@
     "value": 0.03,
     "unit": "Second"
   },
-  "rpmOffset": {
+  "rpmCompensation": {
     "value": 0.0,
     "unit": "RPM"
   }
