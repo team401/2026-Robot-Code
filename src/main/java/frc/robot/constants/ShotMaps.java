@@ -2,6 +2,7 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -10,6 +11,7 @@ import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -92,6 +94,8 @@ public class ShotMaps {
    * position.
    */
   public Time mechanismCompensationDelay = Seconds.of(0.1);
+
+  public AngularVelocity rpmCompensation = RPM.zero();
 
   // Initialized fields (instantiated after json load based on loaded constants)
   /** Initializes the maps and then publishes tuning values for adding values to the map */
