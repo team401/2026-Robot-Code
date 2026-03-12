@@ -334,6 +334,29 @@ export function ShotMapsEditor() {
         </Box>
       )}
 
+      {data.rpmCompensation !== undefined && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>RPM Compensation</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <TextField
+              type="number"
+              size="small"
+              label="Value (RPM)"
+              value={data.rpmCompensation.value}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  rpmCompensation: {
+                    ...data.rpmCompensation!,
+                    value: parseFloat(e.target.value) || 0,
+                  },
+                })
+              }
+            />
+          </Box>
+        </Box>
+      )}
+
       <Snackbar open={snack !== null} autoHideDuration={3000} onClose={() => setSnack(null)}>
         <Alert severity={snack?.severity ?? 'success'} variant="filled" onClose={() => setSnack(null)}>
           {snack?.message}
