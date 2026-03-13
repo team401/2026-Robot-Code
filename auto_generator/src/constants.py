@@ -43,8 +43,8 @@ climb_right_lineup_entry_angle = climb_left_lineup_entry_angle
 
 default_trench_velocity = 3.0
 
-center_side_trench_offset = translation2d(x=1.0, y=0.0)
-alliance_side_trench_offset = translation2d(x=-1.0, y=0.0)
+center_side_trench_offset = translation2d(x=1.1, y=0.0)
+alliance_side_trench_offset = translation2d(x=-1.1, y=0.0)
 
 left_trench_center_side_pose = FieldConstants.LeftTrench.opening_floor_center().to_pose2d().translate_by(center_side_trench_offset)
 right_trench_center_side_pose = FieldConstants.RightTrench.opening_floor_center().to_pose2d().translate_by(center_side_trench_offset)
