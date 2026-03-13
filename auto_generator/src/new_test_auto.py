@@ -7,7 +7,7 @@ from __future__ import annotations
 from .routines import go_to_alliance_under_right_trench, go_to_center_under_right_trench_from_alliance
 
 from .auto_action import APConstraints, Transform2d
-from .auto_lib import auto, routines
+from .auto_lib import auto, parallel, routines
 from .field_locations import FieldConstants
 from .shorthands import (
     autopilot,
@@ -72,9 +72,10 @@ def _test_auto():
     #     ),
     # )
 
-    autopilot(target_pose=FieldConstants.Alliance.center)
+    with parallel():
+        autopilot(target_pose=FieldConstants.Alliance.center)
 
-    startShooting()
+        startShooting()
 
     wait(3)
 
