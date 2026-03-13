@@ -63,6 +63,10 @@ public class EnhancedLine2d {
         .orElse(false);
   }
 
+  public Translation2d midPoint() {
+    return start.plus(d.times(0.5));
+  }
+
   public void logAsTrajectory(String path) {
     Logger.recordOutput(path, new Translation2d[] {start, end});
   }
