@@ -73,9 +73,11 @@ def _test_auto():
     # )
 
     with parallel():
-        autopilot(target_pose=FieldConstants.Alliance.center)
-
         startShooting()
+        autopilot(
+            target_pose=FieldConstants.Alliance.center,
+            entry_angle=rotation2d(degrees=90),
+        )
 
     wait(3)
 
