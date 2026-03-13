@@ -393,10 +393,10 @@ public class CoordinationLayer {
 
     climbLeft
         .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
-        .whileTrue(JsonConstants.autos.getRoutineCommandReference("LeftClimbLineup"));
+        .whileTrue(JsonConstants.autos.getRoutineCommandReference("LeftClimb"));
     climbRight
         .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
-        .whileTrue(JsonConstants.autos.getRoutineCommandReference("RightClimbLineup"));
+        .whileTrue(JsonConstants.autos.getRoutineCommandReference("RightClimb"));
 
     Trigger eitherClimbPressed = climbLeft.or(climbRight);
     eitherClimbPressed

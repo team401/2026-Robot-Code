@@ -17,27 +17,27 @@
     "unit": "Degrees"
   },
   "stowAngle": {
-    "value": 65.0,
+    "value": 130.0,
     "unit": "Degrees"
   },
   "upperClimbAngle": {
-    "value": 24700,
+    "value": 41400,
     "unit": "Degrees"
   },
   "hangClimbAngle": {
-    "value": 15000,
+    "value": 30000,
     "unit": "Degrees"
   },
   "maxStowedAngle": {
-    "value": 500,
+    "value": 1000,
     "unit": "Degrees"
   },
   "climbSearchAngleMargin": {
-    "value": 250,
+    "value": 500,
     "unit": "Degrees"
   },
   "stowCoastMargin": {
-    "value": 500.0,
+    "value": 1000.0,
     "unit": "Degrees"
   },
   "climberToMechanismRatio": {

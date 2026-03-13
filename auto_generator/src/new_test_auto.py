@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from .routines import go_to_alliance_under_right_trench, go_to_center_under_right_trench_from_alliance
 
-from .auto_action import Transform2d
+from .auto_action import APConstraints, Transform2d
 from .auto_lib import auto, routines
 from .field_locations import FieldConstants
 from .shorthands import (
@@ -50,6 +50,11 @@ def _test_auto():
             )
         ),
         entry_angle=rotation2d(degrees=-90),
+        constraints=APConstraints(
+            velocity=3,
+            acceleration=2,
+            jerk=2
+        )
     )
 
     # go back under right trench to get back to alliance side
@@ -57,8 +62,6 @@ def _test_auto():
     go_to_alliance_under_right_trench(rotation=rotation2d(degrees=0))
 
     # Go to outpost
-
-    startShooting()
 
     # autopilot(
     #     target_pose=FieldConstants.Outpost.center_point().to_pose2d().transform_by(
@@ -71,10 +74,15 @@ def _test_auto():
 
     autopilot(target_pose=FieldConstants.Alliance.center)
 
-    wait(5)
+    startShooting()
+
+    wait(3)
+
+    stow_intake()
+
+    wait(2)
 
     stopShooting()
-    stow_intake()
 
     # Go climb on Left Tower Support
 

@@ -102,7 +102,8 @@ def _climb(
             x_based_autopilot(
                 target_pose=target_pose,
                 entry_angle=entry_angle,
-                constraints=Constants.climb_constraints
+                constraints=Constants.climb_constraints,
+                velocity=velocity
             )
         climb_search()
     wait(0.5)
