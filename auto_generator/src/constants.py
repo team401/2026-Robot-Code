@@ -35,16 +35,17 @@ left_climb_location = FieldConstants.Tower.left_upright().to_pose2d().transform_
 
 right_climb_location = FieldConstants.Tower.right_upright().to_pose2d().transform_by(climb_offset)
 
-climb_lineup_velocity = 100.0
-
 climb_left_lineup_entry_angle = rotation2d(degrees=0)
 climb_right_lineup_entry_angle = climb_left_lineup_entry_angle
 
 
 default_trench_velocity = 3.0
 
-center_side_trench_offset = translation2d(x=1.1, y=0.0)
-alliance_side_trench_offset = translation2d(x=-1.1, y=0.0)
+# Reduce tolerance because in most spots we dont need them to be so far from the trench.
+# and if we need to be further from the trench we can just have the auto drive to a pose that it can use such as
+# the a position that is 1 m from the trench and then drive to the trench from there.
+center_side_trench_offset = translation2d(x=0.5, y=0.0)
+alliance_side_trench_offset = translation2d(x=-0.5, y=0.0)
 
 left_trench_center_side_pose = FieldConstants.LeftTrench.opening_floor_center().to_pose2d().translate_by(center_side_trench_offset)
 right_trench_center_side_pose = FieldConstants.RightTrench.opening_floor_center().to_pose2d().translate_by(center_side_trench_offset)

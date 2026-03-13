@@ -7,7 +7,7 @@ from __future__ import annotations
 from .routines import go_to_alliance_under_right_trench, go_to_center_under_right_trench_from_alliance
 
 from .auto_action import APConstraints, Transform2d
-from .auto_lib import auto, parallel, routines
+from .auto_lib import auto, parallel, routines, sequence
 from .field_locations import FieldConstants
 from .shorthands import (
     autopilot,
@@ -33,8 +33,23 @@ def _test_auto():
 
     # go under right trench
 
-    go_to_center_under_right_trench_from_alliance()
+    # Disable first entry angle so that if we start a bit to off we don't have to worry about it
+    # Trying to make a loop
+    # And disabling the second entry angle because if we start past the first trench pose we go back to the first pose
+    # and then we try to loop to because our entry angle would be wrong.
+    go_to_center_under_right_trench_from_alliance(first_entry_angle=None, second_entry_angle=None)
 
+
+    # Go to a pose that is clear of the trench and has a good angle to intake balls from the center, and then we can drive to the center from there to intake the balls.
+
+    autopilot(
+        target_pose=constants.right_trench_center_side_pose.transform_by(
+            transform2d(
+                translation=translation2d(x=0.7, y=0),
+            )
+        ),
+        velocity=constants.default_trench_velocity,
+    )
 
     # Deploy intake after safely out of trench to swipe center for balls
 
@@ -61,23 +76,25 @@ def _test_auto():
 
     go_to_alliance_under_right_trench(rotation=rotation2d(degrees=0))
 
-    # Go to outpost
+    # Move to a clean pose to go to center to shoot from.
 
-    # autopilot(
-    #     target_pose=FieldConstants.Outpost.center_point().to_pose2d().transform_by(
-    #         Transform2d(
-    #             translation=translation2d(x=1, y=0),
-    #             rotation=rotation2d(degrees=0),
-    #         ),
-    #     ),
-    # )
+    autopilot(
+        target_pose=constants.right_trench_alliance_side_pose.transform_by(
+            transform2d(
+                translation=translation2d(x=-0.7, y=0),
+            )
+        ),
+        velocity=constants.default_trench_velocity,
+    )
 
-    with parallel():
-        startShooting()
-        autopilot(
-            target_pose=FieldConstants.Alliance.center,
-            entry_angle=rotation2d(degrees=90),
-        )
+    autopilot(
+        target_pose=FieldConstants.Alliance.center,
+        entry_angle=rotation2d(degrees=-90),
+    )
+
+    # Maybe consider when we want to start shooting.
+    # Maybe we want a separate action to warm up the shooter and then start shooting when we are in
+    startShooting()
 
     wait(3)
 
@@ -85,8 +102,8 @@ def _test_auto():
 
     wait(2)
 
-    stopShooting()
-
-    # Go climb on Left Tower Support
-
-    routines.LeftClimb()
+    # Avoid wasting time stopping climb when we could be starting to climb so we
+    # can just do both at the same time.
+    with parallel():
+        stopShooting()
+        routines.LeftClimb()
