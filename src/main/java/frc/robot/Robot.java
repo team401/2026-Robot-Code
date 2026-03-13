@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -63,6 +64,9 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
         break;
     }
+
+    // Disable CTRE hoot logging to prevent overruns
+    SignalLogger.enableAutoLogging(false);
 
     // Start AdvantageKit logger
     Logger.start();

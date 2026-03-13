@@ -981,8 +981,11 @@ public class CoordinationLayer {
   };
 
   // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf pg 5-6
-  private final double SAFETY_WIDTH = 44.4 * 0.0254; // Andymark bump: length of the side parallel to field's x-axis
-  private final double SAFETY_HEIGHT = 49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field coordinate system
+  private final double SAFETY_WIDTH =
+      44.4 * 0.0254; // Andymark bump: length of the side parallel to field's x-axis
+  private final double SAFETY_HEIGHT =
+      49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field
+  // coordinate system
   private final Rectangle[] trenchZones =
       new Rectangle[] {
         Rectangle.fromCenter(leftBlueTrench.midPoint(), SAFETY_WIDTH, SAFETY_HEIGHT),
