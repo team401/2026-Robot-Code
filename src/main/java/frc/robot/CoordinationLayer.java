@@ -463,6 +463,12 @@ public class CoordinationLayer {
 
     makeTriggerFromButton(controllers.getButton("operatorEnableAutonomy"))
         .onTrue(new InstantCommand(this::enableAutonomy));
+
+    makeTriggerFromButton(controllers.getButton("operatorIncreaseRPM"))
+        .onTrue(new InstantCommand(this::increaseRPM));
+
+    makeTriggerFromButton(controllers.getButton("operatorDecreaseRPM"))
+        .onTrue(new InstantCommand(this::decreaseRPM));
   }
 
   /**
@@ -619,6 +625,14 @@ public class CoordinationLayer {
 
   private void enableAutonomy() {
     autonomyLevel = AutonomyLevel.Smart;
+  }
+
+  private void increaseRPM() {
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() + 10);
+  }
+
+  private void decreaseRPM() {
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() - 10);
   }
 
   // Subsystem initialization
@@ -1052,9 +1066,9 @@ public class CoordinationLayer {
 
   // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf pg 5-6
   private final double SAFETY_WIDTH =
-      44.4 * 0.0254; // Andymark bump: length of the side parallel to field's x-axis
+      44.4 * 0.0254 * 2.5; // Andymark bump: length of the side parallel to field's x-axis
   private final double SAFETY_HEIGHT =
-      49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field
+      49.86 * 0.0254 * 2; // Andymark width of trench; this is a height on the y-axis of the field
   // coordinate system
   private final Rectangle[] trenchZones =
       new Rectangle[] {
@@ -1094,6 +1108,12 @@ public class CoordinationLayer {
 
     Translation2d movementStart = shooterPose;
     Translation2d movementEnd = movementStart.plus(predictedMovement);
+
+    for (var protectedZone : trenchZones) {
+      if (protectedZone.contains(movementEnd)) {
+        return true;
+      }
+    }
 
     Logger.recordOutput(
         "CoordinationLayer/ShooterTrajectory", new Translation2d[] {movementStart, movementEnd});

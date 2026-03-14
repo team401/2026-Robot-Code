@@ -266,6 +266,26 @@
             "elementType": "pov",
             "id": 0
           }
+        },
+        {
+          "command": "operatorIncreaseRPM",
+          "commandType": "button",
+          "threshold": 90,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "operatorDecreaseRPM",
+          "commandType": "button",
+          "threshold": 270,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
         }
       ]
     },

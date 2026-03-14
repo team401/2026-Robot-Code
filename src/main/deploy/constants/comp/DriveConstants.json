@@ -72,7 +72,7 @@
   "defaultAutoPilotAcceleration": 2.0,
   "defaultAutoPilotJerk": 2.0,
   "defaultAutoPilotBeelineRadius": {
-    "value": 0.1,
+    "value": 0.5,
     "unit": "Meter"
   },
   "defaultAutoPilotHeadingTolerance": {

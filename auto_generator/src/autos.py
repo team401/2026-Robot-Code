@@ -23,6 +23,7 @@ from .shorthands import (
 )
 from . import units
 from . import constants
+from . import auto_action
 
 # TODO: Add alliance-relative coordinate utilities.
 # TODO: Replace placeholder coordinates with real field positions.
@@ -90,6 +91,12 @@ def _right_side_auto():
     autopilot(
         target_pose=FieldConstants.Alliance.center,
         entry_angle=rotation2d(degrees=-90),
+        profile=auto_action.APProfile(
+            constraints=None,
+            error_theta=units.Degree.of(360),
+            error_x_y=units.Meter.of(0.15),
+            beeline_radius=units.Meter.of(0.5)
+        )
     )
 
     # Maybe consider when we want to start shooting.
@@ -106,7 +113,7 @@ def _right_side_auto():
     # can just do both at the same time.
     with parallel():
         stopShooting()
-        routines.LeftClimb()
+        routines.RightClimb()
 
 
 @auto("Left Side Auto")
@@ -140,15 +147,20 @@ def _left_side_auto():
     autopilot(
         target_pose=FieldConstants.Center.center_point().to_pose2d().transform_by(
             transform2d(
-                translation=translation2d(x=-0.2, y=0),
+                translation=translation2d(x=-0.2, y=-1),
                 rotation=rotation2d(degrees=-90),
             )
         ),
         entry_angle=rotation2d(degrees=90),
-        constraints=APConstraints(
-            velocity=3,
-            acceleration=2,
-            jerk=2
+        profile=auto_action.APProfile(
+            constraints=APConstraints(
+                velocity=3,
+                acceleration=2,
+                jerk=2
+            ),
+            error_theta=units.Degree.of(360),
+            error_x_y=units.Meter.of(0.15),
+            beeline_radius=units.Meter.of(0.5)
         )
     )
 
@@ -184,6 +196,7 @@ def _left_side_auto():
             autopilot(
                 target_pose=FieldConstants.Depot.depot_center().to_pose2d().transform_by(
                     transform2d(
+                        translation=translation2d(x=0.75),
                         rotation=rotation2d(180)
                     )
                 ),
