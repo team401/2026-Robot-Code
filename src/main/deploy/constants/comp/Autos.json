@@ -460,6 +460,68 @@
                     ]
                 }
             ]
+        },
+        "Literally just shoot Auto": {
+            "type": "Sequence",
+            "actions": [
+                {
+                    "type": "StartShooting"
+                }
+            ]
+        },
+        "Shoot and Climb Right Auto": {
+            "type": "Sequence",
+            "actions": [
+                {
+                    "type": "StartShooting"
+                },
+                {
+                    "type": "Wait",
+                    "delay": {
+                        "value": 10,
+                        "unit": "Second"
+                    }
+                },
+                {
+                    "type": "Parallel",
+                    "actions": [
+                        {
+                            "type": "StopShooting"
+                        },
+                        {
+                            "type": "AutoReference",
+                            "name": "RightClimb"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Shoot and Climb Left Auto": {
+            "type": "Sequence",
+            "actions": [
+                {
+                    "type": "StartShooting"
+                },
+                {
+                    "type": "Wait",
+                    "delay": {
+                        "value": 10,
+                        "unit": "Second"
+                    }
+                },
+                {
+                    "type": "Parallel",
+                    "actions": [
+                        {
+                            "type": "StopShooting"
+                        },
+                        {
+                            "type": "AutoReference",
+                            "name": "LeftClimb"
+                        }
+                    ]
+                }
+            ]
         }
     },
     "routines": {

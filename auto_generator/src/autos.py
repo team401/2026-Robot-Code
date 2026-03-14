@@ -231,3 +231,27 @@ def _left_side_auto():
     with parallel():
         stopShooting()
         routines.LeftClimb()
+
+@auto("Literally just shoot Auto")
+def _literally_just_shoot():
+    startShooting()
+
+
+@auto("Shoot and Climb Right Auto")
+def _shoot_and_climb_right_auto():
+    startShooting()
+    wait(10)
+
+    with parallel():
+        stopShooting()
+        routines.RightClimb()
+
+
+@auto("Shoot and Climb Left Auto")
+def _shoot_and_climb_right_auto():
+    startShooting()
+    wait(10)
+
+    with parallel():
+        stopShooting()
+        routines.LeftClimb()
