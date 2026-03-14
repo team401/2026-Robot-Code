@@ -4,6 +4,19 @@
             "type": "Sequence",
             "actions": [
                 {
+                    "type": "StartShooting"
+                },
+                {
+                    "type": "Wait",
+                    "delay": {
+                        "value": 3,
+                        "unit": "Second"
+                    }
+                },
+                {
+                    "type": "StopShooting"
+                },
+                {
                     "type": "Sequence",
                     "actions": [
                         {
@@ -214,6 +227,9 @@
                         "value": 3,
                         "unit": "Second"
                     }
+                },
+                {
+                    "type": "StopShooting"
                 },
                 {
                     "type": "Sequence",

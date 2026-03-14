@@ -32,12 +32,17 @@ from . import auto_action
 
 @auto("Right Side Auto")
 def _right_side_auto():
+
+    startShooting()
+
+    wait(3)
     # go under right trench
 
     # Disable first entry angle so that if we start a bit to off we don't have to worry about it
     # Trying to make a loop
     # And disabling the second entry angle because if we start past the first trench pose we go back to the first pose
     # and then we try to loop to because our entry angle would be wrong.
+    stopShooting()
     go_to_center_under_right_trench_from_alliance(first_entry_angle=None, second_entry_angle=None)
 
 
@@ -123,6 +128,7 @@ def _left_side_auto():
 
     wait(3)
 
+    stopShooting()
     # go under left trench
 
     # Disable first entry angle so that if we start a bit to off we don't have to worry about it
