@@ -1068,7 +1068,7 @@ public class CoordinationLayer {
   private final double SAFETY_WIDTH =
       44.4 * 0.0254 * 2.5; // Andymark bump: length of the side parallel to field's x-axis
   private final double SAFETY_HEIGHT =
-      49.86 * 0.0254 * 2; // Andymark width of trench; this is a height on the y-axis of the field
+      49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field
   // coordinate system
   private final Rectangle[] trenchZones =
       new Rectangle[] {

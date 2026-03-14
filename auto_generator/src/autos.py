@@ -118,6 +118,11 @@ def _right_side_auto():
 
 @auto("Left Side Auto")
 def _left_side_auto():
+
+    startShooting()
+
+    wait(3)
+
     # go under left trench
 
     # Disable first entry angle so that if we start a bit to off we don't have to worry about it

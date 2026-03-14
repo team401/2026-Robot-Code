@@ -206,6 +206,16 @@
             "type": "Sequence",
             "actions": [
                 {
+                    "type": "StartShooting"
+                },
+                {
+                    "type": "Wait",
+                    "delay": {
+                        "value": 3,
+                        "unit": "Second"
+                    }
+                },
+                {
                     "type": "Sequence",
                     "actions": [
                         {
