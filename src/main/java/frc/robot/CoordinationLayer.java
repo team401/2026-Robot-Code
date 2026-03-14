@@ -823,7 +823,13 @@ public class CoordinationLayer {
     // Allow running rollers when the intake is retracted
     if (runningIntakeRollers) {
       intake.ifPresent(
-          intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
+          intake -> {
+            var rollerSpeed = JsonConstants.intakeConstants.intakeTeleOpRollerSpeed;
+            if (DriverStation.isAutonomous()) {
+              rollerSpeed = JsonConstants.intakeConstants.intakeAutoRollerSpeed;
+            }
+            intake.runRollers(rollerSpeed);
+          });
     } else {
       intake.ifPresent(IntakeSubsystem::stopRollers);
     }
