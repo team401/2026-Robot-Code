@@ -180,31 +180,6 @@ public class DriveCoordinator extends SubsystemBase {
     setCurrentDriveCommand(DriveCoordinatorCommands.autoPilotToPoseCommand(this, pose));
   }
 
-  public Command getDriveToClimbCommand(ClimbLocations climbLocation) {
-    Pose2d targetPose =
-        (climbLocation == ClimbLocations.LeftClimbLocation)
-            ? FieldLocations.leftClimbLocation()
-            : FieldLocations.rightClimbLocation();
-
-    APTarget target =
-        new APTarget(targetPose)
-            .withEntryAngle(new Rotation2d())
-            .withRotationRadius(Meters.of(1.5));
-    APProfile profile =
-        DriveCoordinatorCommands.createDefaultAPProfile()
-            .withConstraints(
-                DriveCoordinatorCommands.createDefaultAPConstraints().withAcceleration(6.0))
-            .withErrorXY(Centimeters.of(2.0))
-            .withErrorTheta(Degrees.of(15));
-    Autopilot ap = new Autopilot(profile);
-
-    return DriveCoordinatorCommands.autoPilotCommand(this, ap, target);
-  }
-
-  public void driveToClimbLocation(ClimbLocations climbLocation) {
-    setCurrentDriveCommand(getDriveToClimbCommand(climbLocation));
-  }
-
   @Override
   public void periodic() {
 

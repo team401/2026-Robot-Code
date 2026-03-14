@@ -38,16 +38,4 @@ public class FieldLocations {
         ? JsonConstants.redFieldLocations.rightPassingTarget
         : JsonConstants.blueFieldLocations.rightPassingTarget;
   }
-
-  public static Pose2d leftClimbLocation() {
-    return AllianceUtil.isRed()
-        ? JsonConstants.redFieldLocations.leftClimbLocation
-        : JsonConstants.blueFieldLocations.leftClimbLocation;
-  }
-
-  public static Pose2d rightClimbLocation() {
-    return AllianceUtil.isRed()
-        ? JsonConstants.redFieldLocations.rightClimbLocation
-        : JsonConstants.blueFieldLocations.rightClimbLocation;
-  }
 }

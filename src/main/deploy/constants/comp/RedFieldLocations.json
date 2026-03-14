@@ -6,23 +6,5 @@
   "rightPassingTarget": {
     "x": 15.82,
     "y": 6.23
-  },
-  "leftClimbLocation": {
-    "rotation": {
-      "degrees": -90.0
-    },
-    "translation": {
-      "x": 15.0,
-      "y": 3.9
-    }
-  },
-  "rightClimbLocation": {
-    "rotation": {
-      "degrees": 0.0
-    },
-    "translation": {
-      "x": 15.0,
-      "y": 3.9
-    }
   }
 }
