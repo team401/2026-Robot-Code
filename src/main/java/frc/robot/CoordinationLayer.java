@@ -58,6 +58,7 @@ import frc.robot.util.OptionalUtil;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
+import frc.robot.util.geometry.Rectangle;
 import frc.robot.util.math.Lazy;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -1049,9 +1050,34 @@ public class CoordinationLayer {
     leftBlueTrench, rightRedTrench, rightBlueTrench, leftRedTrench
   };
 
+  // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf pg 5-6
+  private final double SAFETY_WIDTH =
+      44.4 * 0.0254; // Andymark bump: length of the side parallel to field's x-axis
+  private final double SAFETY_HEIGHT =
+      49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field
+  // coordinate system
+  private final Rectangle[] trenchZones =
+      new Rectangle[] {
+        Rectangle.fromCenter(leftBlueTrench.midPoint(), SAFETY_WIDTH, SAFETY_HEIGHT),
+        Rectangle.fromCenter(rightBlueTrench.midPoint(), SAFETY_WIDTH, SAFETY_HEIGHT),
+        Rectangle.fromCenter(leftRedTrench.midPoint(), SAFETY_WIDTH, SAFETY_HEIGHT),
+        Rectangle.fromCenter(rightRedTrench.midPoint(), SAFETY_WIDTH, SAFETY_HEIGHT)
+      };
+
   private boolean shouldStowHoodBasedOnMovement(Drive drive, HoodSubsystem hood) {
     Pose2d robotPose = drive.getPose();
 
+    // we use two methods to protect the hood.
+    // first, we check if the robot is currently within a protected rectangle
+    // around each trench, regardless of its speed. If so, we stow the hood
+    for (var protectedZone : trenchZones) {
+      if (protectedZone.contains(robotPose.getTranslation())) {
+        return true;
+      }
+    }
+
+    // second, we project the robot's movement out by timeToStowHood seconds
+    // and check if that intersects with one of the trench lines
     ChassisSpeeds robotRelativeSpeeds = drive.getChassisSpeeds();
     Translation2d fieldCentricSpeeds =
         new Translation2d(
