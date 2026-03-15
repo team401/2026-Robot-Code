@@ -175,6 +175,8 @@ def _left_side_auto():
         )
     )
 
+    wait(1)
+
     # go back under left trench to get back to alliance side
 
     go_to_alliance_under_left_trench(rotation=rotation2d(degrees=0))
@@ -207,7 +209,7 @@ def _left_side_auto():
             autopilot(
                 target_pose=FieldConstants.Depot.depot_center().to_pose2d().transform_by(
                     transform2d(
-                        translation=translation2d(x=0.75),
+                        translation=translation2d(x=0.35),
                         rotation=rotation2d(180)
                     )
                 ),
@@ -230,7 +232,7 @@ def _left_side_auto():
     # can just do both at the same time.
     with parallel():
         stopShooting()
-        routines.LeftClimb()
+        #routines.LeftClimb()
 
 @auto("Literally just shoot Auto")
 def _literally_just_shoot():
@@ -268,7 +270,7 @@ def _shoot_and_depot_left_auto():
         autopilot(
             target_pose=FieldConstants.Depot.depot_center().to_pose2d().transform_by(
                 transform2d(
-                    translation=translation2d(x=0.75),
+                    translation=translation2d(x=0.45),
                     rotation=rotation2d(180)
                 )
             ),

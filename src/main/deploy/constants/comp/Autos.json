@@ -334,6 +334,13 @@
                     }
                 },
                 {
+                    "type": "Wait",
+                    "delay": {
+                        "value": 1,
+                        "unit": "Second"
+                    }
+                },
+                {
                     "type": "Sequence",
                     "actions": [
                         {
@@ -406,7 +413,7 @@
                                                 "degrees": 180.0
                                             },
                                             "translation": {
-                                                "x": 1.4358,
+                                                "x": 1.0358,
                                                 "y": 5.9501219999999995
                                             }
                                         },
@@ -464,10 +471,6 @@
                     "actions": [
                         {
                             "type": "StopShooting"
-                        },
-                        {
-                            "type": "AutoReference",
-                            "name": "LeftClimb"
                         }
                     ]
                 }
@@ -562,7 +565,7 @@
                                         "degrees": 180.0
                                     },
                                     "translation": {
-                                        "x": 1.4358,
+                                        "x": 1.1358,
                                         "y": 5.9501219999999995
                                     }
                                 },
