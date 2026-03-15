@@ -289,6 +289,8 @@ def _shoot_and_depot_left_auto():
             wait(1)
             deploy_intake()
 
+    wait(4)
+
     autopilot(
         target_pose=FieldConstants.Depot.depot_center().to_pose2d().transform_by(
             transform2d(

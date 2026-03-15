@@ -610,6 +610,13 @@
                     ]
                 },
                 {
+                    "type": "Wait",
+                    "delay": {
+                        "value": 4,
+                        "unit": "Second"
+                    }
+                },
+                {
                     "type": "AutoPilotAction",
                     "target": {
                         "reference": {
