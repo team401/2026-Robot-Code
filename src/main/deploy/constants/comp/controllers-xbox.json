@@ -286,23 +286,9 @@
             "elementType": "pov",
             "id": 0
           }
-        }
-      ]
-    },
-    {
-      "port": 1,
-      "type": "xbox",
-      "controlElements": [
-        {
-          "command": "redWonAuto",
-          "commandType": "button",
-          "hapticControlElement": {
-            "elementType": "button",
-            "id": "b"
-          }
         },
         {
-          "command": "blueWonAuto",
+          "command": "operatorHoldForBoost",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",

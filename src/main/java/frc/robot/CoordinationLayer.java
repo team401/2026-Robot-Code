@@ -177,6 +177,9 @@ public class CoordinationLayer {
    */
   private boolean isShotReal = false;
 
+  /** Whether or not we should currently be running boosted intake speed in teleop */
+  private boolean isIntakeBoosted = false;
+
   // Tunable numbers for shot tuning
   private final Lazy<LoggedTunableNumber> hoodTuningAngleDegrees =
       new Lazy<>(
@@ -469,6 +472,10 @@ public class CoordinationLayer {
 
     makeTriggerFromButton(controllers.getButton("operatorDecreaseRPM"))
         .onTrue(new InstantCommand(this::decreaseRPM));
+
+    makeTriggerFromButton(controllers.getButton("operatorHoldForBoost"))
+        .onTrue(new InstantCommand(this::boostIntakeRPM))
+        .onFalse(new InstantCommand(this::stopBoostingIntakeRPM));
   }
 
   /**
@@ -633,6 +640,14 @@ public class CoordinationLayer {
 
   private void decreaseRPM() {
     rpmCompensation.setValue(rpmCompensation.getAsDouble() - 10);
+  }
+
+  private void boostIntakeRPM() {
+    isIntakeBoosted = true;
+  }
+
+  private void stopBoostingIntakeRPM() {
+    isIntakeBoosted = false;
   }
 
   // Subsystem initialization
@@ -840,6 +855,9 @@ public class CoordinationLayer {
       intake.ifPresent(
           intake -> {
             var rollerSpeed = JsonConstants.intakeConstants.intakeTeleOpRollerSpeed;
+            if (isIntakeBoosted) {
+              rollerSpeed = JsonConstants.intakeConstants.intakeTeleOpBoostedRollerSpeed;
+            }
             if (DriverStation.isAutonomous()) {
               rollerSpeed = JsonConstants.intakeConstants.intakeAutoRollerSpeed;
             }
@@ -894,15 +912,15 @@ public class CoordinationLayer {
                 .orElse(true);
 
     boolean canShoot =
-        isForceShootPressed.getAsBoolean()
-            || (shootingEnabled
-                && canShootInCurrentMatchState
-                && canPassPastNet
-                && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
-                && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
-                // When the turret isn't enabled, assume that it's been locked into the correct
-                // location for a manual mode shot if we ever have to run "no turret"
-                && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true));
+        shootingEnabled
+            && (isForceShootPressed.getAsBoolean()
+                || (canShootInCurrentMatchState
+                    && canPassPastNet
+                    && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
+                    && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
+                    // When the turret isn't enabled, assume that it's been locked into the correct
+                    // location for a manual mode shot if we ever have to run "no turret"
+                    && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true)));
     Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
 
     if (canShoot) {

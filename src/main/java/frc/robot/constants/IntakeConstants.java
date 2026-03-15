@@ -64,6 +64,7 @@ public class IntakeConstants {
 
   // Roller speeds
   public AngularVelocity intakeTeleOpRollerSpeed = RPM.of(1500.0);
+  public AngularVelocity intakeTeleOpBoostedRollerSpeed = RPM.of(2000.0);
   public AngularVelocity intakeAutoRollerSpeed = RPM.of(2000.0);
 
   // Homing parameters
