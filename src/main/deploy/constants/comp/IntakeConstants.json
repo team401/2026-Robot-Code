@@ -38,11 +38,11 @@
     "unit": "Degree"
   },
   "intakeTeleOpRollerSpeed": {
-    "value": 3000.0,
+    "value": 2500.0,
     "unit": "RPM"
   },
   "intakeTeleOpBoostedRollerSpeed": {
-    "value": 2500.0,
+    "value": 3000.0,
     "unit": "RPM"
   },
   "intakeAutoRollerSpeed": {
