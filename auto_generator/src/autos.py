@@ -43,7 +43,7 @@ def _right_side_auto():
     # And disabling the second entry angle because if we start past the first trench pose we go back to the first pose
     # and then we try to loop to because our entry angle would be wrong.
     stopShooting()
-    go_to_center_under_right_trench_from_alliance(first_entry_angle=None, second_entry_angle=None)
+    go_to_center_under_right_trench_from_alliance()
 
 
     # Go to a pose that is clear of the trench and has a good angle to intake balls from the center, and then we can drive to the center from there to intake the balls.
@@ -135,7 +135,7 @@ def _left_side_auto():
     # Trying to make a loop
     # And disabling the second entry angle because if we start past the first trench pose we go back to the first pose
     # and then we try to loop to because our entry angle would be wrong.
-    go_to_center_under_left_trench_from_alliance(first_entry_angle=None, second_entry_angle=None)
+    go_to_center_under_left_trench_from_alliance()
 
 
     # Go to a pose that is clear of the trench and has a good angle to intake balls from the center, and then we can drive to the center from there to intake the balls.
@@ -170,7 +170,7 @@ def _left_side_auto():
                 jerk=2
             ),
             error_theta=units.Degree.of(360),
-            error_x_y=units.Meter.of(0.15),
+            error_x_y=units.Meter.of(0.25),
             beeline_radius=units.Meter.of(0.5)
         )
     )
@@ -255,3 +255,58 @@ def _shoot_and_climb_right_auto():
     with parallel():
         stopShooting()
         routines.LeftClimb()
+
+@auto("Shoot and Depot Left Auto")
+def _shoot_and_depot_left_auto():
+    startShooting()
+
+    wait(5)
+
+    stopShooting()
+
+    with parallel():
+        autopilot(
+            target_pose=FieldConstants.Depot.depot_center().to_pose2d().transform_by(
+                transform2d(
+                    translation=translation2d(x=0.75),
+                    rotation=rotation2d(180)
+                )
+            ),
+            rotation_radius=units.Meter.of(2),
+            profile=auto_action.APProfile(
+                constraints=APConstraints(
+                    velocity=3,
+                    acceleration=2,
+                    jerk=2
+                ),
+                error_theta=units.Degree.of(360),
+                error_x_y=units.Meter.of(0.25),
+                beeline_radius=units.Meter.of(0.5)
+            )
+        )
+
+        with sequence():
+            wait(1)
+            deploy_intake()
+
+    autopilot(
+        target_pose=FieldConstants.Depot.depot_center().to_pose2d().transform_by(
+            transform2d(
+                translation=translation2d(x=2.25),
+                rotation=rotation2d(180)
+            )
+        ),
+        rotation_radius=units.Meter.of(2),
+        profile=auto_action.APProfile(
+            constraints=APConstraints(
+                velocity=3,
+                acceleration=2,
+                jerk=2
+            ),
+            error_theta=units.Degree.of(360),
+            error_x_y=units.Meter.of(0.25),
+            beeline_radius=units.Meter.of(0.5)
+        )
+    )
+
+    startShooting()
