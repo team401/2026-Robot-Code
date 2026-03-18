@@ -209,7 +209,7 @@ def _left_side_auto():
             autopilot(
                 target_pose=FieldConstants.Depot.depot_center().to_pose2d().transform_by(
                     transform2d(
-                        translation=translation2d(x=0.0),
+                        translation=translation2d(x=1.0),
                         rotation=rotation2d(180)
                     )
                 ),

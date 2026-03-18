@@ -8,6 +8,8 @@ import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAction;
 import frc.robot.constants.FieldConstants;
@@ -37,7 +39,9 @@ public class AutoPilotAction extends AutoAction {
         target.getReference(), "Target Pose cannot be null for AutoPilot Action");
 
     fixedTarget = target;
-    if (allianceRelative) {
+    if (allianceRelative
+        && DriverStation.getAlliance().isPresent()
+        && DriverStation.getAlliance().get() == Alliance.Red) {
       var originalTarget = target.getReference();
       var flippedTarget =
           originalTarget.rotateAround(
@@ -45,6 +49,11 @@ public class AutoPilotAction extends AutoAction {
                   FieldConstants.fieldLength() / 2.0, FieldConstants.fieldWidth() / 2.0),
               Rotation2d.fromDegrees(180));
       fixedTarget = target.withReference(flippedTarget);
+      if (fixedTarget.getEntryAngle().isPresent()) {
+        fixedTarget =
+            fixedTarget.withEntryAngle(
+                fixedTarget.getEntryAngle().get().rotateBy(Rotation2d.fromDegrees(180)));
+      }
     }
 
     profile =

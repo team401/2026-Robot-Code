@@ -21,7 +21,7 @@ from .shorthands import (
 
 # I really want to rename these commands or do something about them
 
-def go_to_alliance_under_left_trench(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
+def go_to_alliance_under_left_trench(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(180), second_entry_angle = rotation2d(180)):
     transform = AutoAction.Transform2d(
         rotation=rotation,
     )
@@ -37,7 +37,7 @@ def go_to_alliance_under_left_trench(velocity = Constants.default_trench_velocit
             entry_angle=second_entry_angle
         )
 
-def go_to_alliance_under_right_trench(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
+def go_to_alliance_under_right_trench(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(180), second_entry_angle = rotation2d(180)):
     transform = AutoAction.Transform2d(
         rotation=rotation,
     )
@@ -53,7 +53,7 @@ def go_to_alliance_under_right_trench(velocity = Constants.default_trench_veloci
             entry_angle=second_entry_angle
         )
 
-def go_to_center_under_left_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(), first_entry_angle = rotation2d(180), second_entry_angle = rotation2d(180)):
+def go_to_center_under_left_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
     transform = AutoAction.Transform2d(
         rotation=rotation,
     )
@@ -69,7 +69,7 @@ def go_to_center_under_left_trench_from_alliance(velocity = Constants.default_tr
             entry_angle=second_entry_angle
         )
 
-def go_to_center_under_right_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(180), second_entry_angle = rotation2d(180)):
+def go_to_center_under_right_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
     transform = AutoAction.Transform2d(
         rotation=rotation,
     )
