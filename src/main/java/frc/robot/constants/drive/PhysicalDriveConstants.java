@@ -48,7 +48,7 @@ public class PhysicalDriveConstants {
       new TalonFXConfiguration()
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withSupplyCurrentLimit(Amps.of(70.0))
+                  .withSupplyCurrentLimit(Amps.of(40.0))
                   .withSupplyCurrentLimitEnable(true));
   private static final TalonFXConfiguration steerInitialConfigs =
       new TalonFXConfiguration()
