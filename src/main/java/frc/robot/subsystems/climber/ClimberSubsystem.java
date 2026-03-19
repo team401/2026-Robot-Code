@@ -27,6 +27,7 @@ import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -185,6 +186,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   public void monitoredPeriodic() {
     motor.updateInputs(inputs);
     Logger.processInputs("Climber/inputs", inputs);
+
+    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+
     Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
     Logger.recordOutput("Climber/StateAfter", stateMachine.getCurrentState().getName());

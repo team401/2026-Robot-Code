@@ -16,6 +16,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.util.PIDGains;
 import org.littletonrobotics.junction.Logger;
 
@@ -60,6 +63,13 @@ public class Module {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(loggerKey, inputs);
+    if (Constants.currentMode == Mode.REPLAY) {
+      Logger.recordOutput(
+          "Drive/Module" + index + "/SupplyCurrentAmps",
+          Math.abs(inputs.driveAppliedVolts)
+              * inputs.driveCurrentAmps
+              / RobotController.getBatteryVoltage());
+    }
 
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
@@ -74,6 +84,12 @@ public class Module {
     driveDisconnectedAlert.set(!inputs.driveConnected);
     turnDisconnectedAlert.set(!inputs.turnConnected);
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
+  }
+
+  public double getSupplyCurrentAmps() {
+    return (Math.abs(inputs.driveAppliedVolts) * inputs.driveCurrentAmps
+            + Math.abs(inputs.turnAppliedVolts * inputs.turnCurrentAmps))
+        / RobotController.getBatteryVoltage();
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */

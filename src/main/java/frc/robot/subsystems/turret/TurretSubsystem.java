@@ -34,6 +34,7 @@ import frc.robot.subsystems.turret.TurretState.WearInState;
 import frc.robot.util.AngleUtil;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -247,6 +248,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
   public void updateInputs() {
     motor.updateInputs(inputs);
     Logger.processInputs("Turret/inputs", inputs);
+
+    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.recordOutput("Turret/closedLoopReferenceRadians", inputs.closedLoopReference);
     Logger.recordOutput(
