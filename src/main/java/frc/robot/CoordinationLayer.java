@@ -177,6 +177,9 @@ public class CoordinationLayer {
    */
   private boolean isShotReal = false;
 
+  /** Whether or not we should currently be running boosted intake speed in teleop */
+  private boolean isIntakeBoosted = false;
+
   // Tunable numbers for shot tuning
   private final Lazy<LoggedTunableNumber> hoodTuningAngleDegrees =
       new Lazy<>(
@@ -389,11 +392,19 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("stopShooting"))
         .onTrue(new InstantCommand(this::stopShooting));
 
-    // TODO: Add smart mode climb controls
-    Trigger eitherClimbPressed =
-        makeTriggerFromButton(controllers.getButton("climbLeft"))
-            .or(controllers.getButton("climbRight").getPrimitiveIsPressedSupplier());
+    Trigger climbLeft = makeTriggerFromButton(controllers.getButton("climbLeft"));
+    Trigger climbRight = makeTriggerFromButton(controllers.getButton("climbRight"));
+
+    climbLeft
+        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
+        .whileTrue(JsonConstants.autos.getRoutineCommandReference("LeftClimb"));
+    climbRight
+        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
+        .whileTrue(JsonConstants.autos.getRoutineCommandReference("RightClimb"));
+
+    Trigger eitherClimbPressed = climbLeft.or(climbRight);
     eitherClimbPressed
+        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Manual))
         .onTrue(
             new InstantCommand(
                 () -> {
@@ -455,6 +466,16 @@ public class CoordinationLayer {
 
     makeTriggerFromButton(controllers.getButton("operatorEnableAutonomy"))
         .onTrue(new InstantCommand(this::enableAutonomy));
+
+    makeTriggerFromButton(controllers.getButton("operatorIncreaseRPM"))
+        .onTrue(new InstantCommand(this::increaseRPM));
+
+    makeTriggerFromButton(controllers.getButton("operatorDecreaseRPM"))
+        .onTrue(new InstantCommand(this::decreaseRPM));
+
+    makeTriggerFromButton(controllers.getButton("operatorHoldForBoost"))
+        .onTrue(new InstantCommand(this::boostIntakeRPM))
+        .onFalse(new InstantCommand(this::stopBoostingIntakeRPM));
   }
 
   /**
@@ -478,6 +499,62 @@ public class CoordinationLayer {
    */
   private Trigger makeTriggerFromButton(Button button) {
     return makeTriggerFromCondition(button.getPrimitiveIsPressedSupplier());
+  }
+
+  // AUTO METHOD
+  // Only autos are allowed to call these methods
+
+  // Docs Written by Claude Opus 4.6
+  /**
+   * Deploys the intake mechanism and activates the intake rollers for autonomous operation. Sets
+   * the goal extension state to {@link ExtensionState#IntakeDeployed} and enables the intake
+   * rollers to begin collecting game pieces.
+   */
+  public void deployIntakeForAuto() {
+    goalExtensionState = ExtensionState.IntakeDeployed;
+    runningIntakeRollers = true;
+  }
+
+  // Docs Written by Claude Opus 4.6
+  /**
+   * Stows the intake mechanism for autonomous mode by retracting the extension and stopping the
+   * intake rollers.
+   *
+   * <p>This method should be called before or during autonomous routines to ensure the intake is in
+   * a safe, retracted position and not actively running.
+   *
+   * <p>Effects:
+   *
+   * <ul>
+   *   <li>Sets the goal extension state to {@link ExtensionState#None}, retracting the intake.
+   *   <li>Stops the intake rollers by setting {@code runningIntakeRollers} to {@code false}.
+   * </ul>
+   */
+  public void stowIntakeForAuto() {
+    goalExtensionState = ExtensionState.None;
+    runningIntakeRollers = false;
+  }
+
+  public void climbSearchForAuto() {
+    goalExtensionState = ExtensionState.ClimbDeployed;
+    climber.ifPresent(ClimberSubsystem::search);
+  }
+
+  public boolean isClimbSearchFinishedForAuto() {
+    return climber.map(ClimberSubsystem::isAtSearchPosition).orElse(true);
+  }
+
+  public void climbHangForAuto() {
+    goalExtensionState = ExtensionState.ClimbDeployed;
+    climber.ifPresent(ClimberSubsystem::hang);
+  }
+
+  public void startShootingForAuto() {
+    shootingEnabled = true;
+  }
+
+  public void stopShootingForAuto() {
+    shootingEnabled = false;
   }
 
   /**
@@ -555,6 +632,22 @@ public class CoordinationLayer {
 
   private void enableAutonomy() {
     autonomyLevel = AutonomyLevel.Smart;
+  }
+
+  private void increaseRPM() {
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() + 10);
+  }
+
+  private void decreaseRPM() {
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() - 10);
+  }
+
+  private void boostIntakeRPM() {
+    isIntakeBoosted = true;
+  }
+
+  private void stopBoostingIntakeRPM() {
+    isIntakeBoosted = false;
   }
 
   // Subsystem initialization
@@ -760,7 +853,16 @@ public class CoordinationLayer {
     // Allow running rollers when the intake is retracted
     if (runningIntakeRollers) {
       intake.ifPresent(
-          intake -> intake.runRollers(JsonConstants.intakeConstants.intakeRollerSpeed));
+          intake -> {
+            var rollerSpeed = JsonConstants.intakeConstants.intakeTeleOpRollerSpeed;
+            if (isIntakeBoosted) {
+              rollerSpeed = JsonConstants.intakeConstants.intakeTeleOpBoostedRollerSpeed;
+            }
+            if (DriverStation.isAutonomous()) {
+              rollerSpeed = JsonConstants.intakeConstants.intakeAutoRollerSpeed;
+            }
+            intake.runRollers(rollerSpeed);
+          });
     } else {
       intake.ifPresent(IntakeSubsystem::stopRollers);
     }
@@ -810,15 +912,15 @@ public class CoordinationLayer {
                 .orElse(true);
 
     boolean canShoot =
-        isForceShootPressed.getAsBoolean()
-            || (shootingEnabled
-                && canShootInCurrentMatchState
-                && canPassPastNet
-                && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
-                && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
-                // When the turret isn't enabled, assume that it's been locked into the correct
-                // location for a manual mode shot if we ever have to run "no turret"
-                && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true));
+        shootingEnabled
+            && (isForceShootPressed.getAsBoolean()
+                || (canShootInCurrentMatchState
+                    && canPassPastNet
+                    && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
+                    && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
+                    // When the turret isn't enabled, assume that it's been locked into the correct
+                    // location for a manual mode shot if we ever have to run "no turret"
+                    && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true)));
     Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
 
     if (canShoot) {
@@ -982,7 +1084,7 @@ public class CoordinationLayer {
 
   // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf pg 5-6
   private final double SAFETY_WIDTH =
-      44.4 * 0.0254; // Andymark bump: length of the side parallel to field's x-axis
+      44.4 * 0.0254 * 2.5; // Andymark bump: length of the side parallel to field's x-axis
   private final double SAFETY_HEIGHT =
       49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field
   // coordinate system
@@ -1024,6 +1126,12 @@ public class CoordinationLayer {
 
     Translation2d movementStart = shooterPose;
     Translation2d movementEnd = movementStart.plus(predictedMovement);
+
+    for (var protectedZone : trenchZones) {
+      if (protectedZone.contains(movementEnd)) {
+        return true;
+      }
+    }
 
     Logger.recordOutput(
         "CoordinationLayer/ShooterTrajectory", new Translation2d[] {movementStart, movementEnd});

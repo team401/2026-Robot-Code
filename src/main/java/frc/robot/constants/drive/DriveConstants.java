@@ -56,4 +56,15 @@ public class DriveConstants {
   public PIDGains steerGains = new PIDGains(100, 0.0, 0.5, 0.1, 0.0, 2.49, 0.0);
 
   public PIDGains driveGains = new PIDGains(0.1, 0.0, 0.0, 0.20845, 0.0, 0.75722, 0.0);
+
+  public PIDGains defaultAutoPilotHeadingGains = PIDGains.kPID(3.0, 0.0, 0.0);
+
+  // AutoPilot constraints
+  public Double defaultAutoPilotVelocity = 3.0; // m/s
+  public Double defaultAutoPilotAcceleration = 3.0; // m/s^2
+  public Double defaultAutoPilotJerk = 3.0; // m/s^3
+
+  public Distance defaultAutoPilotBeelineRadius = Meters.of(0.1);
+  public Angle defaultAutoPilotHeadingTolerance = Degrees.of(3.0);
+  public Distance defaultAutoPilotXYTolerance = Meters.of(0.1);
 }

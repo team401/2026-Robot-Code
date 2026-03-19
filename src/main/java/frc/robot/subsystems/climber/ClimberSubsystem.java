@@ -16,6 +16,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
@@ -370,6 +371,13 @@ public class ClimberSubsystem extends MonitoredSubsystem {
    */
   public boolean isStowedOrHasntBeenHomed() {
     return stateMachine.getCurrentState() == waitForHomingState || isStowed();
+  }
+
+  public boolean isAtSearchPosition() {
+    Angle position = Radians.of(inputs.positionRadians);
+    return position.isNear(
+        JsonConstants.climberConstants.upperClimbAngle,
+        JsonConstants.climberConstants.climbSearchAngleMargin);
   }
 
   /**

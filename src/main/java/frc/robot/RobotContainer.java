@@ -62,7 +62,7 @@ public class RobotContainer {
   public RobotContainer() {
     CopperCoreMetadata.printInfo();
 
-    jsonHandler = JsonConstants.loadConstants();
+    jsonHandler = JsonConstants.loadConstants(this);
     JsonConstants.featureFlags.logFlags();
 
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
@@ -148,10 +148,18 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
+    loadAutoCommands();
+
     // Configure the button bindings
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+  }
+
+  public void loadAutoCommands() {
+    JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
+
+    createAutoChooser(drive.orElse(null));
   }
 
   /*
@@ -176,20 +184,26 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
     // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    if (drive != null) {
+      autoChooser.addOption(
+          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+      autoChooser.addOption(
+          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    }
+
+    for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
+      autoChooser.addOption(auto.getKey(), auto.getValue());
+    }
   }
 
   /**

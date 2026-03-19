@@ -292,6 +292,45 @@ export function ShotMapsEditor() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
+      {(data.mechanismCompensationDelay !== undefined || data.rpmCompensation !== undefined) && (
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          {data.mechanismCompensationDelay !== undefined && (
+            <TextField
+              type="number"
+              size="small"
+              label="Mechanism Compensation Delay (s)"
+              value={data.mechanismCompensationDelay.value}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  mechanismCompensationDelay: {
+                    ...data.mechanismCompensationDelay!,
+                    value: parseFloat(e.target.value) || 0,
+                  },
+                })
+              }
+            />
+          )}
+          {data.rpmCompensation !== undefined && (
+            <TextField
+              type="number"
+              size="small"
+              label="RPM Compensation (RPM)"
+              value={data.rpmCompensation.value}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  rpmCompensation: {
+                    ...data.rpmCompensation!,
+                    value: parseFloat(e.target.value) || 0,
+                  },
+                })
+              }
+            />
+          )}
+        </Box>
+      )}
+
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs
           value={activeTab}
@@ -310,29 +349,6 @@ export function ShotMapsEditor() {
         rows={activeConfig.rows}
         onChange={activeConfig.onChange}
       />
-
-      {data.mechanismCompensationDelay !== undefined && (
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>Mechanism Compensation Delay</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TextField
-              type="number"
-              size="small"
-              label="Value (s)"
-              value={data.mechanismCompensationDelay.value}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  mechanismCompensationDelay: {
-                    ...data.mechanismCompensationDelay!,
-                    value: parseFloat(e.target.value) || 0,
-                  },
-                })
-              }
-            />
-          </Box>
-        </Box>
-      )}
 
       <Snackbar open={snack !== null} autoHideDuration={3000} onClose={() => setSnack(null)}>
         <Alert severity={snack?.severity ?? 'success'} variant="filled" onClose={() => setSnack(null)}>

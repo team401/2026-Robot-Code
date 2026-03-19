@@ -80,7 +80,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     this.rollersTargetSpeedTunable =
         new LoggedTunableNumber(
             "IntakeTunables/RollersTargetSpeedRPM",
-            JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM));
+            JsonConstants.intakeConstants.intakeTeleOpRollerSpeed.in(RPM));
 
     this.intakeStateMachine = new StateMachine<IntakeSubsystem>(this);
 
@@ -220,7 +220,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     if (rollerTestModeManager.getTestMode() == RollerTestMode.RollerSpeedTuning) {
       LoggedTunableNumber.ifChanged(
           hashCode(),
-          rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = RPM.of(rollerSpeed[0]),
+          rollerSpeed ->
+              JsonConstants.intakeConstants.intakeTeleOpRollerSpeed = RPM.of(rollerSpeed[0]),
           rollersTargetSpeedTunable);
     }
 

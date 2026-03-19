@@ -266,23 +266,29 @@
             "elementType": "pov",
             "id": 0
           }
-        }
-      ]
-    },
-    {
-      "port": 1,
-      "type": "xbox",
-      "controlElements": [
+        },
         {
-          "command": "redWonAuto",
+          "command": "operatorIncreaseRPM",
           "commandType": "button",
+          "threshold": 90,
+          "thresholdRange": 5,
           "hapticControlElement": {
-            "elementType": "button",
-            "id": "b"
+            "elementType": "pov",
+            "id": 0
           }
         },
         {
-          "command": "blueWonAuto",
+          "command": "operatorDecreaseRPM",
+          "commandType": "button",
+          "threshold": 270,
+          "thresholdRange": 5,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
+        },
+        {
+          "command": "operatorHoldForBoost",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",

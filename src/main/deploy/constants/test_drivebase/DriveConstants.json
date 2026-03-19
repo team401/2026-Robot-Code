@@ -58,5 +58,29 @@
     "kG": 0.0,
     "kV": 0.75722,
     "kA": 0.0
+  },
+  "defaultAutoPilotHeadingGains": {
+    "kP": 6.0,
+    "kI": 0.0,
+    "kD": 0.0,
+    "kS": 0.0,
+    "kG": 0.0,
+    "kV": 0.0,
+    "kA": 0.0
+  },
+  "defaultAutoPilotVelocity": 3.0,
+  "defaultAutoPilotAcceleration": 3.0,
+  "defaultAutoPilotJerk": 3.0,
+  "defaultAutoPilotBeelineRadius": {
+    "value": 0.1,
+    "unit": "Meter"
+  },
+  "defaultAutoPilotHeadingTolerance": {
+    "value": 3.0,
+    "unit": "Degree"
+  },
+  "defaultAutoPilotXYTolerance": {
+    "value": 0.1,
+    "unit": "Meter"
   }
 }
