@@ -51,6 +51,7 @@ public class ClimberConstants {
       homingAngle.plus(Degrees.of(22700.0)); // TODO: Find actual value for this
   public final Angle hangClimbAngle =
       homingAngle.plus(Degrees.of(15000.0)); // TODO: Find actual value for this
+  public final Angle climbSearchAngleMargin = Degrees.of(250);
 
   /** When the climber is at or below this angle, it is considered stowed */
   public final Angle maxStowedAngle = Degrees.of(500.0);

@@ -5,23 +5,38 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
+import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.JSONHandler;
-import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
+import frc.robot.auto.AutoAction;
+import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
+import frc.robot.util.json.FixedJSONSyncConfigBuilder;
+import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONMotionProfileConfig;
+import frc.robot.util.json.JSONRotation2d;
 import frc.robot.util.json.JSONRotation3d;
 import frc.robot.util.json.JSONTransform2d;
 import frc.robot.util.json.JSONTransform3d;
+import frc.robot.util.json.OptionalTypeAdapterFactory;
+import frc.robot.util.ts.PythonGenerator;
+import frc.robot.util.ts.PythonGeometryMethods;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -29,6 +44,7 @@ import frc.robot.util.json.JSONTransform3d;
  */
 public class JsonConstants {
   public static EnvironmentHandler environmentHandler;
+  public static JSONHandler jsonHandler;
 
   // TODO: Figure out a better way to serialize the MotionProfileConfig
   static {
@@ -39,25 +55,32 @@ public class JsonConstants {
 
     JSONConverter.addConversion(Transform2d.class, JSONTransform2d.class);
     JSONConverter.addConversion(Transform3d.class, JSONTransform3d.class);
+    JSONConverter.addConversion(Rotation2d.class, JSONRotation2d.class);
     JSONConverter.addConversion(Rotation3d.class, JSONRotation3d.class);
+    JSONConverter.addConversion(APTarget.class, JSONAPTarget.class);
 
     JSONMeasure.registerUnit(Amp.per(Second));
     JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
-  public static JSONHandler loadConstants() {
+  public static JSONHandler loadConstants(RobotContainer robotContainer) {
+
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
-    var jsonSyncSettings = new JSONSyncConfigBuilder();
+    var jsonSyncSettings = new FixedJSONSyncConfigBuilder();
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
+
+    jsonSyncSettings.addJsonTypeAdapterFactory(new OptionalTypeAdapterFactory());
+
+    jsonSyncSettings.setUpPolymorphAdapter(AutoAction.class);
 
     var pathProvider = environmentHandler.getEnvironmentPathProvider();
 
     System.out.println("[JsonConstants] Environment name: " + pathProvider.getEnvironmentName());
-    var jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
+    jsonHandler = new JSONHandler(jsonSyncSettings.build(), pathProvider);
 
     robotInfo = jsonHandler.getObject(new RobotInfo(), "RobotInfo.json");
     aprilTagConstants = jsonHandler.getObject(new AprilTagConstants(), "AprilTagConstants.json");
@@ -81,6 +104,7 @@ public class JsonConstants {
     transferRollerConstants =
         jsonHandler.getObject(new TransferRollerConstants(), "TransferRollerConstants.json");
     shotMaps = jsonHandler.getObject(new ShotMaps(), "ShotMaps.json");
+
     redFieldLocations =
         jsonHandler.getObject(new FieldLocationInstance(), "RedFieldLocations.json");
     blueFieldLocations =
@@ -88,6 +112,8 @@ public class JsonConstants {
     manualModeConstants =
         jsonHandler.getObject(new ManualModeConstants(), "ManualModeConstants.json");
     strategyConstants = jsonHandler.getObject(new StrategyConstants(), "StrategyConstants.json");
+
+    autos = jsonHandler.getObject(new Autos(), "Autos.json");
 
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
@@ -102,6 +128,13 @@ public class JsonConstants {
         jsonHandler.addRoute("/intake", intakeConstants);
         jsonHandler.addRoute("/climber", climberConstants);
         jsonHandler.addRoute("/vision", visionConstants);
+        jsonHandler.addRoute("/autos", autos);
+        jsonHandler.registerPostCallback(
+            "/autos",
+            (autos) -> {
+              robotContainer.loadAutoCommands();
+              return true;
+            });
         jsonHandler.registerPostCallback(
             "/vision",
             (visionConstants) -> {
@@ -123,6 +156,21 @@ public class JsonConstants {
 
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
+
+    if (Constants.currentMode == Constants.Mode.SIM) {
+      PythonGeometryMethods.registerAll();
+      PythonGenerator.generateForClasses(
+          "auto_action.py",
+          AutoAction.class,
+          Transform2d.class,
+          Transform3d.class,
+          Rotation2d.class,
+          Rotation3d.class,
+          Pose2d.class,
+          Pose3d.class,
+          Translation2d.class,
+          Translation3d.class);
+    }
     return jsonHandler;
   }
 
@@ -147,6 +195,8 @@ public class JsonConstants {
   public static ClimberConstants climberConstants;
   public static ManualModeConstants manualModeConstants;
   public static StrategyConstants strategyConstants;
+
+  public static Autos autos;
 
   public static Controllers controllers;
 }

@@ -14,4 +14,5 @@ export interface ShotMaps {
   hubDataPoints: ShotMapDataPoint[];
   passDataPoints: ShotMapDataPoint[];
   mechanismCompensationDelay?: UnitValue;
+  rpmCompensation?: UnitValue;
 }

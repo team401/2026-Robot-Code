@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
@@ -35,6 +36,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.util.TotalCurrentCalculator;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -70,7 +72,7 @@ public class RobotContainer {
   public RobotContainer() {
     CopperCoreMetadata.printInfo();
 
-    jsonHandler = JsonConstants.loadConstants();
+    jsonHandler = JsonConstants.loadConstants(this);
     JsonConstants.featureFlags.logFlags();
 
     dependencyOrderedExecutor = new DependencyOrderedExecutor();
@@ -156,10 +158,22 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
+    loadAutoCommands();
+
     // Configure the button bindings
     configureButtonBindings();
 
     dependencyOrderedExecutor.finalizeSchedule();
+
+    if (Constants.currentMode == Mode.REPLAY) {
+      TotalCurrentCalculator.enable();
+    }
+  }
+
+  public void loadAutoCommands() {
+    JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
+
+    createAutoChooser(drive.orElse(null));
   }
 
   public void updateRobotModel() {
@@ -258,20 +272,26 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
     // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    if (drive != null) {
+      autoChooser.addOption(
+          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+      autoChooser.addOption(
+          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    }
+
+    for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
+      autoChooser.addOption(auto.getKey(), auto.getValue());
+    }
   }
 
   /**

@@ -16,6 +16,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
@@ -26,6 +27,7 @@ import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -184,6 +186,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   public void monitoredPeriodic() {
     motor.updateInputs(inputs);
     Logger.processInputs("Climber/inputs", inputs);
+
+    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+
     Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
     Logger.recordOutput("Climber/StateAfter", stateMachine.getCurrentState().getName());
@@ -370,6 +375,13 @@ public class ClimberSubsystem extends MonitoredSubsystem {
    */
   public boolean isStowedOrHasntBeenHomed() {
     return stateMachine.getCurrentState() == waitForHomingState || isStowed();
+  }
+
+  public boolean isAtSearchPosition() {
+    Angle position = Radians.of(inputs.positionRadians);
+    return position.isNear(
+        JsonConstants.climberConstants.upperClimbAngle,
+        JsonConstants.climberConstants.climbSearchAngleMargin);
   }
 
   /**

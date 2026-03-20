@@ -4,7 +4,7 @@
     "unit": "Meter"
   },
   "bluePassHeading": {
-    "radians": 3.141592653589793
+    "degrees": 180.0
   },
   "redPassHeading": {
     "radians": 0.0
@@ -17,6 +17,6 @@
     "radians": 0.0
   },
   "redHubHeading": {
-    "radians": 3.141592653589793
+    "degrees": 180.0
   }
 }

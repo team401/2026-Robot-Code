@@ -28,7 +28,7 @@
     "unit": "Degree"
   },
   "maxHoodAngle": {
-    "value": 68.99,
+    "value": 58.99,
     "unit": "Degree"
   },
   "hoodSetpointEpsilon": {
@@ -40,7 +40,7 @@
     "unit": "Degree"
   },
   "timeToStowHood": {
-    "value": 0.5,
+    "value": 1.5,
     "unit": "Second"
   },
   "hoodRequestUpdateFrequency": {

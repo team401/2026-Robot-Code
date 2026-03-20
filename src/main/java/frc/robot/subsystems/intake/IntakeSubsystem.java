@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -42,6 +43,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   private LoggedTunableNumber rollersTargetSpeedTunable;
 
   private IntakeDependencies dependencies = new IntakeDependencies();
+
+  private boolean needsReHome = false;
 
   // Dependencies (these are what we would have fetched using extensive supplier networks in 2025
   // and before)
@@ -78,7 +81,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     this.rollersTargetSpeedTunable =
         new LoggedTunableNumber(
             "IntakeTunables/RollersTargetSpeedRPM",
-            JsonConstants.intakeConstants.intakeRollerSpeed.in(RPM));
+            JsonConstants.intakeConstants.intakeTeleOpRollerSpeed.in(RPM));
 
     this.intakeStateMachine = new StateMachine<IntakeSubsystem>(this);
 
@@ -112,6 +115,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     IntakeState.controlToPositionState
         .when(IntakeState::shouldBeInTestMode, "Should be in test mode")
         .transitionTo(IntakeState.testModeState);
+    IntakeState.controlToPositionState.whenRequestedTransitionTo(
+        IntakeState.homingWaitForMovementState);
     IntakeState.testModeState.whenFinished().transitionTo(IntakeState.controlToPositionState);
 
     // ### Homing Button Transitions
@@ -190,10 +195,15 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   public void setTargetPositionStowed() {
     setTargetPivotAngle(JsonConstants.intakeConstants.stowPositionAngle);
+    needsReHome = true;
   }
 
   public void setTargetPositionIntaking() {
     setTargetPivotAngle(JsonConstants.intakeConstants.intakePositionAngle);
+    if (needsReHome) {
+      intakeStateMachine.requestState(IntakeState.homingWaitForMovementState);
+      needsReHome = false;
+    }
   }
 
   @Override
@@ -201,6 +211,12 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     pivotMotorIO.updateInputs(pivotInputs);
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
     rollersFollowerMotorIO.updateInputs(rollerFollowerMotorInputs);
+
+    TotalCurrentCalculator.reportCurrent(
+        hashCode(),
+        pivotInputs.supplyCurrentAmps
+            + rollerLeadMotorInputs.supplyCurrentAmps
+            + rollerFollowerMotorInputs.supplyCurrentAmps);
 
     Logger.processInputs("Intake/Pivot/Inputs", pivotInputs);
     Logger.processInputs("Intake/RollerLead/Inputs", rollerLeadMotorInputs);
@@ -211,7 +227,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     if (rollerTestModeManager.getTestMode() == RollerTestMode.RollerSpeedTuning) {
       LoggedTunableNumber.ifChanged(
           hashCode(),
-          rollerSpeed -> JsonConstants.intakeConstants.intakeRollerSpeed = RPM.of(rollerSpeed[0]),
+          rollerSpeed ->
+              JsonConstants.intakeConstants.intakeTeleOpRollerSpeed = RPM.of(rollerSpeed[0]),
           rollersTargetSpeedTunable);
     }
 

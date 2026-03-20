@@ -11,8 +11,8 @@ java {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
+    // mavenLocal()
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -74,7 +74,7 @@ deploy {
                     directory = '/home/lvuser/deploy'
                     // Change to true to delete files on roboRIO that no
                     // longer exist in deploy directory on roboRIO
-                    deleteOldFiles = false
+                    deleteOldFiles = true
                 }
             }
         }
@@ -123,7 +123,9 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
-    def coppercoreVersion = "2026.2.15"
+    def coppercoreVersion = "2026.2.17"
+
+    implementation "com.google.code.gson:gson:2.11.0"
 
     implementation "io.github.team401.coppercore:controls:$coppercoreVersion"
     implementation "io.github.team401.coppercore:geometry:$coppercoreVersion"
@@ -187,7 +189,7 @@ gversion {
 task(eventDeploy) {
     doLast {
         if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
-            def branchPrefix = "event"
+            def branchPrefix = "2026-"
             def branch = 'git branch --show-current'.execute().text.trim()
             def commitMessage = "Update at '${new Date().toString()}'"
 
@@ -243,7 +245,7 @@ spotless {
     json {
         target fileTree(".") {
             include "**/*.json"
-            exclude "**/build/**", "**/build-*/**", "elastic_layouts/*.json", "settings_gui/**"
+            exclude "**/build/**", "**/build-*/**", "elastic_layouts/*.json", "settings_gui/**", "auto_generator/**"
         }
         gson().indentWithSpaces(2)
     }

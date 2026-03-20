@@ -63,7 +63,9 @@ public class IntakeConstants {
   public final Angle stowThresholdAngle = Degrees.of(87.0);
 
   // Roller speeds
-  public AngularVelocity intakeRollerSpeed = RPM.of(1500.0);
+  public AngularVelocity intakeTeleOpRollerSpeed = RPM.of(1500.0);
+  public AngularVelocity intakeTeleOpBoostedRollerSpeed = RPM.of(2000.0);
+  public AngularVelocity intakeAutoRollerSpeed = RPM.of(2000.0);
 
   // Homing parameters
   public final AngularVelocity homingMovementThreshold = RadiansPerSecond.of(0.1);
