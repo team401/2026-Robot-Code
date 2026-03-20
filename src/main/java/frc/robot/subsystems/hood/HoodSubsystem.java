@@ -36,6 +36,7 @@ import frc.robot.subsystems.hood.HoodState.TargetExitPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -248,6 +249,8 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private void updateInputs() {
     motor.updateInputs(inputs);
     Logger.processInputs("Hood/inputs", inputs);
+
+    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     // Log values with units so that AdvantageScope can understand them correctly
     Logger.recordOutput("Hood/closedLoopReferenceRadians", inputs.closedLoopReference);

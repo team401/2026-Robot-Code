@@ -15,6 +15,7 @@ import frc.robot.subsystems.indexer.IndexerState.TestModeState;
 import frc.robot.subsystems.indexer.IndexerState.WarmupState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.TuningModeHelper;
 import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
@@ -124,6 +125,8 @@ public class IndexerSubsystem extends MonitoredSubsystem {
   public void monitoredPeriodic() {
     motor.updateInputs(inputs);
     Logger.processInputs("Indexer/inputs", inputs);
+
+    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.recordOutput("Indexer/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
