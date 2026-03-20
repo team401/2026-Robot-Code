@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.auto.AutoAction;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
@@ -20,7 +19,7 @@ import frc.robot.util.ts.GeneratedOptional;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AutoPilotAction extends AutoAction {
+public class AutoPilotAction extends DriveAutoAction {
 
   public APTarget target = null;
 
@@ -95,24 +94,5 @@ public class AutoPilotAction extends AutoAction {
         data,
         DriveCoordinatorCommands.autoPilotCommand(
             data.driveCoordinator(), new Autopilot(profile), fixedTarget, headingController));
-  }
-
-  public Command wrapCommand(AutoActionContext data, Command command) {
-    return new Command() {
-      @Override
-      public void initialize() {
-        data.driveCoordinator().setCurrentDriveCommand(command);
-      }
-
-      @Override
-      public void end(boolean interrupted) {
-        data.driveCoordinator().cancelCurrentDriveCommand();
-      }
-
-      @Override
-      public boolean isFinished() {
-        return command.isFinished();
-      }
-    };
   }
 }

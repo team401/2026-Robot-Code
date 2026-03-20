@@ -11,6 +11,7 @@ import frc.robot.auto.coordinationLayer.StartShooting;
 import frc.robot.auto.coordinationLayer.StopShooting;
 import frc.robot.auto.coordinationLayer.StowIntakeAction;
 import frc.robot.auto.drive.AutoPilotAction;
+import frc.robot.auto.drive.FollowPathPlannerPath;
 import frc.robot.auto.drive.StopDriveAction;
 import frc.robot.auto.drive.XBasedAutoPilotAction;
 import frc.robot.auto.general.AutoReference;
@@ -64,6 +65,7 @@ import frc.robot.util.ts.PythonMethod;
       @JsonSubtype(clazz = AutoPilotAction.class, name = "AutoPilotAction"),
       @JsonSubtype(clazz = XBasedAutoPilotAction.class, name = "XBasedAutoPilotAction"),
       @JsonSubtype(clazz = StopDriveAction.class, name = "StopDriveAction"),
+      @JsonSubtype(clazz = FollowPathPlannerPath.class, name = "FollowPathPlannerPath"),
       // Coordination layer actions
       @JsonSubtype(clazz = DeployIntakeAction.class, name = "DeployIntakeAction"),
       @JsonSubtype(clazz = StowIntakeAction.class, name = "StowIntakeAction"),
