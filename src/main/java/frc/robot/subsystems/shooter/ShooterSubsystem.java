@@ -33,6 +33,7 @@ import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
 import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.math.Lazy;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -188,6 +189,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   private void updateInputs() {
     leadMotor.updateInputs(leadMotorInputs);
     followerMotor.updateInputs(followerMotorInputs);
+
+    TotalCurrentCalculator.reportCurrent(
+        hashCode(), leadMotorInputs.supplyCurrentAmps + followerMotorInputs.supplyCurrentAmps);
 
     Logger.processInputs("Shooter/LeadMotorInputs", leadMotorInputs);
     Logger.processInputs("Shooter/FollowerMotorInputs", followerMotorInputs);

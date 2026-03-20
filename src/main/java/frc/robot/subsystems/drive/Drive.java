@@ -41,6 +41,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.PIDGains;
+import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.littletonUtil.PoseEstimator;
 import frc.robot.util.littletonUtil.PoseEstimator.TimestampedVisionUpdate;
 import java.util.List;
@@ -153,10 +154,14 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
+    double supplyCurrentSum = 0.0;
     for (var module : modules) {
       module.periodic();
+      supplyCurrentSum += module.getSupplyCurrentAmps();
     }
     odometryLock.unlock();
+
+    TotalCurrentCalculator.reportCurrent(hashCode(), supplyCurrentSum);
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {

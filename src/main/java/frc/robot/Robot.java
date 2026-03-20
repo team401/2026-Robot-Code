@@ -11,6 +11,7 @@ import com.ctre.phoenix6.SignalLogger;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -88,6 +89,9 @@ public class Robot extends LoggedRobot {
 
     // Poll for and process any outstanding HTTP requests
     robotContainer.processHTTPRequests();
+
+    // Log current draw in replay mode
+    TotalCurrentCalculator.periodic();
 
     // Run the DependencyOrderedExecutor, which executes all registered actions in order so that all
     // dependencies are satisfied.

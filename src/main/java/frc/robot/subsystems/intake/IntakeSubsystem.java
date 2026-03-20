@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -210,6 +211,12 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     pivotMotorIO.updateInputs(pivotInputs);
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
     rollersFollowerMotorIO.updateInputs(rollerFollowerMotorInputs);
+
+    TotalCurrentCalculator.reportCurrent(
+        hashCode(),
+        pivotInputs.supplyCurrentAmps
+            + rollerLeadMotorInputs.supplyCurrentAmps
+            + rollerFollowerMotorInputs.supplyCurrentAmps);
 
     Logger.processInputs("Intake/Pivot/Inputs", pivotInputs);
     Logger.processInputs("Intake/RollerLead/Inputs", rollerLeadMotorInputs);
