@@ -23,22 +23,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Side Sweep"
+                  "pathName": "Left Enter Cross Side Center Sweep"
                 }
               },
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Trench To Alliance"
+                  "pathName": "Right Trench To Alliance"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right To Left Loop"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Trench Depot Pickup"
           }
         },
         {
@@ -54,34 +54,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Side Close Sweep"
+                  "pathName": "Left Enter Cross Side Second Center Sweep"
                 }
               },
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Trench To Alliance"
+                  "pathName": "Right Trench To Alliance"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right To Left Loop"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Trench Alliance Turn Around"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Trench To Center"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Side Sweep"
           }
         }
       ]
