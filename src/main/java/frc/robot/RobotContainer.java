@@ -148,6 +148,7 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
+    JsonConstants.autos.loadAllPathPlannerPaths();
     loadAutoCommands();
 
     // Configure the button bindings

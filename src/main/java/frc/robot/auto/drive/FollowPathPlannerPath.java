@@ -1,11 +1,17 @@
 package frc.robot.auto.drive;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PathFollowingController;
+import com.pathplanner.lib.util.DriveFeedforwards;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.util.AllianceUtil;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
 
 public class FollowPathPlannerPath extends DriveAutoAction {
 
@@ -14,10 +20,14 @@ public class FollowPathPlannerPath extends DriveAutoAction {
   public boolean mirrorPath;
 
   public static RobotConfig config;
+  public static PathFollowingController controller;
 
   static {
     try {
       config = RobotConfig.fromGUISettings();
+      controller =
+          new PPHolonomicDriveController(
+              new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0));
     } catch (IOException | ParseException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -33,37 +43,20 @@ public class FollowPathPlannerPath extends DriveAutoAction {
     if (mirrorPath) {
       path = path.mirrorPath();
     }
-    // To make it so that this is effectively final
-    var _path = path;
+    var drive = context.driveCoordinator().drive;
+    Logger.recordOutput("followingPath", pathName);
     return wrapCommand(
         context,
-        new Command() {
-
-          PathPlannerTrajectory trajectory;
-          double timeSeconds;
-
-          @Override
-          public void initialize() {
-            trajectory =
-                _path.generateTrajectory(
-                    context.driveCoordinator().drive.getChassisSpeeds(),
-                    context.driveCoordinator().drive.getRotation(),
-                    config);
-            timeSeconds = 0;
-            AutoBuilder
-          }
-
-          @Override
-          public void execute() {
-            var state = trajectory.sample(timeSeconds);
-            timeSeconds += 0.02; // Cycle time
-            context.driveCoordinator().drive.setGoalSpeedsBlueOrigins(state.fieldSpeeds);
-          }
-
-          @Override
-          public boolean isFinished() {
-            return timeSeconds > trajectory.getTotalTimeSeconds();
-          }
-        });
+        new FollowPathCommand(
+            path,
+            drive::getPose,
+            drive::getChassisSpeeds,
+            (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
+              // TODO: use feedforwards properly instead of just ignoring them
+              drive.setGoalSpeedsBlueOrigins(speeds);
+            },
+            controller,
+            config,
+            AllianceUtil::isRed));
   }
 }

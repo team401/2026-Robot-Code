@@ -317,4 +317,4 @@ def _shoot_and_depot_left_auto():
 
 @auto("Testing Path Planner")
 def _testing_path_planner():
-    auto_action.FollowPathPlannerPath(path_name="Left Enter Cross Side Center Sweep")
+    auto_action.FollowPathPlannerPath(path_name="New Path").add()
