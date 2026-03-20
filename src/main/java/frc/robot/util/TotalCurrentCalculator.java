@@ -32,8 +32,7 @@ public class TotalCurrentCalculator {
       return;
     }
 
-    Logger.recordOutput(
-        "TotalCurrentCalculator/totalSupplyCurrentAmps", currentSumAmps);
+    Logger.recordOutput("TotalCurrentCalculator/totalSupplyCurrentAmps", currentSumAmps);
   }
 
   public static void reportCurrent(int id, double supplyCurrentAmps) {

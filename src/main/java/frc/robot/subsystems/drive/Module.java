@@ -65,9 +65,14 @@ public class Module {
     Logger.processInputs(loggerKey, inputs);
     if (Constants.currentMode == Mode.REPLAY) {
       Logger.recordOutput(
-          "Drive/Module" + index + "/SupplyCurrentAmps",
+          "Drive/Module" + index + "/DriveSupplyCurrentAmps",
           Math.abs(inputs.driveAppliedVolts)
               * inputs.driveCurrentAmps
+              / RobotController.getBatteryVoltage());
+      Logger.recordOutput(
+          "Drive/Module" + index + "/TurnSupplyCurrentAmps",
+          Math.abs(inputs.turnAppliedVolts)
+              * inputs.turnCurrentAmps
               / RobotController.getBatteryVoltage());
     }
 
