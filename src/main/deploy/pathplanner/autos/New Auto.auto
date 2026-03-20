@@ -7,37 +7,69 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench To Center"
+            "pathName": "Left Bump To Trench"
           }
         },
         {
-          "type": "path",
+          "type": "sequential",
           "data": {
-            "pathName": "Left Enter Cross Side Center Sweep"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Trench To Center"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Enter Cross Side Center Sweep"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right Trench To Alliance"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right To Left Loop"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "path",
+          "type": "sequential",
           "data": {
-            "pathName": "Right Trench To Alliance"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Right Trench To Alliance Center"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Alliance Center To Right Trench"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Trench To Center"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Enter Cross Side Second Center Sweep"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right Trench To Alliance"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right To Left Loop"
+                }
+              }
+            ]
           }
         }
       ]
