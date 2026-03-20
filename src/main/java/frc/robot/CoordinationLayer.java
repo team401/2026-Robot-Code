@@ -561,7 +561,8 @@ public class CoordinationLayer {
    * If the climber is deployed, stow it and then deploy the intake. If nothing is deployed, deploy
    * the intake. If the intake is deployed, stow the intake.
    *
-   * <p>When deploying the intake, intake rollers are automatically enabled.
+   * <p>When deploying the intake, intake rollers are automatically enabled. When retracting the
+   * intake, intake rollers are automatically disabled.
    *
    * <p>This means that this button can be pressed regardless of current extension state and it will
    * still toggle the intake correctly.
@@ -574,6 +575,7 @@ public class CoordinationLayer {
       }
       case IntakeDeployed -> {
         goalExtensionState = ExtensionState.None;
+        runningIntakeRollers = false;
       }
     }
   }
