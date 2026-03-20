@@ -11,6 +11,8 @@ import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.util.PathPlannerLogging;
+
 import coppercore.wpilib_interface.DriveTemplate;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -124,14 +126,14 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     //     () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
     //     this);
     // Pathfinding.setPathfinder(new LocalADStarAK());
-    // PathPlannerLogging.setLogActivePathCallback(
-    //     (activePath) -> {
-    //       Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-    //     });
-    // PathPlannerLogging.setLogTargetPoseCallback(
-    //     (targetPose) -> {
-    //       Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-    //     });
+    PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
+        });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        });
 
     // Configure SysId
     sysId =

@@ -9,7 +9,7 @@ public class XBasedAutoPilotAction extends AutoPilotAction {
   @Override
   public Command toCommand(AutoActionContext data) {
 
-    handleNullValues();
+    handleNullValues(data);
 
     return wrapCommand(
         data,

@@ -2,7 +2,11 @@ package frc.robot.auto;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
+import com.pathplanner.lib.util.FlippingUtil;
+
 import coppercore.parameter_tools.json.annotations.JSONExclude;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.CoordinationLayer;
@@ -102,5 +106,21 @@ public class Autos {
         command.end(interrupted);
       }
     };
+  }
+
+  public static Pose2d flipPose2d(Pose2d pose) {
+      return FlippingUtil.flipFieldPose(pose);
+  }
+
+  public static Pose2d mirrorPose2d(Pose2d pose) {
+      return new Pose2d();
+  }
+
+  public static Rotation2d flipRotation2d(Rotation2d rotation) {
+      return FlippingUtil.flipFieldRotation(rotation);
+  }
+
+  public static Rotation2d mirrorRotation2d(Rotation2d rotation) {
+      return Rotation2d.kPi.minus(rotation);
   }
 }

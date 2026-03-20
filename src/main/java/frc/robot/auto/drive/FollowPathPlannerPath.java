@@ -8,19 +8,20 @@ import com.pathplanner.lib.controllers.PathFollowingController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.util.AllianceUtil;
 import java.io.IOException;
+import java.util.function.BooleanSupplier;
+
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 
 public class FollowPathPlannerPath extends DriveAutoAction {
 
   public String pathName;
-  public boolean flipPath;
   public boolean mirrorPath;
 
   public static RobotConfig config;
   public static PathFollowingController controller;
+  private static final BooleanSupplier FALSE = () -> false;
 
   static {
     try {
@@ -37,26 +38,22 @@ public class FollowPathPlannerPath extends DriveAutoAction {
   @Override
   public Command toCommand(AutoActionContext context) {
     var path = context.autos().getPath(pathName);
-    if (flipPath) {
+    if (context.flipped()) {
       path = path.flipPath();
     }
-    if (mirrorPath) {
+    if (mirrorPath ^ context.mirrored()) {
       path = path.mirrorPath();
     }
     var drive = context.driveCoordinator().drive;
-    Logger.recordOutput("followingPath", pathName);
     return wrapCommand(
         context,
         new FollowPathCommand(
             path,
             drive::getPose,
             drive::getChassisSpeeds,
-            (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
-              // TODO: use feedforwards properly instead of just ignoring them
-              drive.setGoalSpeedsBlueOrigins(speeds);
-            },
+            (speeds, feedforwards) -> drive.setGoalSpeedsBlueOrigins(speeds),
             controller,
             config,
-            AllianceUtil::isRed));
+            FALSE));
   }
 }

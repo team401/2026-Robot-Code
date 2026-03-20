@@ -79,7 +79,21 @@ public abstract class AutoAction {
   public String type;
 
   public record AutoActionContext(
-      DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer, Autos autos) {}
+    DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer, Autos autos, boolean flipped, boolean mirrored) {
+
+      public AutoActionContext(DriveCoordinator driveCoordinator, CoordinationLayer coordinationLayer, Autos autos) {
+        this(driveCoordinator, coordinationLayer, autos, false, false);
+      }
+
+      public AutoActionContext flip() {
+        return new AutoActionContext(driveCoordinator, coordinationLayer, autos, !flipped, mirrored);
+      }
+
+      public AutoActionContext mirror() {
+        return new AutoActionContext(driveCoordinator, coordinationLayer, autos, flipped, !mirrored);
+      }
+
+    }
 
   public abstract Command toCommand(AutoActionContext data);
 }

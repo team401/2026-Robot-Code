@@ -9,11 +9,15 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
+import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -52,6 +56,7 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
+      case AUTO_TESTING:
         // Running a physics simulator, log to NT
         Logger.addDataReceiver(new NT4Publisher());
         break;
@@ -74,6 +79,10 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    if (Constants.currentMode == Constants.Mode.AUTO_TESTING) {
+      autoTestingSimulation = new AutoTestingSimulation();
+    }
   }
 
   /** This function is called periodically during all modes. */
@@ -100,6 +109,10 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
+
+    if (Constants.currentMode == Constants.Mode.AUTO_TESTING) {
+      autoTestingSimulation.update();
+    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -159,4 +172,31 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
+
+  private AutoTestingSimulation autoTestingSimulation = null;
+
+  private static class AutoTestingSimulation {
+    // This class is responsible for running the auto testing simulation. It will listen to network tables for commands to start and stop the simulation, and for what alliance station to start from. It will then run the appropriate simulation based on the selected command and alliance station.
+    
+    LoggedDashboardChooser<AllianceStationID> allianceStationChooser;
+
+    public AutoTestingSimulation() {
+      // Initialize the auto testing simulation, set up network table listeners, etc.
+      allianceStationChooser = new LoggedDashboardChooser<>("Auto Testing Alliance Station");
+      allianceStationChooser.addDefaultOption("Unknown", AllianceStationID.Unknown);
+      allianceStationChooser.addOption("Red 1", AllianceStationID.Red1);
+      allianceStationChooser.addOption("Red 2", AllianceStationID.Red2);
+      allianceStationChooser.addOption("Red 3", AllianceStationID.Red3);
+      allianceStationChooser.addOption("Blue 1", AllianceStationID.Blue1);
+      allianceStationChooser.addOption("Blue 2", AllianceStationID.Blue2);
+      allianceStationChooser.addOption("Blue 3", AllianceStationID.Blue3);
+    }
+
+    public void update() {
+      // DriverStation.getRawAllianceStation(); // Get the current alliance station from the driver station
+      // Check for network table updates, start or stop simulations as needed, etc.
+    }
+  
+  }
 }
