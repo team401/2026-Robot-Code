@@ -2,6 +2,7 @@ package frc.robot.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -18,6 +19,7 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -392,5 +394,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
    */
   public boolean isAboveHangPosition() {
     return inputs.positionRadians > JsonConstants.climberConstants.hangClimbAngle.in(Radians);
+  }
+
+  public Distance getHeightMeters() {
+    return Meters.of(inputs.positionRadians * 0.0145);
   }
 }

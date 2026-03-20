@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
 import coppercore.metadata.CopperCoreMetadata;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -180,7 +182,7 @@ public class RobotContainer {
     Angle turretAngle =
         coordinationLayer
             .getTurret()
-            .map(TurretSubsystem::getTurretAngleRobotRelative)
+            .map(TurretSubsystem::getGoalAngleTurretCentric)
             .orElse(Radians.zero());
     Angle hoodAngle =
         coordinationLayer.getHood().map(HoodSubsystem::getCurrentExitPitch).orElse(Radians.zero());
@@ -189,6 +191,8 @@ public class RobotContainer {
             .getIntake()
             .map(IntakeSubsystem::getCurrentPivotAngle)
             .orElse(Radians.zero());
+    Distance climbHeight =
+        coordinationLayer.getClimber().map(ClimberSubsystem::getHeightMeters).orElse(Meters.zero());
 
     var shooterBasePosition =
         new Pose3d(new Translation3d(-0.058, 0.245, 0.37), new Rotation3d(0.0, 0.0, -Math.PI / 2));
@@ -206,7 +210,6 @@ public class RobotContainer {
     var intakeOffsetFromReferencePoint =
         new Transform3d(0.352, 0.158, 0.034, new Rotation3d(0, 0, 0));
 
-    var climbHeight = 0;
     // The order of these components are described in
     // advantagekit_config/Robot_401_2026/reference.txt
     Logger.recordOutput(
@@ -229,7 +232,7 @@ public class RobotContainer {
               new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2)),
           // Climb
           new Pose3d(
-              new Translation3d(-0.180, -0.218, -0.190 + climbHeight),
+              new Translation3d(-0.180, -0.218, -0.190 + climbHeight.in(Meters)),
               new Rotation3d(Math.PI / 2, 0.0, Math.PI)),
           // Hood
           shooterWithTurretAngle

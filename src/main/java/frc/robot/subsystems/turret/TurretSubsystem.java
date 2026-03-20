@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants;
 import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -113,6 +114,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Turret", TestMode.class);
 
+  private Angle goalAngleTurretCentric;
+
   // State variables
   /**
    * The last action requested of the turret. This is different from a state, which is what the
@@ -184,6 +187,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .transitionTo(idleState);
 
     stateMachine.setState(homingWaitForButtonState);
+
+    if (Constants.currentMode == Constants.Mode.SIM) {
+      stateMachine.setState(idleState);
+    }
+
     StateMachineDump.write("turret", stateMachine);
 
     // Initialize tunable numbers for test modes
@@ -390,6 +398,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
     Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
+    this.goalAngleTurretCentric = goalAngleTurretCentric;
     Angle clampedGoalAngle =
         UnitUtils.clampMeasure(
             goalAngleTurretCentric,
@@ -464,5 +473,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
   public void targetGoalHeading(Rotation2d goalHeading) {
     this.requestedAction = TurretAction.TrackHeading;
     this.goalTurretHeading = goalHeading;
+  }
+
+  public Angle getGoalAngleTurretCentric() {
+    return goalAngleTurretCentric;
   }
 }

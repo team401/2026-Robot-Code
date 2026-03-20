@@ -1341,4 +1341,12 @@ public class CoordinationLayer {
   public Optional<IntakeSubsystem> getIntake() {
     return intake;
   }
+
+  public Optional<ClimberSubsystem> getClimber() {
+    return climber;
+  }
+
+  public Optional<Drive> getDrive() {
+    return drive;
+  }
 }
