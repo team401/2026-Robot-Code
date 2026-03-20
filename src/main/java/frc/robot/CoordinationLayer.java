@@ -7,8 +7,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
-import coppercore.controls.state_machine.State;
-import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.vision.VisionLocalizer;
 import coppercore.wpilib_interface.controllers.Controller.Button;
@@ -55,7 +53,6 @@ import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.OptionalUtil;
-import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
 import frc.robot.util.geometry.Rectangle;
@@ -146,19 +143,15 @@ public class CoordinationLayer {
   private AutonomyLevel effectiveAutonomyLevel = autonomyLevel;
 
   /**
-   * Tracks our target "extension state": either the intake, climber, or neither may deploy at once.
+   * Whether the intake should currently be commanded to be deployed.
+   *
+   * <p>This is called {@code deployIntake} and not {@code intakeDeployed} or {@code
+   * isIntakeDeployed} intentionally to denote the difference between whether we are commanding the
+   * intake to deploy (an ideal state/command) with whether the intake is deployed (a code input,
+   * read from the encoder).
    */
-  @AutoLogOutput(key = "CoordinationLayer/goalExtensionState")
-  private ExtensionState goalExtensionState = ExtensionState.None;
-
-  /** Handles making sure that only one subsystem is extended at a time */
-  private final StateMachine<CoordinationLayer> extensionStateMachine;
-
-  private final State<CoordinationLayer> noExtensionState;
-  private final State<CoordinationLayer> intakeDeployedState;
-  private final State<CoordinationLayer> waitForIntakeRetractState;
-  private final State<CoordinationLayer> climberDeployedState;
-  private final State<CoordinationLayer> waitForClimbRetractState;
+  @AutoLogOutput(key = "CoordinationLayer/deployIntake")
+  private boolean deployIntake = false;
 
   @AutoLogOutput(key = "CoordinationLayer/runningIntakeRollers")
   private boolean runningIntakeRollers = false;
@@ -225,119 +218,6 @@ public class CoordinationLayer {
 
     dependencyOrderedExecutor.registerAction(
         COORDINATE_ROBOT_ACTIONS, this::coordinateRobotActions);
-
-    this.extensionStateMachine = new StateMachine<CoordinationLayer>(this);
-
-    this.noExtensionState =
-        extensionStateMachine.registerState(
-            new State<CoordinationLayer>("NoExtension") {
-              @Override
-              protected void periodic(
-                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
-                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-
-                climber.ifPresent(ClimberSubsystem::stayStowed);
-              }
-            });
-
-    this.intakeDeployedState =
-        extensionStateMachine.registerState(
-            new State<CoordinationLayer>("IntakeDeployed") {
-              @Override
-              protected void periodic(
-                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
-                intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
-
-                climber.ifPresent(ClimberSubsystem::stayStowed);
-              }
-            });
-
-    this.waitForIntakeRetractState =
-        extensionStateMachine.registerState(
-            new State<CoordinationLayer>("WaitForIntakeRetract") {
-              @Override
-              protected void periodic(
-                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
-                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-
-                climber.ifPresent(ClimberSubsystem::stayStowed);
-
-                // Assume the intake is stowed if it is disabled
-                if (intake.map(IntakeSubsystem::isStowed).orElse(true)) {
-                  finish();
-                }
-              }
-            });
-
-    this.climberDeployedState =
-        extensionStateMachine.registerState(
-            new State<CoordinationLayer>("ClimberDeployed") {
-              @Override
-              protected void onEntry(
-                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
-                climber.ifPresent(ClimberSubsystem::search);
-              }
-
-              @Override
-              protected void periodic(
-                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
-                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-
-                /* We don't need to command the climber in periodic; its actions within this state are commanded by individual button bindings. This not might be the cleanest solution, but it will work for now with manual climbing. When we automate driving to climb, the CoordinationLayer state machine will likely need to morph from an extension state machine to a whole robot coordination state machine that tracks driving to climb, extending climber, climbing, and eventually unclimbing in addition to protecting against double extension. */
-              }
-            });
-
-    this.waitForClimbRetractState =
-        extensionStateMachine.registerState(
-            new State<CoordinationLayer>("WaitForClimberRetract") {
-              @Override
-              protected void periodic(
-                  StateMachine<CoordinationLayer> stateMachine, CoordinationLayer world) {
-                intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
-
-                climber.ifPresent(ClimberSubsystem::stayStowed);
-
-                // Assume the climber is stowed if it is disabled
-                if (climber.map(ClimberSubsystem::isStowedOrHasntBeenHomed).orElse(true)) {
-                  finish();
-                }
-              }
-            });
-
-    this.noExtensionState
-        .when(() -> goalExtensionState == ExtensionState.IntakeDeployed, "Goal is IntakeDeployed")
-        .transitionTo(intakeDeployedState);
-    this.noExtensionState
-        .when(() -> goalExtensionState == ExtensionState.ClimbDeployed, "Goal is ClimbDeployed")
-        .transitionTo(climberDeployedState);
-
-    this.intakeDeployedState
-        .when(
-            () -> goalExtensionState != ExtensionState.IntakeDeployed, "Goal is not IntakeDeployed")
-        .transitionTo(waitForIntakeRetractState);
-
-    this.waitForIntakeRetractState
-        .whenFinished("Intake finished retracting")
-        .transitionTo(noExtensionState);
-
-    this.waitForIntakeRetractState
-        .when(() -> goalExtensionState == ExtensionState.IntakeDeployed, "Goal is IntakeDeployed")
-        .transitionTo(intakeDeployedState);
-
-    this.climberDeployedState
-        .when(() -> goalExtensionState != ExtensionState.ClimbDeployed, "Goal is not ClimbDeployed")
-        .transitionTo(waitForClimbRetractState);
-
-    this.waitForClimbRetractState
-        .whenFinished("Climb finished retracting")
-        .transitionTo(noExtensionState);
-
-    this.waitForClimbRetractState
-        .when(() -> goalExtensionState == ExtensionState.ClimbDeployed, "Goal is ClimbDeployed")
-        .transitionTo(climberDeployedState);
-
-    extensionStateMachine.setState(noExtensionState);
-    StateMachineDump.write("coordination", extensionStateMachine);
 
     AutoLogOutputManager.addObject(this);
 
@@ -409,12 +289,12 @@ public class CoordinationLayer {
             new InstantCommand(
                 () -> {
                   // Deploy the climber to a searching state when ready
-                  goalExtensionState = ExtensionState.ClimbDeployed;
+                  // TODO: Confirm climb bindings once the new climber is built
+                  climber.ifPresent(ClimberSubsystem::search);
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  goalExtensionState = ExtensionState.ClimbDeployed;
                   climber.ifPresent(ClimberSubsystem::hang);
                 }));
 
@@ -511,7 +391,7 @@ public class CoordinationLayer {
    * rollers to begin collecting game pieces.
    */
   public void deployIntakeForAuto() {
-    goalExtensionState = ExtensionState.IntakeDeployed;
+    deployIntake = true;
     runningIntakeRollers = true;
   }
 
@@ -531,12 +411,11 @@ public class CoordinationLayer {
    * </ul>
    */
   public void stowIntakeForAuto() {
-    goalExtensionState = ExtensionState.None;
+    deployIntake = false;
     runningIntakeRollers = false;
   }
 
   public void climbSearchForAuto() {
-    goalExtensionState = ExtensionState.ClimbDeployed;
     climber.ifPresent(ClimberSubsystem::search);
   }
 
@@ -545,7 +424,6 @@ public class CoordinationLayer {
   }
 
   public void climbHangForAuto() {
-    goalExtensionState = ExtensionState.ClimbDeployed;
     climber.ifPresent(ClimberSubsystem::hang);
   }
 
@@ -568,15 +446,11 @@ public class CoordinationLayer {
    * still toggle the intake correctly.
    */
   private void toggleIntakeDeploy() {
-    switch (goalExtensionState) {
-      case None, ClimbDeployed -> {
-        goalExtensionState = ExtensionState.IntakeDeployed;
-        runningIntakeRollers = true;
-      }
-      case IntakeDeployed -> {
-        goalExtensionState = ExtensionState.None;
-        runningIntakeRollers = false;
-      }
+    deployIntake = !deployIntake;
+    if (deployIntake) {
+      runningIntakeRollers = true;
+    } else {
+      runningIntakeRollers = false;
     }
   }
 
@@ -618,13 +492,7 @@ public class CoordinationLayer {
   }
 
   private void stowClimber() {
-    if (goalExtensionState == ExtensionState.ClimbDeployed) {
-      boolean willClimberStow = climber.map(ClimberSubsystem::stowPressed).orElse(true);
-
-      if (willClimberStow) {
-        goalExtensionState = ExtensionState.None;
-      }
-    }
+    climber.ifPresent(ClimberSubsystem::handleStowPress);
   }
 
   private void disableAutonomy() {
@@ -869,12 +737,12 @@ public class CoordinationLayer {
       intake.ifPresent(IntakeSubsystem::stopRollers);
     }
 
-    // Handle extension coordination and command intake/climber to their correct positions
-    Logger.recordOutput(
-        "CoordinationLayer/extensionState", extensionStateMachine.getCurrentState().getName());
-    extensionStateMachine.periodic();
-    Logger.recordOutput(
-        "CoordinationLayer/extensionStateAfter", extensionStateMachine.getCurrentState().getName());
+    // Handle intake deploy/retract
+    if (deployIntake) {
+      intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
+    } else {
+      intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+    }
 
     // Determine if vision is enabled and functioning
     boolean visionConnected = vision.map(VisionLocalizer::coprocessorConnected).orElse(false);

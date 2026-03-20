@@ -329,19 +329,14 @@ public class ClimberSubsystem extends MonitoredSubsystem {
    *
    * <p>This method should only be called by a coordination layer button binding.
    *
-   * <p>This method returns whether or not the climber was commanded to stow, which enables the
-   * coordination layer to know if it should reset the goal extension state or not.
-   *
    * @return {@code true} if the climber is going to stow, {@code false} if not (if it will go to
    *     search)
    */
-  public boolean stowPressed() {
+  public void handleStowPress() {
     if (stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang) {
       requestedAction = ClimberAction.Search;
-      return false;
     } else {
       requestedAction = ClimberAction.Stow;
-      return true;
     }
   }
 
