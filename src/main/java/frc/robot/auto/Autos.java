@@ -3,10 +3,12 @@ package frc.robot.auto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.CoordinationLayer;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import org.json.simple.parser.ParseException;
 
@@ -25,6 +27,17 @@ public class Autos {
       paths.put(name, path);
     } catch (FileVersionException | IOException | ParseException e) {
       // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  public void loadAllPathPlannerPaths() {
+    Path pathDirectory = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/paths");
+    try {
+      var pathFiles =
+          java.nio.file.Files.list(pathDirectory).filter(p -> p.toString().endsWith(".path"));
+      pathFiles.forEach(p -> loadPathPlannerPath(p.getFileName().toString().replace(".path", "")));
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }

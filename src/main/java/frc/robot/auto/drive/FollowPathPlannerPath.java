@@ -1,5 +1,6 @@
 package frc.robot.auto.drive;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,6 +50,7 @@ public class FollowPathPlannerPath extends DriveAutoAction {
                     context.driveCoordinator().drive.getRotation(),
                     config);
             timeSeconds = 0;
+            AutoBuilder
           }
 
           @Override
