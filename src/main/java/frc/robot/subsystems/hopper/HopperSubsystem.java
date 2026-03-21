@@ -146,7 +146,11 @@ public class HopperSubsystem extends MonitoredSubsystem {
   }
 
   public void setToTargetVelocity() {
-    motor.controlToVelocityProfiled(targetVelocity);
+    if (targetVelocity.abs(RPM) < 5.0) {
+      motor.controlCoast();
+    } else {
+      motor.controlToVelocityProfiled(targetVelocity);
+    }
   }
 
   protected void applyVoltage(Voltage volts) {

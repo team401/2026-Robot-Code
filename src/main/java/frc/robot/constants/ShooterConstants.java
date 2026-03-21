@@ -30,7 +30,6 @@ import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.CurrentUnit;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -124,7 +123,7 @@ public class ShooterConstants {
   public AngularVelocity shooterMaxVelocity = RPM.of(2900); // TODO: Real value
   public AngularAcceleration shooterMaxAcceleration = RPM.of(3000).per(Second);
 
-  public Velocity<VoltageUnit> characterizationRampRate = Volts.of(0.1).per(Second);
+  @JSONExclude public Velocity<VoltageUnit> characterizationRampRate = Volts.of(0.1).per(Second);
 
   public final Time velocityFilterTime = Seconds.of(0.01);
 

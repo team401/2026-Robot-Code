@@ -11,19 +11,19 @@
   ],
   "defaultViMetersPerSecond": 9.0,
   "shooterSlot0Gains": {
-    "kP": 0.0,
+    "kP": 0.6,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.0,
-    "kV": 0.0,
+    "kS": 0.34,
+    "kV": 0.0798,
     "kA": 0.0
   },
   "shooterSlot1Gains": {
-    "kP": 0.0,
+    "kP": 2.0,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.0,
-    "kV": 0.0,
+    "kS": 0.34,
+    "kV": 0.0798,
     "kA": 0.0
   },
   "shooterReduction": 0.625,
