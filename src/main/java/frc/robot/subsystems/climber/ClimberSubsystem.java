@@ -323,18 +323,17 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         };
   }
 
+  public boolean isHanging() {
+    return stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang;
+  }
+
   /**
-   * Handles a stow button press by: If the climber is hanging, command it to search. If the climber
-   * is searching, command it to stow.
+   * Sets the climber's requested action to be stowed.
    *
-   * <p>This method should only be called by a coordination layer button binding.
+   * <p>This method should only be called by the CoordinationLayer
    */
-  public void handleStowPress() {
-    if (stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang) {
-      requestedAction = ClimberAction.Search;
-    } else {
-      requestedAction = ClimberAction.Stow;
-    }
+  public void stow() {
+    requestedAction = ClimberAction.Stow;
   }
 
   /**

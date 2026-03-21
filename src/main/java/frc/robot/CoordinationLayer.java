@@ -297,7 +297,7 @@ public class CoordinationLayer {
     this.isDriverGoUnderTrenchPressed = goUnderTrenchButton.getPrimitiveIsPressedSupplier();
 
     makeTriggerFromButton(controllers.getButton("stowClimber"))
-        .onTrue(new InstantCommand(this::stowClimber));
+        .onTrue(new InstantCommand(this::onStowPressed));
 
     makeTriggerFromButton(controllers.getButton("disableAutonomy"))
         .onTrue(new InstantCommand(this::disableAutonomy));
@@ -437,11 +437,7 @@ public class CoordinationLayer {
    */
   private void toggleIntakeDeploy() {
     deployIntake = !deployIntake;
-    if (deployIntake) {
-      runningIntakeRollers = true;
-    } else {
-      runningIntakeRollers = false;
-    }
+    runningIntakeRollers = deployIntake;
   }
 
   /**
@@ -481,8 +477,22 @@ public class CoordinationLayer {
     }
   }
 
-  private void stowClimber() {
-    climber.ifPresent(ClimberSubsystem::handleStowPress);
+  /**
+   * Handles a press of the stow button by:
+   *
+   * <ul>
+   *   <li>If the climber is hanging, raise it to search position
+   *   <li>If the climber is searching, stow it
+   */
+  private void onStowPressed() {
+    climber.ifPresent(
+        climber -> {
+          if (climber.isHanging()) {
+            climber.search();
+          } else {
+            climber.stow();
+          }
+        });
   }
 
   private void disableAutonomy() {
