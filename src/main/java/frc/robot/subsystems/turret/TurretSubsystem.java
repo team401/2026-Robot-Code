@@ -186,6 +186,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     stateMachine.setState(homingWaitForButtonState);
 
+    // This is to prevent the turret from doing its homing sequence in sim as homing requires the
+    // physical hardstop which is absent in sim.
     if (Constants.currentMode == Constants.Mode.SIM) {
       stateMachine.setState(idleState);
     }
