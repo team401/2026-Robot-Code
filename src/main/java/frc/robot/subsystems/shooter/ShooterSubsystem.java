@@ -301,7 +301,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
             },
             slot0EpsilonRPM.get());
 
-        leadMotor.controlToVelocityProfiled(RPM.of(shooterTuningRPM.get().getAsDouble()));
+        leadMotor.controlToVelocityProfiledVoltage(RPM.of(shooterTuningRPM.get().getAsDouble()));
       }
       case ShooterCurrentTuning -> {
         leadMotor.controlOpenLoopCurrent(Amps.of(shooterTuningAmps.get().getAsDouble()));
@@ -339,7 +339,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   }
 
   protected void controlToTargetVelocity() {
-    leadMotor.controlToVelocityProfiled(targetVelocity);
+    leadMotor.controlToVelocityProfiledVoltage(targetVelocity);
   }
 
   protected void coast() {
