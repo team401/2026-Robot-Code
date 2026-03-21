@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.CoordinationLayer.ShotMode;
@@ -311,27 +312,27 @@ public class ShooterSubsystem extends MonitoredSubsystem {
       }
       case ShooterFFCharacterization -> {
         if (DriverStation.isEnabled()) {
-          Current characterizationCurrent =
-              (Current)
+          Voltage characterizationVoltage =
+              (Voltage)
                   JsonConstants.shooterConstants.characterizationRampRate.times(
                       Seconds.of(characterizationTimer.get()));
-          double characterizationCurrentAmps = characterizationCurrent.in(Amps);
+          double characterizationVoltageVolts = characterizationVoltage.in(Volts);
 
           // TODO: Figure out why velocity is negative in sim
           double velocityRotationsPerSecond =
               Math.abs(Units.radiansToRotations(leadMotorInputs.velocityRadiansPerSecond));
 
-          ffRegression.addData(velocityRotationsPerSecond, characterizationCurrentAmps);
+          ffRegression.addData(velocityRotationsPerSecond, characterizationVoltageVolts);
           double kS = ffRegression.getIntercept();
           double kV = ffRegression.getSlope();
 
           Logger.recordOutput("Shooter/Characterization/sampleCount", ffRegression.getN());
           Logger.recordOutput(
-              "Shooter/Characterization/appliedCurrentAmps", characterizationCurrentAmps);
+              "Shooter/Characterization/appliedVolts", characterizationVoltageVolts);
           Logger.recordOutput("Shooter/Characterization/kS", kS);
           Logger.recordOutput("Shooter/Characterization/kV", kV);
 
-          leadMotor.controlOpenLoopCurrent(characterizationCurrent);
+          leadMotor.controlOpenLoopVoltage(characterizationVoltage);
         }
       }
       default -> {}

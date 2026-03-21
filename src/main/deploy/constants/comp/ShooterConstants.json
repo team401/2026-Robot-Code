@@ -28,8 +28,8 @@
   },
   "shooterReduction": 0.625,
   "characterizationRampRate": {
-    "value": 0.5,
-    "unit": "Amp per Second"
+    "value": 0.1,
+    "unit": "Volt per Second"
   },
   "shooterSupplyCurrentLimit": {
     "value": 80.0,
