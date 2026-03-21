@@ -328,9 +328,6 @@ public class ClimberSubsystem extends MonitoredSubsystem {
    * is searching, command it to stow.
    *
    * <p>This method should only be called by a coordination layer button binding.
-   *
-   * @return {@code true} if the climber is going to stow, {@code false} if not (if it will go to
-   *     search)
    */
   public void handleStowPress() {
     if (stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang) {

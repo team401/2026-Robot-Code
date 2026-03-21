@@ -116,12 +116,6 @@ public class CoordinationLayer {
           JsonConstants.visionConstants.disconnectedDebounceTime.in(Seconds),
           DebounceType.kFalling);
 
-  public enum ExtensionState {
-    None,
-    IntakeDeployed,
-    ClimbDeployed
-  }
-
   public enum ShotMode {
     Pass,
     Hub
@@ -385,11 +379,7 @@ public class CoordinationLayer {
   // Only autos are allowed to call these methods
 
   // Docs Written by Claude Opus 4.6
-  /**
-   * Deploys the intake mechanism and activates the intake rollers for autonomous operation. Sets
-   * the goal extension state to {@link ExtensionState#IntakeDeployed} and enables the intake
-   * rollers to begin collecting game pieces.
-   */
+  /** Deploys the intake mechanism and activates the intake rollers for autonomous operation. */
   public void deployIntakeForAuto() {
     deployIntake = true;
     runningIntakeRollers = true;
@@ -406,7 +396,7 @@ public class CoordinationLayer {
    * <p>Effects:
    *
    * <ul>
-   *   <li>Sets the goal extension state to {@link ExtensionState#None}, retracting the intake.
+   *   <li>Retracts the intake by setting {@code deployIntake} to {@code false}.
    *   <li>Stops the intake rollers by setting {@code runningIntakeRollers} to {@code false}.
    * </ul>
    */
