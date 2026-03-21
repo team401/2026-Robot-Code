@@ -49,6 +49,7 @@ public class PhysicalDriveConstants {
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
+  @JSONExclude
   private final Supplier<TalonFXConfiguration> driveInitialConfigs =
       () ->
           new TalonFXConfiguration()
@@ -56,6 +57,7 @@ public class PhysicalDriveConstants {
                   new CurrentLimitsConfigs()
                       .withSupplyCurrentLimit(driveSupplyCurrentLimit)
                       .withSupplyCurrentLimitEnable(true));
+  @JSONExclude
   private final Supplier<TalonFXConfiguration> steerInitialConfigs =
       () ->
           new TalonFXConfiguration()
