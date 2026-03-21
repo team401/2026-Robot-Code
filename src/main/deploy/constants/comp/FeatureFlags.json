@@ -8,7 +8,7 @@
   "runShooter": false,
   "runIntake": true,
   "runHood": false,
-  "runClimber": true,
+  "runClimber": false,
   "runTransferRoller": false,
   "useHomingSwitch": true,
   "useTuningServer": true,
