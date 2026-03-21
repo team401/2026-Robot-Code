@@ -23,6 +23,7 @@ import frc.robot.subsystems.hopper.HopperState.SpinningState;
 import frc.robot.subsystems.hopper.HopperState.TestModeState;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.TuningModeHelper;
 import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
@@ -115,6 +116,9 @@ public class HopperSubsystem extends MonitoredSubsystem {
   @Override
   public void monitoredPeriodic() {
     motor.updateInputs(inputs);
+
+    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+
     Logger.processInputs("Hopper/inputs", inputs);
     Logger.recordOutput("Hopper/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
