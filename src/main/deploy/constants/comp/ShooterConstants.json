@@ -81,7 +81,7 @@
     "unit": "Second"
   },
   "shooterSlot0Epsilon": {
-    "value": 150.0,
+    "value": 15000.0,
     "unit": "RPM"
   },
   "torqueCurrentRampTime": {
