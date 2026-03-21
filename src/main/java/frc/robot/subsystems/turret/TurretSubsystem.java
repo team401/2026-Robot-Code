@@ -114,8 +114,6 @@ public class TurretSubsystem extends MonitoredSubsystem {
   TestModeManager<TestMode> testModeManager =
       new TestModeManager<TestMode>("Turret", TestMode.class);
 
-  private Angle goalAngleTurretCentric;
-
   // State variables
   /**
    * The last action requested of the turret. This is different from a state, which is what the
@@ -398,7 +396,6 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
     Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
-    this.goalAngleTurretCentric = goalAngleTurretCentric;
     Angle clampedGoalAngle =
         UnitUtils.clampMeasure(
             goalAngleTurretCentric,
