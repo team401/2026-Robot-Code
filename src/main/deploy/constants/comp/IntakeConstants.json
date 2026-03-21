@@ -17,6 +17,14 @@
     "value": 90.0,
     "unit": "Degree"
   },
+  "pivotVoltageWhenIntaking": {
+    "value": -4.0,
+    "unit": "Volt"
+  },
+  "pivotHoldAngleTolerance": {
+    "value": 5.0,
+    "unit": "Degree"
+  },
   "rollersInertia": {
     "value": 0.001,
     "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
