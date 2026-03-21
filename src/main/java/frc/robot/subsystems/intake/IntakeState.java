@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Radians;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
@@ -192,7 +193,14 @@ public class IntakeState {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
           world.zeroPositionIfBelowZero();
-          world.controlToTargetPivotAngle();
+          if (Radians.of(world.pivotInputs.positionRadians)
+                  .isNear(
+                      world.targetPivotAngle, JsonConstants.intakeConstants.pivotHoldAngleTolerance)
+              && world.holdVoltage != null) {
+            world.applyHoldVoltage();
+          } else {
+            world.controlToTargetPivotAngle();
+          }
         }
       };
 }
