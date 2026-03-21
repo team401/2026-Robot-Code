@@ -1,4 +1,12 @@
 {
+  "driveSupplyCurrentLimit": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
+  "steerSupplyCurrentLimit": {
+    "value": 60.0,
+    "unit": "Amp"
+  },
   "wheelRadius": {
     "value": 2.0,
     "unit": "Inch"
