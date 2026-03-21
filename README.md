@@ -74,4 +74,3 @@ git clone https://github.com/team401/2026-Robot-Code
 
   If `componentPositions` instead shows up as a vision estimate target, it is likely already dependent on the robot, but is still not configured correctly. Click on its icon to change it to a component (should be a puzzle piece).
 - This setup will be preserved by AdvantageScope every time you reopen the app unless you close the tab.
-
