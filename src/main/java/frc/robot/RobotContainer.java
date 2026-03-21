@@ -12,7 +12,9 @@ import static edu.wpi.first.units.Units.Radians;
 
 import coppercore.metadata.CopperCoreMetadata;
 import coppercore.parameter_tools.json.JSONHandler;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -179,11 +181,14 @@ public class RobotContainer {
   }
 
   public void updateRobotModel() {
-    Angle turretAngle =
+    var turretAngle =
         coordinationLayer
             .getTurret()
-            .map(TurretSubsystem::getGoalAngleTurretCentric)
-            .orElse(Radians.zero());
+            .map(TurretSubsystem::getGoalTurretHeading)
+            .orElse(Rotation2d.kZero)
+            .minus(
+                coordinationLayer.getDrive().map(Drive::getPose).orElse(Pose2d.kZero).getRotation())
+            .minus(Rotation2d.k180deg);
     Angle hoodAngle =
         coordinationLayer.getHood().map(HoodSubsystem::getCurrentExitPitch).orElse(Radians.zero());
     Angle intakeAngle =
@@ -201,7 +206,7 @@ public class RobotContainer {
     var shooterWithTurretAngle =
         shooterBasePosition
             .plus(shooterOffsetFromReferencePoint)
-            .plus(new Transform3d(0, 0, 0, new Rotation3d(0, 0, turretAngle.in(Radians))))
+            .plus(new Transform3d(0, 0, 0, new Rotation3d(turretAngle)))
             .plus(shooterOffsetFromReferencePoint.inverse());
     var hoodOffsetFromShooter =
         new Transform3d(0.1875, -0.04, 0.033, new Rotation3d(Math.PI / 2, 0, 0));

@@ -475,7 +475,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     this.goalTurretHeading = goalHeading;
   }
 
-  public Angle getGoalAngleTurretCentric() {
-    return goalAngleTurretCentric;
+  public Rotation2d getGoalTurretHeading() {
+    return goalTurretHeading;
   }
 }
