@@ -8,6 +8,7 @@ Code for our 2026 competition robot.
   - [Getting Started](#getting-started)
     - [Installing Dependencies](#installing-dependencies)
     - [Starting Simulation](#starting-simulation)
+  - [Using the Simulator](#using-the-simulator)
 
 ## Getting Started
 
@@ -38,3 +39,39 @@ Code` again. It should start up without issues. If you're still seeing
 errors, either in VSCode or from the simulate task failing, you can try
 restarting VSCode. In addition, clicking `Continue` on the warning that
 build failed is sometimes "good enough" to continue testing your code.
+
+## Using the Simulator
+### Installing dependencies
+
+- Install WPILib 2026.2.1 as described [in Zero-to-Robot](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/index.html).
+- Clone this repository:
+```sh
+git clone https://github.com/team401/2026-Robot-Code
+```
+
+### Setting up AdvantageScope custom assets folder
+- Launch AdvantageScope, either through:
+  - WPILib VSCode : Ctrl+Shift+P -> Start Tool -> AdvantageScope
+  - Your system app launcher/start menu
+- In the top menu bar, navigate to Help > Use Custom Assets Folder.
+  - Navigate to the 2026-Robot-Code folder and select `advantagekit_config`.
+  - **Make sure you choose `advantagekit_config` and not `Robot_401_2026`.** An easy way to do this is, when the file picker window opens to choose your custom assets folder, remain in `2026-Robot-Code`, click on `advantagekit_config`, and then press `Ok`. If you select the inner folder, the robot model won't be detected by AdvantageScope.
+
+### Launching sim and viewing robot position
+
+**If certain menus aren't visible in your Sim GUI, select `Workspace` > `Reset` in the top menu bar and your layout should be restored. Sometimes windows can be moved off screen and rendered inaccessible.**
+
+- Open the project in WPILib VSCode
+- Press Ctrl+Shift+P and type "Simulate Robot Code" to run the sim. When prompted, select "Sim GUI". This will launch Glass, the WPILib simulator application.
+- Open AdvantageScope. Open a `3D Field` tab by clicking the `+` in the top right and picking `3D Field`, or pressing `Alt+3`.
+- At the top left of the window, type `Odometry/Robot` into the search bar. Click on `NT:/AdvantageKit/RealOutputs/Odometry/Robot` from the list of options. This will your sidebar to the `Robot` field. For help navigating in AdvantageScope, see their [Navigation Docs](https://docs.advantagescope.org/getting-started/navigation).
+- Click and drag the `Robot` field from the sidebar to the bottom of the screen under **`Poses`**. Right click on the entry it creates, and select `Robot 2026` to use Typhon's CAD model.
+  - If `Robot 2026` isn't an option, wait a few seconds to make sure all models have loaded, and then make sure you've [set up your custom assets folder](#setting-up-advantagescope-custom-assets-folder) correctly.
+  - If it *still* isn't an option, please [open an issue](https://github.com/team401/2026-Robot-Code/issues/new) so we can update this README with better instructions.
+- Next, scroll in the sidebar back up to the search bar. This time, search for `componentPositions`. Select `NT:/AdvantageKit/RealOutputs/componentPositions`. Drag `componentPositions` from the sidebar **on top of** `Robot 2026` in the Poses pane at the bottom of the screen. This will tell AdvantageScope to use the list of poses logged under `componentPositions` to position the elements from the robot's 3D model.
+
+  If `componentPositions` shows up as a new robot, a ghost, or a game piece, it has been added as its own set of poses. Try dragging it from the sidebar again, but this time slightly higher, so that it is placed directly inside of the original `Robot` field. If done correctly, `componentPositions` should be indented slightly under the text of the `Robot` entry in the list.
+
+  If `componentPositions` instead shows up as a vision estimate target, it is likely already dependent on the robot, but is still not configured correctly. Click on its icon to change it to a component (should be a puzzle piece).
+- This setup will be preserved by AdvantageScope every time you reopen the app unless you close the tab.
+

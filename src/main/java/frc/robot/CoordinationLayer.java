@@ -1199,4 +1199,24 @@ public class CoordinationLayer {
             .orElse(idealShot.yawRadians()),
         idealShot.timeSeconds());
   }
+
+  public Optional<TurretSubsystem> getTurret() {
+    return turret;
+  }
+
+  public Optional<HoodSubsystem> getHood() {
+    return hood;
+  }
+
+  public Optional<IntakeSubsystem> getIntake() {
+    return intake;
+  }
+
+  public Optional<ClimberSubsystem> getClimber() {
+    return climber;
+  }
+
+  public Optional<Drive> getDrive() {
+    return drive;
+  }
 }
