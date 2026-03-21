@@ -5,14 +5,10 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
-import com.pathplanner.lib.util.DriveFeedforwards;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.io.IOException;
 import java.util.function.BooleanSupplier;
-
 import org.json.simple.parser.ParseException;
-import org.littletonrobotics.junction.Logger;
 
 public class FollowPathPlannerPath extends DriveAutoAction {
 

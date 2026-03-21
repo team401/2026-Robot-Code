@@ -28,10 +28,11 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY,
 
-    // TODO: Maybe switch it so it is controlled using network tables instead, so I dont have to rerun sim for every test.
-    /** Running in auto-testing mode.
-     * In this mode, the sim will listen to network tables to start and stop auto, and for what alliance station to start from.
-     * 
+    // TODO: Maybe switch it so it is controlled using network tables instead, so I dont have to
+    // rerun sim for every test.
+    /**
+     * Running in auto-testing mode. In this mode, the sim will listen to network tables to start
+     * and stop auto, and for what alliance station to start from.
      */
     AUTO_TESTING
   }

@@ -6,10 +6,10 @@ import frc.robot.util.ts.GeneratedOptional;
 
 public abstract class DriveAutoAction extends AutoAction {
 
-  // Just tells us if we should mirror for things
+  // Just tells us if we can mirror for things
   // Because for things like climb we can not mirror the climb poses
-  @GeneratedOptional public boolean shouldMirror = true;
-  
+  @GeneratedOptional public boolean canMirror = true;
+
   public Command wrapCommand(AutoActionContext data, Command command) {
     return new Command() {
       @Override

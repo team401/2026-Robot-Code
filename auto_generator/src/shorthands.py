@@ -105,7 +105,7 @@ def autopilot(
     constraints: Optional[AutoAction.APConstraints] = None,
     profile: Optional[AutoAction.APProfile] = None,
     pid_gains: Optional[AutoAction.PIDGains] = None,
-    alliance_relative: Optional[bool] = None,
+    can_mirror: Optional[bool] = None,
 ) -> None:
     """Insert an AutoPilotAction into the current context.
 
@@ -125,7 +125,7 @@ def autopilot(
         constraints=constraints,
         profile=profile,
         pid_gains=pid_gains,
-        alliance_relative=alliance_relative,
+        can_mirror=can_mirror,
     ).add()
 
 
@@ -139,7 +139,7 @@ def x_based_autopilot(
     constraints: Optional[AutoAction.APConstraints] = None,
     profile: Optional[AutoAction.APProfile] = None,
     pid_gains: Optional[AutoAction.PIDGains] = None,
-    alliance_relative: Optional[bool] = None,
+    can_mirror: Optional[bool] = None,
 ) -> None:
     """Insert an XBasedAutoPilotAction into the current context."""
     if target is None:
@@ -154,7 +154,7 @@ def x_based_autopilot(
         constraints=constraints,
         profile=profile,
         pid_gains=pid_gains,
-        alliance_relative=alliance_relative,
+        can_mirror=can_mirror,
     ).add()
 
 

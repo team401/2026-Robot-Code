@@ -27,8 +27,6 @@ public class AutoPilotAction extends DriveAutoAction {
   @GeneratedOptional public APConstraints constraints = null;
   @GeneratedOptional public PIDGains pidGains = null;
 
-  
-
   protected void handleNullValues(AutoActionContext context) {
     Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");
     Objects.requireNonNull(
@@ -37,24 +35,20 @@ public class AutoPilotAction extends DriveAutoAction {
     fixedTarget = target;
 
     if (context.flipped()) {
-        fixedTarget = fixedTarget
-            .withReference(Autos.flipPose2d(target.getReference()));
-        if (fixedTarget.getEntryAngle().isPresent()){
-            fixedTarget = fixedTarget
-                .withEntryAngle(Autos.flipRotation2d(target.getEntryAngle().get()));
-        }
+      fixedTarget = fixedTarget.withReference(Autos.flipPose2d(target.getReference()));
+      if (fixedTarget.getEntryAngle().isPresent()) {
+        fixedTarget =
+            fixedTarget.withEntryAngle(Autos.flipRotation2d(target.getEntryAngle().get()));
+      }
     }
 
-    if (context.mirrored()) {
-        fixedTarget = fixedTarget
-            .withReference(Autos.mirrorPose2d(target.getReference()));
-        if (fixedTarget.getEntryAngle().isPresent()){
-            fixedTarget = fixedTarget
-                .withEntryAngle(Autos.mirrorRotation2d(target.getEntryAngle().get()));
-        }
+    if (context.mirrored() && canMirror) {
+      fixedTarget = fixedTarget.withReference(Autos.mirrorPose2d(target.getReference()));
+      if (fixedTarget.getEntryAngle().isPresent()) {
+        fixedTarget =
+            fixedTarget.withEntryAngle(Autos.mirrorRotation2d(target.getEntryAngle().get()));
+      }
     }
-
-
 
     profile =
         Optional.ofNullable(profile).orElseGet(DriveCoordinatorCommands::createDefaultAPProfile);

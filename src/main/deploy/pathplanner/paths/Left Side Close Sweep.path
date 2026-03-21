@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.216476462196862,
-        "y": 7.4702139800285305
+        "x": 5.2,
+        "y": 7.4
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.264507845934379,
-        "y": 7.250256776034237
+        "x": 6.2480313837375165,
+        "y": 7.180042796005707
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench Center Exit"
     },
     {
       "anchor": {
@@ -64,16 +64,16 @@
     },
     {
       "anchor": {
-        "x": 5.203537803138373,
-        "y": 7.444336661911555
+        "x": 5.2,
+        "y": 7.4
       },
       "prevControl": {
-        "x": 6.717360912981454,
-        "y": 6.875035663338089
+        "x": 6.713823109843081,
+        "y": 6.8306990014265345
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench Center Enter"
     }
   ],
   "rotationTargets": [
@@ -94,8 +94,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.2,
+    "maxAcceleration": 4.2,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -103,10 +103,10 @@
   },
   "goalEndState": {
     "velocity": 4.2,
-    "rotation": 178.4518423010219
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Sweep",
   "idealStartingState": {
     "velocity": 4.2,
     "rotation": 0.0

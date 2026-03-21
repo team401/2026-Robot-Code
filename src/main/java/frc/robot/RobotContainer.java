@@ -245,4 +245,8 @@ public class RobotContainer {
   public DependencyOrderedExecutor getDependencyOrderedExecutor() {
     return dependencyOrderedExecutor;
   }
+
+  public Drive getDriveSubsystem() {
+    return drive.orElse(null);
+  }
 }

@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.284591908289362,
-        "y": 7.323506024096386
+        "x": 2.5002425106990014,
+        "y": 7.4
       },
       "isLocked": false,
       "linkedName": "Left Trench Alliance Exit"
     },
     {
       "anchor": {
-        "x": 2.4,
-        "y": 4.0
+        "x": 0.7267617689015686,
+        "y": 5.943452211126962
       },
       "prevControl": {
-        "x": 2.039385542168675,
-        "y": 5.027204819277109
+        "x": 2.9023425602553186,
+        "y": 5.943452211126962
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Alliance Center"
+      "linkedName": "Depot"
     }
   ],
   "rotationTargets": [],
@@ -42,12 +42,12 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -179.58379830883297
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "FromTrench",
   "idealStartingState": {
-    "velocity": 4.2,
+    "velocity": 0,
     "rotation": 180.0
   },
   "useDefaultConstraints": true

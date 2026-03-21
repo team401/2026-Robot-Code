@@ -30,7 +30,7 @@ from . import auto_action
 # TODO: Switch to AutoPilotAction with entry angle and exit velocity for trench segments.
 
 
-@auto("Right Side Auto")
+@auto("Right Sid Auto")
 def _right_side_auto():
 
     startShooting()
@@ -199,7 +199,7 @@ def _left_side_auto():
             )
 
             # Replace this with the depot
-            
+
             # autopilot(
             #     target_pose=pose2d(x=2, y=6.8, angle_degrees=180),
             #     entry_angle=rotation2d(90),

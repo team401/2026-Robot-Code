@@ -376,7 +376,7 @@ class AutoPilotAction:
     profile: Optional[APProfile] = None
     constraints: Optional[APConstraints] = None
     pid_gains: Optional[PIDGains] = None
-    alliance_relative: Optional[bool] = None
+    can_mirror: Optional[bool] = None
 
     def to_dict(self) -> dict:
         d: dict = {"type": self.type}
@@ -387,8 +387,8 @@ class AutoPilotAction:
             d["constraints"] = _to_dict(self.constraints)
         if self.pid_gains is not None:
             d["pidGains"] = _to_dict(self.pid_gains)
-        if self.alliance_relative is not None:
-            d["allianceRelative"] = _to_dict(self.alliance_relative)
+        if self.can_mirror is not None:
+            d["canMirror"] = _to_dict(self.can_mirror)
         return d
 
     def add(self):
@@ -404,7 +404,7 @@ class XBasedAutoPilotAction:
     profile: Optional[APProfile] = None
     constraints: Optional[APConstraints] = None
     pid_gains: Optional[PIDGains] = None
-    alliance_relative: Optional[bool] = None
+    can_mirror: Optional[bool] = None
 
     def to_dict(self) -> dict:
         d: dict = {"type": self.type}
@@ -415,8 +415,8 @@ class XBasedAutoPilotAction:
             d["constraints"] = _to_dict(self.constraints)
         if self.pid_gains is not None:
             d["pidGains"] = _to_dict(self.pid_gains)
-        if self.alliance_relative is not None:
-            d["allianceRelative"] = _to_dict(self.alliance_relative)
+        if self.can_mirror is not None:
+            d["canMirror"] = _to_dict(self.can_mirror)
         return d
 
     def add(self):
@@ -428,9 +428,12 @@ class XBasedAutoPilotAction:
 @dataclass
 class StopDriveAction:
     type: str = field(default="StopDriveAction", init=False)
+    can_mirror: Optional[bool] = None
 
     def to_dict(self) -> dict:
         d: dict = {"type": self.type}
+        if self.can_mirror is not None:
+            d["canMirror"] = _to_dict(self.can_mirror)
         return d
 
     def add(self):
@@ -443,14 +446,15 @@ class StopDriveAction:
 class FollowPathPlannerPath:
     type: str = field(default="FollowPathPlannerPath", init=False)
     path_name: str = ""
-    flip_path: bool = False
     mirror_path: bool = False
+    can_mirror: Optional[bool] = None
 
     def to_dict(self) -> dict:
         d: dict = {"type": self.type}
         d["pathName"] = _to_dict(self.path_name)
-        d["flipPath"] = _to_dict(self.flip_path)
         d["mirrorPath"] = _to_dict(self.mirror_path)
+        if self.can_mirror is not None:
+            d["canMirror"] = _to_dict(self.can_mirror)
         return d
 
     def add(self):
@@ -570,6 +574,20 @@ def _to_dict(obj: Any) -> Any:
     if isinstance(obj, dict):
         return {k: _to_dict(v) for k, v in obj.items()}
     return obj
+
+
+@dataclass
+class Auto:
+    root_action: AutoAction = None
+    can_be_mirrored: bool = False
+    should_be_flipped: bool = False
+
+    def to_dict(self) -> dict:
+        d: dict = {}
+        d["rootAction"] = _to_dict(self.root_action)
+        d["canBeMirrored"] = _to_dict(self.can_be_mirrored)
+        d["shouldBeFlipped"] = _to_dict(self.should_be_flipped)
+        return d
 
 
 @dataclass

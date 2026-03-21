@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Bump To Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench To Center"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Side Sweep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench To Alliance"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench To Depot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot To Left Trench"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

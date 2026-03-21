@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9743651925820247,
-        "y": 7.444336661911555
+        "x": 4.000242510699001,
+        "y": 7.4
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.266462196861626,
-        "y": 7.41845934379458
+        "x": 2.2923395149786026,
+        "y": 7.374122681883025
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench Alliance Exit"
     },
     {
       "anchor": {
@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 4.000242510699001,
-        "y": 7.431398002853067
+        "x": 4.0,
+        "y": 7.4
       },
       "prevControl": {
-        "x": 1.8783024251069906,
-        "y": 6.590385164051355
+        "x": 1.8780599144079893,
+        "y": 6.558987161198289
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench Alliance Enter"
     }
   ],
   "rotationTargets": [
@@ -58,8 +58,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.2,
+    "maxAcceleration": 4.2,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -70,10 +70,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "FromTrench",
   "idealStartingState": {
     "velocity": 4.2,
-    "rotation": 179.76236132561286
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
