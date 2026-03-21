@@ -737,11 +737,20 @@ public class CoordinationLayer {
       intake.ifPresent(IntakeSubsystem::stopRollers);
     }
 
+    // Holds the intake down with a set voltage when intaking
+    if (runningIntakeRollers && deployIntake) {
+      intake.ifPresent(
+          intake -> {
+            intake.controlPivotMotorIOWithVoltage(
+                JsonConstants.intakeConstants.pivotVoltageWhenIntaking);
+          });
+    }
+
     // Handle intake deploy/retract
     if (deployIntake) {
-      intake.ifPresent(IntakeSubsystem::setTargetPositionIntaking);
+      intake.ifPresent(IntakeSubsystem::deploy);
     } else {
-      intake.ifPresent(IntakeSubsystem::setTargetPositionStowed);
+      intake.ifPresent(IntakeSubsystem::stow);
     }
 
     // Determine if vision is enabled and functioning
@@ -1198,5 +1207,25 @@ public class CoordinationLayer {
             .map(turret -> turret.getFieldCentricTurretHeading().getRadians())
             .orElse(idealShot.yawRadians()),
         idealShot.timeSeconds());
+  }
+
+  public Optional<TurretSubsystem> getTurret() {
+    return turret;
+  }
+
+  public Optional<HoodSubsystem> getHood() {
+    return hood;
+  }
+
+  public Optional<IntakeSubsystem> getIntake() {
+    return intake;
+  }
+
+  public Optional<ClimberSubsystem> getClimber() {
+    return climber;
+  }
+
+  public Optional<Drive> getDrive() {
+    return drive;
   }
 }

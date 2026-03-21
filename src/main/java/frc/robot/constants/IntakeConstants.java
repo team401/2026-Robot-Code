@@ -50,6 +50,9 @@ public class IntakeConstants {
   public final Angle minPivotAngle = Degrees.of(0.0);
   public final Angle maxPivotAngle = Degrees.of(90.0);
   public final Angle pivotStartingAngle = Degrees.of(90.0);
+  public final Voltage pivotVoltageWhenIntaking = Volts.of(-4.0);
+
+  public final Angle pivotHoldAngleTolerance = Degrees.of(5);
 
   // Sim Constants
   public final MomentOfInertia rollersInertia = Units.KilogramSquareMeters.of(0.02);
