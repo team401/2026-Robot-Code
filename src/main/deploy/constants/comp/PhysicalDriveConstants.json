@@ -13,7 +13,7 @@
   },
   "driveMotorConfig": {
     "closedLoopOutputType": "Voltage",
-    "gearRatio": 6.026785714285714,
+    "gearRatio": 7.03,
     "momentOfInertia": {
       "value": 0.01,
       "unit": "Kilogram-Meter per Second-Meter per Radian per Second"
@@ -109,7 +109,7 @@
     "unit": "Amp"
   },
   "kSpeedAt12Volts": {
-    "value": 5.12,
+    "value": 4.2,
     "unit": "Meter per Second"
   },
   "kCoupleRatio": 3.857142857142857,
