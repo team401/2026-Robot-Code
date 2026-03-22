@@ -34,6 +34,9 @@ public class FollowPathPlannerPath extends DriveAutoAction {
   @Override
   public Command toCommand(AutoActionContext context) {
     var path = context.autos().getPath(pathName);
+    if (path == null) {
+      throw new RuntimeException("Path not found: " + pathName);
+    }
     if (context.flipped()) {
       path = path.flipPath();
     }
@@ -47,7 +50,7 @@ public class FollowPathPlannerPath extends DriveAutoAction {
             path,
             drive::getPose,
             drive::getChassisSpeeds,
-            (speeds, feedforwards) -> drive.setGoalSpeedsBlueOrigins(speeds),
+            (speeds, feedforwards) -> drive.setGoalSpeeds(speeds, false),
             controller,
             config,
             FALSE));

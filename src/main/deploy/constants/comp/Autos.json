@@ -1,808 +1,223 @@
 {
-    "autos": {
-        "Right Sid Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 3,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StopShooting"
-                    },
-                    {
-                        "type": "Sequence",
-                        "actions": [
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 4.104766,
-                                            "y": 0.639318
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 0
-                                    },
-                                    "velocity": 3.0
-                                }
-                            },
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 5.104766,
-                                            "y": 0.639318
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 0
-                                    },
-                                    "velocity": 3.0
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": 0.0
-                                },
-                                "translation": {
-                                    "x": 5.804766,
-                                    "y": 0.639318
-                                }
-                            },
-                            "velocity": 3.0
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": 90.0
-                                },
-                                "translation": {
-                                    "x": 8.059000000000001,
-                                    "y": 4.0215
-                                }
-                            },
-                            "entryAngle": {
-                                "degrees": -90
-                            },
-                            "velocity": 0.0
-                        },
-                        "constraints": {
-                            "velocity": 3,
-                            "acceleration": 2,
-                            "jerk": 2
-                        }
-                    },
-                    {
-                        "type": "Sequence",
-                        "actions": [
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 5.104766,
-                                            "y": 0.639318
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 180
-                                    },
-                                    "velocity": 3.0
-                                }
-                            },
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 4.104766,
-                                            "y": 0.639318
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 180
-                                    },
-                                    "velocity": 3.0
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": 0.0
-                                },
-                                "translation": {
-                                    "x": 3.4047659999999995,
-                                    "y": 0.639318
-                                }
-                            },
-                            "velocity": 3.0
-                        }
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": 0
-                                },
-                                "translation": {
-                                    "x": 2.003933,
-                                    "y": 4.0215
-                                }
-                            },
-                            "entryAngle": {
-                                "degrees": -90
-                            },
-                            "velocity": 0.0
-                        },
-                        "profile": {
-                            "constraints": null,
-                            "errorXY": {
-                                "value": 0.15,
-                                "unit": "Meter"
-                            },
-                            "errorTheta": {
-                                "value": 360,
-                                "unit": "Degree"
-                            },
-                            "beelineRadius": {
-                                "value": 0.5,
-                                "unit": "Meter"
-                            }
-                        }
-                    },
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 3,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 2,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "StopShooting"
-                            },
-                            {
-                                "type": "AutoReference",
-                                "name": "RightClimb"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
-        },
-        "Left Side Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 3,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StopShooting"
-                    },
-                    {
-                        "type": "Sequence",
-                        "actions": [
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 4.104766,
-                                            "y": 7.403681999999999
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 0
-                                    },
-                                    "velocity": 3.0
-                                }
-                            },
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 5.104766,
-                                            "y": 7.403681999999999
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 0
-                                    },
-                                    "velocity": 3.0
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": 0.0
-                                },
-                                "translation": {
-                                    "x": 5.804766,
-                                    "y": 7.403681999999999
-                                }
-                            },
-                            "velocity": 3.0
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": -90.0
-                                },
-                                "translation": {
-                                    "x": 8.059000000000001,
-                                    "y": 3.0214999999999996
-                                }
-                            },
-                            "entryAngle": {
-                                "degrees": 90
-                            },
-                            "velocity": 0.0
-                        },
-                        "profile": {
-                            "constraints": {
-                                "velocity": 3,
-                                "acceleration": 2,
-                                "jerk": 2
-                            },
-                            "errorXY": {
-                                "value": 0.25,
-                                "unit": "Meter"
-                            },
-                            "errorTheta": {
-                                "value": 360,
-                                "unit": "Degree"
-                            },
-                            "beelineRadius": {
-                                "value": 0.5,
-                                "unit": "Meter"
-                            }
-                        }
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 1,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "Sequence",
-                        "actions": [
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 5.104766,
-                                            "y": 7.403681999999999
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 180
-                                    },
-                                    "velocity": 3.0
-                                }
-                            },
-                            {
-                                "type": "XBasedAutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 0.0
-                                        },
-                                        "translation": {
-                                            "x": 4.104766,
-                                            "y": 7.403681999999999
-                                        }
-                                    },
-                                    "entryAngle": {
-                                        "degrees": 180
-                                    },
-                                    "velocity": 3.0
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "StartShooting"
-                            },
-                            {
-                                "type": "Sequence",
-                                "actions": [
-                                    {
-                                        "type": "AutoPilotAction",
-                                        "target": {
-                                            "reference": {
-                                                "rotation": {
-                                                    "degrees": 0.0
-                                                },
-                                                "translation": {
-                                                    "x": 3.4047659999999995,
-                                                    "y": 7.403681999999999
-                                                }
-                                            },
-                                            "velocity": 3.0
-                                        }
-                                    },
-                                    {
-                                        "type": "AutoPilotAction",
-                                        "target": {
-                                            "reference": {
-                                                "rotation": {
-                                                    "degrees": 180.0
-                                                },
-                                                "translation": {
-                                                    "x": 1.6858,
-                                                    "y": 5.9501219999999995
-                                                }
-                                            },
-                                            "entryAngle": {
-                                                "degrees": 0
-                                            },
-                                            "velocity": 0.0,
-                                            "rotationRadius": {
-                                                "value": 2,
-                                                "unit": "Meter"
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 3,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 2,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": 0
-                                },
-                                "translation": {
-                                    "x": 2.003933,
-                                    "y": 4.0215
-                                }
-                            },
-                            "entryAngle": {
-                                "degrees": 90
-                            },
-                            "velocity": 0.0
-                        }
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "StopShooting"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
-        },
-        "Literally just shoot Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "StartShooting"
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
-        },
-        "Shoot and Climb Right Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 10,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "StopShooting"
-                            },
-                            {
-                                "type": "AutoReference",
-                                "name": "RightClimb"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
-        },
-        "Shoot and Climb Left Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 10,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "StopShooting"
-                            },
-                            {
-                                "type": "AutoReference",
-                                "name": "LeftClimb"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
-        },
-        "Shoot and Depot Left Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StopShooting"
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "AutoPilotAction",
-                                "target": {
-                                    "reference": {
-                                        "rotation": {
-                                            "degrees": 180.0
-                                        },
-                                        "translation": {
-                                            "x": 1.1358,
-                                            "y": 5.9501219999999995
-                                        }
-                                    },
-                                    "velocity": 0.0,
-                                    "rotationRadius": {
-                                        "value": 2,
-                                        "unit": "Meter"
-                                    }
-                                },
-                                "profile": {
-                                    "constraints": {
-                                        "velocity": 3,
-                                        "acceleration": 2,
-                                        "jerk": 2
-                                    },
-                                    "errorXY": {
-                                        "value": 0.25,
-                                        "unit": "Meter"
-                                    },
-                                    "errorTheta": {
-                                        "value": 360,
-                                        "unit": "Degree"
-                                    },
-                                    "beelineRadius": {
-                                        "value": 0.5,
-                                        "unit": "Meter"
-                                    }
-                                }
-                            },
-                            {
-                                "type": "Sequence",
-                                "actions": [
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 1,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 4,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": 180.0
-                                },
-                                "translation": {
-                                    "x": 2.9358,
-                                    "y": 5.9501219999999995
-                                }
-                            },
-                            "velocity": 0.0,
-                            "rotationRadius": {
-                                "value": 2,
-                                "unit": "Meter"
-                            }
-                        },
-                        "profile": {
-                            "constraints": {
-                                "velocity": 3,
-                                "acceleration": 2,
-                                "jerk": 2
-                            },
-                            "errorXY": {
-                                "value": 0.25,
-                                "unit": "Meter"
-                            },
-                            "errorTheta": {
-                                "value": 360,
-                                "unit": "Degree"
-                            },
-                            "beelineRadius": {
-                                "value": 0.5,
-                                "unit": "Meter"
-                            }
-                        }
-                    },
-                    {
-                        "type": "StartShooting"
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
-        },
-        "Testing Path Planner": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "FollowPathPlannerPath",
-                        "pathName": "New Path",
-                        "mirrorPath": false
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
-        }
+  "autos": {
+    "Literally just shoot Auto": {
+      "rootAction": {
+        "type": "Sequence",
+        "actions": [
+          {
+            "type": "StartShooting"
+          }
+        ]
+      },
+      "canBeMirrored": false,
+      "shouldBeFlipped": false
     },
-    "routines": {
-        "LeftClimb": {
-            "type": "Sequence",
-            "actions": [
-                {
-                    "type": "Parallel",
-                    "actions": [
-                        {
-                            "type": "Sequence",
-                            "actions": [
-                                {
-                                    "type": "XBasedAutoPilotAction",
-                                    "target": {
-                                        "reference": {
-                                            "rotation": {
-                                                "degrees": -90.0
-                                            },
-                                            "translation": {
-                                                "x": 1.515154,
-                                                "y": 4.1813182
-                                            }
-                                        },
-                                        "entryAngle": {
-                                            "degrees": 0
-                                        },
-                                        "velocity": 0.0
-                                    },
-                                    "constraints": {
-                                        "velocity": 2.0,
-                                        "acceleration": 2.0,
-                                        "jerk": 0.1
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "type": "ClimbSearchAction"
-                        }
-                    ]
-                },
-                {
-                    "type": "Wait",
-                    "delay": {
-                        "value": 0.5,
-                        "unit": "Second"
-                    }
-                },
-                {
-                    "type": "ClimbHangAction"
-                }
-            ]
-        },
-        "RightClimb": {
-            "type": "Sequence",
-            "actions": [
-                {
-                    "type": "Parallel",
-                    "actions": [
-                        {
-                            "type": "Sequence",
-                            "actions": [
-                                {
-                                    "type": "XBasedAutoPilotAction",
-                                    "target": {
-                                        "reference": {
-                                            "rotation": {
-                                                "degrees": -90.0
-                                            },
-                                            "translation": {
-                                                "x": 1.515154,
-                                                "y": 3.3240682
-                                            }
-                                        },
-                                        "entryAngle": {
-                                            "degrees": 0
-                                        },
-                                        "velocity": 0.0
-                                    },
-                                    "constraints": {
-                                        "velocity": 2.0,
-                                        "acceleration": 2.0,
-                                        "jerk": 0.1
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "type": "ClimbSearchAction"
-                        }
-                    ]
-                },
-                {
-                    "type": "Wait",
-                    "delay": {
-                        "value": 0.5,
-                        "unit": "Second"
-                    }
-                },
-                {
-                    "type": "ClimbHangAction"
-                }
-            ]
-        }
+    "Testing Path Planner": {
+      "rootAction": {
+        "type": "Sequence",
+        "actions": [
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "New Path",
+            "mirrorPath": false
+          }
+        ]
+      },
+      "canBeMirrored": false,
+      "shouldBeFlipped": true
+    },
+    "Test Path Planner Left Auto": {
+      "rootAction": {
+        "type": "Sequence",
+        "actions": [
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Trench To Center",
+            "mirrorPath": false
+          },
+          {
+            "type": "DeployIntakeAction"
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Side Sweep",
+            "mirrorPath": false
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Trench To Alliance",
+            "mirrorPath": false
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Trench To Alliance Center",
+            "mirrorPath": false
+          },
+          {
+            "type": "StartShooting"
+          },
+          {
+            "type": "Wait",
+            "delay": {
+              "value": 1.5,
+              "unit": "Second"
+            }
+          },
+          {
+            "type": "StowIntakeAction"
+          },
+          {
+            "type": "StopShooting"
+          },
+          {
+            "type": "DeployIntakeAction"
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Alliance Center To Left Trench",
+            "mirrorPath": false
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Trench To Center",
+            "mirrorPath": false
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Side Sweep",
+            "mirrorPath": false
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Trench To Alliance",
+            "mirrorPath": false
+          },
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "Left Trench To Alliance Center",
+            "mirrorPath": false
+          },
+          {
+            "type": "StartShooting"
+          },
+          {
+            "type": "Wait",
+            "delay": {
+              "value": 1.5,
+              "unit": "Second"
+            }
+          },
+          {
+            "type": "StowIntakeAction"
+          }
+        ]
+      },
+      "canBeMirrored": false,
+      "shouldBeFlipped": true
     }
+  },
+  "routines": {
+    "LeftClimb": {
+      "type": "Sequence",
+      "actions": [
+        {
+          "type": "Parallel",
+          "actions": [
+            {
+              "type": "Sequence",
+              "actions": [
+                {
+                  "type": "XBasedAutoPilotAction",
+                  "target": {
+                    "reference": {
+                      "rotation": {
+                        "degrees": -90.0
+                      },
+                      "translation": {
+                        "x": 1.515154,
+                        "y": 4.1813182
+                      }
+                    },
+                    "entryAngle": {
+                      "degrees": 0
+                    },
+                    "velocity": 0.0
+                  },
+                  "constraints": {
+                    "velocity": 2.0,
+                    "acceleration": 2.0,
+                    "jerk": 0.1
+                  }
+                }
+              ]
+            },
+            {
+              "type": "ClimbSearchAction"
+            }
+          ]
+        },
+        {
+          "type": "Wait",
+          "delay": {
+            "value": 0.5,
+            "unit": "Second"
+          }
+        },
+        {
+          "type": "ClimbHangAction"
+        }
+      ]
+    },
+    "RightClimb": {
+      "type": "Sequence",
+      "actions": [
+        {
+          "type": "Parallel",
+          "actions": [
+            {
+              "type": "Sequence",
+              "actions": [
+                {
+                  "type": "XBasedAutoPilotAction",
+                  "target": {
+                    "reference": {
+                      "rotation": {
+                        "degrees": -90.0
+                      },
+                      "translation": {
+                        "x": 1.515154,
+                        "y": 3.3240682
+                      }
+                    },
+                    "entryAngle": {
+                      "degrees": 0
+                    },
+                    "velocity": 0.0
+                  },
+                  "constraints": {
+                    "velocity": 2.0,
+                    "acceleration": 2.0,
+                    "jerk": 0.1
+                  }
+                }
+              ]
+            },
+            {
+              "type": "ClimbSearchAction"
+            }
+          ]
+        },
+        {
+          "type": "Wait",
+          "delay": {
+            "value": 0.5,
+            "unit": "Second"
+          }
+        },
+        {
+          "type": "ClimbHangAction"
+        }
+      ]
+    }
+  }
 }

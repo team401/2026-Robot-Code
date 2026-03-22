@@ -7,12 +7,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Bump To Trench"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "Left Trench To Center"
           }
         },
@@ -31,13 +25,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench To Depot"
+            "pathName": "Left Trench To Alliance Center"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Depot To Left Trench"
+            "pathName": "Alliance Center To Left Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench To Center"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Side Close Sweep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench To Alliance"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench To Alliance Center"
           }
         }
       ]
