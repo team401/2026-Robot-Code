@@ -254,10 +254,6 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     pivotMotorIO.controlToPositionUnprofiled(this.targetPivotAngle);
   }
 
-  public void controlPivotMotorIOWithVoltage(Voltage v) {
-    pivotMotorIO.controlOpenLoopVoltage(v);
-  }
-
   protected void zeroPositionIfBelowZero() {
     // Commented out because the intake can actually go down to ~-8 degrees now.
     // if (pivotInputs.positionRadians < 0) {

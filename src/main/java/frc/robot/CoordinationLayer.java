@@ -737,15 +737,6 @@ public class CoordinationLayer {
       intake.ifPresent(IntakeSubsystem::stopRollers);
     }
 
-    // Holds the intake down with a set voltage when intaking
-    if (runningIntakeRollers && deployIntake) {
-      intake.ifPresent(
-          intake -> {
-            intake.controlPivotMotorIOWithVoltage(
-                JsonConstants.intakeConstants.pivotVoltageWhenIntaking);
-          });
-    }
-
     // Handle intake deploy/retract
     if (deployIntake) {
       intake.ifPresent(IntakeSubsystem::deploy);
