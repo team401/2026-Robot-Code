@@ -2,6 +2,7 @@ package frc.robot.subsystems.turret;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -25,6 +26,7 @@ import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.turret.TurretState.HomingWaitForButtonChirpState;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForButtonState;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForMovementState;
 import frc.robot.subsystems.turret.TurretState.HomingWaitForStoppingState;
@@ -88,6 +90,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   private final StateMachine<TurretSubsystem> stateMachine;
 
   private final TurretState homingWaitForButtonState;
+  private final TurretState homingWaitForButtonChirpState;
   private final TurretState homingWaitForMovementState;
   private final TurretState homingWaitForStoppingState;
   private final TurretState wearInState;
@@ -136,6 +139,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     stateMachine = new StateMachine<>(this);
 
     homingWaitForButtonState = stateMachine.registerState(new HomingWaitForButtonState());
+    homingWaitForButtonChirpState = stateMachine.registerState(new HomingWaitForButtonChirpState());
     homingWaitForMovementState = stateMachine.registerState(new HomingWaitForMovementState());
     homingWaitForStoppingState = stateMachine.registerState(new HomingWaitForStoppingState());
     wearInState = stateMachine.registerState(new WearInState());
@@ -145,6 +149,17 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     homingWaitForButtonState.whenFinished().transitionTo(idleState);
     homingWaitForButtonState
+        .whenTimeout(Seconds.of(1.0))
+        .transitionTo(homingWaitForButtonChirpState);
+    homingWaitForButtonState
+        .when(turret -> DriverStation.isEnabled(), "Robot is enabled")
+        .transitionTo(homingWaitForMovementState);
+
+    homingWaitForButtonChirpState.whenFinished().transitionTo(idleState);
+    homingWaitForButtonChirpState
+        .whenTimeout(Seconds.of(0.5))
+        .transitionTo(homingWaitForButtonState);
+    homingWaitForButtonChirpState
         .when(turret -> DriverStation.isEnabled(), "Robot is enabled")
         .transitionTo(homingWaitForMovementState);
 
@@ -329,6 +344,10 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   public TurretDependencies getDependencies() {
     return this.dependencies;
+  }
+
+  protected void chirp() {
+    motor.controlChirp(Hertz.of(440));
   }
 
   protected void applyHomingVoltage() {

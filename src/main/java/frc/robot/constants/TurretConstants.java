@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -134,7 +135,8 @@ public class TurretConstants {
         .withFeedback(
             new FeedbackConfigs()
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                .withSensorToMechanismRatio(turretReduction));
+                .withSensorToMechanismRatio(turretReduction))
+        .withAudio(new AudioConfigs().withAllowMusicDurDisable(true));
   }
 
   public CoppercoreSimAdapter buildTurretSim() {

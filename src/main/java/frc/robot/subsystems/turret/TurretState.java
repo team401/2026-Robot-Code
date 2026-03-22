@@ -47,6 +47,14 @@ public abstract class TurretState extends State<TurretSubsystem> {
     }
   }
 
+  public static class HomingWaitForButtonChirpState extends HomingWaitForButtonState {
+    @Override
+    public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
+      super.periodic(stateMachine, turret);
+      turret.chirp();
+    }
+  }
+
   /**
    * The HomingWaitForMovementState should be entered if the robot is enabled without the homing
    * switch having been pressed. It applies a gentle voltage output to home the turret and waits for

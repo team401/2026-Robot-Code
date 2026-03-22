@@ -9,11 +9,11 @@
     "unit": "RPM"
   },
   "indexingVelocity": {
-    "value": 5800,
+    "value": 5000,
     "unit": "RPM"
   },
   "hopperGains": {
-    "kP": 7.0,
+    "kP": 6.0,
     "kI": 0.0,
     "kD": 0.0,
     "kS": 3.0,
