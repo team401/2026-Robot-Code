@@ -1,0 +1,7 @@
+model.glb = drive
+model_0.glb = shooter base
+model_1.glb = indexer + hopper
+model_2.glb = intake
+model_3.glb = turret
+model_4.glb = climb carriage
+model_5.glb = hood

@@ -16,11 +16,11 @@ digraph {
 
   HomingWaitForMovementState ;
   HomingWaitForStoppingState ;
-  IdleState ;
+  IdleState [shape=doublecircle];
   WearInState ;
   TrackHeadingState ;
   TestModeState ;
-  HomingWaitForButtonState [shape=doublecircle];
+  HomingWaitForButtonState ;
 
   // Transitions
 

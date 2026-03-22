@@ -12,6 +12,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.StateMachineDump;
@@ -39,6 +40,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   protected MotorInputsAutoLogged rollerFollowerMotorInputs;
 
   protected Angle targetPivotAngle = Degrees.zero();
+  protected Voltage holdVoltage = null;
 
   private LoggedTunableNumber rollersTargetSpeedTunable;
 
@@ -181,6 +183,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   public void setTargetPivotAngle(Angle angle) {
     this.targetPivotAngle = angle;
+    this.holdVoltage = null;
   }
 
   public Angle getCurrentTargetPivotAngle() {
@@ -193,17 +196,22 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   // Should these be blocked from executing if we are in test mode?
 
-  public void setTargetPositionStowed() {
+  public void stow() {
     setTargetPivotAngle(JsonConstants.intakeConstants.stowPositionAngle);
     needsReHome = true;
   }
 
-  public void setTargetPositionIntaking() {
+  public void deploy() {
     setTargetPivotAngle(JsonConstants.intakeConstants.intakePositionAngle);
+    holdVoltage = JsonConstants.intakeConstants.pivotVoltageWhenIntaking;
     if (needsReHome) {
       intakeStateMachine.requestState(IntakeState.homingWaitForMovementState);
       needsReHome = false;
     }
+  }
+
+  public void applyHoldVoltage() {
+    pivotMotorIO.controlOpenLoopVoltage(holdVoltage);
   }
 
   @Override
@@ -244,6 +252,10 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   protected void controlToTargetPivotAngle() {
     pivotMotorIO.controlToPositionUnprofiled(this.targetPivotAngle);
+  }
+
+  public void controlPivotMotorIOWithVoltage(Voltage v) {
+    pivotMotorIO.controlOpenLoopVoltage(v);
   }
 
   protected void zeroPositionIfBelowZero() {

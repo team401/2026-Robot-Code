@@ -2,6 +2,7 @@ package frc.robot.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -18,6 +19,7 @@ import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -323,26 +325,17 @@ public class ClimberSubsystem extends MonitoredSubsystem {
         };
   }
 
+  public boolean isHanging() {
+    return stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang;
+  }
+
   /**
-   * Handles a stow button press by: If the climber is hanging, command it to search. If the climber
-   * is searching, command it to stow.
+   * Sets the climber's requested action to be stowed.
    *
-   * <p>This method should only be called by a coordination layer button binding.
-   *
-   * <p>This method returns whether or not the climber was commanded to stow, which enables the
-   * coordination layer to know if it should reset the goal extension state or not.
-   *
-   * @return {@code true} if the climber is going to stow, {@code false} if not (if it will go to
-   *     search)
+   * <p>This method should only be called by the CoordinationLayer
    */
-  public boolean stowPressed() {
-    if (stateMachine.getCurrentState() == hangState || requestedAction == ClimberAction.Hang) {
-      requestedAction = ClimberAction.Search;
-      return false;
-    } else {
-      requestedAction = ClimberAction.Stow;
-      return true;
-    }
+  public void stow() {
+    requestedAction = ClimberAction.Stow;
   }
 
   /**
@@ -392,5 +385,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
    */
   public boolean isAboveHangPosition() {
     return inputs.positionRadians > JsonConstants.climberConstants.hangClimbAngle.in(Radians);
+  }
+
+  public Distance getHeightMeters() {
+    return Meters.of(inputs.positionRadians * 0.0145);
   }
 }

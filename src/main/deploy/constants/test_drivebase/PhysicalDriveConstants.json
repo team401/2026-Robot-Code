@@ -1,11 +1,19 @@
 {
+  "driveSupplyCurrentLimit": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
+  "steerSupplyCurrentLimit": {
+    "value": 60.0,
+    "unit": "Amp"
+  },
   "wheelRadius": {
     "value": 2.0,
     "unit": "Inch"
   },
   "driveMotorConfig": {
     "closedLoopOutputType": "Voltage",
-    "gearRatio": 6.122448979591837,
+    "gearRatio": 7.03,
     "momentOfInertia": {
       "value": 0.01,
       "unit": "Kilogram-Meter per Second-Meter per Radian per Second"

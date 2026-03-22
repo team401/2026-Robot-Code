@@ -28,6 +28,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
+import java.util.function.Supplier;
 
 /**
  * Constants for the swerve drivetrain subsystem.
@@ -41,24 +42,35 @@ import frc.robot.constants.JsonConstants;
  * <p>PID gains and other tuning-related constants are instead found in {@link DriveConstants}.
  */
 public class PhysicalDriveConstants {
+  public final Current driveSupplyCurrentLimit = Amps.of(40.0);
+  // Steer is higher than drive so it can turn super fast to setpoint but it won't draw a lot of
+  // current sustained
+  public final Current steerSupplyCurrentLimit = Amps.of(60.0);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-  private static final TalonFXConfiguration driveInitialConfigs =
-      new TalonFXConfiguration()
-          .withCurrentLimits(
-              new CurrentLimitsConfigs()
-                  .withSupplyCurrentLimit(Amps.of(70.0))
-                  .withSupplyCurrentLimitEnable(true));
-  private static final TalonFXConfiguration steerInitialConfigs =
-      new TalonFXConfiguration()
-          .withCurrentLimits(
-              new CurrentLimitsConfigs()
-                  // Swerve azimuth does not require much torque output, so we can set a relatively
-                  // low
-                  // stator current limit to help avoid brownouts without impacting performance.
-                  .withStatorCurrentLimit(Amps.of(60))
-                  .withStatorCurrentLimitEnable(true));
+  @JSONExclude
+  private final Supplier<TalonFXConfiguration> driveInitialConfigs =
+      () ->
+          new TalonFXConfiguration()
+              .withCurrentLimits(
+                  new CurrentLimitsConfigs()
+                      .withSupplyCurrentLimit(driveSupplyCurrentLimit)
+                      .withSupplyCurrentLimitEnable(true));
+
+  @JSONExclude
+  private final Supplier<TalonFXConfiguration> steerInitialConfigs =
+      () ->
+          new TalonFXConfiguration()
+              .withCurrentLimits(
+                  new CurrentLimitsConfigs()
+                      // Swerve azimuth does not require much torque output, so we can set a
+                      // relatively
+                      // low
+                      // stator current limit to help avoid brownouts without impacting performance.
+                      .withStatorCurrentLimit(steerSupplyCurrentLimit)
+                      .withStatorCurrentLimitEnable(true));
+
   private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
   // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
   private static final Pigeon2Configuration pigeonConfigs = null;
@@ -232,8 +244,8 @@ public class PhysicalDriveConstants {
             .withDriveMotorType(kDriveMotorType)
             .withSteerMotorType(kSteerMotorType)
             .withFeedbackSource(kSteerFeedbackType)
-            .withDriveMotorInitialConfigs(driveInitialConfigs)
-            .withSteerMotorInitialConfigs(steerInitialConfigs)
+            .withDriveMotorInitialConfigs(driveInitialConfigs.get())
+            .withSteerMotorInitialConfigs(steerInitialConfigs.get())
             .withEncoderInitialConfigs(encoderInitialConfigs)
             .withSteerInertia(steerMotorConfig.momentOfInertia())
             .withDriveInertia(driveMotorConfig.momentOfInertia())

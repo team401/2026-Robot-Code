@@ -7,8 +7,19 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+
 import coppercore.metadata.CopperCoreMetadata;
 import coppercore.parameter_tools.json.JSONHandler;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,6 +42,7 @@ import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.TotalCurrentCalculator;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -167,6 +179,84 @@ public class RobotContainer {
     JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
 
     createAutoChooser(drive.orElse(null));
+  }
+
+  public void updateRobotModel() {
+    var turretAngle =
+        coordinationLayer
+            .getTurret()
+            .map(TurretSubsystem::getGoalTurretHeading)
+            .orElse(Rotation2d.kZero)
+            .minus(
+                coordinationLayer.getDrive().map(Drive::getPose).orElse(Pose2d.kZero).getRotation())
+            .minus(Rotation2d.k180deg);
+    Angle hoodAngle =
+        coordinationLayer.getHood().map(HoodSubsystem::getCurrentExitPitch).orElse(Radians.zero());
+    Angle intakeAngle =
+        coordinationLayer
+            .getIntake()
+            .map(IntakeSubsystem::getCurrentPivotAngle)
+            .orElse(Radians.zero());
+    Distance climbHeight =
+        coordinationLayer.getClimber().map(ClimberSubsystem::getHeightMeters).orElse(Meters.zero());
+
+    var shooterBasePosition =
+        new Pose3d(new Translation3d(-0.058, 0.245, 0.37), new Rotation3d(0.0, 0.0, -Math.PI / 2));
+    var shooterOffsetFromReferencePoint =
+        new Transform3d(0.1045, -0.039, 0, new Rotation3d(0, 0, 0));
+    var shooterWithTurretAngle =
+        shooterBasePosition
+            .plus(shooterOffsetFromReferencePoint)
+            .plus(new Transform3d(0, 0, 0, new Rotation3d(turretAngle)))
+            .plus(shooterOffsetFromReferencePoint.inverse());
+    var hoodOffsetFromShooter =
+        new Transform3d(0.1875, -0.04, 0.033, new Rotation3d(Math.PI / 2, 0, 0));
+    var hoodOffsetFromReferencePoint = new Transform3d(0, 0.021, 0.101, new Rotation3d(0, 0, 0));
+
+    var intakeOffsetFromReferencePoint =
+        new Transform3d(0.352, 0.158, 0.034, new Rotation3d(0, 0, 0));
+
+    // The order of these components are described in
+    // advantagekit_config/Robot_401_2026/reference.txt
+    Logger.recordOutput(
+        "componentPositions",
+        new Pose3d[] {
+          // Shooter base
+          shooterWithTurretAngle,
+          // Indexer + hopper
+          new Pose3d(
+              new Translation3d(0.121, 0.025, 0.0), new Rotation3d(Math.PI / 2, 0.0, Math.PI / 2)),
+          // Intake
+          new Pose3d(
+                  new Translation3d(0.35, 0.0, 0.0), new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2))
+              .plus(intakeOffsetFromReferencePoint)
+              .plus(new Transform3d(0, 0, 0, new Rotation3d(intakeAngle.in(Radians), 0, 0)))
+              .plus(intakeOffsetFromReferencePoint.inverse()),
+          // Turret
+          new Pose3d(
+              new Translation3d(-0.099, 0.138, 0.331),
+              new Rotation3d(Math.PI / 2, 0.0, -Math.PI / 2)),
+          // Climb
+          new Pose3d(
+              new Translation3d(-0.180, -0.218, -0.190 + climbHeight.in(Meters)),
+              new Rotation3d(Math.PI / 2, 0.0, Math.PI)),
+          // Hood
+          shooterWithTurretAngle
+              .plus(hoodOffsetFromShooter)
+              .plus(hoodOffsetFromReferencePoint)
+              .plus(
+                  new Transform3d(
+                      0,
+                      0,
+                      0,
+                      new Rotation3d(
+                          -hoodAngle.in(Radians)
+                              + Math.toRadians(
+                                  50.0), // This is an estimate of the hood offset angle
+                          0,
+                          0)))
+              .plus(hoodOffsetFromReferencePoint.inverse())
+        });
   }
 
   /*
