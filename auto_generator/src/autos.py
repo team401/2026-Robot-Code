@@ -42,33 +42,14 @@ def _testing_path_planner():
 @auto("Test Path Planner Left Auto", can_be_mirrored=False)
 def _test_path_planner_left_auto():
 
-    auto_action.FollowPathPlannerPath(path_name="Left Trench To Center").add()
+    go_to_center_under_left_trench_from_alliance()
 
-    deploy_intake()
 
-    auto_action.FollowPathPlannerPath(path_name="Left Side Sweep").add()
-    auto_action.FollowPathPlannerPath(path_name="Left Trench To Alliance").add()
-    auto_action.FollowPathPlannerPath(path_name="Left Trench To Alliance Center").add()
+    with parallel():
+        deploy_intake()
+        auto_action.FollowPathPlannerPath(path_name="Left Side Close Sweep").add()
 
-    startShooting()
-
-    wait(1.5)
-
-    stow_intake()
-
-    stopShooting()
-
-    deploy_intake()
-
-    auto_action.FollowPathPlannerPath(path_name="Alliance Center To Left Trench").add()
-    auto_action.FollowPathPlannerPath(path_name="Left Trench To Center").add()
-    auto_action.FollowPathPlannerPath(path_name="Left Side Sweep").add()
-    auto_action.FollowPathPlannerPath(path_name="Left Trench To Alliance").add()
-    auto_action.FollowPathPlannerPath(path_name="Left Trench To Alliance Center").add()
+    auto_action.FollowPathPlannerPath(path_name="Left Bump To Alliance").add()
 
     startShooting()
-
-    wait(1.5)
-
-    stow_intake()
 
