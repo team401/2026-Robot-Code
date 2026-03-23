@@ -31,11 +31,12 @@ def go_to_alliance_under_left_trench(velocity = Constants.default_trench_velocit
             velocity=velocity,
             entry_angle=first_entry_angle
         )
-        x_based_autopilot(
-            target_pose=Constants.left_trench_alliance_side_pose.transform_by(transform),
-            velocity=velocity,
-            entry_angle=second_entry_angle
-        )
+        # x_based_autopilot(
+        #     target_pose=Constants.left_trench_alliance_side_pose.transform_by(transform),
+        #     velocity=velocity,
+        #     entry_angle=second_entry_angle
+        # )
+        AutoAction.FollowPathPlannerPath(path_name="Left Trench To Alliance").add()
 
 def go_to_alliance_under_right_trench(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(180), second_entry_angle = rotation2d(180)):
     transform = AutoAction.Transform2d(
@@ -47,11 +48,12 @@ def go_to_alliance_under_right_trench(velocity = Constants.default_trench_veloci
             velocity=velocity,
             entry_angle=first_entry_angle
         )
-        x_based_autopilot(
-            target_pose=Constants.right_trench_alliance_side_pose.transform_by(transform),
-            velocity=velocity,
-            entry_angle=second_entry_angle
-        )
+        # x_based_autopilot(
+        #     target_pose=Constants.right_trench_alliance_side_pose.transform_by(transform),
+        #     velocity=velocity,
+        #     entry_angle=second_entry_angle
+        # )
+        AutoAction.FollowPathPlannerPath(path_name="Right Trench To Alliance").add()
 
 def go_to_center_under_left_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
     transform = AutoAction.Transform2d(
@@ -63,11 +65,12 @@ def go_to_center_under_left_trench_from_alliance(velocity = Constants.default_tr
             velocity=velocity,
             entry_angle=first_entry_angle
         )
-        x_based_autopilot(
-            target_pose=Constants.left_trench_center_side_pose.transform_by(transform),
-            velocity=velocity,
-            entry_angle=second_entry_angle
-        )
+        # x_based_autopilot(
+        #     target_pose=Constants.left_trench_center_side_pose.transform_by(transform),
+        #     velocity=velocity,
+        #     entry_angle=second_entry_angle
+        # )
+        AutoAction.FollowPathPlannerPath(path_name="Left Trench To Center").add()
 
 def go_to_center_under_right_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
     transform = AutoAction.Transform2d(
@@ -79,11 +82,12 @@ def go_to_center_under_right_trench_from_alliance(velocity = Constants.default_t
             velocity=velocity,
             entry_angle=first_entry_angle
         )
-        x_based_autopilot(
-            target_pose=Constants.right_trench_center_side_pose.transform_by(transform),
-            velocity=velocity,
-            entry_angle=second_entry_angle
-        )
+        # x_based_autopilot(
+        #     target_pose=Constants.right_trench_center_side_pose.transform_by(transform),
+        #     velocity=velocity,
+        #     entry_angle=second_entry_angle
+        # )
+        AutoAction.FollowPathPlannerPath(path_name="Right Trench To Center").add()
 
 
 def _climb(

@@ -68,7 +68,7 @@
     "kV": 0.0,
     "kA": 0.0
   },
-  "defaultAutoPilotVelocity": 3.0,
+  "defaultAutoPilotVelocity": 2.0,
   "defaultAutoPilotAcceleration": 2.0,
   "defaultAutoPilotJerk": 2.0,
   "defaultAutoPilotBeelineRadius": {

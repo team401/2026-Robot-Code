@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.2,
-        "y": 7.4
+        "x": 3.6,
+        "y": 5.6
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.747344388998851,
-        "y": 7.4
+        "x": 4.6,
+        "y": 5.6
       },
       "isLocked": false,
-      "linkedName": "Left Trench Center Enter"
+      "linkedName": "Left Bump Alliance Enter"
     },
     {
       "anchor": {
-        "x": 4.000242510699001,
-        "y": 7.4
+        "x": 5.65,
+        "y": 5.6
       },
       "prevControl": {
-        "x": 4.397999496875586,
-        "y": 7.4
+        "x": 4.65,
+        "y": 5.6
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Trench Alliance Exit"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 4.2,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Trench",
+  "folder": "Bump",
   "idealStartingState": {
     "velocity": 4.2,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
