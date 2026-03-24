@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
@@ -281,9 +282,13 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     Logger.recordOutput("Turret/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
-    Logger.recordOutput("Turret/StateAfter", stateMachine.getCurrentState().getName());
+
+    long endTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput("PeriodicTime/TurretMs", (endTimeUs - startTimeUs) / 1000.0);
   }
 
   /**

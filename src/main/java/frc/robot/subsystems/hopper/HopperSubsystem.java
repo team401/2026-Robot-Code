@@ -15,6 +15,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hopper.HopperState.DejamState;
@@ -115,14 +116,19 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     motor.updateInputs(inputs);
+
 
     TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.processInputs("Hopper/inputs", inputs);
     Logger.recordOutput("Hopper/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
-    Logger.recordOutput("Hopper/StateAfter", stateMachine.getCurrentState().getName());
+
+    long endTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput("PeriodicTime/hopperMs", (endTimeUs - startTimeUs) / 1000.0);
   }
 
   protected void testPeriodic() {

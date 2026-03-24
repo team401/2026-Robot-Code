@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
@@ -205,6 +206,8 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     Logger.recordOutput("Shooter/TargetVelocityRadPerSec", targetVelocity.in(RadiansPerSecond));
 
     GainSlot slot =
@@ -216,6 +219,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     leadMotor.selectGainSlot(slot);
     Logger.recordOutput("Shooter/gainSlot", slot);
 
+    Logger.recordOutput("Shooter/state", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
 
     if (stateMachine.getCurrentState() != coastState) {
@@ -223,6 +227,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
           JsonConstants.canBusAssignment.shooterLeaderId,
           JsonConstants.shooterConstants.invertFollower);
     }
+
+    long endTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput("PeriodicTime/ShooterMs", (endTimeUs - startTimeUs) / 1000.0);
   }
 
   /** Runs when test mode is entered. Should be called by the test mode state. */

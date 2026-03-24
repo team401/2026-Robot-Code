@@ -8,6 +8,7 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
 import frc.robot.subsystems.indexer.IndexerState.ShootingState;
@@ -123,6 +124,8 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     motor.updateInputs(inputs);
     Logger.processInputs("Indexer/inputs", inputs);
 
@@ -130,7 +133,9 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Indexer/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
-    Logger.recordOutput("Indexer/StateAfter", stateMachine.getCurrentState().getName());
+
+    long endTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput("PeriodicTime/indexerMs", (endTimeUs - startTimeUs) / 1000.0);
   }
 
   protected void testPeriodic() {

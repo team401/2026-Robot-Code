@@ -16,6 +16,7 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -23,6 +24,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
@@ -186,6 +188,8 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     motor.updateInputs(inputs);
     Logger.processInputs("Climber/inputs", inputs);
 
@@ -193,7 +197,9 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
-    Logger.recordOutput("Climber/StateAfter", stateMachine.getCurrentState().getName());
+
+    long endTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput("PeriodicTime/climberMs", (endTimeUs - startTimeUs) / 1000.0);
   }
 
   protected void testPeriodic() {
