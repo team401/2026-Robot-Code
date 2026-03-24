@@ -80,6 +80,19 @@ public class IntakeConstants {
   public PIDGains rollersPIDGains =
       PIDGains.kPID(20.0, 10.0, 10.0); // These values are placeholders
 
+  // Dejam parameters
+  /**
+   * The threshold for movement of the rollers. This is used for deciding when to command the
+   * rollers to control a velocity vs. coast and how to determine if the intake rollers are "moving"
+   * for dejam detection.
+   */
+  public final AngularVelocity rollerMovementThreshold = RPM.of(200);
+
+  public final Current rollerJamCurrentThreshold = Amps.of(35);
+  public final Time rollerJamDetectionTime = Seconds.of(0.5);
+  public final Time rollerDejamTime = Seconds.of(0.5);
+  public final Voltage rollerDejamVoltage = Volts.of(-6.0);
+
   // Current Limits (These current limits are placeholders and were picked randomly)
   public final Current pivotSupplyCurrentLimit = Amps.of(40.0);
   public final Current pivotStatorCurrentLimit = Amps.of(40.0);

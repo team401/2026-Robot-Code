@@ -1,17 +1,23 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.JsonConstants;
@@ -29,7 +35,14 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   TestModeManager<RollerTestMode> rollerTestModeManager =
       new TestModeManager<RollerTestMode>("IntakeRollers", RollerTestMode.class);
 
+  /** Controls the pivot, test modes, homing, and general intake operation */
   StateMachine<IntakeSubsystem> intakeStateMachine;
+
+  /**
+   * Controls the rollers and whether or not they need to be dejamming. This state machine will only
+   * run when not in test mode state.
+   */
+  StateMachine<IntakeSubsystem> rollerStateMachine;
 
   protected MotorIO pivotMotorIO;
   protected MotorIO rollersLeadMotorIO;
@@ -47,6 +60,10 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   private IntakeDependencies dependencies = new IntakeDependencies();
 
   private boolean needsReHome = false;
+  protected final MutAngularVelocity requestedRollerSpeed = RPM.mutable(0.0);
+  protected final Debouncer dejamNeededDebouncer =
+      new Debouncer(
+          JsonConstants.intakeConstants.rollerJamDetectionTime.in(Seconds), DebounceType.kRising);
 
   // Dependencies (these are what we would have fetched using extensive supplier networks in 2025
   // and before)
@@ -96,6 +113,13 @@ public class IntakeSubsystem extends MonitoredSubsystem {
             IntakeState.homingWaitForStopMovingState,
             IntakeState.homingDoneState)
         .forEach(this.intakeStateMachine::registerState);
+
+    this.rollerStateMachine = new StateMachine<IntakeSubsystem>(this);
+    List.of(
+            IntakeRollerState.stopRollersState,
+            IntakeRollerState.runRollersState,
+            IntakeRollerState.dejamState)
+        .forEach(rollerStateMachine::registerState);
 
     pivotMotorIO.setRequestUpdateFrequency(Hertz.of(1000));
 
@@ -167,18 +191,48 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // to position state
     IntakeState.homingDoneState.whenFinished().transitionTo(IntakeState.controlToPositionState);
 
+    // ### Roller state machine transitions
+    IntakeRollerState.stopRollersState
+        .when(
+            intake ->
+                intake.requestedRollerSpeed.gt(
+                    JsonConstants.intakeConstants.rollerMovementThreshold),
+            "Target roller speed > movement threshold")
+        .transitionTo(IntakeRollerState.runRollersState);
+    IntakeRollerState.runRollersState
+        .when(
+            intake ->
+                intake.requestedRollerSpeed.lt(
+                    JsonConstants.intakeConstants.rollerMovementThreshold),
+            "Target roller speed < movement threshold")
+        .transitionTo(IntakeRollerState.runRollersState);
+    IntakeRollerState.runRollersState
+        .when(
+            intake ->
+                intake.dejamNeededDebouncer.calculate(
+                    intake.rollerLeadMotorInputs.supplyCurrentAmps
+                            > JsonConstants.intakeConstants.rollerJamCurrentThreshold.in(Amps)
+                        && intake.rollerLeadMotorInputs.velocityRadiansPerSecond
+                            < JsonConstants.intakeConstants.rollerMovementThreshold.in(
+                                RadiansPerSecond)),
+            "Velocity < threshold and current > threshold for at least dejam detection time")
+        .transitionTo(IntakeRollerState.dejamState);
+    IntakeRollerState.dejamState
+        .whenTimeout(JsonConstants.intakeConstants.rollerDejamTime)
+        .transitionTo(IntakeRollerState.runRollersState);
+
     this.intakeStateMachine.setState(IntakeState.waitForButtonState);
     StateMachineDump.write("intake", this.intakeStateMachine);
+    StateMachineDump.write("intakeRollers", this.rollerStateMachine);
   }
 
   public void runRollers(AngularVelocity rollerSpeed) {
+    this.requestedRollerSpeed.mut_replace(rollerSpeed);
     rollersLeadMotorIO.controlToVelocityUnprofiled(rollerSpeed);
   }
 
   public void stopRollers() {
-    rollersLeadMotorIO.controlNeutral();
-    // We don't need to command the follower motor to stop because
-    // it is always following the lead motor
+    requestedRollerSpeed.mut_replace(RPM.zero());
   }
 
   public void setTargetPivotAngle(Angle angle) {
@@ -244,18 +298,29 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
     intakeStateMachine.periodic();
 
+    if (!rollerTestModeManager.isInTestMode()) {
+      Logger.recordOutput("Intake/RollerState", rollerStateMachine.getCurrentState().getName());
+      rollerStateMachine.periodic();
+    } else {
+      Logger.recordOutput("Intake/RollerState", "TestMode");
+    }
+
     // Ensure that even if we accidentally command the follower motor to do something
     // it won't cause any issues because we always command it to follow the lead motor
     // at the end of the periodic
     rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
   }
 
-  protected void controlToTargetPivotAngle() {
-    pivotMotorIO.controlToPositionUnprofiled(this.targetPivotAngle);
+  /**
+   * This method invokes the rollerStateMachine. It must be called whenever the intake rollers are
+   * allowed to run by the state machine (that is, all times that aren't test mode)
+   */
+  protected void allowRollersToRun() {
+    rollerStateMachine.periodic();
   }
 
-  public void controlPivotMotorIOWithVoltage(Voltage v) {
-    pivotMotorIO.controlOpenLoopVoltage(v);
+  protected void controlToTargetPivotAngle() {
+    pivotMotorIO.controlToPositionUnprofiled(this.targetPivotAngle);
   }
 
   protected void zeroPositionIfBelowZero() {
