@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.auto.AutoAction.AutoActionContext;
 import frc.robot.constants.JsonConstants;
 import java.security.InvalidParameterException;
 import org.littletonrobotics.junction.Logger;
@@ -189,5 +190,24 @@ public class DriveCoordinatorCommands extends Command {
       APTarget target,
       PIDController headingController) {
     return new AutoPilotCommand(driveCoordinator, autoPilot, target, headingController);
+  }
+
+  public static Command wrapCommand(DriveCoordinator coordinator, Command command) {
+    return new Command() {
+      @Override
+      public void initialize() {
+        coordinator.setCurrentDriveCommand(command);
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        coordinator.cancelCurrentDriveCommand();
+      }
+
+      @Override
+      public boolean isFinished() {
+        return command.isFinished();
+      }
+    };
   }
 }

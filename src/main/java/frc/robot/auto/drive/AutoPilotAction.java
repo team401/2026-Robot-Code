@@ -85,8 +85,8 @@ public class AutoPilotAction extends DriveAutoAction {
   public Command toCommand(AutoActionContext data) {
     handleNullValues(data);
     var headingController = getHeadingController();
-    return wrapCommand(
-        data,
+    return DriveCoordinatorCommands.wrapCommand(
+        data.driveCoordinator(),
         DriveCoordinatorCommands.autoPilotCommand(
             data.driveCoordinator(), new Autopilot(profile), fixedTarget, headingController));
   }

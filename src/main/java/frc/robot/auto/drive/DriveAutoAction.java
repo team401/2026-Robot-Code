@@ -10,22 +10,4 @@ public abstract class DriveAutoAction extends AutoAction {
   // Because for things like climb we can not mirror the climb poses
   @GeneratedOptional public boolean canMirror = true;
 
-  public Command wrapCommand(AutoActionContext data, Command command) {
-    return new Command() {
-      @Override
-      public void initialize() {
-        data.driveCoordinator().setCurrentDriveCommand(command);
-      }
-
-      @Override
-      public void end(boolean interrupted) {
-        data.driveCoordinator().cancelCurrentDriveCommand();
-      }
-
-      @Override
-      public boolean isFinished() {
-        return command.isFinished();
-      }
-    };
-  }
 }
