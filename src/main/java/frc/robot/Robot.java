@@ -98,9 +98,11 @@ public class Robot extends LoggedRobot {
     long refresherStartTimeUs = RobotController.getFPGATime();
     StatusSignalRefresher.refreshAll();
     long refresherEndTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput(
-        "PeriodicTime/statusSignalRefresherMs",
-        (refresherEndTimeUs - refresherStartTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput(
+          "PeriodicTime/statusSignalRefresherMs",
+          (refresherEndTimeUs - refresherStartTimeUs) / 1000.0);
+    }
 
     // Poll for and process any outstanding HTTP requests
     // This action's performance is logged inside only if the featureflag is enabled

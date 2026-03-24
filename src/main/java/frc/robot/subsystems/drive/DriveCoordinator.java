@@ -197,7 +197,9 @@ public class DriveCoordinator extends SubsystemBase {
         activeCommand == null ? "None" : activeCommand.getName());
 
     long endTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput("PeriodicTime/driveCoordinatorMs", (endTimeUs - startTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/driveCoordinatorMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   public void testPeriodic() {

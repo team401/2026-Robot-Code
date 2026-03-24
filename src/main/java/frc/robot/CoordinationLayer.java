@@ -838,9 +838,11 @@ public class CoordinationLayer {
           };
     }
     long shotCalculationEndTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput(
-        "PeriodicTime/CoordinateRobotActions/shotCalculationMs",
-        (shotCalculationEndTimeUs - shotCalculationStartTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput(
+          "PeriodicTime/CoordinateRobotActions/shotCalculationMs",
+          (shotCalculationEndTimeUs - shotCalculationStartTimeUs) / 1000.0);
+    }
 
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
 
@@ -864,8 +866,10 @@ public class CoordinationLayer {
     }
 
     long endTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput(
-        "PeriodicTime/CoordinateRobotActions/totalMs", (endTimeUs - startTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput(
+          "PeriodicTime/CoordinateRobotActions/totalMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   /**

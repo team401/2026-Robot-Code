@@ -272,7 +272,9 @@ public class RobotContainer {
       jsonHandler.drainQueuedHttpActions();
 
       long endTimeUs = RobotController.getFPGATime();
-      Logger.recordOutput("PeriodicTime/httpRequestsMs", (endTimeUs - startTimeUs) / 1000.0);
+      if (JsonConstants.featureFlags.logPeriodicTiming) {
+        Logger.recordOutput("PeriodicTime/httpRequestsMs", (endTimeUs - startTimeUs) / 1000.0);
+      }
     }
   }
 

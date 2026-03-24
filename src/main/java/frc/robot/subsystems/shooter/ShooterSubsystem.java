@@ -229,7 +229,9 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     }
 
     long endTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput("PeriodicTime/ShooterMs", (endTimeUs - startTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/ShooterMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   /** Runs when test mode is entered. Should be called by the test mode state. */

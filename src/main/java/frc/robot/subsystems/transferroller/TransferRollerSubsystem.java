@@ -148,7 +148,9 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
     stateMachine.periodic();
 
     long endTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput("PeriodicTime/TransferRollerMs", (endTimeUs - startTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/TransferRollerMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   protected void testPeriodic() {

@@ -253,7 +253,9 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
 
     long endTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput("PeriodicTime/IntakeMs", (endTimeUs - startTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/IntakeMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   protected void controlToTargetPivotAngle() {

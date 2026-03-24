@@ -241,7 +241,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
 
     long endTimeUs = RobotController.getFPGATime();
-    Logger.recordOutput("PeriodicTime/driveMs", (endTimeUs - startTimeUs) / 1000.0);
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/driveMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   /**
