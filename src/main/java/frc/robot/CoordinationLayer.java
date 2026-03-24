@@ -27,6 +27,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -698,6 +699,8 @@ public class CoordinationLayer {
    * methods run.
    */
   public void coordinateRobotActions() {
+    long startTimeUs = RobotController.getFPGATime();
+
     if (DriverStation.isTest()) {
       // Log distance to hub for test modes
       drive.ifPresent(
@@ -818,6 +821,7 @@ public class CoordinationLayer {
           transferRoller -> transferRoller.setTargetVelocity(RadiansPerSecond.zero()));
     }
 
+    long shotCalculationStartTimeUs = RobotController.getFPGATime();
     // Aim for a shot based on the current autonomy level
     if (testModeManager.isInTestMode()) {
       drive.ifPresent(this::aimForTestModeShot);
@@ -833,6 +837,10 @@ public class CoordinationLayer {
             case Manual -> aimForManualShot();
           };
     }
+    long shotCalculationEndTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput(
+        "PeriodicTime/CoordinateRobotActions/shotCalculationMs",
+        (shotCalculationEndTimeUs - shotCalculationStartTimeUs) / 1000.0);
 
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
 
@@ -854,6 +862,10 @@ public class CoordinationLayer {
     if (!shootingEnabled) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
+
+    long endTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput(
+        "PeriodicTime/CoordinateRobotActions/totalMs", (endTimeUs - startTimeUs) / 1000.0);
   }
 
   /**

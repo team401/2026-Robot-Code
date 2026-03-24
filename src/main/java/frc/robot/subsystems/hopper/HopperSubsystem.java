@@ -120,7 +120,6 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
     motor.updateInputs(inputs);
 
-
     TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.processInputs("Hopper/inputs", inputs);

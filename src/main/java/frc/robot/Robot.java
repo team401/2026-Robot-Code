@@ -9,6 +9,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.TotalCurrentCalculator;
@@ -85,9 +86,15 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(true, 99);
 
     // Refresh all status signals, must be done before any IOs run updateInputs
+    long refresherStartTimeUs = RobotController.getFPGATime();
     StatusSignalRefresher.refreshAll();
+    long refresherEndTimeUs = RobotController.getFPGATime();
+    Logger.recordOutput(
+        "PeriodicTime/statusSignalRefresherMs",
+        (refresherEndTimeUs - refresherStartTimeUs) / 1000.0);
 
     // Poll for and process any outstanding HTTP requests
+    // This action's performance is logged inside only if the featureflag is enabled
     robotContainer.processHTTPRequests();
 
     // Log current draw in replay mode
