@@ -10,6 +10,7 @@ package frc.robot;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -77,8 +78,10 @@ public class Robot extends LoggedRobot {
     if (!FeatureFlags.usePhoenixDiagnosticServer) {
       // Setting a negative value here disables/stops the server
       Unmanaged.setPhoenixDiagnosticsStartTime(-1);
-      // According to 422, this saves ~8ms per cycle.
+      // This got our mean cycle time (admittedly while not seeing any tags) down to 15ms
     }
+
+    DriverStation.silenceJoystickConnectionWarning(true);
 
     // Start AdvantageKit logger
     Logger.start();
