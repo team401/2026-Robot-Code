@@ -8,10 +8,12 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.unmanaged.Unmanaged;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.JsonConstants;
 import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -69,6 +71,13 @@ public class Robot extends LoggedRobot {
 
     // Disable CTRE hoot logging to prevent overruns
     SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
+
+    if (!JsonConstants.featureFlags.usePhoenixDiagnosticServer) {
+      // Setting a negative value here disables/stops the server
+      Unmanaged.setPhoenixDiagnosticsStartTime(-1);
+      // According to 422, this saves ~8ms per cycle.
+    }
 
     // Start AdvantageKit logger
     Logger.start();

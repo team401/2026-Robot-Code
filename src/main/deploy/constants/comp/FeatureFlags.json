@@ -12,5 +12,6 @@
   "runTransferRoller": false,
   "useHomingSwitch": true,
   "useTuningServer": true,
-  "pretendCamerasAreMobile": false
+  "pretendCamerasAreMobile": false,
+  "usePhoenixDiagnosticServer": false
 }
