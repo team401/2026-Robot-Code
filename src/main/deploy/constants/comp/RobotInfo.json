@@ -5,6 +5,7 @@
     "value": 74.088,
     "unit": "Kilogram"
   },
+  "runAutoTesting": true,
   "nonFireControllingRefreshRates": {
     "highPriorityUpdateFrequency": {
       "value": 50.0,

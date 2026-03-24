@@ -158,8 +158,7 @@ public class JsonConstants {
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
-    if (Constants.currentMode == Constants.Mode.SIM
-        || Constants.currentMode == Constants.Mode.AUTO_TESTING) {
+    if (Constants.currentMode == Constants.Mode.SIM) {
       PythonGeometryMethods.registerAll();
       PythonGenerator.generateForClasses(
           "auto_action.py",
