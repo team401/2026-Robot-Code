@@ -13,6 +13,7 @@ import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -73,7 +74,7 @@ public class Robot extends LoggedRobot {
     SignalLogger.enableAutoLogging(false);
     SignalLogger.stop();
 
-    if (!JsonConstants.featureFlags.usePhoenixDiagnosticServer) {
+    if (!FeatureFlags.usePhoenixDiagnosticServer) {
       // Setting a negative value here disables/stops the server
       Unmanaged.setPhoenixDiagnosticsStartTime(-1);
       // According to 422, this saves ~8ms per cycle.

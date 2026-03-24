@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import coppercore.parameter_tools.json.annotations.JSONExclude;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -23,7 +24,7 @@ public class FeatureFlags {
   public final Boolean useHomingSwitch = false;
   public final Boolean useTuningServer = false;
   public final Boolean pretendCamerasAreMobile = false;
-  public final Boolean usePhoenixDiagnosticServer = false;
+  @JSONExclude public static final Boolean usePhoenixDiagnosticServer = false;
   public final Boolean logPeriodicTiming = false;
 
   /** Print the current state of the feature flags and writes them to the log */

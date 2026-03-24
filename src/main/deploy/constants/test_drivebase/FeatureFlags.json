@@ -13,6 +13,5 @@
   "useHomingSwitch": false,
   "useTuningServer": true,
   "pretendCamerasAreMobile": true,
-  "usePhoenixDiagnosticServer": false,
   "logPeriodicTiming": true
 }
