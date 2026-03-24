@@ -9,7 +9,7 @@ public class IntakeRollerState {
   private IntakeRollerState() {}
 
   public static State<IntakeSubsystem> stopRollersState =
-      new State<IntakeSubsystem>() {
+      new State<IntakeSubsystem>("StopRollers") {
         @Override
         public void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
           world.rollersLeadMotorIO.controlNeutral();
@@ -17,7 +17,7 @@ public class IntakeRollerState {
       };
 
   public static State<IntakeSubsystem> runRollersState =
-      new State<IntakeSubsystem>() {
+      new State<IntakeSubsystem>("RunRollers") {
         @Override
         public void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
           world.rollersLeadMotorIO.controlToVelocityUnprofiled(world.requestedRollerSpeed);
@@ -25,7 +25,7 @@ public class IntakeRollerState {
       };
 
   public static State<IntakeSubsystem> dejamState =
-      new State<IntakeSubsystem>() {
+      new State<IntakeSubsystem>("Dejam") {
         @Override
         public void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
           world.rollersLeadMotorIO.controlOpenLoopVoltage(

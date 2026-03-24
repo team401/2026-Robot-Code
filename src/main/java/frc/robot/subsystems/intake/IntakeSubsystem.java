@@ -205,7 +205,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
                 intake.requestedRollerSpeed.lt(
                     JsonConstants.intakeConstants.rollerMovementThreshold),
             "Target roller speed < movement threshold")
-        .transitionTo(IntakeRollerState.runRollersState);
+        .transitionTo(IntakeRollerState.stopRollersState);
     IntakeRollerState.runRollersState
         .when(
             intake ->
@@ -222,8 +222,9 @@ public class IntakeSubsystem extends MonitoredSubsystem {
         .transitionTo(IntakeRollerState.runRollersState);
 
     this.intakeStateMachine.setState(IntakeState.waitForButtonState);
+    this.rollerStateMachine.setState(IntakeRollerState.stopRollersState);
     StateMachineDump.write("intake", this.intakeStateMachine);
-    StateMachineDump.write("intakeRollers", this.rollerStateMachine);
+    StateMachineDump.write("intake_rollers", this.rollerStateMachine);
   }
 
   public void runRollers(AngularVelocity rollerSpeed) {
@@ -309,14 +310,6 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // it won't cause any issues because we always command it to follow the lead motor
     // at the end of the periodic
     rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
-  }
-
-  /**
-   * This method invokes the rollerStateMachine. It must be called whenever the intake rollers are
-   * allowed to run by the state machine (that is, all times that aren't test mode)
-   */
-  protected void allowRollersToRun() {
-    rollerStateMachine.periodic();
   }
 
   protected void controlToTargetPivotAngle() {
