@@ -10,6 +10,7 @@ import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -260,9 +261,11 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   protected void zeroPositionIfBelowZero() {
     // Commented out because the intake can actually go down to ~-8 degrees now.
-    // if (pivotInputs.positionRadians < 0) {
-    // pivotMotorIO.setCurrentPositionAsZero();
-    // }
+    if (pivotInputs.positionRadians
+        < JsonConstants.intakeConstants.minPivotAngle.in(Radians) - Units.degreesToRadians(0.5)) {
+      pivotMotorIO.setCurrentPosition(JsonConstants.intakeConstants.minPivotAngle);
+      ;
+    }
   }
 
   /**

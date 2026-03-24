@@ -4,7 +4,6 @@ import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
-import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.Autos;
@@ -17,39 +16,47 @@ import java.util.Optional;
 
 public class AutoPilotAction extends DriveAutoAction {
 
-  public APTarget target = null;
-
-  @JSONExclude
-  APTarget fixedTarget =
-      null; // This is the target after alliance-relative transformation is applied
+  private APTarget target = null; // original target in blue field coordinates
 
   @GeneratedOptional public APProfile profile = null;
   @GeneratedOptional public APConstraints constraints = null;
   @GeneratedOptional public PIDGains pidGains = null;
 
-  protected void handleNullValues(AutoActionContext context) {
+  private void ensureTargetAndPoseAreNotNull() {
     Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");
     Objects.requireNonNull(
         target.getReference(), "Target Pose cannot be null for AutoPilot Action");
+  }
 
-    fixedTarget = target;
+  /*
+   * Compute the actual target coordinates and orientation, taking alliance-relative
+   * flipping and mirroring parameters into account
+   */
+  private APTarget computeRealTarget(AutoActionContext context) {
+    APTarget realTarget = target;
 
     if (context.flipped()) {
-      fixedTarget = fixedTarget.withReference(Autos.flipPose2d(target.getReference()));
-      if (fixedTarget.getEntryAngle().isPresent()) {
-        fixedTarget =
-            fixedTarget.withEntryAngle(Autos.flipRotation2d(target.getEntryAngle().get()));
+      realTarget = realTarget.withReference(Autos.flipPose2d(target.getReference()));
+      if (realTarget.getEntryAngle().isPresent()) {
+        realTarget = realTarget.withEntryAngle(Autos.flipRotation2d(target.getEntryAngle().get()));
       }
     }
 
     if (context.mirrored() && canMirror) {
-      fixedTarget = fixedTarget.withReference(Autos.mirrorPose2d(target.getReference()));
-      if (fixedTarget.getEntryAngle().isPresent()) {
-        fixedTarget =
-            fixedTarget.withEntryAngle(Autos.mirrorRotation2d(target.getEntryAngle().get()));
+      realTarget = realTarget.withReference(Autos.mirrorPose2d(target.getReference()));
+      if (realTarget.getEntryAngle().isPresent()) {
+        realTarget =
+            realTarget.withEntryAngle(Autos.mirrorRotation2d(target.getEntryAngle().get()));
       }
     }
+    if (context.mirrored() && !canMirror) {
+      System.err.println("Attempt to mirror AutoPilotAction that cannot be mirrored");
+    }
+    return realTarget;
+  }
 
+  /* Replace missing profile and pidgains with default values */
+  private void ensureProfileAndPidGains() {
     profile =
         Optional.ofNullable(profile).orElseGet(DriveCoordinatorCommands::createDefaultAPProfile);
 
@@ -81,13 +88,21 @@ public class AutoPilotAction extends DriveAutoAction {
     return headingController;
   }
 
+  /* Based on context, prepare this auto action for conversion into a command.s */
+  protected APTarget prepareAutoAction(AutoActionContext context) {
+    ensureTargetAndPoseAreNotNull();
+    var realTarget = computeRealTarget(context);
+    ensureProfileAndPidGains();
+    return realTarget;
+  }
+
   @Override
-  public Command toCommand(AutoActionContext data) {
-    handleNullValues(data);
+  public Command toCommand(AutoActionContext context) {
+    var realTarget = prepareAutoAction(context);
     var headingController = getHeadingController();
     return DriveCoordinatorCommands.wrapCommand(
-        data.driveCoordinator(),
+        context.driveCoordinator(),
         DriveCoordinatorCommands.autoPilotCommand(
-            data.driveCoordinator(), new Autopilot(profile), fixedTarget, headingController));
+            context.driveCoordinator(), new Autopilot(profile), realTarget, headingController));
   }
 }
