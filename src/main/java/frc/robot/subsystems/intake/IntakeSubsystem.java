@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
@@ -216,6 +217,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     pivotMotorIO.updateInputs(pivotInputs);
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
     rollersFollowerMotorIO.updateInputs(rollerFollowerMotorInputs);
@@ -248,6 +251,11 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // it won't cause any issues because we always command it to follow the lead motor
     // at the end of the periodic
     rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
+
+    long endTimeUs = RobotController.getFPGATime();
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/IntakeMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   protected void controlToTargetPivotAngle() {

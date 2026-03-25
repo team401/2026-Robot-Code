@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import coppercore.parameter_tools.json.annotations.JSONExclude;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -23,6 +24,8 @@ public class FeatureFlags {
   public final Boolean useHomingSwitch = false;
   public final Boolean useTuningServer = false;
   public final Boolean pretendCamerasAreMobile = false;
+  @JSONExclude public static final Boolean usePhoenixDiagnosticServer = false;
+  public final Boolean logPeriodicTiming = false;
 
   /** Print the current state of the feature flags and writes them to the log */
   public void logFlags() {
@@ -42,6 +45,8 @@ public class FeatureFlags {
     System.out.println(" - useHomingSwitch: " + useHomingSwitch);
     System.out.println(" - useTuningServer: " + useTuningServer);
     System.out.println(" - pretendCamerasAreMobile: " + pretendCamerasAreMobile);
+    System.out.println(" - usePhoenixDiagnosticServer: " + usePhoenixDiagnosticServer);
+    System.out.println(" - logPeriodicTiming: " + logPeriodicTiming);
 
     Logger.recordOutput("FeatureFlags/runDrive", runDrive);
     Logger.recordOutput("FeatureFlags/useMAPoseEstimator", useMAPoseEstimator);
@@ -57,5 +62,7 @@ public class FeatureFlags {
     Logger.recordOutput("FeatureFlags/useHomingSwitch", useHomingSwitch);
     Logger.recordOutput("FeatureFlags/useTuningServer", useTuningServer);
     Logger.recordOutput("FeatureFlags/pretendCamerasAreMobile", pretendCamerasAreMobile);
+    Logger.recordOutput("FeatureFlags/usePhoenixDiagnosticServer", usePhoenixDiagnosticServer);
+    Logger.recordOutput("FeatureFlags/logPeriodicTiming", logPeriodicTiming);
   }
 }

@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -151,6 +152,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   @Override
   public void periodic() {
+    long startTimeUs = RobotController.getFPGATime();
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -237,6 +239,11 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    long endTimeUs = RobotController.getFPGATime();
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/driveMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   /**
