@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode simMode = Mode.AUTO_TESTING;
+  public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static enum Mode {
@@ -26,14 +26,6 @@ public final class Constants {
     SIM,
 
     /** Replaying from a log file. */
-    REPLAY,
-
-    // TODO: Maybe switch it so it is controlled using network tables instead, so I dont have to
-    // rerun sim for every test.
-    /**
-     * Running in auto-testing mode. In this mode, the sim will listen to network tables to start
-     * and stop auto, and for what alliance station to start from.
-     */
-    AUTO_TESTING
+    REPLAY
   }
 }

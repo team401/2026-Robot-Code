@@ -53,7 +53,6 @@ public class InitSubsystems {
                 JsonConstants.climberConstants.buildTalonFXConfigs()));
 
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         return new ClimberSubsystem(
             MotorIOTalonFXSim.newLeader(
@@ -101,7 +100,6 @@ public class InitSubsystems {
       // new ModuleIOTalonFXS(TunerConstants.BackRight));
 
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         return new Drive(
             new GyroIO() {},
@@ -161,7 +159,6 @@ public class InitSubsystems {
             drive::addVisionMeasurement, tagLayout, gainConstants, cameraConfigs);
 
       case SIM:
-      case AUTO_TESTING:
         if (JsonConstants.featureFlags.pretendCamerasAreMobile) {
           cameraConfigs =
               new CameraConfig[] {
@@ -238,7 +235,6 @@ public class InitSubsystems {
                 JsonConstants.robotInfo.nonFireControllingRefreshRates));
 
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         return new HopperSubsystem(
             MotorIOTalonFXSim.newLeader(
@@ -265,7 +261,6 @@ public class InitSubsystems {
                 JsonConstants.indexerConstants.buildTalonFXConfigs(),
                 JsonConstants.robotInfo.nonFireControllingRefreshRates));
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.indexerConstants.buildMechanismConfig();
         return new IndexerSubsystem(
@@ -293,7 +288,6 @@ public class InitSubsystems {
                 JsonConstants.transferRollerConstants.buildTalonFXConfigs(),
                 JsonConstants.robotInfo.nonFireControllingRefreshRates));
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.transferRollerConstants.buildMechanismConfig();
         return new TransferRollerSubsystem(
@@ -321,7 +315,6 @@ public class InitSubsystems {
                 JsonConstants.turretConstants.buildMechanismConfig(),
                 JsonConstants.turretConstants.buildTalonFXConfigs()));
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.turretConstants.buildMechanismConfig();
         return new TurretSubsystem(
@@ -350,7 +343,6 @@ public class InitSubsystems {
                 JsonConstants.hoodConstants.buildMechanismConfig(),
                 JsonConstants.hoodConstants.buildTalonFXConfigs()));
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig config = JsonConstants.hoodConstants.buildMechanismConfig();
         return new HoodSubsystem(
@@ -387,7 +379,6 @@ public class InitSubsystems {
                 JsonConstants.shooterConstants.shooterOutputSignals),
             MotorIOTalonFX.newFollower(mechanismConfig, 0, talonFXConfigs));
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         CoppercoreSimAdapter shooterSim = JsonConstants.shooterConstants.buildShooterSim();
 
@@ -417,7 +408,6 @@ public class InitSubsystems {
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
                 JsonConstants.robotInfo.homingSwitchSignal));
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         return new HomingSwitch(
             dependencyOrderedExecutor,
@@ -456,7 +446,6 @@ public class InitSubsystems {
                 JsonConstants.intakeConstants.buildRollersTalonFXMotorConfig(),
                 JsonConstants.robotInfo.nonFireControllingRefreshRates));
       case SIM:
-      case AUTO_TESTING:
         // Sim robot, instantiate physics sim IO implementations
         MechanismConfig pivotConfig = JsonConstants.intakeConstants.buildPivotMechanismConfig();
         MechanismConfig rollersConfig = JsonConstants.intakeConstants.buildRollersMechanismConfig();

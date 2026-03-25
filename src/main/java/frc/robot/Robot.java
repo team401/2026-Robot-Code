@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.JsonConstants;
 import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -60,7 +61,6 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-      case AUTO_TESTING:
         // Running a physics simulator, log to NT
         Logger.addDataReceiver(new NT4Publisher());
         break;
@@ -84,7 +84,7 @@ public class Robot extends LoggedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
 
-    if (Constants.currentMode == Constants.Mode.AUTO_TESTING) {
+    if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
       autoTestingSimulation = new AutoTestingSimulation(this);
     }
   }
@@ -117,7 +117,7 @@ public class Robot extends LoggedRobot {
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
 
-    if (Constants.currentMode == Constants.Mode.AUTO_TESTING) {
+    if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
       autoTestingSimulation.update();
     }
   }
@@ -214,8 +214,6 @@ public class Robot extends LoggedRobot {
 
       SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StartAuto", false);
       SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "EnableRobot", false);
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "DisableRobot", false);
 
       SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "SetPos", false);
       SmartDashboard.putNumber(AUTO_TESTING_PREFIX + "SetPosX", 0.0);
@@ -240,16 +238,6 @@ public class Robot extends LoggedRobot {
         DriverStationSim.setAutonomous(false);
         DriverStationSim.setEnabled(false);
         SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
-      }
-
-      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "EnableRobot", false)) {
-        DriverStationSim.setEnabled(true);
-        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "EnableRobot", false);
-      }
-
-      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "DisableRobot", false)) {
-        DriverStationSim.setEnabled(false);
-        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "DisableRobot", false);
       }
 
       if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "SetPos", false)) {
