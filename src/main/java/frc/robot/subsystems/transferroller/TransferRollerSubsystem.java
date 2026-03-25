@@ -13,6 +13,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.transferroller.TransferRollerState.DeJamState;
 import frc.robot.subsystems.transferroller.TransferRollerState.IdleState;
@@ -138,12 +139,18 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     motor.updateInputs(inputs);
     Logger.processInputs("TransferRoller/inputs", inputs);
 
     Logger.recordOutput("TransferRoller/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
-    Logger.recordOutput("TransferRoller/StateAfter", stateMachine.getCurrentState().getName());
+
+    long endTimeUs = RobotController.getFPGATime();
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/TransferRollerMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   protected void testPeriodic() {

@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -269,7 +270,14 @@ public class RobotContainer {
    */
   void processHTTPRequests() {
     if (JsonConstants.featureFlags.useTuningServer) {
+      long startTimeUs = RobotController.getFPGATime();
+
       jsonHandler.drainQueuedHttpActions();
+
+      long endTimeUs = RobotController.getFPGATime();
+      if (JsonConstants.featureFlags.logPeriodicTiming) {
+        Logger.recordOutput("PeriodicTime/httpRequestsMs", (endTimeUs - startTimeUs) / 1000.0);
+      }
     }
   }
 
