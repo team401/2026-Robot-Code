@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -163,7 +164,6 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
-
     loadAutoCommands();
 
     // Configure the button bindings
@@ -270,7 +270,14 @@ public class RobotContainer {
    */
   void processHTTPRequests() {
     if (JsonConstants.featureFlags.useTuningServer) {
+      long startTimeUs = RobotController.getFPGATime();
+
       jsonHandler.drainQueuedHttpActions();
+
+      long endTimeUs = RobotController.getFPGATime();
+      if (JsonConstants.featureFlags.logPeriodicTiming) {
+        Logger.recordOutput("PeriodicTime/httpRequestsMs", (endTimeUs - startTimeUs) / 1000.0);
+      }
     }
   }
 
@@ -287,20 +294,27 @@ public class RobotContainer {
     if (drive != null) {
       autoChooser.addOption(
           "Drive Wheel Radius Characterization",
-          DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive))
-          );
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive)));
       autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
+          "Drive Simple FF Characterization",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
       autoChooser.addOption(
           "Drive SysId (Quasistatic Forward)",
           drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
       autoChooser.addOption(
           "Drive SysId (Quasistatic Reverse)",
-          DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
       autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
+          "Drive SysId (Dynamic Forward)",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
       autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
+          "Drive SysId (Dynamic Reverse)",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
     }
 
     for (var auto : JsonConstants.autos.autoCommands.entrySet()) {

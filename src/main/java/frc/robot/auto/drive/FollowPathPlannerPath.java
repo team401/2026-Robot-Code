@@ -7,7 +7,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
-
 import java.io.IOException;
 import java.util.function.BooleanSupplier;
 import org.json.simple.parser.ParseException;

@@ -154,8 +154,9 @@ public class DependencyOrderedExecutor {
 
     watchdog.disable();
     if (watchdog.isExpired()) {
-      System.out.println("DependencyOrderedExecutor loop overrun");
-      watchdog.printEpochs();
+      // Too many overrun warnings clutter the console. We have logging of periodic timing now.
+      // System.out.println("DependencyOrderedExecutor loop overrun");
+      // watchdog.printEpochs();
     }
   }
 
