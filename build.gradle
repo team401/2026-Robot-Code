@@ -41,11 +41,10 @@ deploy {
                     // jvmArgs.add("-XX:MaxGCPauseMillis=20")
 
                     // 401 arguments
-                    // Our cycle times are super slow but these *seem* to be the least bad options.
                     jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
-                    jvmArgs.add("-XX:GCTimeRatio=0")
+                    jvmArgs.add("-XX:GCTimeRatio=5")
                     jvmArgs.add("-XX:+UseSerialGC")
-                    jvmArgs.add("-XX:MaxGCPauseMillis=50")
+                    jvmArgs.add("-XX:MaxGCPauseMillis=20")
 
                     // The options below may improve performance, but should only be enabled on the RIO 2
                     //
@@ -123,7 +122,7 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
-    def coppercoreVersion = "2026.2.20"
+    def coppercoreVersion = "2026.2.21"
 
     implementation "com.google.code.gson:gson:2.11.0"
 

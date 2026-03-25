@@ -8,9 +8,14 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.unmanaged.Unmanaged;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.FeatureFlags;
+import frc.robot.constants.JsonConstants;
 import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -68,6 +73,15 @@ public class Robot extends LoggedRobot {
 
     // Disable CTRE hoot logging to prevent overruns
     SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
+
+    if (!FeatureFlags.usePhoenixDiagnosticServer) {
+      // Setting a negative value here disables/stops the server
+      Unmanaged.setPhoenixDiagnosticsStartTime(-1);
+      // This got our mean cycle time (admittedly while not seeing any tags) down to 15ms
+    }
+
+    DriverStation.silenceJoystickConnectionWarning(true);
 
     // Start AdvantageKit logger
     Logger.start();
@@ -85,9 +99,17 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(true, 99);
 
     // Refresh all status signals, must be done before any IOs run updateInputs
+    long refresherStartTimeUs = RobotController.getFPGATime();
     StatusSignalRefresher.refreshAll();
+    long refresherEndTimeUs = RobotController.getFPGATime();
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput(
+          "PeriodicTime/statusSignalRefresherMs",
+          (refresherEndTimeUs - refresherStartTimeUs) / 1000.0);
+    }
 
     // Poll for and process any outstanding HTTP requests
+    // This action's performance is logged inside only if the featureflag is enabled
     robotContainer.processHTTPRequests();
 
     // Log current draw in replay mode

@@ -23,6 +23,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
@@ -30,6 +31,7 @@ import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.TotalCurrentCalculator;
+import frc.robot.util.math.Lazy;
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -65,22 +67,21 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   private ClimberAction requestedAction = ClimberAction.Wait;
 
   // Tunables
-  // These aren't lazy for now, hopefully we can handle like 20 more logging fields.
-  LoggedTunableNumber climberKP;
-  LoggedTunableNumber climberKI;
-  LoggedTunableNumber climberKD;
+  Lazy<LoggedTunableNumber> climberKP;
+  Lazy<LoggedTunableNumber> climberKI;
+  Lazy<LoggedTunableNumber> climberKD;
 
-  LoggedTunableNumber climberKS;
-  LoggedTunableNumber climberKV;
-  LoggedTunableNumber climberKA;
-  LoggedTunableNumber climberKG;
+  Lazy<LoggedTunableNumber> climberKS;
+  Lazy<LoggedTunableNumber> climberKV;
+  Lazy<LoggedTunableNumber> climberKA;
+  Lazy<LoggedTunableNumber> climberKG;
 
-  LoggedTunableNumber climberExpoKV;
-  LoggedTunableNumber climberExpoKA;
+  Lazy<LoggedTunableNumber> climberExpoKV;
+  Lazy<LoggedTunableNumber> climberExpoKA;
 
-  LoggedTunableNumber climberTuningSetpointDegrees;
-  LoggedTunableNumber climberTuningAmps;
-  LoggedTunableNumber climberTuningVolts;
+  Lazy<LoggedTunableNumber> climberTuningSetpointDegrees;
+  Lazy<LoggedTunableNumber> climberTuningAmps;
+  Lazy<LoggedTunableNumber> climberTuningVolts;
 
   LoggedTunableMeasure<MutVoltage, Voltage, VoltageUnit> hangVoltage =
       new LoggedTunableMeasure<>(
@@ -147,45 +148,68 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
     // Initialize tunable numbers for test modes
     climberKP =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberKP", JsonConstants.climberConstants.climberKP);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberKP", JsonConstants.climberConstants.climberKP));
     climberKI =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberKI", JsonConstants.climberConstants.climberKI);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberKI", JsonConstants.climberConstants.climberKI));
     climberKD =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberKD", JsonConstants.climberConstants.climberKD);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberKD", JsonConstants.climberConstants.climberKD));
 
     climberKS =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberKS", JsonConstants.climberConstants.climberKS);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberKS", JsonConstants.climberConstants.climberKS));
     climberKV =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberKV", JsonConstants.climberConstants.climberKV);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberKV", JsonConstants.climberConstants.climberKV));
     climberKA =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberKA", JsonConstants.climberConstants.climberKA);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberKA", JsonConstants.climberConstants.climberKA));
     climberKG =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberKG", JsonConstants.climberConstants.climberKG);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberKG", JsonConstants.climberConstants.climberKG));
 
     climberExpoKV =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberExpoKV", JsonConstants.climberConstants.climberExpoKV);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberExpoKV", JsonConstants.climberConstants.climberExpoKV));
     climberExpoKA =
-        new LoggedTunableNumber(
-            "ClimberTunables/climberExpoKA", JsonConstants.climberConstants.climberExpoKA);
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "ClimberTunables/climberExpoKA", JsonConstants.climberConstants.climberExpoKA));
 
     climberTuningSetpointDegrees =
-        new LoggedTunableNumber("ClimberTunables/climberTuningSetpointDegrees", 0.0);
-    climberTuningAmps = new LoggedTunableNumber("ClimberTunables/climberTuningAmps", 0.0);
-    climberTuningVolts = new LoggedTunableNumber("ClimberTunables/climberTuningVolts", 0.0);
+        new Lazy<>(
+            () -> new LoggedTunableNumber("ClimberTunables/climberTuningSetpointDegrees", 0.0));
+    climberTuningAmps =
+        new Lazy<>(() -> new LoggedTunableNumber("ClimberTunables/climberTuningAmps", 0.0));
+    climberTuningVolts =
+        new Lazy<>(() -> new LoggedTunableNumber("ClimberTunables/climberTuningVolts", 0.0));
 
     AutoLogOutputManager.addObject(this);
   }
 
   @Override
   public void monitoredPeriodic() {
+    long startTimeUs = RobotController.getFPGATime();
+
     motor.updateInputs(inputs);
     Logger.processInputs("Climber/inputs", inputs);
 
@@ -193,7 +217,11 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
-    Logger.recordOutput("Climber/StateAfter", stateMachine.getCurrentState().getName());
+
+    long endTimeUs = RobotController.getFPGATime();
+    if (JsonConstants.featureFlags.logPeriodicTiming) {
+      Logger.recordOutput("PeriodicTime/climberMs", (endTimeUs - startTimeUs) / 1000.0);
+    }
   }
 
   protected void testPeriodic() {
@@ -218,13 +246,13 @@ public class ClimberSubsystem extends MonitoredSubsystem {
                   pid_sva[4],
                   pid_sva[5]);
             },
-            climberKP,
-            climberKI,
-            climberKD,
-            climberKS,
-            climberKV,
-            climberKA,
-            climberKG);
+            climberKP.get(),
+            climberKI.get(),
+            climberKD.get(),
+            climberKS.get(),
+            climberKV.get(),
+            climberKA.get(),
+            climberKG.get());
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -239,16 +267,17 @@ public class ClimberSubsystem extends MonitoredSubsystem {
                       Volts.of(maxProfile[0]).div(RotationsPerSecond.of(1)),
                       Volts.of(maxProfile[1]).div(RotationsPerSecondPerSecond.of(1))));
             },
-            climberExpoKV,
-            climberExpoKA);
+            climberExpoKV.get(),
+            climberExpoKA.get());
 
-        motor.controlToPositionExpoProfiled(Degrees.of(climberTuningSetpointDegrees.getAsDouble()));
+        motor.controlToPositionExpoProfiled(
+            Degrees.of(climberTuningSetpointDegrees.get().getAsDouble()));
       }
       case ClimberCurrentTuning -> {
-        motor.controlOpenLoopCurrent(Amps.of(climberTuningAmps.getAsDouble()));
+        motor.controlOpenLoopCurrent(Amps.of(climberTuningAmps.get().getAsDouble()));
       }
       case ClimberVoltageTuning -> {
-        motor.controlOpenLoopVoltage(Volts.of(climberTuningVolts.getAsDouble()));
+        motor.controlOpenLoopVoltage(Volts.of(climberTuningVolts.get().getAsDouble()));
       }
       default -> {}
     }
