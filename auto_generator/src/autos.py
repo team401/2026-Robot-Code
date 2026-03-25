@@ -42,14 +42,34 @@ def _testing_path_planner():
 @auto("Test Path Planner Left Auto", can_be_mirrored=False)
 def _test_path_planner_left_auto():
 
-    go_to_center_under_left_trench_from_alliance()
+    for i in range(2):
 
+        with parallel():
 
-    with parallel():
-        deploy_intake()
-        auto_action.FollowPathPlannerPath(path_name="Left Side Close Sweep").add()
+            stopShooting()
 
-    auto_action.FollowPathPlannerPath(path_name="Left Bump To Alliance").add()
+            go_to_center_under_left_trench_from_alliance()
 
-    startShooting()
+        with parallel():
+            deploy_intake()
+            auto_action.FollowPathPlannerPath(path_name="Left Side Close Sweep").add()
+
+        auto_action.FollowPathPlannerPath(path_name="Left Bump To Alliance").add()
+
+        startShooting()
+
+        wait(2)
+
+        time = 3
+        count = 3
+
+        delay_each = time/2/count
+        for i in range(count):
+            stow_intake()
+            wait(delay_each)
+            deploy_intake()
+            wait(delay_each)
+
+        wait(1.0)
+
 

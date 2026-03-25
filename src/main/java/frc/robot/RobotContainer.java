@@ -163,7 +163,6 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
-
     loadAutoCommands();
 
     // Configure the button bindings
@@ -287,20 +286,27 @@ public class RobotContainer {
     if (drive != null) {
       autoChooser.addOption(
           "Drive Wheel Radius Characterization",
-          DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive))
-          );
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive)));
       autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
+          "Drive Simple FF Characterization",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
       autoChooser.addOption(
           "Drive SysId (Quasistatic Forward)",
           drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
       autoChooser.addOption(
           "Drive SysId (Quasistatic Reverse)",
-          DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
       autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
+          "Drive SysId (Dynamic Forward)",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
       autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", DriveCoordinatorCommands.wrapCommand(driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
+          "Drive SysId (Dynamic Reverse)",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
     }
 
     for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
