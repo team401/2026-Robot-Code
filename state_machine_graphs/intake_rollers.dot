@@ -1,0 +1,30 @@
+digraph {
+
+  // Graphviz Format settings
+
+  node [
+    shape=box,
+    style=rounded
+  ];
+
+  edge [
+    fontsize=10
+  ];
+
+
+  // States
+
+  RunRollers ;
+  Dejam ;
+  StopRollers [shape=doublecircle];
+
+  // Transitions
+
+  RunRollers -> StopRollers [label="Target roller speed < movement threshold"];
+  RunRollers -> Dejam [label="Velocity < threshold and current > threshold for at least dejam detection time"];
+
+  Dejam -> RunRollers [label="timeout"];
+
+  StopRollers -> RunRollers [label="Target roller speed > movement threshold"];
+
+}

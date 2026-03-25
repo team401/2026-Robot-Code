@@ -87,6 +87,26 @@
     "kV": 0.0,
     "kA": 0.0
   },
+  "rollerMovementThreshold": {
+    "value": 200.0,
+    "unit": "RPM"
+  },
+  "rollerJamCurrentThreshold": {
+    "value": 35.0,
+    "unit": "Amp"
+  },
+  "rollerJamDetectionTime": {
+    "value": 0.5,
+    "unit": "Second"
+  },
+  "rollerDejamTime": {
+    "value": 0.5,
+    "unit": "Second"
+  },
+  "rollerDejamVoltage": {
+    "value": -6.0,
+    "unit": "Volt"
+  },
   "pivotSupplyCurrentLimit": {
     "value": 40.0,
     "unit": "Amp"
