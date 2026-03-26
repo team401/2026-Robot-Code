@@ -44,9 +44,9 @@ def cycle_intake(time, count):
         wait(delay_each)
 
 @auto("Double Swipe (opp has auto)")
-def _test_path_planner_left_auto():
+def _double_swipe_opp_has_auto():
     intake_cycle_time = 2
-    intake_cycle_count = 2
+    intake_cycle_count = 5
 
     # Cycle 1
 
