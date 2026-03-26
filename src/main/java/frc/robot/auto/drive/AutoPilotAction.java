@@ -38,7 +38,8 @@ public class AutoPilotAction extends DriveAutoAction {
     if (context.flipped()) {
       realTarget = realTarget.withReference(Autos.flipPose2d(realTarget.getReference()));
       if (realTarget.getEntryAngle().isPresent()) {
-        realTarget = realTarget.withEntryAngle(Autos.flipRotation2d(realTarget.getEntryAngle().get()));
+        realTarget =
+            realTarget.withEntryAngle(Autos.flipRotation2d(realTarget.getEntryAngle().get()));
       }
     }
 
