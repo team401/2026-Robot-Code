@@ -6,7 +6,7 @@
     "unit": "RPM"
   },
   "indexerGains": {
-    "kP": 20.0,
+    "kP": 70.0,
     "kI": 5.0,
     "kD": 0.0,
     "kS": 0.0,
@@ -54,7 +54,7 @@
     "unit": "Amp"
   },
   "indexerStatorCurrentLimit": {
-    "value": 40.0,
+    "value": 60.0,
     "unit": "Amp"
   },
   "simIndexerMOI": {

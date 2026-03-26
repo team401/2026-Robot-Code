@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -78,7 +79,8 @@ public class IndexerConstants {
                 .withStatorCurrentLimit(indexerStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true))
         .withMotorOutput(new MotorOutputConfigs().withInverted(indexerMotorDirection))
-        .withMotionMagic(indexerMotionProfileConfig.asMotionMagicConfigs());
+        .withMotionMagic(indexerMotionProfileConfig.asMotionMagicConfigs())
+        .withFeedback(new FeedbackConfigs().withVelocityFilterTimeConstant(Seconds.of(0.01)));
   }
 
   public CoppercoreSimAdapter buildIndexerSim() {
