@@ -198,3 +198,6 @@ def startShooting() -> None:
 def stopShooting() -> None:
     """Insert a StopShootingAction into the current context."""
     AutoAction.StopShooting().add()
+
+def followPath(path_name, mirror_path=None, can_mirror=None):
+    AutoAction.FollowPathPlannerPath(path_name=path_name, mirror_path=mirror_path, can_mirror=can_mirror).add()

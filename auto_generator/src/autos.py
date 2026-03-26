@@ -20,7 +20,8 @@ from .shorthands import (
     stow_intake,
     translation2d,
     wait,
-    x_based_autopilot
+    x_based_autopilot,
+    followPath
 )
 from . import units
 from . import constants
@@ -57,21 +58,21 @@ def _double_swipe_opp_has_auto():
     # )
     with parallel():
         stow_intake()
-        auto_action.FollowPathPlannerPath(path_name="Left Trench To Center")
+        followPath(path_name="Left Trench To Center")
 
     with parallel():
         deploy_intake()
-        auto_action.FollowPathPlannerPath(path_name="Left Side Close Sweep").add()
+        followPath(path_name="Left Side Close Sweep")
 
     with parallel():
         with sequence():
             wait(0.6)
             startShooting()
-        auto_action.FollowPathPlannerPath(path_name="Left Bump To Alliance").add()
+        followPath(path_name="Left Bump To Alliance")
 
     with parallel():
 
-        auto_action.FollowPathPlannerPath(path_name="Turn 180").add()
+        followPath(path_name="Turn 180")
 
         with sequence():
             startShooting()
@@ -105,13 +106,13 @@ def _double_swipe_opp_has_auto():
 
     with parallel():
         deploy_intake()
-        auto_action.FollowPathPlannerPath(path_name="Left Side Close 2nd Sweep").add()
+        followPath(path_name="Left Side Close 2nd Sweep")
 
     with parallel():
         with sequence():
             wait(0.4)
             startShooting()
-        auto_action.FollowPathPlannerPath(path_name="Left Bump To Alliance").add()
+        followPath(path_name="Left Bump To Alliance")
 
     wait(1)
 
