@@ -1,405 +1,411 @@
 {
-    "autos": {
-        "Literally just shoot Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "StartShooting"
-                    }
-                ]
-            },
-            "canBeMirrored": false,
-            "shouldBeFlipped": false
-        },
-        "Testing Path Planner": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "FollowPathPlannerPath",
-                        "pathName": "New Path",
-                        "mirrorPath": false
-                    }
-                ]
-            },
-            "canBeMirrored": false,
-            "shouldBeFlipped": true
-        },
-        "Test Path Planner Left Auto": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "StopShooting"
-                            },
-                            {
-                                "type": "Sequence",
-                                "actions": [
-                                    {
-                                        "type": "XBasedAutoPilotAction",
-                                        "target": {
-                                            "reference": {
-                                                "rotation": {
-                                                    "degrees": 0.0
-                                                },
-                                                "translation": {
-                                                    "x": 4.104766,
-                                                    "y": 7.403681999999999
-                                                }
-                                            },
-                                            "entryAngle": {
-                                                "degrees": 0
-                                            },
-                                            "velocity": 2.0
-                                        }
-                                    },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
-                                        "mirrorPath": false
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "DeployIntakeAction"
-                            },
-                            {
-                                "type": "FollowPathPlannerPath",
-                                "pathName": "Left Side Close Sweep",
-                                "mirrorPath": false
-                            }
-                        ]
-                    },
-                    {
-                        "type": "FollowPathPlannerPath",
-                        "pathName": "Left Bump To Alliance",
-                        "mirrorPath": false
-                    },
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 2,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 1.0,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "StopShooting"
-                            },
-                            {
-                                "type": "Sequence",
-                                "actions": [
-                                    {
-                                        "type": "XBasedAutoPilotAction",
-                                        "target": {
-                                            "reference": {
-                                                "rotation": {
-                                                    "degrees": 0.0
-                                                },
-                                                "translation": {
-                                                    "x": 4.104766,
-                                                    "y": 7.403681999999999
-                                                }
-                                            },
-                                            "entryAngle": {
-                                                "degrees": 0
-                                            },
-                                            "velocity": 2.0
-                                        }
-                                    },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
-                                        "mirrorPath": false
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "Parallel",
-                        "actions": [
-                            {
-                                "type": "DeployIntakeAction"
-                            },
-                            {
-                                "type": "FollowPathPlannerPath",
-                                "pathName": "Left Side Close Sweep",
-                                "mirrorPath": false
-                            }
-                        ]
-                    },
-                    {
-                        "type": "FollowPathPlannerPath",
-                        "pathName": "Left Bump To Alliance",
-                        "mirrorPath": false
-                    },
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 2,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "StowIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.5,
-                            "unit": "Second"
-                        }
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 1.0,
-                            "unit": "Second"
-                        }
-                    }
-                ]
-            },
-            "canBeMirrored": false,
-            "shouldBeFlipped": true
-        }
+  "autos": {
+    "Literally just shoot Auto": {
+      "rootAction": {
+        "type": "Sequence",
+        "actions": [
+          {
+            "type": "StartShooting"
+          }
+        ]
+      },
+      "canBeMirrored": false,
+      "shouldBeFlipped": false
     },
-    "routines": {
-        "LeftClimb": {
-            "type": "Sequence",
-            "actions": [
-                {
-                    "type": "Parallel",
-                    "actions": [
-                        {
-                            "type": "Sequence",
-                            "actions": [
-                                {
-                                    "type": "XBasedAutoPilotAction",
-                                    "target": {
-                                        "reference": {
-                                            "rotation": {
-                                                "degrees": -90.0
-                                            },
-                                            "translation": {
-                                                "x": 1.515154,
-                                                "y": 4.1813182
-                                            }
-                                        },
-                                        "entryAngle": {
-                                            "degrees": 0
-                                        },
-                                        "velocity": 0.0
-                                    },
-                                    "constraints": {
-                                        "velocity": 2.0,
-                                        "acceleration": 2.0,
-                                        "jerk": 0.1
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "type": "ClimbSearchAction"
-                        }
-                    ]
+    "Testing Path Planner": {
+      "rootAction": {
+        "type": "Sequence",
+        "actions": [
+          {
+            "type": "FollowPathPlannerPath",
+            "pathName": "New Path",
+            "mirrorPath": false
+          }
+        ]
+      },
+      "canBeMirrored": false,
+      "shouldBeFlipped": true
+    },
+    "Test Path Planner Left Auto": {
+      "rootAction": {
+        "type": "Sequence",
+        "actions": [
+          {
+            "type": "XBasedAutoPilotAction",
+            "target": {
+              "reference": {
+                "rotation": {
+                  "degrees": 0.0
                 },
-                {
+                "translation": {
+                  "x": 5.104766,
+                  "y": 7.403681999999999
+                }
+              },
+              "entryAngle": {
+                "degrees": 0
+              },
+              "velocity": 4.2
+            }
+          },
+          {
+            "type": "Parallel",
+            "actions": [
+              {
+                "type": "DeployIntakeAction"
+              },
+              {
+                "type": "FollowPathPlannerPath",
+                "pathName": "Left Side Close Sweep",
+                "mirrorPath": false
+              }
+            ]
+          },
+          {
+            "type": "Parallel",
+            "actions": [
+              {
+                "type": "Sequence",
+                "actions": [
+                  {
                     "type": "Wait",
                     "delay": {
-                        "value": 0.5,
-                        "unit": "Second"
+                      "value": 0.6,
+                      "unit": "Second"
                     }
-                },
-                {
-                    "type": "ClimbHangAction"
-                }
+                  },
+                  {
+                    "type": "StartShooting"
+                  }
+                ]
+              },
+              {
+                "type": "FollowPathPlannerPath",
+                "pathName": "Left Bump To Alliance",
+                "mirrorPath": false
+              }
             ]
-        },
-        "RightClimb": {
-            "type": "Sequence",
+          },
+          {
+            "type": "Parallel",
             "actions": [
-                {
-                    "type": "Parallel",
-                    "actions": [
-                        {
-                            "type": "Sequence",
-                            "actions": [
-                                {
-                                    "type": "XBasedAutoPilotAction",
-                                    "target": {
-                                        "reference": {
-                                            "rotation": {
-                                                "degrees": -90.0
-                                            },
-                                            "translation": {
-                                                "x": 1.515154,
-                                                "y": 3.3240682
-                                            }
-                                        },
-                                        "entryAngle": {
-                                            "degrees": 0
-                                        },
-                                        "velocity": 0.0
-                                    },
-                                    "constraints": {
-                                        "velocity": 2.0,
-                                        "acceleration": 2.0,
-                                        "jerk": 0.1
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "type": "ClimbSearchAction"
-                        }
-                    ]
-                },
-                {
+              {
+                "type": "FollowPathPlannerPath",
+                "pathName": "Turn 180",
+                "mirrorPath": false
+              },
+              {
+                "type": "Sequence",
+                "actions": [
+                  {
+                    "type": "StartShooting"
+                  },
+                  {
                     "type": "Wait",
                     "delay": {
-                        "value": 0.5,
-                        "unit": "Second"
+                      "value": 1.0,
+                      "unit": "Second"
                     }
-                },
-                {
-                    "type": "ClimbHangAction"
-                }
+                  },
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "type": "Wait",
+                    "delay": {
+                      "value": 0.5,
+                      "unit": "Second"
+                    }
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "type": "Wait",
+                    "delay": {
+                      "value": 0.5,
+                      "unit": "Second"
+                    }
+                  },
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "type": "Wait",
+                    "delay": {
+                      "value": 0.5,
+                      "unit": "Second"
+                    }
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "type": "Wait",
+                    "delay": {
+                      "value": 0.5,
+                      "unit": "Second"
+                    }
+                  }
+                ]
+              }
             ]
-        }
+          },
+          {
+            "type": "AutoPilotAction",
+            "target": {
+              "reference": {
+                "rotation": {
+                  "degrees": 0.0
+                },
+                "translation": {
+                  "x": 3.6047659999999997,
+                  "y": 7.403681999999999
+                }
+              },
+              "entryAngle": {
+                "degrees": 0
+              },
+              "velocity": 4.2
+            },
+            "constraints": {
+              "velocity": 2.0,
+              "acceleration": 2.0,
+              "jerk": 2.0
+            }
+          },
+          {
+            "type": "Parallel",
+            "actions": [
+              {
+                "type": "StopShooting"
+              },
+              {
+                "type": "Sequence",
+                "actions": [
+                  {
+                    "type": "XBasedAutoPilotAction",
+                    "target": {
+                      "reference": {
+                        "rotation": {
+                          "degrees": 0.0
+                        },
+                        "translation": {
+                          "x": 4.104766,
+                          "y": 7.403681999999999
+                        }
+                      },
+                      "entryAngle": {
+                        "degrees": 0
+                      },
+                      "velocity": 4.2
+                    }
+                  },
+                  {
+                    "type": "FollowPathPlannerPath",
+                    "pathName": "Left Trench To Center",
+                    "mirrorPath": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Parallel",
+            "actions": [
+              {
+                "type": "DeployIntakeAction"
+              },
+              {
+                "type": "FollowPathPlannerPath",
+                "pathName": "Left Side Close 2nd Sweep",
+                "mirrorPath": false
+              }
+            ]
+          },
+          {
+            "type": "Parallel",
+            "actions": [
+              {
+                "type": "Sequence",
+                "actions": [
+                  {
+                    "type": "Wait",
+                    "delay": {
+                      "value": 0.4,
+                      "unit": "Second"
+                    }
+                  },
+                  {
+                    "type": "StartShooting"
+                  }
+                ]
+              },
+              {
+                "type": "FollowPathPlannerPath",
+                "pathName": "Left Bump To Alliance",
+                "mirrorPath": false
+              }
+            ]
+          },
+          {
+            "type": "Wait",
+            "delay": {
+              "value": 1,
+              "unit": "Second"
+            }
+          },
+          {
+            "type": "StowIntakeAction"
+          },
+          {
+            "type": "Wait",
+            "delay": {
+              "value": 0.5,
+              "unit": "Second"
+            }
+          },
+          {
+            "type": "DeployIntakeAction"
+          },
+          {
+            "type": "Wait",
+            "delay": {
+              "value": 0.5,
+              "unit": "Second"
+            }
+          },
+          {
+            "type": "StowIntakeAction"
+          },
+          {
+            "type": "Wait",
+            "delay": {
+              "value": 0.5,
+              "unit": "Second"
+            }
+          },
+          {
+            "type": "DeployIntakeAction"
+          },
+          {
+            "type": "Wait",
+            "delay": {
+              "value": 0.5,
+              "unit": "Second"
+            }
+          },
+          {
+            "type": "StowIntakeAction"
+          }
+        ]
+      },
+      "canBeMirrored": false,
+      "shouldBeFlipped": true
     }
+  },
+  "routines": {
+    "LeftClimb": {
+      "type": "Sequence",
+      "actions": [
+        {
+          "type": "Parallel",
+          "actions": [
+            {
+              "type": "Sequence",
+              "actions": [
+                {
+                  "type": "XBasedAutoPilotAction",
+                  "target": {
+                    "reference": {
+                      "rotation": {
+                        "degrees": -90.0
+                      },
+                      "translation": {
+                        "x": 1.515154,
+                        "y": 4.1813182
+                      }
+                    },
+                    "entryAngle": {
+                      "degrees": 0
+                    },
+                    "velocity": 0.0
+                  },
+                  "constraints": {
+                    "velocity": 2.0,
+                    "acceleration": 2.0,
+                    "jerk": 0.1
+                  }
+                }
+              ]
+            },
+            {
+              "type": "ClimbSearchAction"
+            }
+          ]
+        },
+        {
+          "type": "Wait",
+          "delay": {
+            "value": 0.5,
+            "unit": "Second"
+          }
+        },
+        {
+          "type": "ClimbHangAction"
+        }
+      ]
+    },
+    "RightClimb": {
+      "type": "Sequence",
+      "actions": [
+        {
+          "type": "Parallel",
+          "actions": [
+            {
+              "type": "Sequence",
+              "actions": [
+                {
+                  "type": "XBasedAutoPilotAction",
+                  "target": {
+                    "reference": {
+                      "rotation": {
+                        "degrees": -90.0
+                      },
+                      "translation": {
+                        "x": 1.515154,
+                        "y": 3.3240682
+                      }
+                    },
+                    "entryAngle": {
+                      "degrees": 0
+                    },
+                    "velocity": 0.0
+                  },
+                  "constraints": {
+                    "velocity": 2.0,
+                    "acceleration": 2.0,
+                    "jerk": 0.1
+                  }
+                }
+              ]
+            },
+            {
+              "type": "ClimbSearchAction"
+            }
+          ]
+        },
+        {
+          "type": "Wait",
+          "delay": {
+            "value": 0.5,
+            "unit": "Second"
+          }
+        },
+        {
+          "type": "ClimbHangAction"
+        }
+      ]
+    }
+  }
 }
