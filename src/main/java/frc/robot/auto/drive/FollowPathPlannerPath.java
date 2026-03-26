@@ -41,7 +41,7 @@ public class FollowPathPlannerPath extends DriveAutoAction {
     if (context.flipped()) {
       path = path.flipPath();
     }
-    if (mirrorPath ^ context.mirrored()) {
+    if (mirrorPath != context.mirrored()) {
       path = path.mirrorPath();
     }
     var drive = context.driveCoordinator().drive;

@@ -2,13 +2,14 @@ package frc.robot.auto;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAction.AutoActionContext;
+import frc.robot.util.ts.GeneratedOptional;
 
 public class Auto {
 
   private AutoAction rootAction;
 
-  private boolean canBeMirrored = true;
-  private boolean shouldBeFlipped = true;
+  @GeneratedOptional private boolean canBeMirrored = true;
+  @GeneratedOptional private boolean shouldBeFlipped = true;
 
   public Command toCommand(AutoActionContext data) {
     return rootAction.toCommand(data);
