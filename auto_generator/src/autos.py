@@ -71,11 +71,16 @@ def _test_path_planner_left_auto():
             startShooting()
         auto_action.FollowPathPlannerPath(path_name="Left Bump To Alliance").add()
 
-    startShooting()
+    with parallel():
 
-    wait(1.0)
+        auto_action.FollowPathPlannerPath(path_name="Turn 180").add()
 
-    cycle_intake(intake_cycle_time, intake_cycle_count)
+        with sequence():
+            startShooting()
+
+            wait(1.0)
+
+            cycle_intake(intake_cycle_time, intake_cycle_count)
 
     #wait(1.0)
 
