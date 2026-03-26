@@ -579,14 +579,16 @@ def _to_dict(obj: Any) -> Any:
 @dataclass
 class Auto:
     root_action: AutoAction = None
-    can_be_mirrored: bool = False
-    should_be_flipped: bool = False
+    can_be_mirrored: Optional[bool] = None
+    should_be_flipped: Optional[bool] = None
 
     def to_dict(self) -> dict:
         d: dict = {}
         d["rootAction"] = _to_dict(self.root_action)
-        d["canBeMirrored"] = _to_dict(self.can_be_mirrored)
-        d["shouldBeFlipped"] = _to_dict(self.should_be_flipped)
+        if self.can_be_mirrored is not None:
+            d["canBeMirrored"] = _to_dict(self.can_be_mirrored)
+        if self.should_be_flipped is not None:
+            d["shouldBeFlipped"] = _to_dict(self.should_be_flipped)
         return d
 
 
