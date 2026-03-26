@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.CoordinationLayer;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -136,7 +137,10 @@ public class Autos {
   }
 
   public static Pose2d mirrorPose2d(Pose2d pose) {
-    return new Pose2d();
+    return new Pose2d(
+        pose.getX(),
+        FieldConstants.fieldWidth() - pose.getY(),
+        mirrorRotation2d(pose.getRotation()));
   }
 
   public static Rotation2d flipRotation2d(Rotation2d rotation) {
@@ -144,6 +148,6 @@ public class Autos {
   }
 
   public static Rotation2d mirrorRotation2d(Rotation2d rotation) {
-    return Rotation2d.kPi.minus(rotation);
+    return rotation.unaryMinus();
   }
 }

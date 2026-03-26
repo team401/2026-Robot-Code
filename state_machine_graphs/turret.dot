@@ -18,6 +18,7 @@ digraph {
   HomingWaitForStoppingState ;
   IdleState [shape=doublecircle];
   WearInState ;
+  HomingWaitForButtonChirpState ;
   TrackHeadingState ;
   TestModeState ;
   HomingWaitForButtonState ;
@@ -34,11 +35,16 @@ digraph {
 
   WearInState -> HomingWaitForButtonState [label="When WearInState finished"];
 
+  HomingWaitForButtonChirpState -> IdleState [label="When HomingWaitForButtonChirpState finished"];
+  HomingWaitForButtonChirpState -> HomingWaitForButtonState [label="timeout"];
+  HomingWaitForButtonChirpState -> HomingWaitForMovementState [label="Robot is enabled"];
+
   TrackHeadingState -> IdleState [label="Action != TrackHeading"];
 
   TestModeState -> IdleState [label="Not in turret test mode"];
 
   HomingWaitForButtonState -> IdleState [label="When HomingWaitForButtonState finished"];
+  HomingWaitForButtonState -> HomingWaitForButtonChirpState [label="timeout"];
   HomingWaitForButtonState -> HomingWaitForMovementState [label="Robot is enabled"];
 
 }

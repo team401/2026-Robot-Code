@@ -35,11 +35,6 @@ from . import auto_action
 def _literally_just_shoot():
     startShooting()
 
-
-@auto("Testing Path Planner", can_be_mirrored=False)
-def _testing_path_planner():
-    auto_action.FollowPathPlannerPath(path_name="New Path").add()
-
 def cycle_intake(time, count):
     delay_each = time/2/count
     for i in range(count):
@@ -48,7 +43,7 @@ def cycle_intake(time, count):
         deploy_intake()
         wait(delay_each)
 
-@auto("Test Path Planner Left Auto", can_be_mirrored=False)
+@auto("Double Swipe (opp has auto)")
 def _test_path_planner_left_auto():
     intake_cycle_time = 2
     intake_cycle_count = 2

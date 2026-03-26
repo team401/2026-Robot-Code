@@ -36,17 +36,17 @@ public class AutoPilotAction extends DriveAutoAction {
     APTarget realTarget = target;
 
     if (context.flipped()) {
-      realTarget = realTarget.withReference(Autos.flipPose2d(target.getReference()));
+      realTarget = realTarget.withReference(Autos.flipPose2d(realTarget.getReference()));
       if (realTarget.getEntryAngle().isPresent()) {
-        realTarget = realTarget.withEntryAngle(Autos.flipRotation2d(target.getEntryAngle().get()));
+        realTarget = realTarget.withEntryAngle(Autos.flipRotation2d(realTarget.getEntryAngle().get()));
       }
     }
 
     if (context.mirrored() && canMirror) {
-      realTarget = realTarget.withReference(Autos.mirrorPose2d(target.getReference()));
+      realTarget = realTarget.withReference(Autos.mirrorPose2d(realTarget.getReference()));
       if (realTarget.getEntryAngle().isPresent()) {
         realTarget =
-            realTarget.withEntryAngle(Autos.mirrorRotation2d(target.getEntryAngle().get()));
+            realTarget.withEntryAngle(Autos.mirrorRotation2d(realTarget.getEntryAngle().get()));
       }
     }
     if (context.mirrored() && !canMirror) {
