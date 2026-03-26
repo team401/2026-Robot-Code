@@ -48,7 +48,7 @@ def cycle_intake(time, count):
         deploy_intake()
         wait(delay_each)
 
-@auto("Test Path Planner Left Auto", can_be_mirrored=False)
+@auto("Double Swipe (opp has auto)", can_be_mirrored=True)
 def _test_path_planner_left_auto():
     intake_cycle_time = 2
     intake_cycle_count = 2

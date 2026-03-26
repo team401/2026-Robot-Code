@@ -137,7 +137,10 @@ public class Autos {
   }
 
   public static Pose2d mirrorPose2d(Pose2d pose) {
-    return new Pose2d(pose.getX(), FieldConstants.fieldWidth() - pose.getY(), mirrorRotation2d(pose.getRotation()));
+    return new Pose2d(
+        pose.getX(),
+        FieldConstants.fieldWidth() - pose.getY(),
+        mirrorRotation2d(pose.getRotation()));
   }
 
   public static Rotation2d flipRotation2d(Rotation2d rotation) {
@@ -145,6 +148,6 @@ public class Autos {
   }
 
   public static Rotation2d mirrorRotation2d(Rotation2d rotation) {
-    return Rotation2d.kPi.minus(rotation);
+    return rotation.unaryMinus();
   }
 }
