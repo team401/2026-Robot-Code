@@ -50,11 +50,14 @@ def _double_swipe_opp_has_auto():
 
     # Cycle 1
 
-    x_based_autopilot(
-        target_pose=constants.left_trench_center_side_pose,
-        velocity=constants.default_trench_velocity,
-        entry_angle=rotation2d(0)
-    )
+    # x_based_autopilot(
+    #     target_pose=constants.left_trench_center_side_pose,
+    #     velocity=constants.default_trench_velocity,
+    #     entry_angle=rotation2d(0)
+    # )
+    with parallel():
+        stow_intake()
+        auto_action.FollowPathPlannerPath(path_name="Left Trench To Center")
 
     with parallel():
         deploy_intake()
@@ -113,7 +116,4 @@ def _double_swipe_opp_has_auto():
     wait(1)
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
-
-    stow_intake()
-
 
