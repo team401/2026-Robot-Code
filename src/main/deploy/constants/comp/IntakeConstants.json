@@ -96,7 +96,7 @@
     "unit": "Amp"
   },
   "rollersStatorCurrentLimit": {
-    "value": 40.0,
+    "value": 120.0,
     "unit": "Amp"
   },
   "rollersSupplyCurrentLimit": {
