@@ -73,7 +73,7 @@ public class HoodConstants {
   public Double hoodExpoKV = 32.0;
   public Double hoodExpoKA = 32.0;
 
-  public final Double hoodReduction = 20.0; // TODO: Get real value once design finalizes it
+  public final Double hoodReduction = 20.0;
 
   public MechanismConfig buildMechanismConfig() {
     return MechanismConfig.builder()

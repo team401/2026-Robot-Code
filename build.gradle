@@ -221,7 +221,11 @@ createVersionFile.dependsOn(eventDeploy)
 project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
-        target fileTree(".") {
+        // Restrict formatting to files under the workspace 'src' directory.
+        // Using '.' can sometimes pick up files mounted from other filesystems
+        // (e.g. WSL mounts) which Spotless rejects. Targeting 'src' keeps the
+        // formatter inside the project directory.
+        target fileTree('src') {
             include "**/*.java"
             exclude "**/build/**", "**/build-*/**", "settings_gui/**"
         }
@@ -244,7 +248,7 @@ spotless {
     json {
         target fileTree(".") {
             include "**/*.json"
-            exclude "**/build/**", "**/build-*/**", "elastic_layouts/*.json", "settings_gui/**", "auto_generator/**"
+            exclude "**/build/**", "**/build-*/**", "elastic_layouts/*.json", "settings_gui/**", "auto_generator/**", "src/main/deploy/constants/comp/Autos.json"
         }
         gson().indentWithSpaces(2)
     }

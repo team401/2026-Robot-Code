@@ -87,6 +87,13 @@ public class DriveCoordinatorCommands extends Command {
       Logger.recordOutput("DriveCoordinator/AutoPilot/speeds", speeds);
 
       Logger.recordOutput("DriveCoordinator/AutoPilot/goalPose", target.getReference());
+      if (target.getEntryAngle() != null) {
+        Logger.recordOutput(
+            "DriveCoordinator/AutoPilot/entryAngle",
+            new Pose2d(target.getReference().getTranslation(), target.getEntryAngle().get()));
+      } else {
+        Logger.recordOutput("DriveCoordinator/AutoPilot/entryAngle", new Pose2d());
+      }
     }
 
     @Override
@@ -189,5 +196,24 @@ public class DriveCoordinatorCommands extends Command {
       APTarget target,
       PIDController headingController) {
     return new AutoPilotCommand(driveCoordinator, autoPilot, target, headingController);
+  }
+
+  public static Command wrapCommand(DriveCoordinator coordinator, Command command) {
+    return new Command() {
+      @Override
+      public void initialize() {
+        coordinator.setCurrentDriveCommand(command);
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        coordinator.cancelCurrentDriveCommand();
+      }
+
+      @Override
+      public boolean isFinished() {
+        return command.isFinished();
+      }
+    };
   }
 }

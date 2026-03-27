@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.000242510699001,
+        "y": 0.6127246790299581
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.284591908289362,
+        "y": 0.7875680525239352
+      },
+      "isLocked": false,
+      "linkedName": "Right Trench Alliance Exit"
+    },
+    {
+      "anchor": {
+        "x": 2.4,
+        "y": 4.0
+      },
+      "prevControl": {
+        "x": 2.006602409638554,
+        "y": 2.9946506024096387
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Alliance Center"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.2,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -179.58379830883297
+  },
+  "reversed": false,
+  "folder": "FromTrench",
+  "idealStartingState": {
+    "velocity": 4.2,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

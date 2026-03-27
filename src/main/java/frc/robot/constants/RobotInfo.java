@@ -37,6 +37,8 @@ public class RobotInfo {
 
   public Time robotPeriod = Seconds.of(0.02);
 
+  public Boolean runAutoTesting = false;
+
   // Pose taken from KrayonCAD
   public final Transform3d robotToShooter =
       new Transform3d(

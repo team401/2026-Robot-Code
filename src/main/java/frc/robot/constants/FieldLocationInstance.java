@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Translation2d;
  * instead be referenced with the methods in FieldLocations.java.
  */
 public class FieldLocationInstance {
-  // TODO: Find actual passing goal locations
   /**
    * Translation to aim for when passing to the left side of the field (from driver station
    * perspective)

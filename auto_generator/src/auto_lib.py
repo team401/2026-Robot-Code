@@ -100,7 +100,7 @@ _autos: Dict[str, Any] = {}
 _routines: Dict[str, Any] = {}
 
 
-def auto(name: str):
+def auto(name: str, can_be_mirrored: bool = True, should_be_flipped: bool = True):
     """
     Decorator that defines and registers a named autonomous routine.
 
@@ -115,6 +115,8 @@ def auto(name: str):
         global _command_pointers
         _command_pointers = []
         root = AutoAction.Sequence()
+        auto = AutoAction.Auto(root_action=root, can_be_mirrored=can_be_mirrored, should_be_flipped=should_be_flipped)
+
         _push_pointer(root.actions)
 
         try:
@@ -122,7 +124,7 @@ def auto(name: str):
         finally:
             _command_pointers = []
 
-        _autos[name] = root
+        _autos[name] = auto
         return build
     return decorator
 

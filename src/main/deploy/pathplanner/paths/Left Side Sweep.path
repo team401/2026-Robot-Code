@@ -1,0 +1,99 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.2,
+        "y": 7.4
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.1999999999999975,
+        "y": 7.4
+      },
+      "isLocked": false,
+      "linkedName": "Left Trench Center Exit"
+    },
+    {
+      "anchor": {
+        "x": 7.881840228245363,
+        "y": 6.603012048192771
+      },
+      "prevControl": {
+        "x": 7.726219978888957,
+        "y": 7.170153231441817
+      },
+      "nextControl": {
+        "x": 8.020408590138011,
+        "y": 6.098014626265405
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.636192771084337,
+        "y": 4.548602409638555
+      },
+      "prevControl": {
+        "x": 8.111774229585961,
+        "y": 5.119103741642749
+      },
+      "nextControl": {
+        "x": 7.286950916695138,
+        "y": 4.129656423501098
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.6,
+        "y": 5.800000000000001
+      },
+      "prevControl": {
+        "x": 6.557460770328102,
+        "y": 5.61885877318117
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Left Bump Center Enter"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": -107.42986281766778
+    },
+    {
+      "waypointRelativePos": 2,
+      "rotationDegrees": 142.5238204386386
+    },
+    {
+      "waypointRelativePos": 2.5,
+      "rotationDegrees": 119.94325639049804
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.2,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 4.2,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Sweep",
+  "idealStartingState": {
+    "velocity": 4.2,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

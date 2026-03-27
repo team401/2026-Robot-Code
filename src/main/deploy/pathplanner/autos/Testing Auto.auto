@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench To Center"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Side Close Sweep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Bump To Alliance"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

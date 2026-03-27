@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.auto.Auto;
 import frc.robot.auto.AutoAction;
 import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
@@ -161,7 +162,7 @@ public class JsonConstants {
       PythonGeometryMethods.registerAll();
       PythonGenerator.generateForClasses(
           "auto_action.py",
-          AutoAction.class,
+          Auto.class,
           Transform2d.class,
           Transform3d.class,
           Rotation2d.class,

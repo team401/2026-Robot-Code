@@ -39,7 +39,7 @@ climb_left_lineup_entry_angle = rotation2d(degrees=0)
 climb_right_lineup_entry_angle = climb_left_lineup_entry_angle
 
 
-default_trench_velocity = 3.0
+default_trench_velocity = 4.2
 
 # Reduce tolerance because in most spots we dont need them to be so far from the trench.
 # and if we need to be further from the trench we can just have the auto drive to a pose that it can use such as

@@ -9,8 +9,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import coppercore.wpilib_interface.DriveTemplate;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -28,7 +27,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -55,23 +53,23 @@ import org.littletonrobotics.junction.Logger;
 public class Drive extends SubsystemBase implements DriveTemplate {
 
   // PathPlanner config constants
-  private final double ROBOT_MASS_KG = JsonConstants.robotInfo.robotMass.in(Kilograms);
-  private final double ROBOT_MOI = JsonConstants.robotInfo.robotMOI.in(KilogramSquareMeters);
-  private final double WHEEL_COF = JsonConstants.robotInfo.wheelCof;
-  private final RobotConfig PP_CONFIG =
-      new RobotConfig(
-          ROBOT_MASS_KG,
-          ROBOT_MOI,
-          new ModuleConfig(
-              JsonConstants.physicalDriveConstants.FrontLeft.WheelRadius,
-              JsonConstants.physicalDriveConstants.kSpeedAt12Volts.in(MetersPerSecond),
-              WHEEL_COF,
-              DCMotor.getKrakenX60Foc(1)
-                  .withReduction(
-                      JsonConstants.physicalDriveConstants.FrontLeft.DriveMotorGearRatio),
-              JsonConstants.physicalDriveConstants.FrontLeft.SlipCurrent,
-              1),
-          getModuleTranslations());
+  // private final double ROBOT_MASS_KG = JsonConstants.robotInfo.robotMass.in(Kilograms);
+  // private final double ROBOT_MOI = JsonConstants.robotInfo.robotMOI.in(KilogramSquareMeters);
+  // private final double WHEEL_COF = JsonConstants.robotInfo.wheelCof;
+  // // private final RobotConfig PP_CONFIG =
+  //     new RobotConfig(
+  //         ROBOT_MASS_KG,
+  //         ROBOT_MOI,
+  //         new ModuleConfig(
+  //             JsonConstants.physicalDriveConstants.FrontLeft.WheelRadius,
+  //             JsonConstants.physicalDriveConstants.kSpeedAt12Volts.in(MetersPerSecond),
+  //             WHEEL_COF,
+  //             DCMotor.getKrakenX60Foc(1)
+  //                 .withReduction(
+  //                     JsonConstants.physicalDriveConstants.FrontLeft.DriveMotorGearRatio),
+  //             JsonConstants.physicalDriveConstants.FrontLeft.SlipCurrent,
+  //             1),
+  //         getModuleTranslations());
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -126,14 +124,14 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     //     () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
     //     this);
     // Pathfinding.setPathfinder(new LocalADStarAK());
-    // PathPlannerLogging.setLogActivePathCallback(
-    //     (activePath) -> {
-    //       Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-    //     });
-    // PathPlannerLogging.setLogTargetPoseCallback(
-    //     (targetPose) -> {
-    //       Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-    //     });
+    PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
+        });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        });
 
     // Configure SysId
     sysId =

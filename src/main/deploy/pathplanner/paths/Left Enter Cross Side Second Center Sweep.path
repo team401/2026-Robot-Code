@@ -1,0 +1,103 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.2,
+        "y": 7.4
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.200000000000001,
+        "y": 7.4
+      },
+      "isLocked": false,
+      "linkedName": "Left Trench Center Exit"
+    },
+    {
+      "anchor": {
+        "x": 6.587974322396576,
+        "y": 6.344550641940086
+      },
+      "prevControl": {
+        "x": 6.607115800289055,
+        "y": 6.982599905022697
+      },
+      "nextControl": {
+        "x": 6.549158345221112,
+        "y": 5.0506847360912985
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.044550641940085,
+        "y": 4.74015691868759
+      },
+      "prevControl": {
+        "x": 6.445649072753208,
+        "y": 5.801126961483595
+      },
+      "nextControl": {
+        "x": 5.847171065092615,
+        "y": 4.21805610251041
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.243024096385542,
+        "y": 0.6474096385542167
+      },
+      "prevControl": {
+        "x": 7.4726980045717815,
+        "y": 0.5440094873072894
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Right Trench Center Enter"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": -125.53767779197443
+    },
+    {
+      "waypointRelativePos": 1.5223880597014925,
+      "rotationDegrees": -132.36029796645914
+    },
+    {
+      "waypointRelativePos": 2.168443496801701,
+      "rotationDegrees": -78.04994935953312
+    },
+    {
+      "waypointRelativePos": 2.552238805970119,
+      "rotationDegrees": -81.93373443690592
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.2,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 4.2,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Sweep",
+  "idealStartingState": {
+    "velocity": 4.2,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

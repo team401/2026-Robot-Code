@@ -10,8 +10,13 @@ package frc.robot;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
+import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.FeatureFlags;
@@ -20,6 +25,7 @@ import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -89,6 +95,10 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
+      autoTestingSimulation = new AutoTestingSimulation(this);
+    }
   }
 
   /** This function is called periodically during all modes. */
@@ -126,6 +136,10 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
+
+    if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
+      autoTestingSimulation.update();
+    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -186,5 +200,81 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationPeriodic() {
     robotContainer.updateRobotModel();
+  }
+
+  private AutoTestingSimulation autoTestingSimulation = null;
+
+  private static class AutoTestingSimulation {
+
+    public static final String AUTO_TESTING_PREFIX = "AutoTesting/";
+
+    // This class is responsible for running the auto testing simulation. It will listen to network
+    // tables for commands to start and stop the simulation, and for what alliance station to start
+    // from. It will then run the appropriate simulation based on the selected command and alliance
+    // station.
+
+    LoggedDashboardChooser<AllianceStationID> allianceStationChooser;
+    Robot robot;
+
+    public AutoTestingSimulation(Robot robot) {
+      this.robot = robot;
+      // Initialize the auto testing simulation, set up network table listeners, etc.
+      allianceStationChooser =
+          new LoggedDashboardChooser<>(AUTO_TESTING_PREFIX + "AllianceStation");
+      allianceStationChooser.addDefaultOption("Unknown", AllianceStationID.Unknown);
+      allianceStationChooser.addOption("Red 1", AllianceStationID.Red1);
+      allianceStationChooser.addOption("Red 2", AllianceStationID.Red2);
+      allianceStationChooser.addOption("Red 3", AllianceStationID.Red3);
+      allianceStationChooser.addOption("Blue 1", AllianceStationID.Blue1);
+      allianceStationChooser.addOption("Blue 2", AllianceStationID.Blue2);
+      allianceStationChooser.addOption("Blue 3", AllianceStationID.Blue3);
+
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "RobotEnabled", false);
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "AutoEnabled", false);
+
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StartAuto", false);
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
+
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "SetPos", false);
+      SmartDashboard.putNumber(AUTO_TESTING_PREFIX + "SetPosX", 0.0);
+      SmartDashboard.putNumber(AUTO_TESTING_PREFIX + "SetPosY", 0.0);
+      SmartDashboard.putNumber(AUTO_TESTING_PREFIX + "SetPosTheta", 0.0);
+
+      DriverStationSim.setDsAttached(true);
+    }
+
+    public void update() {
+
+      DriverStationSim.setAllianceStationId(allianceStationChooser.get());
+      DriverStationSim.notifyNewData();
+
+      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "StartAuto", false)) {
+        DriverStationSim.setAutonomous(true);
+        DriverStationSim.setEnabled(true);
+        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StartAuto", false);
+      }
+
+      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "StopAuto", false)) {
+        DriverStationSim.setAutonomous(false);
+        DriverStationSim.setEnabled(false);
+        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
+      }
+
+      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "SetPos", false)) {
+        double x = SmartDashboard.getNumber(AUTO_TESTING_PREFIX + "SetPosX", 0.0);
+        double y = SmartDashboard.getNumber(AUTO_TESTING_PREFIX + "SetPosY", 0.0);
+        double theta = SmartDashboard.getNumber(AUTO_TESTING_PREFIX + "SetPosTheta", 0.0);
+        robot
+            .robotContainer
+            .getDriveSubsystem()
+            .setPose(new Pose2d(x, y, Rotation2d.fromDegrees(theta)));
+        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "SetPos", false);
+      }
+
+      DriverStationSim.notifyNewData();
+
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "RobotEnabled", DriverStation.isEnabled());
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "AutoEnabled", DriverStation.isAutonomous());
+    }
   }
 }

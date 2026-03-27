@@ -7,13 +7,15 @@ import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 public class XBasedAutoPilotAction extends AutoPilotAction {
 
   @Override
-  public Command toCommand(AutoActionContext data) {
+  public Command toCommand(AutoActionContext context) {
+    var realTarget = prepareAutoAction(context);
 
-    handleNullValues();
-
-    return wrapCommand(
-        data,
+    return DriveCoordinatorCommands.wrapCommand(
+        context.driveCoordinator(),
         new DriveCoordinatorCommands.XBasedAutoPilotCommand(
-            data.driveCoordinator(), new Autopilot(profile), fixedTarget, getHeadingController()));
+            context.driveCoordinator(),
+            new Autopilot(profile),
+            realTarget,
+            getHeadingController()));
   }
 }

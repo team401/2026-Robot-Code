@@ -19,6 +19,7 @@ public class FixedJSONSyncConfigBuilder extends JSONSyncConfigBuilder {
   /**
    * List of custom type adapters (JsonSerializer, JsonDeserializer, TypeAdapter) to be registered.
    */
+  @SuppressWarnings("rawtypes")
   public List<Pair<Class, Object>> typeAdapters = new ArrayList<>();
 
   /** List of custom TypeAdapterFactory instances to be registered. */

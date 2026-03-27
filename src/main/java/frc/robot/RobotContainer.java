@@ -34,6 +34,7 @@ import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -176,6 +177,8 @@ public class RobotContainer {
   }
 
   public void loadAutoCommands() {
+    JsonConstants.autos.loadAllPathPlannerPaths();
+
     JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
 
     createAutoChooser(drive.orElse(null));
@@ -290,19 +293,28 @@ public class RobotContainer {
     // Set up SysId routines
     if (drive != null) {
       autoChooser.addOption(
-          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+          "Drive Wheel Radius Characterization",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive)));
       autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+          "Drive Simple FF Characterization",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
       autoChooser.addOption(
           "Drive SysId (Quasistatic Forward)",
           drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
       autoChooser.addOption(
           "Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
       autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+          "Drive SysId (Dynamic Forward)",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
       autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          "Drive SysId (Dynamic Reverse)",
+          DriveCoordinatorCommands.wrapCommand(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
     }
 
     for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
@@ -347,5 +359,9 @@ public class RobotContainer {
    */
   public DependencyOrderedExecutor getDependencyOrderedExecutor() {
     return dependencyOrderedExecutor;
+  }
+
+  public Drive getDriveSubsystem() {
+    return drive.orElse(null);
   }
 }

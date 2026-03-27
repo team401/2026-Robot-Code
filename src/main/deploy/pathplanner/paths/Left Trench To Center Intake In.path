@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.0,
+        "y": 7.4
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.0,
+        "y": 7.4
+      },
+      "isLocked": false,
+      "linkedName": "Left Trench Alliance Enter Intake In"
+    },
+    {
+      "anchor": {
+        "x": 5.6,
+        "y": 7.4
+      },
+      "prevControl": {
+        "x": 4.6,
+        "y": 7.4
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Left Trench Center Exit Intake In"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.2,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 4.2,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Trench",
+  "idealStartingState": {
+    "velocity": 4.2,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}

@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.sim.CANdiSimState;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import frc.robot.util.ExtraCTREUtil.DigitalSignalCloseState;
-import frc.robot.util.io.dio_switch.DigitalInputIO.DigitalInputInputs;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class DigitalInputIOCANdiSimNT extends DigitalInputIOCANdi {
