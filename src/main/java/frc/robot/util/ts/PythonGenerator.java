@@ -246,10 +246,6 @@ public final class PythonGenerator {
   // Core Generation
   // ============================================
 
-  private static void generateType(Class<?> clazz) {
-    generateType(clazz, clazz.getSimpleName());
-  }
-
   private static void generateType(Class<?> clazz, String suggestedName) {
     if (generated.contains(clazz)) return;
     if (isPrimitive(clazz)) return;

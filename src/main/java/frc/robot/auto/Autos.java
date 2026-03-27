@@ -35,7 +35,6 @@ public class Autos {
       PathPlannerPath path = PathPlannerPath.fromPathFile(name);
       paths.put(name, path);
     } catch (FileVersionException | IOException | ParseException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

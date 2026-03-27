@@ -30,7 +30,7 @@ import frc.robot.util.PIDGains;
 
 public class TransferRollerConstants {
 
-  public final Double transferRollerReduction = 1.0; // TODO: find actual value
+  public final Double transferRollerReduction = 1.0;
 
   public final Time velocityFilterTime = Seconds.of(0.05);
   public final Time dejamTime = Seconds.of(0.5);

@@ -59,7 +59,6 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
   public TransferRollerSubsystem(MotorIO motor) {
     this.motor = motor;
 
-    // TODO: Define state machine transitions, register states
     stateMachine = new StateMachine<>(this);
     idleState = stateMachine.registerState(new IdleState());
     testModeState = stateMachine.registerState(new TestModeState());

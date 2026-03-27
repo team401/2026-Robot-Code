@@ -48,8 +48,6 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   private IntakeDependencies dependencies = new IntakeDependencies();
 
-  private boolean needsReHome = false;
-
   // Dependencies (these are what we would have fetched using extensive supplier networks in 2025
   // and before)
   public static class IntakeDependencies {

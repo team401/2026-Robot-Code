@@ -27,7 +27,6 @@ public class FollowPathPlannerPath extends DriveAutoAction {
           new PPHolonomicDriveController(
               new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0));
     } catch (IOException | ParseException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
