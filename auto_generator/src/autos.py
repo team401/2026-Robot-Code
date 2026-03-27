@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from .routines import go_to_alliance_under_left_trench, go_to_alliance_under_right_trench, go_to_center_under_left_trench_from_alliance, go_to_center_under_right_trench_from_alliance
+from .routines import go_to_alliance_under_left_trench, go_to_alliance_under_right_trench, go_to_center_under_left_trench_from_alliance, go_to_center_under_left_trench_from_alliance_intake_in, go_to_center_under_right_trench_from_alliance
 
 from .auto_action import APConstraints, PIDGains, Transform2d
 from .auto_lib import auto, parallel, routines, sequence
@@ -136,6 +136,75 @@ def _double_swipe_opp_has_auto():
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
 
-@auto("Intake Deploy Test")
-def _intake_deploy_test():
-    first_intake_deploy()
+@auto("Double Swipe intake in")
+def _double_swipe_intake_in():
+    intake_cycle_time = 2
+    intake_cycle_count = 5
+
+    # Cycle 1
+
+    # x_based_autopilot(
+    #     target_pose=constants.left_trench_center_side_pose,
+    #     velocity=constants.default_trench_velocity,
+    #     entry_angle=rotation2d(0)
+    # )
+    with parallel():
+        stow_intake()
+        followPath(path_name="Left Trench To Center")
+
+    with parallel():
+        first_intake_deploy()
+        followPath(path_name="Left Side Close Sweep")
+
+    with parallel():
+        with sequence():
+            wait(0.6)
+            startShooting()
+        followPath(path_name="Left Bump To Alliance")
+
+    with parallel():
+
+        # followPath(path_name="Turn 180")
+
+        with sequence():
+            wait(1.0)
+
+            cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    #wait(1.0)
+
+    # Cycle 2
+
+    autopilot(
+        target_pose=pose2d(3.5, 7.55, -90),
+        velocity=constants.default_trench_velocity,
+        entry_angle=rotation2d(0),
+        constraints=auto_action.APConstraints(
+            velocity=2.0,
+            acceleration=2.0,
+            jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
+        )
+    )
+
+    with parallel():
+
+        stopShooting()
+
+        go_to_center_under_left_trench_from_alliance_intake_in()
+
+    with parallel():
+        deploy_intake()
+        followPath(path_name="Left Side Close 2nd Sweep Intake In")
+
+    with parallel():
+        with sequence():
+            wait(0.4)
+            startShooting()
+        followPath(path_name="Left Bump To Alliance")
+
+    wait(1)
+
+    cycle_intake(intake_cycle_time, intake_cycle_count)
