@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from .routines import go_to_alliance_under_left_trench, go_to_alliance_under_right_trench, go_to_center_under_left_trench_from_alliance, go_to_center_under_right_trench_from_alliance
 
-from .auto_action import APConstraints, Transform2d
+from .auto_action import APConstraints, PIDGains, Transform2d
 from .auto_lib import auto, parallel, routines, sequence
 from .field_locations import FieldConstants
 from .shorthands import (
@@ -36,6 +36,15 @@ from . import auto_action
 def _literally_just_shoot():
     startShooting()
 
+def command(func: callable):
+
+    def _inner(*args, **kwargs):
+        with sequence():
+            func(*args, **kwargs)
+
+    return _inner
+
+@command
 def cycle_intake(time, count):
     delay_each = time/2/count
     for i in range(count):
@@ -43,6 +52,14 @@ def cycle_intake(time, count):
         wait(delay_each)
         deploy_intake()
         wait(delay_each)
+
+@command
+def first_intake_deploy():
+    deploy_intake()
+    wait(0.2)
+    stow_intake()
+    wait(0.6)
+    deploy_intake()
 
 @auto("Double Swipe (opp has auto)")
 def _double_swipe_opp_has_auto():
@@ -61,7 +78,7 @@ def _double_swipe_opp_has_auto():
         followPath(path_name="Left Trench To Center")
 
     with parallel():
-        deploy_intake()
+        first_intake_deploy()
         followPath(path_name="Left Side Close Sweep")
 
     with parallel():
@@ -72,11 +89,9 @@ def _double_swipe_opp_has_auto():
 
     with parallel():
 
-        followPath(path_name="Turn 180")
+        # followPath(path_name="Turn 180")
 
         with sequence():
-            startShooting()
-
             wait(1.0)
 
             cycle_intake(intake_cycle_time, intake_cycle_count)
@@ -95,6 +110,9 @@ def _double_swipe_opp_has_auto():
             velocity=2.0,
             acceleration=2.0,
             jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
         )
     )
 
@@ -118,3 +136,6 @@ def _double_swipe_opp_has_auto():
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
 
+@auto("Intake Deploy Test")
+def _intake_deploy_test():
+    first_intake_deploy()
