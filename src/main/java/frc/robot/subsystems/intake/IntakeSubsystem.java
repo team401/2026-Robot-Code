@@ -200,16 +200,16 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   public void stow() {
     setTargetPivotAngle(JsonConstants.intakeConstants.stowPositionAngle);
-    needsReHome = true;
+    // needsReHome = true;
   }
 
   public void deploy() {
     setTargetPivotAngle(JsonConstants.intakeConstants.intakePositionAngle);
     holdVoltage = JsonConstants.intakeConstants.pivotVoltageWhenIntaking;
-    if (needsReHome) {
-      intakeStateMachine.requestState(IntakeState.homingWaitForMovementState);
-      needsReHome = false;
-    }
+    // if (needsReHome) {
+    //   //intakeStateMachine.requestState(IntakeState.homingWaitForMovementState);
+    //   needsReHome = false;
+    // }
   }
 
   public void applyHoldVoltage() {
@@ -267,12 +267,14 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     pivotMotorIO.controlOpenLoopVoltage(v);
   }
 
-  protected void zeroPositionIfBelowZero() {
+  protected void setPositionIfOutsideRange() {
     // Commented out because the intake can actually go down to ~-8 degrees now.
     if (pivotInputs.positionRadians
         < JsonConstants.intakeConstants.minPivotAngle.in(Radians) - Units.degreesToRadians(0.5)) {
       pivotMotorIO.setCurrentPosition(JsonConstants.intakeConstants.minPivotAngle);
-      ;
+    } else if (pivotInputs.positionRadians
+        > JsonConstants.intakeConstants.maxPivotAngle.in(Radians) + Units.degreesToRadians(0.5)) {
+      pivotMotorIO.setCurrentPosition(JsonConstants.intakeConstants.maxPivotAngle);
     }
   }
 

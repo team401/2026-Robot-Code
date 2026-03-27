@@ -116,7 +116,7 @@ public class IntakeState {
     @Override
     protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
 
-      world.zeroPositionIfBelowZero();
+      world.setPositionIfOutsideRange();
 
       pivotTuningModeHelper.get().testPeriodic(world.pivotTestModeManager.getTestMode());
       rollerTuningModeHelper.get().testPeriodic(world.rollerTestModeManager.getTestMode());
@@ -192,7 +192,7 @@ public class IntakeState {
       new State<IntakeSubsystem>("ControlToPosition") {
         @Override
         protected void periodic(StateMachine<IntakeSubsystem> stateMachine, IntakeSubsystem world) {
-          world.zeroPositionIfBelowZero();
+          world.setPositionIfOutsideRange();
           if (Radians.of(world.pivotInputs.positionRadians)
                   .isNear(
                       world.targetPivotAngle, JsonConstants.intakeConstants.pivotHoldAngleTolerance)
