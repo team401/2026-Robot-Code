@@ -97,7 +97,7 @@
   "folder": "Sweep",
   "idealStartingState": {
     "velocity": 4.2,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
