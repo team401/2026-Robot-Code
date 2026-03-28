@@ -69,8 +69,8 @@
     "kA": 0.0
   },
   "defaultAutoPilotVelocity": 4.2,
-  "defaultAutoPilotAcceleration": 4.5,
-  "defaultAutoPilotJerk": 9.0,
+  "defaultAutoPilotAcceleration": 5.7,
+  "defaultAutoPilotJerk": 11.4,
   "defaultAutoPilotBeelineRadius": {
     "value": 0.5,
     "unit": "Meter"
