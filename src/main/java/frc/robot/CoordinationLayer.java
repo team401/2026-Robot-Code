@@ -834,7 +834,7 @@ public class CoordinationLayer {
             // If the drivetrain doesn't exist, we won't shoot. Not sure when this would ever come
             // into play. If this ever becomes an outreach bot, this will need to change.
             case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
-            case Manual -> aimForManualShot();
+            case Manual -> drive.map(this::aimForManualShot).orElse(false);
           };
     }
     long shotCalculationEndTimeUs = RobotController.getFPGATime();
@@ -877,7 +877,7 @@ public class CoordinationLayer {
    *
    * @return {@code true} to indicate that this shot is "real"
    */
-  private boolean aimForManualShot() {
+  private boolean aimForManualShot(Drive drive) {
     switch (shotMode) {
       case Hub -> {
         double distanceMeters = JsonConstants.manualModeConstants.assumedHubDistance.in(Meters);
@@ -897,7 +897,7 @@ public class CoordinationLayer {
             AllianceUtil.isRed()
                 ? JsonConstants.manualModeConstants.redHubHeading
                 : JsonConstants.manualModeConstants.blueHubHeading;
-        turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
+        turret.ifPresent(turret -> turret.targetGoalHeading(drive.getRotation()));
       }
       case Pass -> {
         double distanceMeters = JsonConstants.manualModeConstants.assumedPassDistance.in(Meters);
@@ -920,7 +920,7 @@ public class CoordinationLayer {
             AllianceUtil.isRed()
                 ? JsonConstants.manualModeConstants.redPassHeading
                 : JsonConstants.manualModeConstants.bluePassHeading;
-        turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
+        turret.ifPresent(turret -> turret.targetGoalHeading(drive.getRotation()));
       }
     }
 

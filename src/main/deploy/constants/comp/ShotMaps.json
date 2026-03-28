@@ -485,7 +485,7 @@
         "value": 4.809556659365256,
         "unit": "Meter"
       },
-      "shooterRPM": 2500.0,
+      "shooterRPM": 2600.0,
       "hoodAngle": {
         "value": 36.5,
         "unit": "Degree"
@@ -500,7 +500,7 @@
         "value": 4.998410949279895,
         "unit": "Meter"
       },
-      "shooterRPM": 2650.0,
+      "shooterRPM": 2775.0,
       "hoodAngle": {
         "value": 38.0,
         "unit": "Degree"
