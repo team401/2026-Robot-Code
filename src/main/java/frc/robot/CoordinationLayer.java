@@ -865,7 +865,6 @@ public class CoordinationLayer {
     } else {
       indexer.ifPresent(
           indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
-      
     }
 
     long endTimeUs = RobotController.getFPGATime();
