@@ -437,13 +437,334 @@
             "canBeMirrored": true,
             "shouldBeFlipped": true
         },
-        "Intake Deploy Test": {
+        "Double Swipe intake in": {
             "rootAction": {
                 "type": "Sequence",
                 "actions": [
                     {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "FollowPathPlannerPath",
+                                "pathName": "Left Trench To Center",
+                                "mirrorPath": null
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.2,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.6,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "FollowPathPlannerPath",
+                                "pathName": "Left Side Close Sweep",
+                                "mirrorPath": null
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.6,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StartShooting"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "FollowPathPlannerPath",
+                                "pathName": "Left Bump To Alliance",
+                                "mirrorPath": null
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 1.0,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "Sequence",
+                                        "actions": [
+                                            {
+                                                "type": "StowIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "DeployIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "StowIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "DeployIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "StowIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "DeployIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "StowIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "DeployIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "StowIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            },
+                                            {
+                                                "type": "DeployIntakeAction"
+                                            },
+                                            {
+                                                "type": "Wait",
+                                                "delay": {
+                                                    "value": 0.2,
+                                                    "unit": "Second"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": -90
+                                },
+                                "translation": {
+                                    "x": 3.5,
+                                    "y": 7.55
+                                }
+                            },
+                            "entryAngle": {
+                                "degrees": 0
+                            },
+                            "velocity": 4.2
+                        },
+                        "constraints": {
+                            "velocity": 2.0,
+                            "acceleration": 2.0,
+                            "jerk": 2.0
+                        },
+                        "pidGains": {
+                            "kP": 1.5,
+                            "kI": 0.0,
+                            "kD": 0.0,
+                            "kS": 0.0,
+                            "kG": 0.0,
+                            "kV": 0.0,
+                            "kA": 0.0
+                        }
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "StopShooting"
+                            },
+                            {
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "XBasedAutoPilotAction",
+                                        "target": {
+                                            "reference": {
+                                                "rotation": {
+                                                    "degrees": -90
+                                                },
+                                                "translation": {
+                                                    "x": 4.0,
+                                                    "y": 7.55
+                                                }
+                                            },
+                                            "entryAngle": {
+                                                "degrees": 0
+                                            },
+                                            "velocity": 4.2
+                                        }
+                                    },
+                                    {
+                                        "type": "FollowPathPlannerPath",
+                                        "pathName": "Left Trench To Center Intake In",
+                                        "mirrorPath": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "FollowPathPlannerPath",
+                                "pathName": "Left Side Close 2nd Sweep Intake In",
+                                "mirrorPath": null
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.4,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StartShooting"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "FollowPathPlannerPath",
+                                "pathName": "Left Bump To Alliance",
+                                "mirrorPath": null
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Wait",
+                        "delay": {
+                            "value": 1,
+                            "unit": "Second"
+                        }
+                    },
+                    {
                         "type": "Sequence",
                         "actions": [
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
+                            },
                             {
                                 "type": "DeployIntakeAction"
                             },
@@ -460,12 +781,79 @@
                             {
                                 "type": "Wait",
                                 "delay": {
-                                    "value": 0.6,
+                                    "value": 0.2,
                                     "unit": "Second"
                                 }
                             },
                             {
                                 "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.2,
+                                    "unit": "Second"
+                                }
                             }
                         ]
                     }
