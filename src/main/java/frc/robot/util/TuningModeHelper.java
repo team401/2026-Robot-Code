@@ -255,6 +255,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         runClosedLoopPositionTuning();
       } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
         runClosedLoopVelocityTuning();
+      } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY_VOLTAGE) {
+        runClosedLoopVoltageTuning();
       }
     }
 
@@ -277,6 +279,16 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         leadMotorIO.controlToVelocityUnprofiled(targetVelocity);
       } else if (configuration.profileType == ProfileType.PROFILED) {
         leadMotorIO.controlToVelocityProfiled(targetVelocity);
+      }
+    }
+
+    private void runClosedLoopVoltageTuning() {
+      AngularVelocity targetVelocity = closedLoopVelocityTarget.get();
+
+      if (configuration.profileType == ProfileType.UNPROFILED) {
+        leadMotorIO.controlToVelocityUnprofiledVoltage(targetVelocity);
+      } else if (configuration.profileType == ProfileType.PROFILED) {
+        leadMotorIO.controlToVelocityProfiledVoltage(targetVelocity);
       }
     }
 
@@ -337,7 +349,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
   protected enum ClosedLoopType {
     POSITION,
-    VELOCITY
+    VELOCITY,
+    VELOCITY_VOLTAGE
   }
 
   protected enum ProfileType {
@@ -415,6 +428,12 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return this;
     }
 
+    public TunableMotorConfiguration withVoltageClosedLoopTuning() {
+      this.closedLoopType = ClosedLoopType.VELOCITY_VOLTAGE;
+      this.hasClosedLoopTuning = true;
+      return this;
+    }
+
     public TunableMotorConfiguration unprofiled() {
       this.profileType = ProfileType.UNPROFILED;
       return this;
@@ -486,7 +505,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     }
 
     private void validate() {
-      if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED) {
+      if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED ||
+          closedLoopType == ClosedLoopType.VELOCITY_VOLTAGE && profileType == ProfileType.EXPO_PROFILED) {
         throw new IllegalArgumentException(
             "Exponential profiling is not supported for velocity control.");
       }

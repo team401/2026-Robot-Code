@@ -92,7 +92,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     Supplier<TunableMotor> createTunableMotor =
         () ->
             TunableMotorConfiguration.defaultConfiguration()
-                .withVelocityTuning()
+                .withVoltageClosedLoopTuning()
                 .profiled()
                 .withDefaultMotionProfileConfig(
                     JsonConstants.indexerConstants.indexerMotionProfileConfig)
@@ -165,7 +165,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     if (targetVelocity.abs(RPM) < 5.0) {
       motor.controlBrake();
     } else {
-      motor.controlToVelocityProfiled(targetVelocity);
+      motor.controlToVelocityProfiledVoltage(targetVelocity);
     }
   }
 
