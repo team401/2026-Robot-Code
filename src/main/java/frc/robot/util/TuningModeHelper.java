@@ -173,7 +173,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
                   configuration.initialPositionSetpoint,
                   loggedUnit,
                   configuration.useUnitInLoggedTunablePaths);
-        } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY || configuration.closedLoopType == ClosedLoopType.VELOCITY_VOLTAGE) {
+        } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY
+            || configuration.closedLoopType == ClosedLoopType.VELOCITY_VOLTAGE) {
           AngularVelocityUnit loggedUnit = configuration.tunableAngularVelocityUnit;
           if (loggedUnit == null) {
             loggedUnit = configuration.initialVelocitySetpoint.unit();
