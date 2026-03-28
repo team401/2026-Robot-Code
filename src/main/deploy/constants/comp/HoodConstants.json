@@ -28,7 +28,7 @@
     "unit": "Degree"
   },
   "maxHoodAngle": {
-    "value": 58.99,
+    "value": 65.0,
     "unit": "Degree"
   },
   "hoodSetpointEpsilon": {

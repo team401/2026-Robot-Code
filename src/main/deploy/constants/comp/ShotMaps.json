@@ -549,7 +549,7 @@
       },
       "shooterRPM": 3100.0,
       "hoodAngle": {
-        "value": 70.0,
+        "value": 65.0,
         "unit": "Degree"
       },
       "flightTime": {
@@ -594,7 +594,7 @@
       },
       "shooterRPM": 3100.0,
       "hoodAngle": {
-        "value": 70.0,
+        "value": 65.0,
         "unit": "Degree"
       },
       "flightTime": {
