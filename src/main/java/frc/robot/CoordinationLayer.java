@@ -506,11 +506,11 @@ public class CoordinationLayer {
   }
 
   private void increaseRPM() {
-    rpmCompensation.setValue(rpmCompensation.getAsDouble() + 10);
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() + 20);
   }
 
   private void decreaseRPM() {
-    rpmCompensation.setValue(rpmCompensation.getAsDouble() - 10);
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() - 20);
   }
 
   private void boostIntakeRPM() {
