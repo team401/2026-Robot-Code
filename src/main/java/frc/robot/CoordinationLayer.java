@@ -800,6 +800,7 @@ public class CoordinationLayer {
                     && canPassPastNet
                     && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
                     && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
+                    && indexer.map(IndexerSubsystem::readyToShoot).orElse(false)
                     // When the turret isn't enabled, assume that it's been locked into the correct
                     // location for a manual mode shot if we ever have to run "no turret"
                     && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true)));
@@ -808,15 +809,12 @@ public class CoordinationLayer {
     if (canShoot) {
       hopper.ifPresent(
           hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
-      indexer.ifPresent(
-          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
       transferRoller.ifPresent(
           transferRoller ->
               transferRoller.setTargetVelocity(
                   JsonConstants.transferRollerConstants.transferRollerSpinningVelocity));
     } else {
       hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
-      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
       transferRoller.ifPresent(
           transferRoller -> transferRoller.setTargetVelocity(RadiansPerSecond.zero()));
     }
@@ -863,6 +861,11 @@ public class CoordinationLayer {
     // a ton of energy
     if (!shootingEnabled) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
+      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+    } else {
+      indexer.ifPresent(
+          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
+      
     }
 
     long endTimeUs = RobotController.getFPGATime();

@@ -24,6 +24,9 @@ import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
 import frc.robot.util.math.Lazy;
 import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class IndexerSubsystem extends MonitoredSubsystem {
@@ -178,6 +181,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     targetVelocity = velocity;
   }
 
+  @AutoLogOutput(key = "Indexer/readyToShoot")
   public boolean readyToShoot() {
     return getVelocity()
         .isNear(targetVelocity, JsonConstants.indexerConstants.indexerMaximumRelativeVelocityError);
