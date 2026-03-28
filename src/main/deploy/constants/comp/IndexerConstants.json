@@ -54,7 +54,7 @@
     "unit": "Amp"
   },
   "indexerStatorCurrentLimit": {
-    "value": 60.0,
+    "value": 120.0,
     "unit": "Amp"
   },
   "simIndexerMOI": {
