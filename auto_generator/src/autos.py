@@ -177,8 +177,7 @@ def _double_swipe_intake_in():
 
             cycle_intake(intake_cycle_time, intake_cycle_count)
 
-    # wait(1.0)
-
+    # wait(1.0),
     # Cycle 2
 
     autopilot(
