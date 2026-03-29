@@ -608,7 +608,7 @@
     "unit": "Second"
   },
   "rpmCompensation": {
-    "value": 230.0,
+    "value": 170.0,
     "unit": "Rotation per Minute"
   }
 }
