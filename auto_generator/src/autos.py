@@ -162,12 +162,16 @@ def _double_swipe_intake_in():
             startShooting()
         followPath(path_name="Left Bump To Alliance")
 
+    autopilot(
+        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+    )
+
     with parallel():
 
         # followPath(path_name="Turn 180")
 
         with sequence():
-            wait(1.0)
+            wait(3.0)
 
             cycle_intake(intake_cycle_time, intake_cycle_count)
 

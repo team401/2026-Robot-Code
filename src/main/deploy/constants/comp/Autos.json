@@ -518,6 +518,21 @@
                         ]
                     },
                     {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": -90
+                                },
+                                "translation": {
+                                    "x": 2.7,
+                                    "y": 5.75
+                                }
+                            },
+                            "velocity": 0.0
+                        }
+                    },
+                    {
                         "type": "Parallel",
                         "actions": [
                             {
@@ -526,7 +541,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 1.0,
+                                            "value": 3.0,
                                             "unit": "Second"
                                         }
                                     },
