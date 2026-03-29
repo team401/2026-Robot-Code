@@ -6,7 +6,7 @@
     "unit": "RPM"
   },
   "indexerGains": {
-    "kP": 0.0,
+    "kP": 1.0,
     "kI": 0.0,
     "kD": 0.0,
     "kS": 0.391588,
