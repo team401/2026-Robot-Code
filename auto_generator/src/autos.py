@@ -173,7 +173,9 @@ def _double_swipe_intake_in():
         # followPath(path_name="Turn 180")
 
         with sequence():
-            wait(3.0)
+            wait(1.0)
+
+            cycle_intake(intake_cycle_time, intake_cycle_count)
 
             cycle_intake(intake_cycle_time, intake_cycle_count)
 
@@ -213,3 +215,8 @@ def _double_swipe_intake_in():
     wait(1)
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    cycle_intake(intake_cycle_time, intake_cycle_count)
+    
