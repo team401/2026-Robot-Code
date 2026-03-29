@@ -24,8 +24,8 @@
   "turretKV": 1.0,
   "turretKG": 0.0,
   "turretKA": 2.0,
-  "turretExpoKV": 1.8,
-  "turretExpoKA": 1.8,
+  "turretExpoKV": 1.5,
+  "turretExpoKA": 1.5,
   "turretSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
@@ -44,7 +44,7 @@
     "unit": "Degree"
   },
   "maxTurretAngle": {
-    "value": 352.0,
+    "value": 350.5,
     "unit": "Degree"
   },
   "turretSetpointEpsilon": {
