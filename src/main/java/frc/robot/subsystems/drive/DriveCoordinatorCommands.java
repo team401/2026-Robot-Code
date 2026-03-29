@@ -87,7 +87,7 @@ public class DriveCoordinatorCommands extends Command {
       Logger.recordOutput("DriveCoordinator/AutoPilot/speeds", speeds);
 
       Logger.recordOutput("DriveCoordinator/AutoPilot/goalPose", target.getReference());
-      if (target.getEntryAngle() != null) {
+      if (target.getEntryAngle().isPresent()) {
         Logger.recordOutput(
             "DriveCoordinator/AutoPilot/entryAngle",
             new Pose2d(target.getReference().getTranslation(), target.getEntryAngle().get()));
