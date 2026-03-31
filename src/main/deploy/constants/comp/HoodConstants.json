@@ -4,7 +4,7 @@
     "value": 10.0,
     "unit": "Degree"
   },
-  "hoodKP": 6000.0,
+  "hoodKP": 4096.0,
   "hoodKI": 10.0,
   "hoodKD": 90.0,
   "hoodKS": 0.5,
