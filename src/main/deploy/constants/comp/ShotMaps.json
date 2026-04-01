@@ -604,7 +604,7 @@
     }
   ],
   "mechanismCompensationDelay": {
-    "value": 0.02,
+    "value": 0.0,
     "unit": "Second"
   },
   "rpmCompensation": {
