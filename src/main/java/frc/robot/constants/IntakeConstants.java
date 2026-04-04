@@ -154,10 +154,10 @@ public class IntakeConstants {
                 new FeedbackConfigs()
                     .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                     .withSensorToMechanismRatio(rollersReduction))
-            .withTorqueCurrent(
-                new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()))
-            .withMotionMagic(new MotionMagicConfigs()
-                .withMotionMagicAcceleration(RPM.of(1000).div(Seconds.of(1.0))));
+            .withTorqueCurrent(new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()))
+            .withMotionMagic(
+                new MotionMagicConfigs()
+                    .withMotionMagicAcceleration(RPM.of(6000).div(Seconds.of(1.0))));
     // Configure motor settings here
     return config;
   }
