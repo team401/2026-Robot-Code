@@ -17,10 +17,10 @@
     "value": 0.0,
     "unit": "Degree"
   },
-  "turretKP": 1024.0,
+  "turretKP": 3000.0,
   "turretKI": 0.0,
-  "turretKD": 80.0,
-  "turretKS": 4.0,
+  "turretKD": 140.0,
+  "turretKS": 2.0,
   "turretKV": 1.0,
   "turretKG": 0.0,
   "turretKA": 2.0,

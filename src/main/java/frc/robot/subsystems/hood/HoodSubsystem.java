@@ -455,8 +455,11 @@ public class HoodSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Hood/clampedGoalAngleRadians", goalAngle.in(Radians));
     // Use unprofiled position control because:
     // 1. We don't really risk breaking the mechanism by going too fast (aluminum gears)
-    // 2. The motion profile isn't actually active during shooting because closed loop reference doesn't react to the error caused by fuel going through, so we need good unprofiled PID gains anyway. 
-    // 3. When testing this, it actually performed better and overshot less with no profile than with a profile.
+    // 2. The motion profile isn't actually active during shooting because closed loop reference
+    // doesn't react to the error caused by fuel going through, so we need good unprofiled PID gains
+    // anyway.
+    // 3. When testing this, it actually performed better and overshot less with no profile than
+    // with a profile.
     motor.controlToPositionUnprofiled(clampedGoalAngle);
   }
 
