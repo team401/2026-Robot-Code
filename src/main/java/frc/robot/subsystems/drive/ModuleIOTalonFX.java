@@ -110,7 +110,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveTalon = new TalonFX(constants.DriveMotorId, JsonConstants.robotInfo.CANBus);
     turnTalon = new TalonFX(constants.SteerMotorId, JsonConstants.robotInfo.CANBus);
     cancoder = new CANcoder(constants.EncoderId, JsonConstants.robotInfo.CANBus);
-    statorCurrentLimit = Current.ofRelativeUnits(constants.SlipCurrent, Amps);
+    
+    statorCurrentLimit = Amps.of(constants.SlipCurrent);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
