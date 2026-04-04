@@ -453,7 +453,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
     Angle clampedGoalAngle =
         UnitUtils.clampMeasure(goalAngle, JsonConstants.hoodConstants.minHoodAngle, maxAngle);
     Logger.recordOutput("Hood/clampedGoalAngleRadians", goalAngle.in(Radians));
-    motor.controlToPositionExpoProfiled(clampedGoalAngle);
+    motor.controlToPositionUnprofiled(clampedGoalAngle);
   }
 
   /**
