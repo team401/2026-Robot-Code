@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.Amps;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -71,6 +72,9 @@ public class ModuleIOTalonFX implements ModuleIO {
   // Timestamp inputs from Phoenix thread
   private final Queue<Double> timestampQueue;
 
+  // Current Limits -- used when changing supply current limit
+  private final Current statorCurrentLimit;
+
   // Inputs from drive motor
   private final StatusSignal<Angle> drivePosition;
   private final Queue<Double> drivePositionQueue;
@@ -106,6 +110,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveTalon = new TalonFX(constants.DriveMotorId, JsonConstants.robotInfo.CANBus);
     turnTalon = new TalonFX(constants.SteerMotorId, JsonConstants.robotInfo.CANBus);
     cancoder = new CANcoder(constants.EncoderId, JsonConstants.robotInfo.CANBus);
+    statorCurrentLimit = Current.ofRelativeUnits(constants.SlipCurrent, Amps);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -296,14 +301,16 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   public void setSupplyCurrentLimit(Current limit) {
     tryUntilOk(
-        2,
+        5,
         () ->
             driveTalon
                 .getConfigurator()
                 .apply(
                     new CurrentLimitsConfigs()
+                        .withStatorCurrentLimit(statorCurrentLimit)
+                        .withStatorCurrentLimitEnable(true)
                         .withSupplyCurrentLimit(limit)
                         .withSupplyCurrentLimitEnable(true),
-                    0.2));
+                    0.0));
   }
 }

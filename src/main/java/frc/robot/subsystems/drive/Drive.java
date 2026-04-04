@@ -461,8 +461,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   }
 
   /**
-   * This sets the supply current limit of all of the swerve modules. This causes a blocking
-   * operation, do not call in robot periodic.
+   * This sets the supply current limit of all of the swerve modules.
    *
    * @param limit the new current supply limit for the swerves
    */
