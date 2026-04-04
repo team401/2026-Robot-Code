@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
@@ -154,7 +155,9 @@ public class IntakeConstants {
                     .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                     .withSensorToMechanismRatio(rollersReduction))
             .withTorqueCurrent(
-                new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()));
+                new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()))
+            .withMotionMagic(new MotionMagicConfigs()
+                .withMotionMagicAcceleration(RPM.of(1000).div(Seconds.of(1.0))));
     // Configure motor settings here
     return config;
   }
