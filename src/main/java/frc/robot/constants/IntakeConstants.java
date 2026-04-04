@@ -138,7 +138,10 @@ public class IntakeConstants {
   public TalonFXConfiguration buildRollersTalonFXMotorConfig() {
     TalonFXConfiguration config =
         new TalonFXConfiguration()
-            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake).withNeutralMode(NeutralModeValue.Coast))
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withNeutralMode(NeutralModeValue.Coast))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withSupplyCurrentLimit(rollersSupplyCurrentLimit)
@@ -150,8 +153,8 @@ public class IntakeConstants {
                 new FeedbackConfigs()
                     .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                     .withSensorToMechanismRatio(rollersReduction))
-            .withTorqueCurrent(new TorqueCurrentConfigs()
-                .withPeakReverseTorqueCurrent(Amps.zero()));
+            .withTorqueCurrent(
+                new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()));
     // Configure motor settings here
     return config;
   }
