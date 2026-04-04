@@ -27,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -456,6 +457,18 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     JsonConstants.driveConstants.driveGains = gains;
     for (var module : modules) {
       module.setDriveGains(gains);
+    }
+  }
+
+  /**
+   * This sets the supply current limit of all of the swerve modules. This causes a blocking
+   * operation, do not call in robot periodic.
+   *
+   * @param limit the new current supply limit for the swerves
+   */
+  public void setSupplyCurrentLimit(Current limit) {
+    for (var module : modules) {
+      module.setSupplyCurrentLimit(limit);
     }
   }
 }

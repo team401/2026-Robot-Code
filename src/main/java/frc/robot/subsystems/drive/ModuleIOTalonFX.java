@@ -7,11 +7,12 @@
 
 package frc.robot.subsystems.drive;
 
-import static frc.robot.util.PhoenixUtil.*;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -291,5 +292,18 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnTalon
         .getConfigurator()
         .apply(gains.applyToSlot0Config(JsonConstants.physicalDriveConstants.steerGains.clone()));
+  }
+
+  public void setSupplyCurrentLimit(Current limit) {
+    tryUntilOk(
+        2,
+        () ->
+            driveTalon
+                .getConfigurator()
+                .apply(
+                    new CurrentLimitsConfigs()
+                        .withSupplyCurrentLimit(limit)
+                        .withSupplyCurrentLimitEnable(true),
+                    0.2));
   }
 }
