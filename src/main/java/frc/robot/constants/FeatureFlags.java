@@ -24,7 +24,7 @@ public class FeatureFlags {
   public final Boolean useHomingSwitch = false;
   public final Boolean useTuningServer = false;
   public final Boolean pretendCamerasAreMobile = false;
-  @JSONExclude public static final Boolean usePhoenixDiagnosticServer = true;
+  @JSONExclude public static final Boolean usePhoenixDiagnosticServer = false;
   public final Boolean logPeriodicTiming = false;
 
   /** Print the current state of the feature flags and writes them to the log */
