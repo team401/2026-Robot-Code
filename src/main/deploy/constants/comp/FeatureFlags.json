@@ -11,7 +11,7 @@
   "runClimber": false,
   "runTransferRoller": false,
   "useHomingSwitch": true,
-  "useTuningServer": false,
+  "useTuningServer": true,
   "pretendCamerasAreMobile": false,
   "logPeriodicTiming": true
 }
