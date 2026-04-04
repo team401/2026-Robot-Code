@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -137,7 +138,7 @@ public class IntakeConstants {
   public TalonFXConfiguration buildRollersTalonFXMotorConfig() {
     TalonFXConfiguration config =
         new TalonFXConfiguration()
-            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
+            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake).withNeutralMode(NeutralModeValue.Coast))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withSupplyCurrentLimit(rollersSupplyCurrentLimit)
@@ -148,7 +149,9 @@ public class IntakeConstants {
             .withFeedback(
                 new FeedbackConfigs()
                     .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                    .withSensorToMechanismRatio(rollersReduction));
+                    .withSensorToMechanismRatio(rollersReduction))
+            .withTorqueCurrent(new TorqueCurrentConfigs()
+                .withPeakReverseTorqueCurrent(Amps.zero()));
     // Configure motor settings here
     return config;
   }
