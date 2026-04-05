@@ -7,7 +7,7 @@
 
 package frc.robot.subsystems.drive;
 
-import static coppercore.wpilib_interface.CTREUtil.*;
+import static coppercore.wpilib_interface.CTREUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -313,24 +313,25 @@ public class ModuleIOTalonFX implements ModuleIO {
   }
 
   public void setSupplyCurrentLimit(Current limit) {
-    boolean success = ServiceThread.defaultServiceThread.queueCommand(
-        () -> {
-          tryUntilOk(
-              () ->
-                  driveTalon
-                      .getConfigurator()
-                      .apply( // Use default timeout
-                          currentLimits
-                              .withSupplyCurrentLimit(limit)
-                              .withSupplyCurrentLimitEnable(true)),
-              5,
-              driveTalonCANDeviceID,
-              (_tmp) -> {
-                System.err.println("Failed to set supply current limit to " + limit);
-              });
-        });
+    boolean success =
+        ServiceThread.defaultServiceThread.queueCommand(
+            () -> {
+              tryUntilOk(
+                  () ->
+                      driveTalon
+                          .getConfigurator()
+                          .apply( // Use default timeout
+                              currentLimits
+                                  .withSupplyCurrentLimit(limit)
+                                  .withSupplyCurrentLimitEnable(true)),
+                  5,
+                  driveTalonCANDeviceID,
+                  (_tmp) -> {
+                    System.err.println("Failed to set supply current limit to " + limit);
+                  });
+            });
     if (!success) {
-        System.err.println("Failed to queue command to default service thread");
+      System.err.println("Failed to queue command to default service thread");
     }
   }
 }
