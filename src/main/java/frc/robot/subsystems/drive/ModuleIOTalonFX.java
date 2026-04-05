@@ -313,7 +313,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   }
 
   public void setSupplyCurrentLimit(Current limit) {
-    ServiceThread.defaultServiceThread.queueCommand(
+    boolean success = ServiceThread.defaultServiceThread.queueCommand(
         () -> {
           tryUntilOk(
               () ->
@@ -329,5 +329,8 @@ public class ModuleIOTalonFX implements ModuleIO {
                 System.err.println("Failed to set supply current limit to " + limit);
               });
         });
+    if (!success) {
+        System.err.println("Failed to queue command to default service thread");
+    }
   }
 }

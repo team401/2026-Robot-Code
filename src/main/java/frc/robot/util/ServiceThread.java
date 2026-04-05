@@ -7,9 +7,18 @@ public class ServiceThread {
   private final BlockingQueue<Runnable> queue;
   private final Thread thread;
   private static final Runnable stopCommand = () -> {};
+  
+  /**
+   * Default Service Thread with queue max of 100 commands.
+   */
   public static ServiceThread defaultServiceThread =
-      new ServiceThread("Default Service Thread", 10);
+      new ServiceThread("Default Service Thread", 100);
 
+  /**
+   * Creates a new Service thread.
+   * @param name name of the thread
+   * @param len maximum amount of commands that can be queued at once
+   */
   public ServiceThread(String name, int len) {
     queue = new ArrayBlockingQueue<>(len);
     thread =
@@ -33,10 +42,18 @@ public class ServiceThread {
     thread.start();
   }
 
-  public void queueCommand(Runnable cmd) {
-    queue.add(cmd);
+  /**
+   * Adds a command to the queue of the service thread.
+   * @param cmd the runnable that is queued
+   * @return true if adding the command was successful (did not exceed queue capacity)
+   */
+  public boolean queueCommand(Runnable cmd) {
+    return queue.offer(cmd);
   }
 
+  /**
+   * Stops the current service thread.
+   */
   public void shutdown() {
     queueCommand(stopCommand);
     try {
