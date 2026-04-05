@@ -14,6 +14,7 @@ from .shorthands import (
     autopilot,
     climb_hang,
     climb_search,
+    pose2d,
     rotation2d,
     wait,
     x_based_autopilot,
@@ -71,6 +72,23 @@ def go_to_center_under_left_trench_from_alliance(velocity = Constants.default_tr
         #     entry_angle=second_entry_angle
         # )
         AutoAction.FollowPathPlannerPath(path_name="Left Trench To Center").add()
+
+def go_to_center_under_left_trench_from_alliance_intake_in(velocity = Constants.default_trench_velocity, rotation = rotation2d(-90), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
+    transform = AutoAction.Transform2d(
+        rotation=rotation,
+    )
+    with sequence():
+        x_based_autopilot(
+            target_pose=pose2d(4.0, 7.55, -90),
+            velocity=velocity,
+            entry_angle=first_entry_angle
+        )
+        # x_based_autopilot(
+        #     target_pose=Constants.left_trench_center_side_pose.transform_by(transform),
+        #     velocity=velocity,
+        #     entry_angle=second_entry_angle
+        # )
+        AutoAction.FollowPathPlannerPath(path_name="Left Trench To Center Intake In").add()
 
 def go_to_center_under_right_trench_from_alliance(velocity = Constants.default_trench_velocity, rotation = rotation2d(0), first_entry_angle = rotation2d(0), second_entry_angle = rotation2d(0)):
     transform = AutoAction.Transform2d(

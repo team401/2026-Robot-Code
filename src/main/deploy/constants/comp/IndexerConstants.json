@@ -1,17 +1,17 @@
 {
   "indexerReduction": 1.0,
-  "indexerMaximumRelativeVelocityError": 0.01,
+  "indexerMaximumRelativeVelocityError": 0.1,
   "indexingVelocity": {
-    "value": 5800,
+    "value": 3170,
     "unit": "RPM"
   },
   "indexerGains": {
-    "kP": 70.0,
-    "kI": 5.0,
+    "kP": 1.0,
+    "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.0,
+    "kS": 0.391588,
     "kG": 0.0,
-    "kV": 0.0,
+    "kV": 0.120593,
     "kA": 0.0
   },
   "indexerMotionProfileConfig": {
@@ -54,7 +54,7 @@
     "unit": "Amp"
   },
   "indexerStatorCurrentLimit": {
-    "value": 60.0,
+    "value": 120.0,
     "unit": "Amp"
   },
   "simIndexerMOI": {

@@ -163,8 +163,8 @@ public class ShotMaps {
   private ShotMapDataPoint[] addDataPointToArray(
       ShotMapDataPoint newDataPoint, ShotMapDataPoint[] dataPoints) {
     int n = dataPoints.length;
-    ShotMapDataPoint[] newDataPoints = new ShotMapDataPoint[n];
-    System.arraycopy(hubDataPoints, 0, newDataPoints, 0, n);
+    ShotMapDataPoint[] newDataPoints = new ShotMapDataPoint[n + 1];
+    System.arraycopy(dataPoints, 0, newDataPoints, 0, n);
     newDataPoints[n] = newDataPoint;
     Arrays.sort(newDataPoints, Comparator.comparing(dataPoint -> dataPoint.distance().in(Meters)));
     return newDataPoints;

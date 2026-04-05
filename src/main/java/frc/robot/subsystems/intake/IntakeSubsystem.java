@@ -172,7 +172,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   }
 
   public void runRollers(AngularVelocity rollerSpeed) {
-    rollersLeadMotorIO.controlToVelocityUnprofiled(rollerSpeed);
+    rollersLeadMotorIO.controlToVelocityProfiled(rollerSpeed);
   }
 
   public void stopRollers() {

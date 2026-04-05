@@ -12,8 +12,10 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -28,6 +30,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -86,6 +89,8 @@ public class IntakeConstants {
   public final Current rollersStatorCurrentLimit = Amps.of(40.0);
   public final Current rollersSupplyCurrentLimit = Amps.of(40.0);
 
+  public final AngularAcceleration rollersMaxAcceleration = RPM.of(6000).div(Seconds.of(1.0));
+
   public MechanismConfig buildPivotMechanismConfig() {
     return MechanismConfig.builder()
         .withName("Intake/Pivot")
@@ -137,7 +142,7 @@ public class IntakeConstants {
   public TalonFXConfiguration buildRollersTalonFXMotorConfig() {
     TalonFXConfiguration config =
         new TalonFXConfiguration()
-            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
+            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withSupplyCurrentLimit(rollersSupplyCurrentLimit)
@@ -148,7 +153,10 @@ public class IntakeConstants {
             .withFeedback(
                 new FeedbackConfigs()
                     .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                    .withSensorToMechanismRatio(rollersReduction));
+                    .withSensorToMechanismRatio(rollersReduction))
+            .withTorqueCurrent(new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()))
+            .withMotionMagic(
+                new MotionMagicConfigs().withMotionMagicAcceleration(rollersMaxAcceleration));
     // Configure motor settings here
     return config;
   }

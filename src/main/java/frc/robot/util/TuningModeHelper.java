@@ -173,7 +173,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
                   configuration.initialPositionSetpoint,
                   loggedUnit,
                   configuration.useUnitInLoggedTunablePaths);
-        } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
+        } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY
+            || configuration.closedLoopType == ClosedLoopType.VELOCITY_VOLTAGE) {
           AngularVelocityUnit loggedUnit = configuration.tunableAngularVelocityUnit;
           if (loggedUnit == null) {
             loggedUnit = configuration.initialVelocitySetpoint.unit();
@@ -255,6 +256,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         runClosedLoopPositionTuning();
       } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY) {
         runClosedLoopVelocityTuning();
+      } else if (configuration.closedLoopType == ClosedLoopType.VELOCITY_VOLTAGE) {
+        runClosedLoopVoltageTuning();
       }
     }
 
@@ -277,6 +280,23 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
         leadMotorIO.controlToVelocityUnprofiled(targetVelocity);
       } else if (configuration.profileType == ProfileType.PROFILED) {
         leadMotorIO.controlToVelocityProfiled(targetVelocity);
+      }
+    }
+
+    private void runClosedLoopVoltageTuning() {
+      AngularVelocity targetVelocity = closedLoopVelocityTarget.get();
+
+      switch (configuration.profileType) {
+        case UNPROFILED -> {
+          leadMotorIO.controlToVelocityUnprofiledVoltage(targetVelocity);
+        }
+        case PROFILED -> {
+          leadMotorIO.controlToVelocityProfiledVoltage(targetVelocity);
+        }
+        case EXPO_PROFILED -> {
+          throw new IllegalArgumentException(
+              "Velocity systems do not support exponential profiles");
+        }
       }
     }
 
@@ -337,7 +357,8 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
 
   protected enum ClosedLoopType {
     POSITION,
-    VELOCITY
+    VELOCITY,
+    VELOCITY_VOLTAGE
   }
 
   protected enum ProfileType {
@@ -415,6 +436,12 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
       return this;
     }
 
+    public TunableMotorConfiguration withVoltageClosedLoopTuning() {
+      this.closedLoopType = ClosedLoopType.VELOCITY_VOLTAGE;
+      this.hasClosedLoopTuning = true;
+      return this;
+    }
+
     public TunableMotorConfiguration unprofiled() {
       this.profileType = ProfileType.UNPROFILED;
       return this;
@@ -486,7 +513,9 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     }
 
     private void validate() {
-      if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED) {
+      if (closedLoopType == ClosedLoopType.VELOCITY && profileType == ProfileType.EXPO_PROFILED
+          || closedLoopType == ClosedLoopType.VELOCITY_VOLTAGE
+              && profileType == ProfileType.EXPO_PROFILED) {
         throw new IllegalArgumentException(
             "Exponential profiling is not supported for velocity control.");
       }
