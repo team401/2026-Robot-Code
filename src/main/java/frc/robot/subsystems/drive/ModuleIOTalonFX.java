@@ -7,7 +7,6 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Amps;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -73,7 +72,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final Queue<Double> timestampQueue;
 
   // Current Limits -- used when changing supply current limit
-  private final Current statorCurrentLimit;
+  private final CurrentLimitsConfigs currentLimits;
 
   // Inputs from drive motor
   private final StatusSignal<Angle> drivePosition;
@@ -110,8 +109,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveTalon = new TalonFX(constants.DriveMotorId, JsonConstants.robotInfo.CANBus);
     turnTalon = new TalonFX(constants.SteerMotorId, JsonConstants.robotInfo.CANBus);
     cancoder = new CANcoder(constants.EncoderId, JsonConstants.robotInfo.CANBus);
-    
-    statorCurrentLimit = Amps.of(constants.SlipCurrent);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -122,6 +119,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
     driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    currentLimits = driveConfig.CurrentLimits;
     driveConfig.MotorOutput.Inverted =
         constants.DriveMotorInverted
             ? InvertedValue.Clockwise_Positive
@@ -307,11 +305,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             driveTalon
                 .getConfigurator()
                 .apply(
-                    new CurrentLimitsConfigs()
-                        .withStatorCurrentLimit(statorCurrentLimit)
-                        .withStatorCurrentLimitEnable(true)
-                        .withSupplyCurrentLimit(limit)
-                        .withSupplyCurrentLimitEnable(true),
+                    currentLimits.withSupplyCurrentLimit(limit).withSupplyCurrentLimitEnable(true),
                     0.0));
   }
 }
