@@ -895,10 +895,12 @@ public class CoordinationLayer {
             JsonConstants.shotMaps.passingMap.rpmByDistanceMeters().get(distanceMeters);
         shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
 
-        Rotation2d turretHeading =
-            AllianceUtil.isRed()
-                ? JsonConstants.manualModeConstants.redHubHeading
-                : JsonConstants.manualModeConstants.blueHubHeading;
+        // Command the turret to follow the drivetrain's current heading.
+        // This serves 2 purposes:
+        // #1 - Gives the driver the ability to aim in manual mode, regardless of gyro functionality
+        // #2 - Stops us from tearing a hole in the net when we stow the intake by allowing the
+        // turret to be "disabled" by entering manual mode. Since the turret is held at a fixed
+        // angle relative to the robot, it won't move and won't tear the net.
         turret.ifPresent(turret -> turret.targetGoalHeading(drive.getRotation()));
       }
       case Pass -> {
