@@ -286,10 +286,17 @@ public class TuningModeHelper<TestModeEnum extends Enum<TestModeEnum> & TestMode
     private void runClosedLoopVoltageTuning() {
       AngularVelocity targetVelocity = closedLoopVelocityTarget.get();
 
-      if (configuration.profileType == ProfileType.UNPROFILED) {
-        leadMotorIO.controlToVelocityUnprofiledVoltage(targetVelocity);
-      } else if (configuration.profileType == ProfileType.PROFILED) {
-        leadMotorIO.controlToVelocityProfiledVoltage(targetVelocity);
+      switch (configuration.profileType) {
+        case UNPROFILED -> {
+          leadMotorIO.controlToVelocityUnprofiledVoltage(targetVelocity);
+        }
+        case PROFILED -> {
+          leadMotorIO.controlToVelocityProfiledVoltage(targetVelocity);
+        }
+        case EXPO_PROFILED -> {
+          throw new IllegalArgumentException(
+              "Velocity systems do not support exponential profiles");
+        }
       }
     }
 
