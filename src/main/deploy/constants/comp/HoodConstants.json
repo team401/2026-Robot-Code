@@ -4,15 +4,15 @@
     "value": 10.0,
     "unit": "Degree"
   },
-  "hoodKP": 512.0,
-  "hoodKI": 10.0,
-  "hoodKD": 5.0,
-  "hoodKS": 1.2,
+  "hoodKP": 6500.0,
+  "hoodKI": 50.0,
+  "hoodKD": 90.0,
+  "hoodKS": 0.3,
   "hoodKG": 3.0,
-  "hoodKV": 0.5,
+  "hoodKV": 0.0,
   "hoodKA": 0.0,
-  "hoodExpoKV": 0.5,
-  "hoodExpoKA": 0.5,
+  "hoodExpoKV": 0.1,
+  "hoodExpoKA": 0.1,
   "hoodReduction": 20.0,
   "hoodSupplyCurrentLimit": {
     "value": 60.0,
@@ -28,7 +28,7 @@
     "unit": "Degree"
   },
   "maxHoodAngle": {
-    "value": 58.99,
+    "value": 65.0,
     "unit": "Degree"
   },
   "hoodSetpointEpsilon": {

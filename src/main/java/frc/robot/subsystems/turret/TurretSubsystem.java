@@ -336,8 +336,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
             turretExpoKV.get(),
             turretExpoKA.get());
 
-        motor.controlToPositionExpoProfiled(
-            Degrees.of(turretTuningSetpointDegrees.get().getAsDouble()));
+        controlToTurretCentricPosition(Degrees.of(turretTuningSetpointDegrees.get().getAsDouble()));
       }
       case TurretCurrentTuning -> {
         motor.controlOpenLoopCurrent(Amps.of(turretTuningAmps.get().getAsDouble()));
@@ -431,7 +430,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
             JsonConstants.turretConstants.maxTurretAngle);
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    motor.controlToPositionExpoProfiled(clampedGoalAngle);
+    motor.controlToPositionUnprofiled(clampedGoalAngle);
   }
 
   /**

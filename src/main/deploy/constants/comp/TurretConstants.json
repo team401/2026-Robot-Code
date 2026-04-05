@@ -17,15 +17,15 @@
     "value": 0.0,
     "unit": "Degree"
   },
-  "turretKP": 1024.0,
+  "turretKP": 3000.0,
   "turretKI": 0.0,
-  "turretKD": 80.0,
-  "turretKS": 4.0,
+  "turretKD": 140.0,
+  "turretKS": 2.0,
   "turretKV": 1.0,
   "turretKG": 0.0,
   "turretKA": 2.0,
-  "turretExpoKV": 1.8,
-  "turretExpoKA": 1.8,
+  "turretExpoKV": 1.5,
+  "turretExpoKA": 1.5,
   "turretSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
@@ -44,7 +44,7 @@
     "unit": "Degree"
   },
   "maxTurretAngle": {
-    "value": 352.0,
+    "value": 350.5,
     "unit": "Degree"
   },
   "turretSetpointEpsilon": {
@@ -56,7 +56,7 @@
     "unit": "Degree"
   },
   "headingToTurretAngle": {
-    "value": 41.5,
+    "value": 40.5,
     "unit": "Degree"
   }
 }

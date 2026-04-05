@@ -506,11 +506,11 @@ public class CoordinationLayer {
   }
 
   private void increaseRPM() {
-    rpmCompensation.setValue(rpmCompensation.getAsDouble() + 10);
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() + 20);
   }
 
   private void decreaseRPM() {
-    rpmCompensation.setValue(rpmCompensation.getAsDouble() - 10);
+    rpmCompensation.setValue(rpmCompensation.getAsDouble() - 20);
   }
 
   private void boostIntakeRPM() {
@@ -800,6 +800,7 @@ public class CoordinationLayer {
                     && canPassPastNet
                     && shooter.map(shooter -> shooter.isAtGoalVelocity(shotMode)).orElse(false)
                     && hood.map(hood -> hood.isAimedCorrectly(shotMode)).orElse(false)
+                    && indexer.map(IndexerSubsystem::readyToShoot).orElse(false)
                     // When the turret isn't enabled, assume that it's been locked into the correct
                     // location for a manual mode shot if we ever have to run "no turret"
                     && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true)));
@@ -808,15 +809,12 @@ public class CoordinationLayer {
     if (canShoot) {
       hopper.ifPresent(
           hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
-      indexer.ifPresent(
-          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
       transferRoller.ifPresent(
           transferRoller ->
               transferRoller.setTargetVelocity(
                   JsonConstants.transferRollerConstants.transferRollerSpinningVelocity));
     } else {
       hopper.ifPresent(hopper -> hopper.setTargetVelocity(RPM.zero()));
-      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
       transferRoller.ifPresent(
           transferRoller -> transferRoller.setTargetVelocity(RadiansPerSecond.zero()));
     }
@@ -834,7 +832,7 @@ public class CoordinationLayer {
             // If the drivetrain doesn't exist, we won't shoot. Not sure when this would ever come
             // into play. If this ever becomes an outreach bot, this will need to change.
             case Smart -> drive.map(this::runShotCalculatorWithDrive).orElse(false);
-            case Manual -> aimForManualShot();
+            case Manual -> drive.map(this::aimForManualShot).orElse(false);
           };
     }
     long shotCalculationEndTimeUs = RobotController.getFPGATime();
@@ -863,6 +861,10 @@ public class CoordinationLayer {
     // a ton of energy
     if (!shootingEnabled) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
+      indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
+    } else {
+      indexer.ifPresent(
+          indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
     }
 
     long endTimeUs = RobotController.getFPGATime();
@@ -877,7 +879,7 @@ public class CoordinationLayer {
    *
    * @return {@code true} to indicate that this shot is "real"
    */
-  private boolean aimForManualShot() {
+  private boolean aimForManualShot(Drive drive) {
     switch (shotMode) {
       case Hub -> {
         double distanceMeters = JsonConstants.manualModeConstants.assumedHubDistance.in(Meters);
@@ -893,11 +895,13 @@ public class CoordinationLayer {
             JsonConstants.shotMaps.passingMap.rpmByDistanceMeters().get(distanceMeters);
         shooter.ifPresent(shooter -> shooter.setTargetVelocityRPM(shooterRPM));
 
-        Rotation2d turretHeading =
-            AllianceUtil.isRed()
-                ? JsonConstants.manualModeConstants.redHubHeading
-                : JsonConstants.manualModeConstants.blueHubHeading;
-        turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
+        // Command the turret to follow the drivetrain's current heading.
+        // This serves 2 purposes:
+        // #1 - Gives the driver the ability to aim in manual mode, regardless of gyro functionality
+        // #2 - Stops us from tearing a hole in the net when we stow the intake by allowing the
+        // turret to be "disabled" by entering manual mode. Since the turret is held at a fixed
+        // angle relative to the robot, it won't move and won't tear the net.
+        turret.ifPresent(turret -> turret.targetGoalHeading(drive.getRotation()));
       }
       case Pass -> {
         double distanceMeters = JsonConstants.manualModeConstants.assumedPassDistance.in(Meters);
@@ -920,7 +924,7 @@ public class CoordinationLayer {
             AllianceUtil.isRed()
                 ? JsonConstants.manualModeConstants.redPassHeading
                 : JsonConstants.manualModeConstants.bluePassHeading;
-        turret.ifPresent(turret -> turret.targetGoalHeading(turretHeading));
+        turret.ifPresent(turret -> turret.targetGoalHeading(drive.getRotation()));
       }
     }
 

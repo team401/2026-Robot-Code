@@ -164,7 +164,9 @@ public class RobotContainer {
           autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         });
 
-    loadAutoCommands();
+    if (drive.isPresent()) {
+      loadAutoCommands();
+    }
 
     // Configure the button bindings
     configureButtonBindings();

@@ -1,0 +1,149 @@
+[
+  {
+    "id": "2178a6be-6873-46de-86bc-fa3ce2834969",
+    "createdAt": "2026-04-04T22:56:25.815Z",
+    "distanceMeters": 1.4978887794247184,
+    "distanceToHubMeters": 1.4981372635377137,
+    "sampleDistanceMeters": 1.4981372635377137,
+    "distanceSource": "networkTables",
+    "targetCoordinates": {
+      "x": 11.894744,
+      "y": 4.0215
+    },
+    "shooterRPM": 1900,
+    "hoodAngleDegrees": 14,
+    "robotPoseX": 13.371717952566645,
+    "robotPoseY": 4.632363388728029,
+    "leavesShooterTimeSec": 3.533315,
+    "hitTargetTimeSec": 4.633302,
+    "flightTimeSec": 1.0999869999999996,
+    "exportedToShotMap": "hub",
+    "fps": 30
+  },
+  {
+    "id": "d41bf46e-ef0e-4909-a09b-9138717f2e50",
+    "createdAt": "2026-04-04T23:00:53.108Z",
+    "distanceMeters": 1.8326100139873878,
+    "distanceToHubMeters": 1.8336994287905786,
+    "sampleDistanceMeters": 1.8336994287905786,
+    "distanceSource": "networkTables",
+    "targetCoordinates": {
+      "x": 11.894744,
+      "y": 4.0215
+    },
+    "shooterRPM": 2000,
+    "hoodAngleDegrees": 24,
+    "robotPoseX": 13.647304526282284,
+    "robotPoseY": 4.980400210137082,
+    "leavesShooterTimeSec": 1.333318,
+    "hitTargetTimeSec": 2.366636,
+    "flightTimeSec": 1.0333180000000002,
+    "exportedToShotMap": "hub",
+    "fps": 30
+  },
+  {
+    "id": "fd7e0572-29ce-4dd0-afe4-6c21559cd5b9",
+    "createdAt": "2026-04-04T23:13:47.644Z",
+    "distanceMeters": 2.4581914526621262,
+    "distanceToHubMeters": 2.4581916358981712,
+    "sampleDistanceMeters": 2.4581916358981712,
+    "distanceSource": "networkTables",
+    "targetCoordinates": {
+      "x": 11.894744,
+      "y": 4.0215
+    },
+    "shooterRPM": 2250,
+    "hoodAngleDegrees": 29,
+    "robotPoseX": 14.27313511928529,
+    "robotPoseY": 4.8930506647318595,
+    "leavesShooterTimeSec": 22.387,
+    "hitTargetTimeSec": 23.66699,
+    "flightTimeSec": 1.279989999999998,
+    "exportedToShotMap": "hub",
+    "fps": 50
+  },
+  {
+    "id": "19c025cd-a2af-4369-a0ba-3dc64207d807",
+    "createdAt": "2026-04-04T23:38:21.200Z",
+    "distanceMeters": 2.9912737585481586,
+    "distanceToHubMeters": 2.9933693623284716,
+    "sampleDistanceMeters": 2.9933693623284716,
+    "distanceSource": "networkTables",
+    "targetCoordinates": {
+      "x": 11.894744,
+      "y": 4.0215
+    },
+    "shooterRPM": 2450,
+    "hoodAngleDegrees": 33,
+    "robotPoseX": 14.655257071092738,
+    "robotPoseY": 5.3810653691469765,
+    "leavesShooterTimeSec": 1.966656,
+    "hitTargetTimeSec": 3.099977,
+    "flightTimeSec": 1.133321,
+    "exportedToShotMap": "hub",
+    "fps": 30
+  },
+  {
+    "id": "a11cdd47-d869-4264-9854-53c929c550aa",
+    "createdAt": "2026-04-04T23:45:13.282Z",
+    "distanceMeters": 3.3388773721530525,
+    "distanceToHubMeters": 3.338801984949784,
+    "sampleDistanceMeters": 3.338801984949784,
+    "distanceSource": "networkTables",
+    "targetCoordinates": {
+      "x": 11.894744,
+      "y": 4.0215
+    },
+    "shooterRPM": 2575,
+    "hoodAngleDegrees": 37.5,
+    "robotPoseX": 14.00525855359118,
+    "robotPoseY": 1.2924633921151978,
+    "leavesShooterTimeSec": 1.579991,
+    "hitTargetTimeSec": 2.719991,
+    "flightTimeSec": 1.14,
+    "exportedToShotMap": "hub",
+    "fps": 50
+  },
+  {
+    "id": "a56efe7c-2d60-4a58-9923-114c363e78a0",
+    "createdAt": "2026-04-04T23:49:12.884Z",
+    "distanceMeters": 3.7756749143378827,
+    "distanceToHubMeters": 3.775729261681695,
+    "sampleDistanceMeters": 3.775729261681695,
+    "distanceSource": "networkTables",
+    "targetCoordinates": {
+      "x": 11.894744,
+      "y": 4.0215
+    },
+    "shooterRPM": 2700,
+    "hoodAngleDegrees": 39,
+    "robotPoseX": 14.757959916883161,
+    "robotPoseY": 1.4299720598921122,
+    "leavesShooterTimeSec": 2.279998,
+    "hitTargetTimeSec": 3.399998,
+    "flightTimeSec": 1.12,
+    "exportedToShotMap": "hub",
+    "fps": 50
+  },
+  {
+    "id": "d69f2837-a6f3-4fd5-a98b-6e98fd42e624",
+    "createdAt": "2026-04-04T23:53:30.108Z",
+    "distanceMeters": 3.7690355127667425,
+    "distanceToHubMeters": 3.7676054345546786,
+    "sampleDistanceMeters": 3.7676054345546786,
+    "distanceSource": "networkTables",
+    "targetCoordinates": {
+      "x": 11.894744,
+      "y": 4.0215
+    },
+    "shooterRPM": 2700,
+    "hoodAngleDegrees": 39,
+    "robotPoseX": 14.740286082800806,
+    "robotPoseY": 1.4201846829137892,
+    "leavesShooterTimeSec": 1.499999,
+    "hitTargetTimeSec": 2.719997,
+    "flightTimeSec": 1.2199980000000001,
+    "exportedToShotMap": "hub",
+    "fps": 50
+  }
+]
