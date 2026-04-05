@@ -7,8 +7,6 @@
 
 package frc.robot.subsystems.drive;
 
-import static coppercore.wpilib_interface.CTREUtil.tryUntilOk;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -28,6 +26,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import coppercore.wpilib_interface.CTREUtil;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import edu.wpi.first.math.filter.Debouncer;
@@ -130,12 +129,13 @@ public class ModuleIOTalonFX implements ModuleIO {
         constants.DriveMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    tryUntilOk(
+    CTREUtil.tryUntilOk(
         () -> driveTalon.getConfigurator().apply(driveConfig, 0.25),
         5,
         driveTalonCANDeviceID,
         (_tmp) -> {});
-    tryUntilOk(() -> driveTalon.setPosition(0.0, 0.25), 5, driveTalonCANDeviceID, (_tmp) -> {});
+    CTREUtil.tryUntilOk(
+        () -> driveTalon.setPosition(0.0, 0.25), 5, driveTalonCANDeviceID, (_tmp) -> {});
 
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
@@ -162,7 +162,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         constants.SteerMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    tryUntilOk(
+    CTREUtil.tryUntilOk(
         () -> turnTalon.getConfigurator().apply(turnConfig, 0.25),
         5,
         turnTalonCANDeviceID,
@@ -316,7 +316,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     boolean success =
         ServiceThread.defaultServiceThread.queueCommand(
             () -> {
-              tryUntilOk(
+              CTREUtil.tryUntilOk(
                   () ->
                       driveTalon
                           .getConfigurator()
