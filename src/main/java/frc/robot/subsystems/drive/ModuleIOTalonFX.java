@@ -7,7 +7,7 @@
 
 package frc.robot.subsystems.drive;
 
-import static frc.robot.util.PhoenixUtil.tryUntilOk;
+import static coppercore.wpilib_interface.CTREUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -29,6 +29,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
+import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -38,6 +39,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.PIDGains;
+import frc.robot.util.ServiceThread;
 import java.util.Queue;
 
 /**
@@ -53,7 +55,9 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   // Hardware objects
   private final TalonFX driveTalon;
+  private final CANDeviceID driveTalonCANDeviceID;
   private final TalonFX turnTalon;
+  private final CANDeviceID turnTalonCANDeviceID;
   private final CANcoder cancoder;
 
   // Voltage control requests
@@ -107,7 +111,9 @@ public class ModuleIOTalonFX implements ModuleIO {
           constants) {
     this.constants = constants;
     driveTalon = new TalonFX(constants.DriveMotorId, JsonConstants.robotInfo.CANBus);
+    driveTalonCANDeviceID = new CANDeviceID(JsonConstants.robotInfo.CANBus, constants.DriveMotorId);
     turnTalon = new TalonFX(constants.SteerMotorId, JsonConstants.robotInfo.CANBus);
+    turnTalonCANDeviceID = new CANDeviceID(JsonConstants.robotInfo.CANBus, constants.SteerMotorId);
     cancoder = new CANcoder(constants.EncoderId, JsonConstants.robotInfo.CANBus);
 
     // Configure drive motor
@@ -124,8 +130,12 @@ public class ModuleIOTalonFX implements ModuleIO {
         constants.DriveMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
-    tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
+    tryUntilOk(
+        () -> driveTalon.getConfigurator().apply(driveConfig, 0.25),
+        5,
+        driveTalonCANDeviceID,
+        (_tmp) -> {});
+    tryUntilOk(() -> driveTalon.setPosition(0.0, 0.25), 5, driveTalonCANDeviceID, (_tmp) -> {});
 
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
@@ -152,7 +162,11 @@ public class ModuleIOTalonFX implements ModuleIO {
         constants.SteerMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
+    tryUntilOk(
+        () -> turnTalon.getConfigurator().apply(turnConfig, 0.25),
+        5,
+        turnTalonCANDeviceID,
+        (_tmp) -> {});
 
     // Configure CANCoder
     CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
@@ -299,13 +313,21 @@ public class ModuleIOTalonFX implements ModuleIO {
   }
 
   public void setSupplyCurrentLimit(Current limit) {
-    tryUntilOk(
-        5,
-        () ->
-            driveTalon
-                .getConfigurator()
-                .apply(
-                    currentLimits.withSupplyCurrentLimit(limit).withSupplyCurrentLimitEnable(true),
-                    0.0));
+    ServiceThread.defaultServiceThread.queueCommand(
+        () -> {
+          tryUntilOk(
+              () ->
+                  driveTalon
+                      .getConfigurator()
+                      .apply( // Use default timeout
+                          currentLimits
+                              .withSupplyCurrentLimit(limit)
+                              .withSupplyCurrentLimitEnable(true)),
+              5,
+              driveTalonCANDeviceID,
+              (_tmp) -> {
+                System.err.println("Failed to set supply current limit to " + limit);
+              });
+        });
   }
 }

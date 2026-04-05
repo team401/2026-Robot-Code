@@ -41,6 +41,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.PIDGains;
+import frc.robot.util.ServiceThread;
 import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.littletonUtil.PoseEstimator;
 import frc.robot.util.littletonUtil.PoseEstimator.TimestampedVisionUpdate;
@@ -106,6 +107,10 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     modules[1] = new Module(frModuleIO, 1, JsonConstants.physicalDriveConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, JsonConstants.physicalDriveConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, JsonConstants.physicalDriveConstants.BackRight);
+
+    // Ensure that ServiceThread class is loaded and defaultServiceThread is running
+    ServiceThread.defaultServiceThread.queueCommand(
+        () -> System.out.println("Default Service Thread has started"));
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
