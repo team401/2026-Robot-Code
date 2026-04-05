@@ -30,6 +30,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -88,6 +89,8 @@ public class IntakeConstants {
   public final Current rollersStatorCurrentLimit = Amps.of(40.0);
   public final Current rollersSupplyCurrentLimit = Amps.of(40.0);
 
+  public final AngularAcceleration rollersMaxAcceleration = RPM.of(6000).div(Seconds.of(1.0));
+
   public MechanismConfig buildPivotMechanismConfig() {
     return MechanismConfig.builder()
         .withName("Intake/Pivot")
@@ -139,10 +142,7 @@ public class IntakeConstants {
   public TalonFXConfiguration buildRollersTalonFXMotorConfig() {
     TalonFXConfiguration config =
         new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Brake)
-                    .withNeutralMode(NeutralModeValue.Coast))
+            .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withSupplyCurrentLimit(rollersSupplyCurrentLimit)
@@ -156,8 +156,7 @@ public class IntakeConstants {
                     .withSensorToMechanismRatio(rollersReduction))
             .withTorqueCurrent(new TorqueCurrentConfigs().withPeakReverseTorqueCurrent(Amps.zero()))
             .withMotionMagic(
-                new MotionMagicConfigs()
-                    .withMotionMagicAcceleration(RPM.of(6000).div(Seconds.of(1.0))));
+                new MotionMagicConfigs().withMotionMagicAcceleration(rollersMaxAcceleration));
     // Configure motor settings here
     return config;
   }
