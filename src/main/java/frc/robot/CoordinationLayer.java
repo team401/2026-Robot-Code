@@ -808,7 +808,8 @@ public class CoordinationLayer {
                     && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true)));
     Logger.recordOutput("CoordinationLayer/aimedAndCanShoot", aimedAndCanShoot);
 
-    // Only start up the indexer once the shooter, turret, and hood are ready to go
+    // Only start up the indexer once the shooter, turret, and hood are ready to go (or if
+    // force-shoot is pressed)
     if (aimedAndCanShoot) {
       indexer.ifPresent(
           indexer -> indexer.setTargetVelocity(JsonConstants.indexerConstants.indexingVelocity));
@@ -816,9 +817,16 @@ public class CoordinationLayer {
       indexer.ifPresent(indexer -> indexer.setTargetVelocity(RPM.zero()));
     }
 
-    // Next, verify if the indexer is ready to shoot as well
-    boolean indexerReady = indexer.map(IndexerSubsystem::readyToShoot).orElse(false);
+    // Next, verify if the indexer is ready to shoot as well (or ignore it, if force shoot is
+    // pressed)
+    boolean indexerReady =
+        indexer.map(IndexerSubsystem::readyToShoot).orElse(false)
+            || isForceShootPressed.getAsBoolean();
 
+    // This maintains the protection for "only force shoot if the shooter wheels are spinning"
+    // because aimedAndCanShoot bakes that value into its and condition.
+    // If force shoot is pressed but the shooter is disabled, aimedAndCanShoot will remain false so
+    // this condition will also be false.
     if (aimedAndCanShoot && indexerReady) {
       hopper.ifPresent(
           hopper -> hopper.setTargetVelocity(JsonConstants.hopperConstants.indexingVelocity));
