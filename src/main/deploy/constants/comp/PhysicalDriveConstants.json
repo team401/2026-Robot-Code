@@ -3,6 +3,10 @@
     "value": 75.0,
     "unit": "Amp"
   },
+  "driveSupplyCurrentTeleopLimit": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
   "steerSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"

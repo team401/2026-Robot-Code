@@ -24,7 +24,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -522,10 +521,11 @@ public class CoordinationLayer {
     isIntakeBoosted = false;
   }
 
-  public void setDriveSupplyCurrentLimit(Current current) {
+  public void lowerDriveSupplyCurrentLimit() {
     this.drive.ifPresent(
         drive -> {
-          drive.setSupplyCurrentLimit(current);
+          drive.setSupplyCurrentLimit(
+              JsonConstants.physicalDriveConstants.driveSupplyCurrentTeleopLimit);
         });
   }
 

@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -369,6 +368,6 @@ public class RobotContainer {
   }
 
   public void lowerDriveSupplyCurrentLimit() {
-    coordinationLayer.setDriveSupplyCurrentLimit(Amps.of(40));
+    coordinationLayer.lowerDriveSupplyCurrentLimit();
   }
 }
