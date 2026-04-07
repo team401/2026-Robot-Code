@@ -1,5 +1,9 @@
 {
   "driveSupplyCurrentLimit": {
+    "value": 75.0,
+    "unit": "Amp"
+  },
+  "driveSupplyCurrentTeleopLimit": {
     "value": 40.0,
     "unit": "Amp"
   },

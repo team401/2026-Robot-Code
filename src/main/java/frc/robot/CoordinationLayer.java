@@ -521,6 +521,14 @@ public class CoordinationLayer {
     isIntakeBoosted = false;
   }
 
+  public void lowerDriveSupplyCurrentLimit() {
+    this.drive.ifPresent(
+        drive -> {
+          drive.setSupplyCurrentLimit(
+              JsonConstants.physicalDriveConstants.driveSupplyCurrentTeleopLimit);
+        });
+  }
+
   // Subsystem initialization
 
   /**

@@ -366,4 +366,8 @@ public class RobotContainer {
   public Drive getDriveSubsystem() {
     return drive.orElse(null);
   }
+
+  public void lowerDriveSupplyCurrentLimit() {
+    coordinationLayer.lowerDriveSupplyCurrentLimit();
+  }
 }

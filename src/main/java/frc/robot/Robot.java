@@ -176,6 +176,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+    // This ensures that the higher, default drive current limit used in auto is reduced for teleop.
+    robotContainer.lowerDriveSupplyCurrentLimit();
   }
 
   /** This function is called periodically during operator control. */
