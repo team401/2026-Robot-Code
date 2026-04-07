@@ -356,6 +356,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   protected void chirp() {
+    // Don't need to use the wrapper since chirp won't move the motor.
     motor.controlChirp(Hertz.of(440));
   }
 

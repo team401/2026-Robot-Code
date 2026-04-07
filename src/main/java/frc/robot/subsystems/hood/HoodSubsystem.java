@@ -467,7 +467,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
   private void clampAndControlToAngle(Angle goalAngle) {
     boolean shouldStow = shouldStowForTrench || shouldStowForIntake;
 
-    // If we need to stow for the trench, clamp angle to always be set to minHoodAngle.
+    // If we need to stow, clamp angle to always be set to minHoodAngle.
     Angle maxAngle =
         shouldStow
             ? JsonConstants.hoodConstants.minHoodAngle
