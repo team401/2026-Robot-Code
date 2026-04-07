@@ -42,7 +42,7 @@ import java.util.function.Supplier;
  * <p>PID gains and other tuning-related constants are instead found in {@link DriveConstants}.
  */
 public class PhysicalDriveConstants {
-  public final Current driveSupplyCurrentLimit = Amps.of(40.0);
+  public final Current driveSupplyCurrentLimit = Amps.of(75.0);
   // Steer is higher than drive so it can turn super fast to setpoint but it won't draw a lot of
   // current sustained
   public final Current steerSupplyCurrentLimit = Amps.of(60.0);

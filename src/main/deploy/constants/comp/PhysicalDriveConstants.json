@@ -1,6 +1,6 @@
 {
   "driveSupplyCurrentLimit": {
-    "value": 40.0,
+    "value": 75.0,
     "unit": "Amp"
   },
   "steerSupplyCurrentLimit": {
