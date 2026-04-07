@@ -74,6 +74,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
     /** The current field-centric heading of the robot, according to the drivetrain pose estimate */
     private Rotation2d robotHeading = Rotation2d.kZero;
 
+    /** Whether or not the turret should currently stop moving to avoid tearing the intake net. */
+    private boolean shouldStopForIntake = false;
+
     public boolean isHomingSwitchPressed() {
       return isHomingSwitchPressed;
     }
@@ -357,11 +360,14 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   protected void applyHomingVoltage() {
-    motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage);
+    runControlMethodOrStopForIntake(
+        () -> motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage));
   }
 
   protected void applyNegativeHomingVoltage() {
-    motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage.times(-0.5));
+    runControlMethodOrStopForIntake(
+        () ->
+            motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage.times(-0.5)));
   }
 
   @AutoLogOutput(key = "Turret/robotRelativePosition")
@@ -401,7 +407,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   protected void coast() {
-    motor.controlCoast();
+    // Technically we should put the turret in brake mode to avoid tearing the net, so this wrapper
+    // still applies.
+    runControlMethodOrStopForIntake(() -> motor.controlCoast());
   }
 
   /**
@@ -421,6 +429,31 @@ public class TurretSubsystem extends MonitoredSubsystem {
     };
   }
 
+  /**
+   * Given a Runnable that would command the motor to move, call it if it is safe to move the turret
+   * or command the turret to brake if it should be stopped to protect the intake net
+   *
+   * <p>All non-test mode control request calls should be wrapped in this call to avoid tearing the
+   * net.
+   *
+   * <p>Please don't do anything other than calling a control method in that runnable, as it will
+   * only run if the turret is allowed to move.
+   *
+   * @param controlMethod A Runnable that would control the motor (e.g.
+   *     `motor.controlToPositionUnprofiled(...)`)
+   */
+  private void runControlMethodOrStopForIntake(Runnable controlMethod) {
+    // I don't know if I'm a fan of this method here. It may be preferable to have some sort of
+    // unified control request system where everything that would apply a control request simply
+    // sets the "desired control" and then at the end of periodic, we check if it's safe to apply
+    // that request. However, that would be a large restructure and this was a simpler solution.
+    if (dependencies.shouldStopForIntake) {
+      motor.controlBrake();
+    } else {
+      controlMethod.run();
+    }
+  }
+
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
     Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
     Angle clampedGoalAngle =
@@ -430,7 +463,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
             JsonConstants.turretConstants.maxTurretAngle);
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    motor.controlToPositionUnprofiled(clampedGoalAngle);
+    runControlMethodOrStopForIntake(() -> motor.controlToPositionUnprofiled(clampedGoalAngle));
   }
 
   /**
@@ -476,12 +509,24 @@ public class TurretSubsystem extends MonitoredSubsystem {
   /**
    * Update the turret subsystem on the robot's current heading. This should only be called by a
    * coordinator/supervisor-layer action scheduled with the DependencyOrderedExecutor to update
-   * turret inputs.
+   * turret dependencies.
    *
    * @param robotHeading A Rotation2d, the heading of the robot from the drivetrain's pose estimate.
    */
   public void setRobotHeading(Rotation2d robotHeading) {
     dependencies.robotHeading = robotHeading;
+  }
+
+  /**
+   * Update the turret subsystem on whether or not it should stop moving to avoid tearing the intake
+   * net. This should only be called by a coordinator/supervisor-layer action scheduled with the
+   * DependencyOrderedExecutor to update turret dependencies.
+   *
+   * @param shouldStopForIntake {@code true} if the intake pivot is high enough that moving the
+   *     turret would tear the net, {@code false} otherwise.
+   */
+  public void setShouldStopForIntake(boolean shouldStopForIntake) {
+    dependencies.shouldStopForIntake = shouldStopForIntake;
   }
 
   /**
