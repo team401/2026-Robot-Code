@@ -361,14 +361,15 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   protected void applyHomingVoltage() {
-    runControlMethodOrStopForIntake(
-        () -> motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage));
+    if (!brakeForIntake()) {
+      motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage);
+    }
   }
 
   protected void applyNegativeHomingVoltage() {
-    runControlMethodOrStopForIntake(
-        () ->
-            motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage.times(-0.5)));
+    if (!brakeForIntake()) {
+      motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage.times(-0.5));
+    }
   }
 
   @AutoLogOutput(key = "Turret/robotRelativePosition")
@@ -410,7 +411,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
   protected void coast() {
     // Technically we should put the turret in brake mode to avoid tearing the net, so this wrapper
     // still applies.
-    runControlMethodOrStopForIntake(() -> motor.controlCoast());
+    if (!brakeForIntake()) {
+      motor.controlCoast();
+    }
   }
 
   /**
@@ -431,28 +434,20 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Given a Runnable that would command the motor to move, call it if it is safe to move the turret
-   * or command the turret to brake if it should be stopped to protect the intake net
+   * Brakes the turret to protect the intake/net if we need to and returns whether or not it braked.
    *
-   * <p>All non-test mode control request calls should be wrapped in this call to avoid tearing the
-   * net.
+   * <p>All control requests should be wrapped in an if statement that checks that this method
+   * returned false.
    *
-   * <p>Please don't do anything other than calling a control method in that runnable, as it will
-   * only run if the turret is allowed to move.
-   *
-   * @param controlMethod A Runnable that would control the motor (e.g.
-   *     `motor.controlToPositionUnprofiled(...)`)
+   * @return {@code true} if the turret is braking to protect the net (NOT SAFE TO APPLY ANOTHER
+   *     REQUEST), {@code false} if not (safe to apply another request)
    */
-  private void runControlMethodOrStopForIntake(Runnable controlMethod) {
-    // I don't know if I'm a fan of this method here. It may be preferable to have some sort of
-    // unified control request system where everything that would apply a control request simply
-    // sets the "desired control" and then at the end of periodic, we check if it's safe to apply
-    // that request. However, that would be a large restructure and this was a simpler solution.
+  private boolean brakeForIntake() {
     if (dependencies.shouldStopForIntake) {
       motor.controlBrake();
-    } else {
-      controlMethod.run();
     }
+
+    return dependencies.shouldStopForIntake;
   }
 
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
@@ -464,7 +459,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
             JsonConstants.turretConstants.maxTurretAngle);
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    runControlMethodOrStopForIntake(() -> motor.controlToPositionUnprofiled(clampedGoalAngle));
+    if (!brakeForIntake()) {
+      motor.controlToPositionUnprofiled(clampedGoalAngle);
+    }
   }
 
   /**
