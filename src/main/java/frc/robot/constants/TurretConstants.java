@@ -169,8 +169,12 @@ public class TurretConstants {
 
   /** Initializes the discontinuity point field */
   @AfterJsonLoad
-  private void initializeDiscontinuityPoint() {
+  public void initializeDiscontinuityPoint() {
     // Take the point halfway between the max angle and 360 by taking an average.
     turretDiscontinuityPoint = maxTurretAngle.plus(Degrees.of(360)).div(2);
+
+    if (!minTurretAngle.isNear(Degrees.zero(), 1e-3)) {
+      throw new IllegalArgumentException("All turret code assumes a min angle of 0.0");
+    }
   }
 }
