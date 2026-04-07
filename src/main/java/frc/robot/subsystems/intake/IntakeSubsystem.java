@@ -284,4 +284,28 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     return pivotInputs.positionRadians
         >= JsonConstants.intakeConstants.stowThresholdAngle.in(Radians);
   }
+
+  /**
+   * Returns whether the intake pivot is high enough up that the hood needs to start/stay stowing so
+   * that it doesn't tear the net.
+   *
+   * @return {@code true} if the hood should stow, {@code false} if it isn't in danger of tearing
+   *     the net
+   */
+  public boolean shouldStartStowingHood() {
+    return pivotInputs.positionRadians
+        >= JsonConstants.intakeConstants.pivotStartStowingHoodAngle.in(Radians);
+  }
+
+  /**
+   * Returns whether the intake pivot is high enough up that the shooter needs to stop moving so
+   * that it doesn't tear the net.
+   *
+   * @return {@code true} if the turret should stop, {@code false} if it isn't in danger of tearing
+   *     the net
+   */
+  public boolean shouldStopTurret() {
+    return pivotInputs.positionRadians
+        >= JsonConstants.intakeConstants.pivotStopTurretAngle.in(Radians);
+  }
 }

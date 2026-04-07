@@ -55,6 +55,15 @@ public class IntakeConstants {
   public final Angle pivotStartingAngle = Degrees.of(90.0);
   public final Voltage pivotVoltageWhenIntaking = Volts.of(-4.0);
 
+  /** When the intake pivot is above this angle, the hood should start stowing itself. */
+  public final Angle pivotStartStowingHoodAngle = Degrees.of(45.0);
+
+  /**
+   * When the pivot is above this angle, the turret and hood shouldn't move to avoid tearing the
+   * net.
+   */
+  public final Angle pivotStopTurretAngle = Degrees.of(45.0);
+
   public final Angle pivotHoldAngleTolerance = Degrees.of(5);
 
   // Sim Constants

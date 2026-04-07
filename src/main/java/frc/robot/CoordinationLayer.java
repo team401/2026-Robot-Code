@@ -577,6 +577,16 @@ public class CoordinationLayer {
 
     dependencyOrderedExecutor.registerAction(
         UPDATE_INTAKE_DEPENDENCIES, () -> updateIntakeDependencies(intake));
+
+    if (JsonConstants.featureFlags.runHood) {
+      dependencyOrderedExecutor.addDependencies(
+          UPDATE_HOOD_DEPENDENCIES, UPDATE_INTAKE_DEPENDENCIES);
+    }
+
+    if (JsonConstants.featureFlags.runTurret) {
+      dependencyOrderedExecutor.addDependencies(
+          UPDATE_TURRET_DEPENDENCIES, UPDATE_INTAKE_DEPENDENCIES);
+    }
   }
 
   /**
@@ -673,6 +683,7 @@ public class CoordinationLayer {
   /** Update the hood subsystem on the state of the homing switch. */
   private void updateHoodDependencies(HoodSubsystem hood) {
     hood.setIsHomingSwitchPressed(isHomingSwitchPressed());
+    hood.setShouldStowForIntake(intake.map(IntakeSubsystem::shouldStartStowingHood).orElse(false));
   }
 
   /** Update the intake subsystem on the state of the homing switch. */
