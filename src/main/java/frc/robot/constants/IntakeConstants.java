@@ -62,7 +62,7 @@ public class IntakeConstants {
    * When the pivot is above this angle, the turret and hood shouldn't move to avoid tearing the
    * net.
    */
-  public final Angle pivotStopTurretAngle = Degrees.of(45.0);
+  public final Angle pivotStopTurretAngle = Degrees.of(80.0);
 
   public final Angle pivotHoldAngleTolerance = Degrees.of(5);
 

@@ -474,7 +474,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
             : JsonConstants.hoodConstants.maxHoodAngle;
     Angle clampedGoalAngle =
         UnitUtils.clampMeasure(goalAngle, JsonConstants.hoodConstants.minHoodAngle, maxAngle);
-    Logger.recordOutput("Hood/clampedGoalAngleRadians", goalAngle.in(Radians));
+    Logger.recordOutput("Hood/clampedGoalAngleRadians", clampedGoalAngle.in(Radians));
 
     if (shouldStow
         && Math.abs(inputs.positionRadians - JsonConstants.hoodConstants.minHoodAngle.in(Radians))

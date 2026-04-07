@@ -678,6 +678,7 @@ public class CoordinationLayer {
         drive -> {
           turret.setRobotHeading(drive.getRotation());
         });
+    turret.setShouldStopForIntake(intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
   }
 
   /** Update the hood subsystem on the state of the homing switch. */

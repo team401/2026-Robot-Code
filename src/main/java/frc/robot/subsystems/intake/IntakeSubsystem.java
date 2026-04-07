@@ -298,8 +298,8 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Returns whether the intake pivot is high enough up that the shooter needs to stop moving so
-   * that it doesn't tear the net.
+   * Returns whether the intake pivot is high enough up that the turret needs to stop moving so that
+   * it doesn't tear the net.
    *
    * @return {@code true} if the turret should stop, {@code false} if it isn't in danger of tearing
    *     the net
