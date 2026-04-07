@@ -433,16 +433,16 @@ public class TurretSubsystem extends MonitoredSubsystem {
      * - If it's greater than max angle but it's closer to max angle than to 360, return max angle
      * - If it's greater than max angle and is closer to 360 than to max angle, return 0 (same as 360)
      * */
-    if (goalAngleTurretCentric.lt(JsonConstants.turretConstants.turretDiscontinuityPoint)) {
+    if (goalAngleTurretCentric.lt(JsonConstants.turretConstants.turretDiscontinuityMidpoint)) {
       clampedGoalAngle =
           UnitUtils.clampMeasure(
               goalAngleTurretCentric,
               JsonConstants.turretConstants.minTurretAngle,
               JsonConstants.turretConstants.maxTurretAngle);
     } else {
-      // If the angle is greater than the discontinuity point, it needs to be wrapped "up" to 360
+      // If the angle is greater than the discontinuity midpoint, it needs to be wrapped "up" to 360
       // degrees which is the same as 0
-      clampedGoalAngle = Degrees.zero();
+      clampedGoalAngle = JsonConstants.turretConstants.minTurretAngle;
     }
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);

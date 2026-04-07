@@ -93,10 +93,10 @@ public class TurretConstants {
   // 0.0508^2. These calculations seemed to create a VERY heavy object
 
   public final Angle minTurretAngle = Degrees.of(0.0);
-  public final Angle maxTurretAngle = Degrees.of(350);
+  public final Angle maxTurretAngle = Degrees.of(350.5);
 
   /**
-   * The Turret discontinuity point is the point where angles should round up to zero instead of
+   * The Turret discontinuity midpoint is the point where angles should round up to zero instead of
    * rounding down to max turret angle. It is halfway between the max turret angle (some value <360
    * degrees) and 0.
    *
@@ -104,7 +104,7 @@ public class TurretConstants {
    * (0-max angle), but any angle above this discontinuity point should be clamped up to zero
    * instead.
    */
-  @JSONExclude public Angle turretDiscontinuityPoint = Degrees.of(355);
+  @JSONExclude public Angle turretDiscontinuityMidpoint = Degrees.of(355.25);
 
   /**
    * When the turret heading is within turretSetpointEpsilon of its goal heading, it is considered
@@ -171,7 +171,7 @@ public class TurretConstants {
   @AfterJsonLoad
   public void initializeDiscontinuityPoint() {
     // Take the point halfway between the max angle and 360 by taking an average.
-    turretDiscontinuityPoint = maxTurretAngle.plus(Degrees.of(360)).div(2);
+    turretDiscontinuityMidpoint = maxTurretAngle.plus(Degrees.of(360)).div(2);
 
     if (!minTurretAngle.isNear(Degrees.zero(), 1e-3)) {
       throw new IllegalArgumentException("All turret code assumes a min angle of 0.0");
