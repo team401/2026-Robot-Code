@@ -128,7 +128,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * Whether or not the hood should currently stow to protect the intake. Set by the
    * CoordinationLayer using setShouldStowForIntake.
    */
-  private boolean shouldStowForIntake = false;
+  private boolean shouldStowForIntakeOrDefense = false;
 
   public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
@@ -402,12 +402,15 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * Updates the hood subsystem on whether it should stow to prepare for the intake being stowed.
    * This should only be called by the coordination layer.
    *
-   * @param shouldStowForIntake {@code true} if the intake is enabled and above the hood stow
-   *     threshold, {@code false} otherwise
+   * <p>This should also be set to true during defense mode, as it will stow the hood and then keep
+   * it applying a neutral request against the hardstop, which will save some power.
+   *
+   * @param shouldStowForIntakeOrDefense {@code true} if the intake is enabled and above the hood
+   *     stow threshold, {@code false} otherwise
    */
-  public void setShouldStowForIntake(boolean shouldStowForIntake) {
-    Logger.recordOutput("Hood/shouldStowForIntake", shouldStowForIntake);
-    this.shouldStowForIntake = shouldStowForIntake;
+  public void setShouldStowForIntakeOrDefense(boolean shouldStowForIntakeOrDefense) {
+    Logger.recordOutput("Hood/shouldStowForIntakeOrDefense", shouldStowForIntakeOrDefense);
+    this.shouldStowForIntakeOrDefense = shouldStowForIntakeOrDefense;
   }
 
   /**
@@ -465,7 +468,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * @param goalAngle The Angle to target
    */
   private void clampAndControlToAngle(Angle goalAngle) {
-    boolean shouldStow = shouldStowForTrench || shouldStowForIntake;
+    boolean shouldStow = shouldStowForTrench || shouldStowForIntakeOrDefense;
 
     // If we need to stow, clamp angle to always be set to minHoodAngle.
     Angle maxAngle =
