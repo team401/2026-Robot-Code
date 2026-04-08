@@ -168,6 +168,15 @@ public class CoordinationLayer {
   /** Whether or not we should currently be running boosted intake speed in teleop */
   private boolean isIntakeBoosted = false;
 
+  /**
+   * Whether or not we are currently in defense mode.
+   *
+   * <p>Being in defense mode stows the hood, brakes the turret, and sets the drive current limits
+   * to a higher value.
+   */
+  @AutoLogOutput(key = "CoordinationLayer/inDefenseMode")
+  private boolean inDefenseMode = false;
+
   // Tunable numbers for shot tuning
   private final Lazy<LoggedTunableNumber> hoodTuningAngleDegrees =
       new Lazy<>(
@@ -305,6 +314,12 @@ public class CoordinationLayer {
 
     makeTriggerFromButton(controllers.getButton("enableAutonomy"))
         .onTrue(new InstantCommand(this::enableAutonomy));
+
+    makeTriggerFromButton(controllers.getButton("toggleDefenseMode"))
+        .onTrue(new InstantCommand(this::toggleDefenseMode));
+
+    makeTriggerFromButton(controllers.getButton("seedHeadingForward"))
+        .onTrue(new InstantCommand(this::seedHeadingForward));
 
     // Operator controller:
     makeTriggerFromButton(controllers.getButton("operatorToggleIntakeDeploy"))
@@ -505,6 +520,20 @@ public class CoordinationLayer {
     autonomyLevel = AutonomyLevel.Smart;
   }
 
+  private void toggleDefenseMode() {
+    inDefenseMode = !inDefenseMode;
+
+    if (inDefenseMode) {
+      raiseDriveSupplyCurrentLimitForDefense();
+    } else {
+      lowerDriveSupplyCurrentLimit();
+    }
+  }
+
+  private void seedHeadingForward() {
+    drive.ifPresent(Drive::seedHeadingForward);
+  }
+
   private void increaseRPM() {
     rpmCompensation.setValue(rpmCompensation.getAsDouble() + 20);
   }
@@ -526,6 +555,14 @@ public class CoordinationLayer {
         drive -> {
           drive.setSupplyCurrentLimit(
               JsonConstants.physicalDriveConstants.driveSupplyCurrentTeleopLimit);
+        });
+  }
+
+  private void raiseDriveSupplyCurrentLimitForDefense() {
+    this.drive.ifPresent(
+        drive -> {
+          drive.setSupplyCurrentLimit(
+              JsonConstants.physicalDriveConstants.driveSupplyCurrentDefenseLimit);
         });
   }
 
@@ -686,13 +723,17 @@ public class CoordinationLayer {
         drive -> {
           turret.setRobotHeading(drive.getRotation());
         });
-    turret.setShouldStopForIntake(intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
+    // Piggyback off of the intake stopping logic to save power during defense
+    turret.setShouldStopForIntake(
+        inDefenseMode || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
   }
 
   /** Update the hood subsystem on the state of the homing switch. */
   private void updateHoodDependencies(HoodSubsystem hood) {
     hood.setIsHomingSwitchPressed(isHomingSwitchPressed());
-    hood.setShouldStowForIntake(intake.map(IntakeSubsystem::shouldStartStowingHood).orElse(false));
+    // Piggyback off of the intake stowing logic to save power during defense
+    hood.setShouldStowForIntake(
+        inDefenseMode || intake.map(IntakeSubsystem::shouldStartStowingHood).orElse(false));
   }
 
   /** Update the intake subsystem on the state of the homing switch. */

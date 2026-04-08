@@ -7,6 +7,10 @@
     "value": 40.0,
     "unit": "Amp"
   },
+  "driveSupplyCurrentDefenseLimit": {
+    "value": 70.0,
+    "unit": "Amp"
+  },
   "steerSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
