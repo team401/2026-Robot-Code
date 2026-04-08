@@ -781,7 +781,13 @@ public class CoordinationLayer {
     // This should improve the performance of shoot on the move.
     // If this isn't sufficient, we can calculate 2 shots: one with compensation delay and one
     // without compensation delay, and then just test the one without compensation delay.
-    boolean canShootInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
+    // This also checks if the robot is within the alliance zone before shooting.
+    boolean canShootInCurrentMatchState =
+        this.shotMode == ShotMode.Pass
+            || matchState.canScore()
+                && drive
+                    .map(drive -> AllianceBasedFieldConstants.isInAllianceZone(drive.getPose()))
+                    .orElse(true);
 
     // canPassPastNet is true when either:
     // - We are not in passing mode (so net isn't a concern)
