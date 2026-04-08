@@ -39,6 +39,10 @@
     "value": 4.0,
     "unit": "Degree"
   },
+  "hoodStowEpsilon": {
+    "value": 0.5,
+    "unit": "Degree"
+  },
   "timeToStowHood": {
     "value": 1.5,
     "unit": "Second"

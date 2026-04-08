@@ -74,6 +74,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
     /** The current field-centric heading of the robot, according to the drivetrain pose estimate */
     private Rotation2d robotHeading = Rotation2d.kZero;
 
+    /** Whether or not the turret should currently stop moving to avoid tearing the intake net. */
+    private boolean shouldStopForIntake = false;
+
     public boolean isHomingSwitchPressed() {
       return isHomingSwitchPressed;
     }
@@ -353,15 +356,20 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   protected void chirp() {
+    // Don't need to use the wrapper since chirp won't move the motor.
     motor.controlChirp(Hertz.of(440));
   }
 
   protected void applyHomingVoltage() {
-    motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage);
+    if (!brakeForIntake()) {
+      motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage);
+    }
   }
 
   protected void applyNegativeHomingVoltage() {
-    motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage.times(-0.5));
+    if (!brakeForIntake()) {
+      motor.controlOpenLoopVoltage(JsonConstants.turretConstants.homingVoltage.times(-0.5));
+    }
   }
 
   @AutoLogOutput(key = "Turret/robotRelativePosition")
@@ -403,7 +411,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   protected void coast() {
-    motor.controlCoast();
+    // Technically we should put the turret in brake mode to avoid tearing the net, so this wrapper
+    // still applies.
+    if (!brakeForIntake()) {
+      motor.controlCoast();
+    }
   }
 
   /**
@@ -421,6 +433,23 @@ public class TurretSubsystem extends MonitoredSubsystem {
           true;
       default -> false;
     };
+  }
+
+  /**
+   * Brakes the turret to protect the intake/net if we need to and returns whether or not it braked.
+   *
+   * <p>All control requests should be wrapped in an if statement that checks that this method
+   * returned false.
+   *
+   * @return {@code true} if the turret is braking to protect the net (NOT SAFE TO APPLY ANOTHER
+   *     REQUEST), {@code false} if not (safe to apply another request)
+   */
+  private boolean brakeForIntake() {
+    if (dependencies.shouldStopForIntake) {
+      motor.controlBrake();
+    }
+
+    return dependencies.shouldStopForIntake;
   }
 
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
@@ -447,7 +476,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    motor.controlToPositionUnprofiled(clampedGoalAngle);
+    if (!brakeForIntake()) {
+      motor.controlToPositionUnprofiled(clampedGoalAngle);
+    }
   }
 
   /**
@@ -493,12 +524,24 @@ public class TurretSubsystem extends MonitoredSubsystem {
   /**
    * Update the turret subsystem on the robot's current heading. This should only be called by a
    * coordinator/supervisor-layer action scheduled with the DependencyOrderedExecutor to update
-   * turret inputs.
+   * turret dependencies.
    *
    * @param robotHeading A Rotation2d, the heading of the robot from the drivetrain's pose estimate.
    */
   public void setRobotHeading(Rotation2d robotHeading) {
     dependencies.robotHeading = robotHeading;
+  }
+
+  /**
+   * Update the turret subsystem on whether or not it should stop moving to avoid tearing the intake
+   * net. This should only be called by a coordinator/supervisor-layer action scheduled with the
+   * DependencyOrderedExecutor to update turret dependencies.
+   *
+   * @param shouldStopForIntake {@code true} if the intake pivot is high enough that moving the
+   *     turret would tear the net, {@code false} otherwise.
+   */
+  public void setShouldStopForIntake(boolean shouldStopForIntake) {
+    dependencies.shouldStopForIntake = shouldStopForIntake;
   }
 
   /**

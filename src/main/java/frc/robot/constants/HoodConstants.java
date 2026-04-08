@@ -104,6 +104,12 @@ public class HoodConstants {
 
   public final Angle hoodPassingSetpointEpsilon = Degrees.of(3.0);
 
+  /**
+   * When the hood is stowing and it's within this margin of its minimum angle, it will brake
+   * instead of using PID.
+   */
+  public final Angle hoodStowEpsilon = Degrees.of(0.5);
+
   public final Voltage homingVoltage = Volts.of(-3.0);
   public final AngularVelocity homingMovementThreshold = DegreesPerSecond.of(2.0);
 
