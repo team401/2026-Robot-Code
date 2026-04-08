@@ -388,7 +388,9 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     boolean aimedCorrectly =
         requestedAction == TurretAction.TrackHeading
-            // Subtract the rotations to automatically
+            // Subtract the rotations to automatically wrap them all to be within one rotation
+            // It looks like minus uses atan2 and so it automatically keeps everything in the right
+            // range.
             && Math.abs(getFieldCentricTurretHeading().minus(goalTurretHeading).getRadians())
                 < threshold.in(Radians);
     Logger.recordOutput("Turret/isAimedCorrectly", aimedCorrectly);
@@ -423,11 +425,26 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
     Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
-    Angle clampedGoalAngle =
-        UnitUtils.clampMeasure(
-            goalAngleTurretCentric,
-            JsonConstants.turretConstants.minTurretAngle,
-            JsonConstants.turretConstants.maxTurretAngle);
+    Angle clampedGoalAngle;
+    /*
+     * Clamp the angle by:
+     * - If it is within 0 to max turret angle, return it
+     * - If it is less than 0, clamp it up to 0
+     * - If it's greater than max angle but it's closer to max angle than to 360, return max angle
+     * - If it's greater than max angle and is closer to 360 than to max angle, return 0 (same as 360)
+     * */
+    if (goalAngleTurretCentric.lt(JsonConstants.turretConstants.turretDiscontinuityMidpoint)) {
+      clampedGoalAngle =
+          UnitUtils.clampMeasure(
+              goalAngleTurretCentric,
+              JsonConstants.turretConstants.minTurretAngle,
+              JsonConstants.turretConstants.maxTurretAngle);
+    } else {
+      // If the angle is greater than the discontinuity midpoint, it needs to be wrapped "up" to 360
+      // degrees which is the same as 0
+      clampedGoalAngle = JsonConstants.turretConstants.minTurretAngle;
+    }
+
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
     motor.controlToPositionUnprofiled(clampedGoalAngle);
