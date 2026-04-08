@@ -795,6 +795,16 @@ public class CoordinationLayer {
     // without compensation delay, and then just test the one without compensation delay.
     boolean canShootInCurrentMatchState = this.shotMode == ShotMode.Pass || matchState.canScore();
 
+    // canShootInCurrentZone is true when either:
+    // - we are in our alliance zone (to ensure that the autos do not try to score outside our zone)
+    // or:
+    // - we are in teleop
+    boolean canShootInCurrentZone =
+        drive
+                .map(drive -> AllianceBasedFieldConstants.isInAllianceZone(drive.getPose()))
+                .orElse(true)
+            || !DriverStation.isAutonomous();
+
     // canPassPastNet is true when either:
     // - We are not in passing mode (so net isn't a concern)
     // OR
@@ -823,7 +833,8 @@ public class CoordinationLayer {
                     && indexer.map(IndexerSubsystem::readyToShoot).orElse(false)
                     // When the turret isn't enabled, assume that it's been locked into the correct
                     // location for a manual mode shot if we ever have to run "no turret"
-                    && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true)));
+                    && turret.map(turret -> turret.isAimedCorrectly(shotMode)).orElse(true)
+                    && canShootInCurrentZone));
     Logger.recordOutput("CoordinationLayer/canShoot", canShoot);
 
     if (canShoot) {
