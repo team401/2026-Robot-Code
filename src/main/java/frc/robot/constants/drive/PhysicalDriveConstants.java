@@ -44,6 +44,7 @@ import java.util.function.Supplier;
 public class PhysicalDriveConstants {
   public final Current driveSupplyCurrentLimit = Amps.of(75.0);
   public final Current driveSupplyCurrentTeleopLimit = Amps.of(40.0);
+  public final Current driveSupplyCurrentDefenseLimit = Amps.of(70.0);
   // Steer is higher than drive so it can turn super fast to setpoint but it won't draw a lot of
   // current sustained
   public final Current steerSupplyCurrentLimit = Amps.of(60.0);

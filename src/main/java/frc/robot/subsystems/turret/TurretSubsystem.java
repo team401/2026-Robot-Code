@@ -74,8 +74,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
     /** The current field-centric heading of the robot, according to the drivetrain pose estimate */
     private Rotation2d robotHeading = Rotation2d.kZero;
 
-    /** Whether or not the turret should currently stop moving to avoid tearing the intake net. */
-    private boolean shouldStopForIntake = false;
+    /**
+     * Whether or not the turret should currently stop moving to avoid tearing the intake net or to
+     * save power during defense.
+     */
+    private boolean shouldStopMoving = false;
 
     public boolean isHomingSwitchPressed() {
       return isHomingSwitchPressed;
@@ -445,11 +448,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
    *     REQUEST), {@code false} if not (safe to apply another request)
    */
   private boolean brakeForIntake() {
-    if (dependencies.shouldStopForIntake) {
+    if (dependencies.shouldStopMoving) {
       motor.controlBrake();
     }
 
-    return dependencies.shouldStopForIntake;
+    return dependencies.shouldStopMoving;
   }
 
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
@@ -534,14 +537,15 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   /**
    * Update the turret subsystem on whether or not it should stop moving to avoid tearing the intake
-   * net. This should only be called by a coordinator/supervisor-layer action scheduled with the
-   * DependencyOrderedExecutor to update turret dependencies.
+   * net, or to save power in defense mode. This should only be called by a
+   * coordinator/supervisor-layer action scheduled with the DependencyOrderedExecutor to update
+   * turret dependencies.
    *
-   * @param shouldStopForIntake {@code true} if the intake pivot is high enough that moving the
-   *     turret would tear the net, {@code false} otherwise.
+   * @param shouldStopMoving {@code true} if the intake pivot is high enough that moving the turret
+   *     would tear the net or if defense mode is enabled, {@code false} otherwise.
    */
-  public void setShouldStopForIntake(boolean shouldStopForIntake) {
-    dependencies.shouldStopForIntake = shouldStopForIntake;
+  public void shouldStopMoving(boolean shouldStopMoving) {
+    dependencies.shouldStopMoving = shouldStopMoving;
   }
 
   /**
