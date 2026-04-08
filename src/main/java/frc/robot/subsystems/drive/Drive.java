@@ -27,19 +27,24 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
+import frc.robot.util.AllianceUtil;
 import frc.robot.util.PIDGains;
+import frc.robot.util.ServiceThread;
 import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.littletonUtil.PoseEstimator;
 import frc.robot.util.littletonUtil.PoseEstimator.TimestampedVisionUpdate;
@@ -94,6 +99,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
   private PoseEstimator maPoseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
 
+  // Log a field2d for Elastic
+  private final Field2d field2d = new Field2d();
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -105,6 +113,10 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     modules[1] = new Module(frModuleIO, 1, JsonConstants.physicalDriveConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, JsonConstants.physicalDriveConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, JsonConstants.physicalDriveConstants.BackRight);
+
+    // Ensure that ServiceThread class is loaded and defaultServiceThread is running
+    ServiceThread.defaultServiceThread.queueCommand(
+        () -> System.out.println("Default Service Thread has started"));
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -146,6 +158,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Since Drive is placed within an Optional, it can't be found in a recursive down from Robot
     AutoLogOutputManager.addObject(this);
+
+    SmartDashboard.putData("Field2d", field2d);
   }
 
   @Override
@@ -237,6 +251,8 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    field2d.setRobotPose(getPose());
 
     long endTimeUs = RobotController.getFPGATime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
@@ -457,5 +473,33 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     for (var module : modules) {
       module.setDriveGains(gains);
     }
+  }
+
+  /**
+   * This sets the supply current limit of all of the swerve modules.
+   *
+   * @param limit the new current supply limit for the swerves
+   */
+  public void setSupplyCurrentLimit(Current limit) {
+    for (var module : modules) {
+      module.setSupplyCurrentLimit(limit);
+    }
+  }
+
+  /**
+   * Seeds the current odometry pose so that the robot is pointed forward (away from the driver
+   * station)
+   */
+  public void seedHeadingForward() {
+    Pose2d currentPose = getPose();
+    Rotation2d heading =
+        switch (AllianceUtil.getAlliance()) {
+          // Red alliance is "flipped" (forward is -x)
+          case Red -> Rotation2d.k180deg;
+          // Blue alliance is +x forward
+          case Blue -> Rotation2d.kZero;
+        };
+
+    setPose(new Pose2d(currentPose.getX(), currentPose.getY(), heading));
   }
 }

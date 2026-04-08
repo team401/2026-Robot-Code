@@ -122,6 +122,12 @@ public class JsonConstants {
         jsonHandler.addRoute("/hopper", hopperConstants);
         jsonHandler.addRoute("/indexer", indexerConstants);
         jsonHandler.addRoute("/turret", turretConstants);
+        jsonHandler.registerPostCallback(
+            "/turret",
+            (_unused) -> {
+              turretConstants.initializeDiscontinuityPoint();
+              return true;
+            });
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
@@ -129,17 +135,17 @@ public class JsonConstants {
         jsonHandler.addRoute("/intake", intakeConstants);
         jsonHandler.addRoute("/climber", climberConstants);
         jsonHandler.addRoute("/vision", visionConstants);
+        jsonHandler.registerPostCallback(
+            "/vision",
+            (visionConstants) -> {
+              System.out.println("Vision Constants were updated");
+              return true;
+            });
         jsonHandler.addRoute("/autos", autos);
         jsonHandler.registerPostCallback(
             "/autos",
             (autos) -> {
               robotContainer.loadAutoCommands();
-              return true;
-            });
-        jsonHandler.registerPostCallback(
-            "/vision",
-            (visionConstants) -> {
-              System.out.println("Vision Constants were updated");
               return true;
             });
         jsonHandler.addRoute("/shotmaps", shotMaps);

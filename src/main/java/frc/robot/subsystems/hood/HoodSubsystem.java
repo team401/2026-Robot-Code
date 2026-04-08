@@ -116,11 +116,19 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
   private MutAngle goalAngle = JsonConstants.hoodConstants.minHoodAngle.mutableCopy();
 
+  // Dependencies (values from other subsystems/coordination layer passed in by the coordination
+  // layer via setters)
   /**
    * Whether or not the hood should currently stow for the trench. Set by the CoordinationLayer
    * using setShouldStowForTrench
    */
   private boolean shouldStowForTrench = false;
+
+  /**
+   * Whether or not the hood should currently stow to protect the intake. Set by the
+   * CoordinationLayer using setShouldStowForIntake.
+   */
+  private boolean shouldStowForIntakeOrDefense = false;
 
   public HoodSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
@@ -391,6 +399,21 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /**
+   * Updates the hood subsystem on whether it should stow to prepare for the intake being stowed.
+   * This should only be called by the coordination layer.
+   *
+   * <p>This should also be set to true during defense mode, as it will stow the hood and then keep
+   * it applying a neutral request against the hardstop, which will save some power.
+   *
+   * @param shouldStowForIntakeOrDefense {@code true} if the intake is enabled and above the hood
+   *     stow threshold, {@code false} otherwise
+   */
+  public void setShouldStowForIntakeOrDefense(boolean shouldStowForIntakeOrDefense) {
+    Logger.recordOutput("Hood/shouldStowForIntakeOrDefense", shouldStowForIntakeOrDefense);
+    this.shouldStowForIntakeOrDefense = shouldStowForIntakeOrDefense;
+  }
+
+  /**
    * Returns whether or not the homing switch is currently pressed (or was pressed when its inputs
    * were last read from hardware.)
    *
@@ -445,22 +468,33 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * @param goalAngle The Angle to target
    */
   private void clampAndControlToAngle(Angle goalAngle) {
-    // If we need to stow for the trench, clamp angle to always be set to minHoodAngle.
+    boolean shouldStow = shouldStowForTrench || shouldStowForIntakeOrDefense;
+
+    // If we need to stow, clamp angle to always be set to minHoodAngle.
     Angle maxAngle =
-        shouldStowForTrench
+        shouldStow
             ? JsonConstants.hoodConstants.minHoodAngle
             : JsonConstants.hoodConstants.maxHoodAngle;
     Angle clampedGoalAngle =
         UnitUtils.clampMeasure(goalAngle, JsonConstants.hoodConstants.minHoodAngle, maxAngle);
-    Logger.recordOutput("Hood/clampedGoalAngleRadians", goalAngle.in(Radians));
-    // Use unprofiled position control because:
-    // 1. We don't really risk breaking the mechanism by going too fast (aluminum gears)
-    // 2. The motion profile isn't actually active during shooting because closed loop reference
-    // doesn't react to the error caused by fuel going through, so we need good unprofiled PID gains
-    // anyway.
-    // 3. When testing this, it actually performed better and overshot less with no profile than
-    // with a profile.
-    motor.controlToPositionUnprofiled(clampedGoalAngle);
+    Logger.recordOutput("Hood/clampedGoalAngleRadians", clampedGoalAngle.in(Radians));
+
+    if (shouldStow
+        && Math.abs(inputs.positionRadians - JsonConstants.hoodConstants.minHoodAngle.in(Radians))
+            < JsonConstants.hoodConstants.hoodStowEpsilon.in(Radians)) {
+      // Brake mode to save power when stowed once the hood is actually stowed
+      motor.controlBrake();
+    } else {
+      // Use unprofiled position control because:
+      // 1. We don't really risk breaking the mechanism by going too fast (aluminum gears)
+      // 2. The motion profile isn't actually active during shooting because closed loop reference
+      // doesn't react to the error caused by fuel going through, so we need good unprofiled PID
+      // gains
+      // anyway.
+      // 3. When testing this, it actually performed better and overshot less with no profile than
+      // with a profile.
+      motor.controlToPositionUnprofiled(clampedGoalAngle);
+    }
   }
 
   /**

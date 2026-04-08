@@ -17,6 +17,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
+import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig;
 import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFeedforwardType;
@@ -90,8 +92,19 @@ public class TurretConstants {
   // 10 lbs to kg = 4.53592, 2 inches to meters = 0.0508, 4.53592 *
   // 0.0508^2. These calculations seemed to create a VERY heavy object
 
-  public final Angle minTurretAngle = Degrees.of(-5.0);
-  public final Angle maxTurretAngle = Degrees.of(350);
+  public final Angle minTurretAngle = Degrees.of(0.0);
+  public final Angle maxTurretAngle = Degrees.of(350.5);
+
+  /**
+   * The Turret discontinuity midpoint is the point where angles should round up to zero instead of
+   * rounding down to max turret angle. It is halfway between the max turret angle (some value <360
+   * degrees) and 0.
+   *
+   * <p>Any turret angle that is below the turret discontinuity point should be clamped normally
+   * (0-max angle), but any angle above this discontinuity point should be clamped up to zero
+   * instead.
+   */
+  @JSONExclude public Angle turretDiscontinuityMidpoint = Degrees.of(355.25);
 
   /**
    * When the turret heading is within turretSetpointEpsilon of its goal heading, it is considered
@@ -152,5 +165,16 @@ public class TurretConstants {
             0.0),
         minTurretAngle,
         maxTurretAngle);
+  }
+
+  /** Initializes the discontinuity point field */
+  @AfterJsonLoad
+  public void initializeDiscontinuityPoint() {
+    // Take the point halfway between the max angle and 360 by taking an average.
+    turretDiscontinuityMidpoint = maxTurretAngle.plus(Degrees.of(360)).div(2);
+
+    if (!minTurretAngle.isNear(Degrees.zero(), 1e-3)) {
+      throw new IllegalArgumentException("All turret code assumes a min angle of 0.0");
+    }
   }
 }

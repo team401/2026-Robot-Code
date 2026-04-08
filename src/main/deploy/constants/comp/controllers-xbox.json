@@ -138,11 +138,19 @@
           }
         },
         {
-          "command": "testClimbDrive",
+          "command": "toggleDefenseMode",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
             "id": "x"
+          }
+        },
+        {
+          "command": "seedHeadingForward",
+          "commandType": "button",
+          "hapticControlElement": {
+            "elementType": "button",
+            "id": "y"
           }
         }
       ]
