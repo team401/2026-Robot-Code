@@ -188,6 +188,8 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
   @AutoLogOutput(key = "Indexer/readyToShoot")
   public boolean readyToShoot() {
+    // Using this debouncer here prevented the hopper from stopping every time we shot a ball due to
+    // the indexer losing velocity temporarily.
     return isAtGoalVelocityDebouncer.calculate(
         getVelocity()
             .isNear(
