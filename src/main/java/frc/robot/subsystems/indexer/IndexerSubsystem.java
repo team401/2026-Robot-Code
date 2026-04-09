@@ -2,11 +2,14 @@ package frc.robot.subsystems.indexer;
 
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.JsonConstants;
@@ -48,6 +51,10 @@ public class IndexerSubsystem extends MonitoredSubsystem {
       new TestModeManager<TestMode>("Indexer", TestMode.class);
 
   Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
+
+  private final Debouncer isAtGoalVelocityDebouncer =
+      new Debouncer(
+          JsonConstants.indexerConstants.atSetpointDebounceTime.in(Seconds), DebounceType.kFalling);
 
   public IndexerSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -181,7 +188,10 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
   @AutoLogOutput(key = "Indexer/readyToShoot")
   public boolean readyToShoot() {
-    return getVelocity()
-        .isNear(targetVelocity, JsonConstants.indexerConstants.indexerMaximumRelativeVelocityError);
+    return isAtGoalVelocityDebouncer.calculate(
+        getVelocity()
+            .isNear(
+                targetVelocity,
+                JsonConstants.indexerConstants.indexerMaximumRelativeVelocityError));
   }
 }
