@@ -24,6 +24,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.util.PIDGains;
 
@@ -36,6 +37,8 @@ public class IndexerConstants {
   public final Double indexerMaximumRelativeVelocityError = 0.01;
 
   public PIDGains indexerGains = PIDGains.kPID(10.0, 5.0, 0.0);
+
+  public Time atSetpointDebounceTime = Seconds.of(0.2);
 
   // The important values here are maxAcceleration and maxJerk because it uses
   // a profiled velocity request
