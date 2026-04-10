@@ -36,7 +36,7 @@ from . import auto_action
 def _literally_just_shoot():
     startShooting()
 
-def command(func: callable):
+def command(func: callable): # type: ignore
 
     def _inner(*args, **kwargs):
         with sequence():
@@ -54,17 +54,9 @@ def cycle_intake(time, count):
         wait(delay_each)
 
 @command
-def first_intake_deploy():
-    deploy_intake()
-    wait(0.2)
-    stow_intake()
-    wait(0.6)
-    deploy_intake()
-
-@auto("Double Swipe (opp has auto)")
-def _double_swipe_opp_has_auto():
+def _aggressive(use_depot):
     intake_cycle_time = 2
-    intake_cycle_count = 5
+    intake_cycle_count = 3
 
     # Cycle 1
 
@@ -75,11 +67,11 @@ def _double_swipe_opp_has_auto():
     # )
     with parallel():
         stow_intake()
-        followPath(path_name="Left Trench To Center")
+        followPath(path_name="Left Trench To Center Intake In")
 
     with parallel():
-        first_intake_deploy()
-        followPath(path_name="Left Side Close Sweep")
+        deploy_intake()
+        followPath(path_name="Left Side Aggressive Sweep Intake In")
 
     with parallel():
         with sequence():
@@ -87,95 +79,18 @@ def _double_swipe_opp_has_auto():
             startShooting()
         followPath(path_name="Left Bump To Alliance")
 
-    with parallel():
-
-        # followPath(path_name="Turn 180")
-
-        with sequence():
-            wait(1.0)
-
-            cycle_intake(intake_cycle_time, intake_cycle_count)
-
-    #wait(1.0)
-
-    # Cycle 2
+    wait(0.1)
 
     autopilot(
-        target_pose=constants.left_trench_alliance_side_pose.plus(
-            transform2d(translation=translation2d(x=-0.5, y=0))
-        ),
-        velocity=constants.default_trench_velocity,
-        entry_angle=rotation2d(0),
-        constraints=auto_action.APConstraints(
-            velocity=2.0,
-            acceleration=2.0,
-            jerk=2.0
-        ),
-        pid_gains=PIDGains(
-            k_p=1.5,
-        )
+        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
     )
 
     with parallel():
 
-        stopShooting()
-
-        go_to_center_under_left_trench_from_alliance()
-
-    with parallel():
-        deploy_intake()
-        followPath(path_name="Left Side Close 2nd Sweep")
-
-    with parallel():
-        with sequence():
-            wait(0.4)
-            startShooting()
-        followPath(path_name="Left Bump To Alliance")
-
-    wait(1)
-
-    cycle_intake(intake_cycle_time, intake_cycle_count)
-
-@auto("Double Swipe intake in")
-def _double_swipe_intake_in():
-    intake_cycle_time = 2
-    intake_cycle_count = 5
-
-    # Cycle 1
-
-    # x_based_autopilot(
-    #     target_pose=constants.left_trench_center_side_pose,
-    #     velocity=constants.default_trench_velocity,
-    #     entry_angle=rotation2d(0)
-    # )
-    with parallel():
-        stow_intake()
-        followPath(path_name="Left Trench To Center")
-
-    with parallel():
-        first_intake_deploy()
-        followPath(path_name="Left Side Close Sweep")
-
-    with parallel():
-        with sequence():
-            wait(0.6)
-            startShooting()
-        followPath(path_name="Left Bump To Alliance")
-
-    # wait(0.1)
-
-    # autopilot(
-    #     target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
-    # )
-
-    with parallel():
-
         # followPath(path_name="Turn 180")
 
         with sequence():
-            wait(1.0)
-
-            cycle_intake(intake_cycle_time, intake_cycle_count)
+            wait(1.5)
 
             cycle_intake(intake_cycle_time, intake_cycle_count)
 
@@ -212,11 +127,150 @@ def _double_swipe_intake_in():
             startShooting()
         followPath(path_name="Left Bump To Alliance")
 
+    wait(0.1)
+
+    autopilot(
+        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+    )
+
     wait(1)
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
 
-    cycle_intake(intake_cycle_time, intake_cycle_count)
+    # cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    # cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    if use_depot:
+        autopilot(
+            target_pose=pose2d(1.5, 5.9, -180),
+            velocity=0.0,
+            constraints=auto_action.APConstraints(
+                velocity=2.0,
+                acceleration=2.0,
+                jerk=2.0
+            ),
+            pid_gains=PIDGains(
+                k_p=1.5,
+            )
+        )
+
+@auto("Aggressive Depot")
+def _aggressive_depot():
+    _aggressive(True)
+
+@auto("Aggressive No Depot")
+def _aggressive_no_depot():
+    _aggressive(False)
+
+
+
+@command
+def _conservative(use_depot):
+    intake_cycle_time = 2
+    intake_cycle_count = 3
+
+    # Cycle 1
+
+    # x_based_autopilot(
+    #     target_pose=constants.left_trench_center_side_pose,
+    #     velocity=constants.default_trench_velocity,
+    #     entry_angle=rotation2d(0)
+    # )
+    with parallel():
+        stow_intake()
+        followPath(path_name="Left Trench To Center")
+
+    with parallel():
+        deploy_intake()
+        followPath(path_name="Left Side Conservative Sweep")
+
+    with parallel():
+        with sequence():
+            wait(0.6)
+            startShooting()
+        followPath(path_name="Left Bump To Alliance")
+
+    wait(0.1)
+
+    autopilot(
+        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+    )
+
+    with parallel():
+
+        # followPath(path_name="Turn 180")
+
+        with sequence():
+            wait(1.5)
+
+            cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    # wait(1.0),
+    # Cycle 2
+
+    autopilot(
+        target_pose=pose2d(3.5, 7.55, -90),
+        velocity=constants.default_trench_velocity,
+        entry_angle=rotation2d(0),
+        constraints=auto_action.APConstraints(
+            velocity=2.0,
+            acceleration=2.0,
+            jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
+        )
+    )
+
+    with parallel():
+
+        stopShooting()
+
+        go_to_center_under_left_trench_from_alliance_intake_in()
+
+    with parallel():
+        deploy_intake()
+        followPath(path_name="Left Side Close 2nd Sweep Intake In")
+
+    with parallel():
+        with sequence():
+            wait(0.4)
+            startShooting()
+        followPath(path_name="Left Bump To Alliance")
+
+    wait(0.1)
+
+    autopilot(
+        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+    )
+
+    wait(1)
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
-    
+
+    # cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    # cycle_intake(intake_cycle_time, intake_cycle_count)
+
+    if use_depot:
+        autopilot(
+            target_pose=pose2d(1.5, 5.9, -180),
+            velocity=0.0,
+            constraints=auto_action.APConstraints(
+                velocity=2.0,
+                acceleration=2.0,
+                jerk=2.0
+            ),
+            pid_gains=PIDGains(
+                k_p=1.5,
+            )
+        )
+
+@auto("Conservative Depot")
+def _conservative_depot():
+    _conservative(True)
+
+@auto("Conservative No Depot")
+def _conservative_no_depot():
+    _conservative(False)

@@ -1,0 +1,109 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.2,
+        "y": 7.55
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.362644188110027,
+        "y": 7.40014196983141
+      },
+      "isLocked": false,
+      "linkedName": "Left Trench Center Exit Intake In"
+    },
+    {
+      "anchor": {
+        "x": 8.535581188997337,
+        "y": 6.718979591836735
+      },
+      "prevControl": {
+        "x": 8.61606033717835,
+        "y": 7.161614906832297
+      },
+      "nextControl": {
+        "x": 8.30470350319411,
+        "y": 5.449152319919011
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.255962732919255,
+        "y": 5.447409050576753
+      },
+      "prevControl": {
+        "x": 8.358527062999112,
+        "y": 5.342786157941436
+      },
+      "nextControl": {
+        "x": 6.943087054794925,
+        "y": 5.4770979835374565
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.6,
+        "y": 5.75
+      },
+      "prevControl": {
+        "x": 6.137302573203194,
+        "y": 5.761277728482697
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Left Bump Center Enter"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7957559681697607,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2,
+      "rotationDegrees": -108.43494882292197
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.8406040268456376,
+      "maxWaypointRelativePos": 1.4597315436241611,
+      "constraints": {
+        "maxVelocity": 1.25,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.2,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 4.2,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Sweep",
+  "idealStartingState": {
+    "velocity": 4.2,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}
