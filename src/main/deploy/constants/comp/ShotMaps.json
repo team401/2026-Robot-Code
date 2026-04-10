@@ -241,6 +241,21 @@
         "value": 1.499982,
         "unit": "Second"
       }
+    },
+    {
+      "distance": {
+        "value": 15,
+        "unit": "Meter"
+      },
+      "shooterRPM": 4900.0,
+      "hoodAngle": {
+        "value": 65.0,
+        "unit": "Degree"
+      },
+      "flightTime": {
+        "value": 1.8,
+        "unit": "Second"
+      }
     }
   ],
   "mechanismCompensationDelay": {
