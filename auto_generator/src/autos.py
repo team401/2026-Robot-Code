@@ -53,8 +53,8 @@ def cycle_intake(time, count):
         deploy_intake()
         wait(delay_each)
 
-@auto("Aggressive")
-def _aggressive():
+@command
+def _aggressive(use_depot):
     intake_cycle_time = 2
     intake_cycle_count = 3
 
@@ -141,22 +141,32 @@ def _aggressive():
 
     # cycle_intake(intake_cycle_time, intake_cycle_count)
 
-    autopilot(
-        target_pose=pose2d(1.5, 5.9, -180),
-        velocity=0.0,
-        constraints=auto_action.APConstraints(
-            velocity=2.0,
-            acceleration=2.0,
-            jerk=2.0
-        ),
-        pid_gains=PIDGains(
-            k_p=1.5,
+    if use_depot:
+        autopilot(
+            target_pose=pose2d(1.5, 5.9, -180),
+            velocity=0.0,
+            constraints=auto_action.APConstraints(
+                velocity=2.0,
+                acceleration=2.0,
+                jerk=2.0
+            ),
+            pid_gains=PIDGains(
+                k_p=1.5,
+            )
         )
-    )
+
+@auto("Aggressive Depot")
+def _aggressive_depot():
+    _aggressive(True)
+
+@auto("Aggressive No Depot")
+def _aggressive_no_depot():
+    _aggressive(False)
 
 
-@auto("Conservative")
-def _conservative():
+
+@command
+def _conservative(use_depot):
     intake_cycle_time = 2
     intake_cycle_count = 3
 
@@ -243,15 +253,24 @@ def _conservative():
 
     # cycle_intake(intake_cycle_time, intake_cycle_count)
 
-    autopilot(
-        target_pose=pose2d(1.5, 5.9, -180),
-        velocity=0.0,
-        constraints=auto_action.APConstraints(
-            velocity=2.0,
-            acceleration=2.0,
-            jerk=2.0
-        ),
-        pid_gains=PIDGains(
-            k_p=1.5,
+    if use_depot:
+        autopilot(
+            target_pose=pose2d(1.5, 5.9, -180),
+            velocity=0.0,
+            constraints=auto_action.APConstraints(
+                velocity=2.0,
+                acceleration=2.0,
+                jerk=2.0
+            ),
+            pid_gains=PIDGains(
+                k_p=1.5,
+            )
         )
-    )
+
+@auto("Conservative Depot")
+def _conservative_depot():
+    _conservative(True)
+
+@auto("Conservative No Depot")
+def _conservative_no_depot():
+    _conservative(False)
