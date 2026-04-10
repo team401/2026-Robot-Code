@@ -48,7 +48,7 @@
     "unit": "Degree"
   },
   "turretSetpointEpsilon": {
-    "value": 2.5,
+    "value": 3.5,
     "unit": "Degree"
   },
   "turretPassingSetpointEpsilon": {
