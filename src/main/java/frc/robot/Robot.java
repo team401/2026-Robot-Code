@@ -22,6 +22,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.TotalCurrentCalculator;
+
+import static edu.wpi.first.units.Units.Volts;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -100,6 +103,8 @@ public class Robot extends LoggedRobot {
     if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
       autoTestingSimulation = new AutoTestingSimulation(this);
     }
+
+    RobotController.setBrownoutVoltage(Volts.of(6.4));
   }
 
   /** This function is called periodically during all modes. */
