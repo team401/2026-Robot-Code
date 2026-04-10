@@ -9,7 +9,7 @@
     "unit": "RPM"
   },
   "indexingVelocity": {
-    "value": 4000,
+    "value": 4500,
     "unit": "RPM"
   },
   "hopperGains": {
