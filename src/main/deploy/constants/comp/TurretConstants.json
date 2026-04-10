@@ -21,11 +21,11 @@
   "turretKI": 0.0,
   "turretKD": 140.0,
   "turretKS": 2.0,
-  "turretKV": 1.0,
+  "turretKV": 0.0,
   "turretKG": 0.0,
   "turretKA": 2.0,
-  "turretExpoKV": 1.5,
-  "turretExpoKA": 1.5,
+  "turretExpoKV": 0.4,
+  "turretExpoKA": 0.4,
   "turretSupplyCurrentLimit": {
     "value": 60.0,
     "unit": "Amp"
