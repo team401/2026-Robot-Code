@@ -108,7 +108,7 @@
     "unit": "Amp"
   },
   "rollersSupplyCurrentLimit": {
-    "value": 40.0,
+    "value": 30.0,
     "unit": "Amp"
   },
   "rollersMaxAcceleration": {
