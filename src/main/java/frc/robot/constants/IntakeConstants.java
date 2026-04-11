@@ -157,7 +157,9 @@ public class IntakeConstants {
                     .withSupplyCurrentLimit(rollersSupplyCurrentLimit)
                     .withSupplyCurrentLimitEnable(true)
                     .withStatorCurrentLimit(rollersStatorCurrentLimit)
-                    .withStatorCurrentLimitEnable(true))
+                    .withStatorCurrentLimitEnable(true)
+                    .withSupplyCurrentLowerLimit(Amps.of(20.0))
+                    .withSupplyCurrentLowerTime(Seconds.of(1.0)))
             .withSlot0(rollersPIDGains.toSlot0Config())
             .withFeedback(
                 new FeedbackConfigs()

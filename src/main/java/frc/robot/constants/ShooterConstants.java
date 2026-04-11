@@ -168,7 +168,9 @@ public class ShooterConstants {
                 .withStatorCurrentLimit(shooterStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true)
                 .withSupplyCurrentLimit(shooterSupplyCurrentLimit)
-                .withSupplyCurrentLimitEnable(true))
+                .withSupplyCurrentLimitEnable(true)
+                .withSupplyCurrentLowerLimit(Amps.of(40.0))
+                .withSupplyCurrentLowerTime(Seconds.of(1.0)))
         .withMotorOutput(
             new MotorOutputConfigs()
                 .withInverted(shooterMotorDirection)
