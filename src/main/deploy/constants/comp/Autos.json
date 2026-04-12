@@ -114,7 +114,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -124,7 +124,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -278,7 +278,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     },
@@ -288,7 +288,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     }
@@ -432,7 +432,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -442,7 +442,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -596,7 +596,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     },
@@ -606,7 +606,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     }
@@ -721,7 +721,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -731,7 +731,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -885,7 +885,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     },
@@ -895,7 +895,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     }
@@ -1039,7 +1039,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -1049,7 +1049,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.5,
+                                                            "value": 0.25,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -1203,7 +1203,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     },
@@ -1213,7 +1213,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.5,
+                                            "value": 0.25,
                                             "unit": "Second"
                                         }
                                     }

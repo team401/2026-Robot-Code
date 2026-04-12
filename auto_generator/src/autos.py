@@ -55,7 +55,7 @@ def cycle_intake(time, count):
 
 @command
 def _aggressive(use_depot):
-    intake_cycle_time = 1
+    intake_cycle_time = 0.5
     intake_cycle_count = 1
 
     # Cycle 1
@@ -167,7 +167,7 @@ def _aggressive_no_depot():
 
 @command
 def _conservative(use_depot):
-    intake_cycle_time = 1
+    intake_cycle_time = 0.5
     intake_cycle_count = 1
 
     # Cycle 1
