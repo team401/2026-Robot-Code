@@ -76,7 +76,10 @@ def _aggressive(use_depot=False, from_bump=False):
 
 
     if from_bump:
+        startShooting()
+        wait(1.5)
         from_bump_prepare_for_trench()
+        stopShooting()
 
     # Cycle 1
 
@@ -155,12 +158,6 @@ def _aggressive(use_depot=False, from_bump=False):
 
     wait(1)
 
-    cycle_intake(intake_cycle_time, intake_cycle_count)
-
-    # cycle_intake(intake_cycle_time, intake_cycle_count)
-
-    # cycle_intake(intake_cycle_time, intake_cycle_count)
-
     if use_depot:
         autopilot(
             target_pose=pose2d(1.5, 5.9, -180),
@@ -174,6 +171,8 @@ def _aggressive(use_depot=False, from_bump=False):
                 k_p=1.5,
             )
         )
+    
+    cycle_intake(intake_cycle_time, intake_cycle_count)
 
 @auto("Aggressive Depot")
 def _aggressive_depot():
@@ -187,17 +186,16 @@ def _aggressive_no_depot():
 def _aggressive_depot():
     _aggressive(True, True)
 
-@auto("Aggressive No Depot From Bump")
-def _aggressive_no_depot():
-    _aggressive(False, True)
-
 @command
 def _conservative(use_depot=False, from_bump=False):
     intake_cycle_time = 2
     intake_cycle_count = 3
 
     if from_bump:
+        startShooting()
+        wait(1.5)
         from_bump_prepare_for_trench(angle=0)
+        stopShooting()
 
     # Cycle 1
 
@@ -276,12 +274,6 @@ def _conservative(use_depot=False, from_bump=False):
 
     wait(1)
 
-    cycle_intake(intake_cycle_time, intake_cycle_count)
-
-    # cycle_intake(intake_cycle_time, intake_cycle_count)
-
-    # cycle_intake(intake_cycle_time, intake_cycle_count)
-
     if use_depot:
         autopilot(
             target_pose=pose2d(1.5, 5.9, -180),
@@ -296,6 +288,9 @@ def _conservative(use_depot=False, from_bump=False):
             )
         )
 
+    cycle_intake(intake_cycle_time, intake_cycle_count)
+    
+
 @auto("Conservative Depot")
 def _conservative_depot():
     _conservative(True, False)
@@ -308,6 +303,3 @@ def _conservative_no_depot():
 def _conservative_depot():
     _conservative(True, True)
 
-@auto("Conservative No Depot From Bump")
-def _conservative_no_depot():
-    _conservative(False, True)
