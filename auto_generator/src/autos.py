@@ -54,9 +54,29 @@ def cycle_intake(time, count):
         wait(delay_each)
 
 @command
-def _aggressive(use_depot):
+def from_bump_prepare_for_trench(angle=-90):
+    autopilot(
+        target_pose=pose2d(3.5, 7.55, angle),
+        velocity=constants.default_trench_velocity,
+        entry_angle=rotation2d(0),
+        constraints=auto_action.APConstraints(
+            velocity=2.0,
+            acceleration=2.0,
+            jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
+        )
+    )
+
+@command
+def _aggressive(use_depot=False, from_bump=False):
     intake_cycle_time = 2
     intake_cycle_count = 3
+
+
+    if from_bump:
+        from_bump_prepare_for_trench()
 
     # Cycle 1
 
@@ -157,18 +177,27 @@ def _aggressive(use_depot):
 
 @auto("Aggressive Depot")
 def _aggressive_depot():
-    _aggressive(True)
+    _aggressive(True, False)
 
 @auto("Aggressive No Depot")
 def _aggressive_no_depot():
-    _aggressive(False)
+    _aggressive(False, False)
 
+@auto("Aggressive Depot From Bump")
+def _aggressive_depot():
+    _aggressive(True, True)
 
+@auto("Aggressive No Depot From Bump")
+def _aggressive_no_depot():
+    _aggressive(False, True)
 
 @command
-def _conservative(use_depot):
+def _conservative(use_depot=False, from_bump=False):
     intake_cycle_time = 2
     intake_cycle_count = 3
+
+    if from_bump:
+        from_bump_prepare_for_trench(angle=0)
 
     # Cycle 1
 
@@ -269,8 +298,16 @@ def _conservative(use_depot):
 
 @auto("Conservative Depot")
 def _conservative_depot():
-    _conservative(True)
+    _conservative(True, False)
 
 @auto("Conservative No Depot")
 def _conservative_no_depot():
-    _conservative(False)
+    _conservative(False, False)
+
+@auto("Conservative Depot From Bump")
+def _conservative_depot():
+    _conservative(True, True)
+
+@auto("Conservative No Depot From Bump")
+def _conservative_no_depot():
+    _conservative(False, True)
