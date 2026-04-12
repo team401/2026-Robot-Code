@@ -101,7 +101,7 @@
                                             {
                                                 "type": "Wait",
                                                 "delay": {
-                                                    "value": 1.5,
+                                                    "value": 2.5,
                                                     "unit": "Second"
                                                 }
                                             },
@@ -114,7 +114,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -124,47 +124,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -318,7 +278,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     },
@@ -328,47 +288,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     }
@@ -499,7 +419,7 @@
                                             {
                                                 "type": "Wait",
                                                 "delay": {
-                                                    "value": 1.5,
+                                                    "value": 2.5,
                                                     "unit": "Second"
                                                 }
                                             },
@@ -512,7 +432,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -522,47 +442,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -716,7 +596,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     },
@@ -726,47 +606,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     }
@@ -868,7 +708,7 @@
                                             {
                                                 "type": "Wait",
                                                 "delay": {
-                                                    "value": 1.5,
+                                                    "value": 2.5,
                                                     "unit": "Second"
                                                 }
                                             },
@@ -881,7 +721,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -891,47 +731,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -1085,7 +885,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     },
@@ -1095,47 +895,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     }
@@ -1266,7 +1026,7 @@
                                             {
                                                 "type": "Wait",
                                                 "delay": {
-                                                    "value": 1.5,
+                                                    "value": 2.5,
                                                     "unit": "Second"
                                                 }
                                             },
@@ -1279,7 +1039,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     },
@@ -1289,47 +1049,7 @@
                                                     {
                                                         "type": "Wait",
                                                         "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "StowIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
-                                                            "unit": "Second"
-                                                        }
-                                                    },
-                                                    {
-                                                        "type": "DeployIntakeAction"
-                                                    },
-                                                    {
-                                                        "type": "Wait",
-                                                        "delay": {
-                                                            "value": 0.3333333333333333,
+                                                            "value": 0.5,
                                                             "unit": "Second"
                                                         }
                                                     }
@@ -1483,7 +1203,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     },
@@ -1493,47 +1213,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "DeployIntakeAction"
-                                    },
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.3333333333333333,
+                                            "value": 0.5,
                                             "unit": "Second"
                                         }
                                     }

@@ -55,8 +55,8 @@ def cycle_intake(time, count):
 
 @command
 def _aggressive(use_depot):
-    intake_cycle_time = 2
-    intake_cycle_count = 3
+    intake_cycle_time = 1
+    intake_cycle_count = 1
 
     # Cycle 1
 
@@ -90,7 +90,7 @@ def _aggressive(use_depot):
         # followPath(path_name="Turn 180")
 
         with sequence():
-            wait(1.5)
+            wait(2.5)
 
             cycle_intake(intake_cycle_time, intake_cycle_count)
 
@@ -167,8 +167,8 @@ def _aggressive_no_depot():
 
 @command
 def _conservative(use_depot):
-    intake_cycle_time = 2
-    intake_cycle_count = 3
+    intake_cycle_time = 1
+    intake_cycle_count = 1
 
     # Cycle 1
 
@@ -202,7 +202,7 @@ def _conservative(use_depot):
         # followPath(path_name="Turn 180")
 
         with sequence():
-            wait(1.5)
+            wait(2.5)
 
             cycle_intake(intake_cycle_time, intake_cycle_count)
 
