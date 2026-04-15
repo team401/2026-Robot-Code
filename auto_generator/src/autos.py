@@ -71,7 +71,7 @@ def from_bump_prepare_for_trench(angle=-90):
 
 @command
 def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second_sweep=True):
-    intake_cycle_time = 0.5
+    intake_cycle_time = 1 / 3
     intake_cycle_count = 1
 
 

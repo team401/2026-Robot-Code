@@ -22,11 +22,11 @@
     "unit": "Volt"
   },
   "pivotStartStowingHoodAngle": {
-    "value": 83.0,
+    "value": 65.0,
     "unit": "Degree"
   },
   "pivotStopTurretAngle": {
-    "value": 80.0,
+    "value": 65.0,
     "unit": "Degree"
   },
   "pivotHoldAngleTolerance": {
