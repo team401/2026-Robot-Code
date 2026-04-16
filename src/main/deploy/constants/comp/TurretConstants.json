@@ -27,7 +27,7 @@
   "turretExpoKV": 0.4,
   "turretExpoKA": 0.4,
   "turretSupplyCurrentLimit": {
-    "value": 60.0,
+    "value": 30.0,
     "unit": "Amp"
   },
   "turretStatorCurrentLimit": {
