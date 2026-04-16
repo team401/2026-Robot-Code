@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
