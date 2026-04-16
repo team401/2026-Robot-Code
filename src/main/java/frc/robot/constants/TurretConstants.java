@@ -144,8 +144,7 @@ public class TurretConstants {
         .withMotionMagic(
             new MotionMagicConfigs()
                 .withMotionMagicExpo_kA(turretExpoKA)
-                .withMotionMagicExpo_kV(turretExpoKV)
-                .withMotionMagicJerk(300))
+                .withMotionMagicExpo_kV(turretExpoKV))
         .withFeedback(
             new FeedbackConfigs()
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
