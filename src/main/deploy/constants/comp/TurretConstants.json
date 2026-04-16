@@ -17,13 +17,13 @@
     "value": 0.0,
     "unit": "Degree"
   },
-  "turretKP": 3000.0,
+  "turretKP": 6000.0,
   "turretKI": 0.0,
-  "turretKD": 140.0,
-  "turretKS": 2.0,
+  "turretKD": 160.0,
+  "turretKS": 0.0,
   "turretKV": 0.0,
   "turretKG": 0.0,
-  "turretKA": 2.0,
+  "turretKA": 1.5,
   "turretExpoKV": 0.4,
   "turretExpoKA": 0.4,
   "turretSupplyCurrentLimit": {
