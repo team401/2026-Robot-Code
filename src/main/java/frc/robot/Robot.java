@@ -102,8 +102,6 @@ public class Robot extends LoggedRobot {
     if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
       autoTestingSimulation = new AutoTestingSimulation(this);
     }
-
-    RobotController.setBrownoutVoltage(Volts.of(6.4));
   }
 
   /** This function is called periodically during all modes. */

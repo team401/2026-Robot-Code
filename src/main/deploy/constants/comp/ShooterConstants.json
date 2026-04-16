@@ -19,7 +19,7 @@
     "kA": 0.0
   },
   "shooterSlot1Gains": {
-    "kP": 1.6,
+    "kP": 0.6,
     "kI": 0.0,
     "kD": 0.0,
     "kS": 0.467145,
@@ -32,7 +32,7 @@
     "unit": "Volt per Second"
   },
   "shooterSupplyCurrentLimit": {
-    "value": 70.0,
+    "value": 40.0,
     "unit": "Amp"
   },
   "shooterStatorCurrentLimit": {
