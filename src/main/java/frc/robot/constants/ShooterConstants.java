@@ -91,6 +91,9 @@ public class ShooterConstants {
   /** Per-motor supply current limit */
   public final Current shooterSupplyCurrentLimit = Amps.of(40.0);
 
+  public final Current shooterSupplyCurrentLowerLimit = Amps.of(40.0);
+  public final Time shooterSupplyCurrentLowerTime = Seconds.of(1.0);
+
   /** Per-motor stator current limit */
   public final Current shooterStatorCurrentLimit = Amps.of(80.0);
 
@@ -168,7 +171,9 @@ public class ShooterConstants {
                 .withStatorCurrentLimit(shooterStatorCurrentLimit)
                 .withStatorCurrentLimitEnable(true)
                 .withSupplyCurrentLimit(shooterSupplyCurrentLimit)
-                .withSupplyCurrentLimitEnable(true))
+                .withSupplyCurrentLimitEnable(true)
+                .withSupplyCurrentLowerLimit(shooterSupplyCurrentLowerLimit)
+                .withSupplyCurrentLowerTime(shooterSupplyCurrentLowerTime))
         .withMotorOutput(
             new MotorOutputConfigs()
                 .withInverted(shooterMotorDirection)

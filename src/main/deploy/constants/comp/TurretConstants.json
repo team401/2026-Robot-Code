@@ -17,17 +17,17 @@
     "value": 0.0,
     "unit": "Degree"
   },
-  "turretKP": 3000.0,
+  "turretKP": 6000.0,
   "turretKI": 0.0,
-  "turretKD": 140.0,
-  "turretKS": 2.0,
-  "turretKV": 1.0,
+  "turretKD": 160.0,
+  "turretKS": 0.0,
+  "turretKV": 0.0,
   "turretKG": 0.0,
-  "turretKA": 2.0,
-  "turretExpoKV": 1.5,
-  "turretExpoKA": 1.5,
+  "turretKA": 1.5,
+  "turretExpoKV": 0.4,
+  "turretExpoKA": 0.4,
   "turretSupplyCurrentLimit": {
-    "value": 60.0,
+    "value": 30.0,
     "unit": "Amp"
   },
   "turretStatorCurrentLimit": {
@@ -48,7 +48,7 @@
     "unit": "Degree"
   },
   "turretSetpointEpsilon": {
-    "value": 2.5,
+    "value": 3.5,
     "unit": "Degree"
   },
   "turretPassingSetpointEpsilon": {
@@ -56,7 +56,7 @@
     "unit": "Degree"
   },
   "headingToTurretAngle": {
-    "value": 40.5,
+    "value": 41.8,
     "unit": "Degree"
   }
 }

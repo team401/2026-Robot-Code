@@ -54,7 +54,7 @@
     }
   },
   "indexerSupplyCurrentLimit": {
-    "value": 60.0,
+    "value": 50.0,
     "unit": "Amp"
   },
   "indexerStatorCurrentLimit": {

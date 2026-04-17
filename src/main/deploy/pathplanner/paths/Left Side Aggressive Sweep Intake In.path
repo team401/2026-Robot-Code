@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 5.2,
-        "y": 7.4
+        "y": 7.55
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.2480313837375165,
-        "y": 7.180042796005707
+        "x": 6.362644188110027,
+        "y": 7.40014196983141
       },
       "isLocked": false,
-      "linkedName": "Left Trench Center Exit"
+      "linkedName": "Left Trench Center Exit Intake In"
     },
     {
       "anchor": {
-        "x": 8.712635314995564,
-        "y": 6.68678793256433
+        "x": 8.386,
+        "y": 6.718979591836735
       },
       "prevControl": {
-        "x": 8.704343075326042,
-        "y": 7.1456251942779465
+        "x": 8.389879807209837,
+        "y": 7.168854977326066
       },
       "nextControl": {
-        "x": 8.736779059449868,
-        "y": 5.350834072759539
+        "x": 8.373509272467903,
+        "y": 5.270641940085593
       },
       "isLocked": false,
       "linkedName": null
@@ -36,12 +36,12 @@
         "y": 5.447409050576753
       },
       "prevControl": {
-        "x": 8.974029260114136,
-        "y": 5.040498557293761
+        "x": 8.358527062999112,
+        "y": 5.342786157941436
       },
       "nextControl": {
-        "x": 6.950141969831411,
-        "y": 5.519840283939662
+        "x": 6.943087054794925,
+        "y": 5.4770979835374565
       },
       "isLocked": false,
       "linkedName": null
@@ -62,23 +62,15 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1,
-      "rotationDegrees": -108.97040780848684
-    },
-    {
-      "waypointRelativePos": 2,
-      "rotationDegrees": -123.69006752597983
-    },
-    {
-      "waypointRelativePos": 2.5,
-      "rotationDegrees": -115.65562897382831
+      "waypointRelativePos": 0.7957559681697607,
+      "rotationDegrees": -90.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.0469798657718123,
-      "maxWaypointRelativePos": 1.635906040268455,
+      "minWaypointRelativePos": 0.8406040268456376,
+      "maxWaypointRelativePos": 1.5476029709655559,
       "constraints": {
         "maxVelocity": 1.25,
         "maxAcceleration": 3.0,
@@ -107,7 +99,7 @@
   "folder": "Sweep",
   "idealStartingState": {
     "velocity": 4.2,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

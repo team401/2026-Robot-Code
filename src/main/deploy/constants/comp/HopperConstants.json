@@ -9,7 +9,7 @@
     "unit": "RPM"
   },
   "indexingVelocity": {
-    "value": 2900,
+    "value": 4250,
     "unit": "RPM"
   },
   "hopperGains": {
@@ -69,7 +69,7 @@
     }
   },
   "hopperSupplyCurrentLimit": {
-    "value": 60.0,
+    "value": 50.0,
     "unit": "Amp"
   },
   "hopperStatorCurrentLimit": {

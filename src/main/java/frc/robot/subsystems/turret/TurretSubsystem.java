@@ -480,7 +480,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
     if (!brakeForIntake()) {
-      motor.controlToPositionUnprofiled(clampedGoalAngle);
+      motor.controlToPositionExpoProfiled(clampedGoalAngle);
     }
   }
 
@@ -545,6 +545,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    *     would tear the net or if defense mode is enabled, {@code false} otherwise.
    */
   public void shouldStopMoving(boolean shouldStopMoving) {
+    Logger.recordOutput("Turret/shouldStopMoving", shouldStopMoving);
     dependencies.shouldStopMoving = shouldStopMoving;
   }
 

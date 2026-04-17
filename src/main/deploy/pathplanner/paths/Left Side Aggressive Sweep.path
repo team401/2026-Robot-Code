@@ -4,60 +4,44 @@
     {
       "anchor": {
         "x": 5.2,
-        "y": 7.55
+        "y": 7.4
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.174631457460907,
-        "y": 7.447562105997699
+        "x": 6.362644188110027,
+        "y": 7.250141969831411
       },
       "isLocked": false,
-      "linkedName": "Left Trench Center Exit Intake In"
+      "linkedName": "Left Trench Center Exit"
     },
     {
       "anchor": {
-        "x": 6.435075421472938,
-        "y": 6.606308784383319
+        "x": 8.535581188997337,
+        "y": 6.718979591836735
       },
       "prevControl": {
-        "x": 6.418293965687454,
-        "y": 7.065001909186514
+        "x": 8.61606033717835,
+        "y": 7.161614906832297
       },
       "nextControl": {
-        "x": 6.4738913986484015,
-        "y": 5.545338741587313
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 6.64,
-        "y": 4.956
-      },
-      "prevControl": {
-        "x": 6.168271540936714,
-        "y": 4.502638319122061
-      },
-      "nextControl": {
-        "x": 6.859686162624821,
-        "y": 5.16713266761769
+        "x": 8.30470350319411,
+        "y": 5.449152319919011
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.8,
-        "y": 5.29
+        "x": 7.255962732919255,
+        "y": 5.447409050576753
       },
       "prevControl": {
-        "x": 6.744024991984309,
-        "y": 4.985095427260195
+        "x": 8.358527062999112,
+        "y": 5.342786157941436
       },
       "nextControl": {
-        "x": 6.906894208855764,
-        "y": 5.872269377619242
+        "x": 6.943087054794925,
+        "y": 5.4770979835374565
       },
       "isLocked": false,
       "linkedName": null
@@ -68,8 +52,8 @@
         "y": 5.75
       },
       "prevControl": {
-        "x": 6.342139800285306,
-        "y": 5.751126961483594
+        "x": 6.137302573203194,
+        "y": 5.761277728482697
       },
       "nextControl": null,
       "isLocked": false,
@@ -78,23 +62,19 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1,
+      "waypointRelativePos": 0.5530503978779842,
       "rotationDegrees": -90.0
     },
     {
       "waypointRelativePos": 2,
-      "rotationDegrees": -91.74929661675606
-    },
-    {
-      "waypointRelativePos": 3.0,
-      "rotationDegrees": -90.0
+      "rotationDegrees": -108.43494882292197
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.3825503355704698,
-      "maxWaypointRelativePos": 1.8926174496644295,
+      "minWaypointRelativePos": 0.8406040268456376,
+      "maxWaypointRelativePos": 1.4597315436241611,
       "constraints": {
         "maxVelocity": 1.25,
         "maxAcceleration": 3.0,
@@ -123,7 +103,7 @@
   "folder": "Sweep",
   "idealStartingState": {
     "velocity": 4.2,
-    "rotation": -90.0
+    "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

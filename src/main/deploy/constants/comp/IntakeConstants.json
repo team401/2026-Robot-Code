@@ -22,11 +22,11 @@
     "unit": "Volt"
   },
   "pivotStartStowingHoodAngle": {
-    "value": 45.0,
+    "value": 65.0,
     "unit": "Degree"
   },
   "pivotStopTurretAngle": {
-    "value": 80.0,
+    "value": 65.0,
     "unit": "Degree"
   },
   "pivotHoldAngleTolerance": {
@@ -108,8 +108,16 @@
     "unit": "Amp"
   },
   "rollersSupplyCurrentLimit": {
-    "value": 40.0,
+    "value": 30.0,
     "unit": "Amp"
+  },
+  "rollersSupplyCurrentLowerLimit": {
+    "value": 20.0,
+    "unit": "Amp"
+  },
+  "rollersSupplyCurrentLowerTime": {
+    "value": 1.0,
+    "unit": "Second"
   },
   "rollersMaxAcceleration": {
     "value": 628.3185307179587,

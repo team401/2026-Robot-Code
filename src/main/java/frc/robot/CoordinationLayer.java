@@ -938,8 +938,7 @@ public class CoordinationLayer {
     Logger.recordOutput("CoordinationLayer/isShotReal", isShotReal);
 
     boolean shouldStowHoodBasedOnMovement =
-        autonomyLevel == AutonomyLevel.Smart
-            && OptionalUtil.mapTwo(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
+        OptionalUtil.mapTwo(drive, hood, this::shouldStowHoodBasedOnMovement).orElse(false);
     Logger.recordOutput(
         "CoordinationLayer/shouldStowHoodBasedOnMovement", shouldStowHoodBasedOnMovement);
     boolean shouldStowHoodBasedOnButtons =
