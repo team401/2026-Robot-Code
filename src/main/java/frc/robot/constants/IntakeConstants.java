@@ -97,6 +97,8 @@ public class IntakeConstants {
   public final Current pivotStatorCurrentLimit = Amps.of(40.0);
   public final Current rollersStatorCurrentLimit = Amps.of(40.0);
   public final Current rollersSupplyCurrentLimit = Amps.of(40.0);
+  public final Current rollersSupplyCurrentLowerLimit = Amps.of(20.0);
+  public final Time rollersSupplyCurrentLowerTime = Seconds.of(1.0);
 
   public final AngularAcceleration rollersMaxAcceleration = RPM.of(6000).div(Seconds.of(1.0));
 
@@ -158,8 +160,8 @@ public class IntakeConstants {
                     .withSupplyCurrentLimitEnable(true)
                     .withStatorCurrentLimit(rollersStatorCurrentLimit)
                     .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLowerLimit(Amps.of(20.0))
-                    .withSupplyCurrentLowerTime(Seconds.of(1.0)))
+                    .withSupplyCurrentLowerLimit(rollersSupplyCurrentLowerLimit)
+                    .withSupplyCurrentLowerTime(rollersSupplyCurrentLowerTime))
             .withSlot0(rollersPIDGains.toSlot0Config())
             .withFeedback(
                 new FeedbackConfigs()

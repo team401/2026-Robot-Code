@@ -35,6 +35,14 @@
     "value": 40.0,
     "unit": "Amp"
   },
+  "shooterSupplyCurrentLowerLimit": {
+    "value": 40.0,
+    "unit": "Amp"
+  },
+  "shooterSupplyCurrentLowerTime": {
+    "value": 1.0,
+    "unit": "Second"
+  },
   "shooterStatorCurrentLimit": {
     "value": 150.0,
     "unit": "Amp"

@@ -111,6 +111,14 @@
     "value": 30.0,
     "unit": "Amp"
   },
+  "rollersSupplyCurrentLowerLimit": {
+    "value": 20.0,
+    "unit": "Amp"
+  },
+  "rollersSupplyCurrentLowerTime": {
+    "value": 1.0,
+    "unit": "Second"
+  },
   "rollersMaxAcceleration": {
     "value": 628.3185307179587,
     "unit": "Radian per Second per Second"
