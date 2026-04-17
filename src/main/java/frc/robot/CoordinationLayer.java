@@ -951,7 +951,7 @@ public class CoordinationLayer {
 
     // If shooting isn't enabled, stop the shooter flywheels to avoid wasting
     // a ton of energy
-    if (!shootingEnabled) {
+    if (!shootingEnabled || inDefenseMode) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
 
