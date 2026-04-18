@@ -302,3 +302,7 @@ def _conservative_no_depot():
 def _conservative_depot():
     _conservative(True, True, True, False)
 
+@auto("AP Test")
+def _ap_test():
+    autopilot(target_pose=pose2d(14.3, 2.9, -90), velocity=4.2, constraints=APConstraints(4.2, 27.0))
+    autopilot(target_pose=pose2d(14.3, 4.9, -90), velocity=0, constraints=APConstraints(4.2, 4.5, 4.5))
