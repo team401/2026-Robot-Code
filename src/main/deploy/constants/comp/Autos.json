@@ -27,7 +27,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center Intake In",
+                                        "pathName": "Starting Position Left Trench To Center Intake In",
                                         "mirrorPath": null
                                     }
                                 ]
@@ -108,7 +108,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     },
@@ -118,7 +118,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     }
@@ -297,7 +297,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     },
@@ -307,7 +307,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     }
@@ -335,7 +335,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center Intake In",
+                                        "pathName": "Starting Position Left Trench To Center Intake In",
                                         "mirrorPath": null
                                     }
                                 ]
@@ -416,7 +416,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     },
@@ -426,7 +426,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     }
@@ -576,7 +576,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     },
@@ -586,7 +586,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     }
@@ -664,7 +664,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center Intake In",
+                                        "pathName": "Starting Position Left Trench To Center Intake In",
                                         "mirrorPath": null
                                     }
                                 ]
@@ -774,7 +774,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     },
@@ -784,7 +784,7 @@
                                     {
                                         "type": "Wait",
                                         "delay": {
-                                            "value": 0.25,
+                                            "value": 0.16666666666666666,
                                             "unit": "Second"
                                         }
                                     }
@@ -812,7 +812,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
+                                        "pathName": "Starting Position Left Trench To Center",
                                         "mirrorPath": null
                                     }
                                 ]
@@ -1120,7 +1120,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
+                                        "pathName": "Starting Position Left Trench To Center",
                                         "mirrorPath": null
                                     }
                                 ]
@@ -1449,7 +1449,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
+                                        "pathName": "Starting Position Left Trench To Center",
                                         "mirrorPath": null
                                     }
                                 ]

@@ -94,7 +94,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
     # )
     with parallel():
         stow_intake()
-        followPath(path_name="Left Trench To Center Intake In")
+        followPath(path_name="Starting Position Left Trench To Center Intake In")
 
     with parallel():
         deploy_intake()
@@ -210,7 +210,7 @@ def _conservative(use_depot=False, from_bump=False, shoot_preload=False, do_seco
     # )
     with parallel():
         stow_intake()
-        followPath(path_name="Left Trench To Center")
+        followPath(path_name="Starting Position Left Trench To Center")
 
     with parallel():
         deploy_intake()
