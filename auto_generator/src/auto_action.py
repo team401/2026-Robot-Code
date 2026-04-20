@@ -127,6 +127,24 @@ class Print:
 
 
 @dataclass
+class NetworkConfigurableWait:
+    type: str = field(default="NetworkConfigurableWait", init=False)
+    name: str = ""
+    default_delay: units.Measure = None
+
+    def to_dict(self) -> dict:
+        d: dict = {"type": self.type}
+        d["name"] = _to_dict(self.name)
+        d["defaultDelay"] = _to_dict(self.default_delay)
+        return d
+
+    def add(self):
+        """Adds this command to the current auto and returns itself for chaining."""
+        _call_hook(self)
+        return self
+
+
+@dataclass
 class Rotation2d:
     degrees: float = 0.0
 
@@ -547,29 +565,7 @@ class StopShooting:
         return self
 
 
-@dataclass
-class NetworkConfigurableWait:
-    type: str = field(default="NetworkConfigurableWait", init=False)
-    name: str = ""
-    default_wait: Optional[units.Measure] = units.Second.of(0.0)
-
-    def to_dict(self) -> dict:
-        d: dict = {
-                "type": self.type,
-                "name": self.name,
-            }
-        if self.default_wait is not None:
-            d["defaultWait"] = self.default_wait.to_dict()
-        return d
-
-
-    def add(self):
-        """Adds this command to the current auto and returns itself for chaining."""
-        _call_hook(self)
-        return self
-
-
-AutoAction = Optional[AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | FollowPathPlannerPath | DeployIntakeAction | StowIntakeAction | ClimbSearchAction | ClimbHangAction | StartShooting | StopShooting | NetworkConfigurableWait]
+AutoAction = Optional[AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | NetworkConfigurableWait | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | FollowPathPlannerPath | DeployIntakeAction | StowIntakeAction | ClimbSearchAction | ClimbHangAction | StartShooting | StopShooting]
 
 
 _add_command_hook: Callable[[Any], None] | None = None

@@ -2,6 +2,8 @@ package frc.robot.auto.general;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
+import coppercore.parameter_tools.json.annotations.JSONExclude;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
@@ -17,10 +19,13 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * network.
  */
 public class NetworkConfigurableWait extends AutoAction {
-  private final LoggedNetworkNumber waitTimeSeconds;
-  private static final Set<String> usedNames = new java.util.HashSet<>();
+  private String name;
+  private Time defaultDelay;
+  @JSONExclude private LoggedNetworkNumber waitTimeSeconds;
+  @JSONExclude private static final Set<String> usedNames = new java.util.HashSet<>();
 
-  public NetworkConfigurableWait(String name, Time defaultDelay) {
+  @AfterJsonLoad
+  public void initializeNetworkNumber() {
     if (usedNames.contains(name)) {
       throw new IllegalArgumentException(
           "NetworkConfigurableWait name must be unique. Duplicate name: " + name);
@@ -28,7 +33,9 @@ public class NetworkConfigurableWait extends AutoAction {
     usedNames.add(name);
 
     this.waitTimeSeconds =
-        new LoggedNetworkNumber("NetworkConfigurableWait/" + name, defaultDelay.in(Seconds));
+        new LoggedNetworkNumber(
+            "NetworkConfigurableWait/" + name,
+            defaultDelay != null ? defaultDelay.in(Seconds) : 0.0);
   }
 
   @Override
