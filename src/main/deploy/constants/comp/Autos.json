@@ -1581,55 +1581,6 @@
             },
             "canBeMirrored": true,
             "shouldBeFlipped": true
-        },
-        "AP Test": {
-            "rootAction": {
-                "type": "Sequence",
-                "actions": [
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": -90
-                                },
-                                "translation": {
-                                    "x": 14.3,
-                                    "y": 2.9
-                                }
-                            },
-                            "velocity": 4.2
-                        },
-                        "constraints": {
-                            "velocity": 4.2,
-                            "acceleration": 27.0,
-                            "jerk": 0.0
-                        }
-                    },
-                    {
-                        "type": "AutoPilotAction",
-                        "target": {
-                            "reference": {
-                                "rotation": {
-                                    "degrees": -90
-                                },
-                                "translation": {
-                                    "x": 14.3,
-                                    "y": 4.9
-                                }
-                            },
-                            "velocity": 0
-                        },
-                        "constraints": {
-                            "velocity": 4.2,
-                            "acceleration": 4.5,
-                            "jerk": 4.5
-                        }
-                    }
-                ]
-            },
-            "canBeMirrored": true,
-            "shouldBeFlipped": true
         }
     },
     "routines": {
