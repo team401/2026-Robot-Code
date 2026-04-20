@@ -78,7 +78,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
     if shoot_preload:
         startShooting()
         wait(1.5)
-    
+
     if from_bump:
         from_bump_prepare_for_trench()
 
@@ -113,7 +113,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
     )
 
     wait(2.5)
-    
+
     if do_second_sweep:
         cycle_intake(intake_cycle_time, intake_cycle_count)
 
@@ -171,7 +171,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
                 k_p=1.5,
             )
         )
-    
+
     cycle_intake(intake_cycle_time, intake_cycle_count)
 
 @auto("Aggressive Depot")
@@ -194,7 +194,7 @@ def _conservative(use_depot=False, from_bump=False, shoot_preload=False, do_seco
     if shoot_preload:
         startShooting()
         wait(1.5)
-    
+
     if from_bump:
         from_bump_prepare_for_trench(angle=0)
 
@@ -288,7 +288,7 @@ def _conservative(use_depot=False, from_bump=False, shoot_preload=False, do_seco
         )
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
-    
+
 
 @auto("Conservative Depot")
 def _conservative_depot():
@@ -301,4 +301,3 @@ def _conservative_no_depot():
 @auto("Conservative Depot From Bump")
 def _conservative_depot():
     _conservative(True, True, True, False)
-
