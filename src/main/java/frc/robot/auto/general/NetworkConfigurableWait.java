@@ -3,6 +3,9 @@ package frc.robot.auto.general;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.auto.AutoAction;
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -29,7 +32,7 @@ public class NetworkConfigurableWait extends AutoAction {
   }
 
   @Override
-  public edu.wpi.first.wpilibj2.command.Command toCommand(AutoActionContext data) {
-    return new edu.wpi.first.wpilibj2.command.WaitCommand(Seconds.of(waitTimeSeconds.get()));
+  public Command toCommand(AutoActionContext data) {
+    return new DeferredCommand(() -> new WaitCommand(Seconds.of(waitTimeSeconds.get())), Set.of());
   }
 }
