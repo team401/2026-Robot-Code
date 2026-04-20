@@ -547,7 +547,29 @@ class StopShooting:
         return self
 
 
-AutoAction = Optional[AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | FollowPathPlannerPath | DeployIntakeAction | StowIntakeAction | ClimbSearchAction | ClimbHangAction | StartShooting | StopShooting]
+@dataclass
+class NetworkConfigurableWait:
+    type: str = field(default="NetworkConfigurableWait", init=False)
+    name: str = ""
+    default_wait: Optional[units.Measure] = units.Second.of(0.0)
+
+    def to_dict(self) -> dict:
+        d: dict = {
+                "type": self.type,
+                "name": self.name,
+            }
+        if self.default_wait is not None:
+            d["defaultWait"] = self.default_wait.to_dict()
+        return d
+
+
+    def add(self):
+        """Adds this command to the current auto and returns itself for chaining."""
+        _call_hook(self)
+        return self
+
+
+AutoAction = Optional[AutoReference | Deadline | Sequence | Parallel | Race | Wait | Print | AutoPilotAction | XBasedAutoPilotAction | StopDriveAction | FollowPathPlannerPath | DeployIntakeAction | StowIntakeAction | ClimbSearchAction | ClimbHangAction | StartShooting | StopShooting | NetworkConfigurableWait]
 
 
 _add_command_hook: Callable[[Any], None] | None = None

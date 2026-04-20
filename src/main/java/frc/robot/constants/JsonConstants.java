@@ -26,6 +26,8 @@ import frc.robot.RobotContainer;
 import frc.robot.auto.Auto;
 import frc.robot.auto.AutoAction;
 import frc.robot.auto.Autos;
+import frc.robot.auto.general.JSONNetworkConfigurableWait;
+import frc.robot.auto.general.NetworkConfigurableWait;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.FixedJSONSyncConfigBuilder;
@@ -62,6 +64,8 @@ public class JsonConstants {
 
     JSONMeasure.registerUnit(Amp.per(Second));
     JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
+
+    JSONConverter.addConversion(NetworkConfigurableWait.class, JSONNetworkConfigurableWait.class);
   }
 
   public static JSONHandler loadConstants(RobotContainer robotContainer) {
