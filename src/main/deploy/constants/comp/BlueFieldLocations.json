@@ -1,10 +1,26 @@
 {
-  "leftPassingTarget": {
-    "x": 0.9,
+  "leftAZPassingTarget": {
+    "x": 0.72,
     "y": 6.23
   },
-  "rightPassingTarget": {
-    "x": 0.9,
+  "rightAZPassingTarget": {
+    "x": 0.72,
+    "y": 1.5
+  },
+  "leftBumpPassingTarget": {
+    "x": 5.84,
+    "y": 5.4
+  },
+  "rightBumpPassingTarget": {
+    "x": 5.84,
+    "y": 2.4
+  },
+  "leftNZPassingTarget": {
+    "x": 9.54,
+    "y": 6.23
+  },
+  "rightNZPassingTarget": {
+    "x": 9.54,
     "y": 1.5
   }
 }

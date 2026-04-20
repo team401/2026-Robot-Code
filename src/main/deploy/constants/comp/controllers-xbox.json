@@ -183,7 +183,7 @@
           }
         },
         {
-          "command": "operatorWonAuto1",
+          "command": "operatorWonAuto",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -191,7 +191,7 @@
           }
         },
         {
-          "command": "operatorWonAuto2",
+          "command": "operatorPassToNZ",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -199,7 +199,7 @@
           }
         },
         {
-          "command": "operatorLostAuto1",
+          "command": "operatorLostAuto",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",
@@ -207,7 +207,7 @@
           }
         },
         {
-          "command": "operatorLostAuto2",
+          "command": "operatorPassToAZ",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "button",

@@ -18,23 +18,77 @@ public class FieldLocations {
    * Get the target location for passing to the left side of the field, from the current alliance
    * station's perspective.
    *
-   * @return A Translation2d representing the left target passing location for the current alliance
+   * @return A Translation2d representing the left alliance zone target passing location for the
+   *     current alliance
    */
-  public static Translation2d leftPassingTarget() {
+  public static Translation2d leftAZPassingTarget() {
     return AllianceUtil.isRed()
-        ? JsonConstants.redFieldLocations.leftPassingTarget
-        : JsonConstants.blueFieldLocations.leftPassingTarget;
+        ? JsonConstants.redFieldLocations.leftAZPassingTarget
+        : JsonConstants.blueFieldLocations.leftAZPassingTarget;
   }
 
   /**
    * Get the target location for passing to the right side of the field, from the current alliance
    * station's perspective.
    *
-   * @return A Translation2d representing the right target passing location for the current alliance
+   * @return A Translation2d representing the right alliance zone target passing location for the
+   *     current alliance
    */
-  public static Translation2d rightPassingTarget() {
+  public static Translation2d rightAZPassingTarget() {
     return AllianceUtil.isRed()
-        ? JsonConstants.redFieldLocations.rightPassingTarget
-        : JsonConstants.blueFieldLocations.rightPassingTarget;
+        ? JsonConstants.redFieldLocations.rightAZPassingTarget
+        : JsonConstants.blueFieldLocations.rightAZPassingTarget;
+  }
+
+  /**
+   * Get the target location for passing to the left side of the bump, from the current alliance
+   * station's perspective.
+   *
+   * @return A Translation2d representing the left bump target passing location for the current
+   *     alliance
+   */
+  public static Translation2d leftBumpPassingTarget() {
+    return AllianceUtil.isRed()
+        ? JsonConstants.redFieldLocations.leftBumpPassingTarget
+        : JsonConstants.blueFieldLocations.leftBumpPassingTarget;
+  }
+
+  /**
+   * Get the target location for passing to the right side of the bump, from the current alliance
+   * station's perspective.
+   *
+   * @return A Translation2d representing the right bump target passing location for the current
+   *     alliance
+   */
+  public static Translation2d rightBumpPassingTarget() {
+    return AllianceUtil.isRed()
+        ? JsonConstants.redFieldLocations.rightBumpPassingTarget
+        : JsonConstants.blueFieldLocations.rightBumpPassingTarget;
+  }
+
+  /**
+   * Get the target location for passing to the left side of the neutral zone, from the current
+   * alliance station's perspective.
+   *
+   * @return A Translation2d representing the left neutral zone target passing location for the
+   *     current alliance
+   */
+  public static Translation2d leftNZPassingTarget() {
+    return AllianceUtil.isRed()
+        ? JsonConstants.redFieldLocations.leftNZPassingTarget
+        : JsonConstants.blueFieldLocations.leftNZPassingTarget;
+  }
+
+  /**
+   * Get the target location for passing to the right side of the neutral zone, from the current
+   * alliance station's perspective.
+   *
+   * @return A Translation2d representing the right neutral zone target passing location for the
+   *     current alliance
+   */
+  public static Translation2d rightNZPassingTarget() {
+    return AllianceUtil.isRed()
+        ? JsonConstants.redFieldLocations.rightNZPassingTarget
+        : JsonConstants.blueFieldLocations.rightNZPassingTarget;
   }
 }

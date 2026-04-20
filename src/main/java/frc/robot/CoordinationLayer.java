@@ -122,6 +122,25 @@ public class CoordinationLayer {
     Hub
   }
 
+  public enum PassGoalZone {
+    AllianceZone,
+    NeutralZone
+  }
+
+  /**
+   * The currently selected pass goal zone. This differs from actualPassGoalZone because when the
+   * robot is in the neutral zone, actualPassGoalZone is set to AllianceZone at all times
+   */
+  @AutoLogOutput(key = "CoordinationLayer/selectedPassGoalZone")
+  private PassGoalZone selectedPassGoalZone = PassGoalZone.AllianceZone;
+
+  /**
+   * The actual pass goal zone. This is updated based on the robot's position and the selected pass
+   * goal zone
+   */
+  @AutoLogOutput(key = "CoordinationLayer/actualPassGoalZone")
+  private PassGoalZone actualPassGoalZone = PassGoalZone.AllianceZone;
+
   /**
    * Tracks our current "autonomy level": either vision is enabled & used (smart), or manual driver
    * alignment is used (manual)
@@ -328,13 +347,11 @@ public class CoordinationLayer {
     this.isOperatorStowHoodForTrenchPressed =
         controllers.getButton("operatorStowHood").getPrimitiveIsPressedSupplier();
 
-    var won1Supplier = controllers.getButton("operatorWonAuto1").getPrimitiveIsPressedSupplier();
-    var won2Supplier = controllers.getButton("operatorWonAuto2").getPrimitiveIsPressedSupplier();
-    this.isWonAutoPressed = () -> won1Supplier.getAsBoolean() || won2Supplier.getAsBoolean();
+    this.isWonAutoPressed =
+        controllers.getButton("operatorWonAuto").getPrimitiveIsPressedSupplier();
 
-    var lost1Supplier = controllers.getButton("operatorLostAuto1").getPrimitiveIsPressedSupplier();
-    var lost2Supplier = controllers.getButton("operatorLostAuto2").getPrimitiveIsPressedSupplier();
-    this.isLostAutoPressed = () -> lost1Supplier.getAsBoolean() || lost2Supplier.getAsBoolean();
+    this.isLostAutoPressed =
+        controllers.getButton("operatorLostAuto").getPrimitiveIsPressedSupplier();
 
     makeTriggerFromButton(controllers.getButton("operatorStartShooting"))
         .onTrue(new InstantCommand(this::startShooting));
@@ -366,6 +383,12 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("operatorHoldForBoost"))
         .onTrue(new InstantCommand(this::boostIntakeRPM))
         .onFalse(new InstantCommand(this::stopBoostingIntakeRPM));
+
+    makeTriggerFromButton(controllers.getButton("operatorPassToAZ"))
+        .onTrue(new InstantCommand(this::setPassTargetToAZ));
+
+    makeTriggerFromButton(controllers.getButton("operatorPassToNZ"))
+        .onTrue(new InstantCommand(this::setPassTargetToNZ));
   }
 
   /**
@@ -548,6 +571,14 @@ public class CoordinationLayer {
 
   private void stopBoostingIntakeRPM() {
     isIntakeBoosted = false;
+  }
+
+  private void setPassTargetToAZ() {
+    selectedPassGoalZone = PassGoalZone.AllianceZone;
+  }
+
+  private void setPassTargetToNZ() {
+    selectedPassGoalZone = PassGoalZone.NeutralZone;
   }
 
   public void lowerDriveSupplyCurrentLimit() {
@@ -913,6 +944,16 @@ public class CoordinationLayer {
     }
 
     long shotCalculationStartTimeUs = RobotController.getFPGATime();
+
+    // Select a passing target based on where we are
+    if (drive
+        .map(drive -> AllianceBasedFieldConstants.isInOppAllianceZone(drive.getPose()))
+        .orElse(false)) {
+      actualPassGoalZone = selectedPassGoalZone;
+    } else {
+      actualPassGoalZone = PassGoalZone.AllianceZone;
+    }
+
     // Aim for a shot based on the current autonomy level
     if (testModeManager.isInTestMode()) {
       drive.ifPresent(this::aimForTestModeShot);
@@ -1041,8 +1082,12 @@ public class CoordinationLayer {
     Translation2d targetPose =
         switch (target) {
           case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
-          case PassLeft -> FieldLocations.leftPassingTarget();
-          case PassRight -> FieldLocations.rightPassingTarget();
+          case PassLeftAZ -> FieldLocations.leftAZPassingTarget();
+          case PassRightAZ -> FieldLocations.rightAZPassingTarget();
+          case PassLeftBump -> FieldLocations.leftBumpPassingTarget();
+          case PassRightBump -> FieldLocations.rightBumpPassingTarget();
+          case PassLeftNZ -> FieldLocations.leftNZPassingTarget();
+          case PassRightNZ -> FieldLocations.rightNZPassingTarget();
         };
 
     Rotation2d yaw = targetPose.minus(shooterPosition).getAngle();
@@ -1165,10 +1210,33 @@ public class CoordinationLayer {
    *     position.
    */
   private ShotTarget getShotTargetFromPose(Pose2d robotPose) {
-    return switch (this.shotMode) {
-      case Hub -> ShotTarget.Hub;
-      case Pass -> isOnLeftSideOfField(robotPose) ? ShotTarget.PassLeft : ShotTarget.PassRight;
-    };
+    switch (this.shotMode) {
+      case Hub -> {
+        return ShotTarget.Hub;
+      }
+      case Pass -> {
+        switch (actualPassGoalZone) {
+          case AllianceZone -> {
+            if (AllianceBasedFieldConstants.isInOppAllianceZone(robotPose)) {
+              return isOnLeftSideOfField(robotPose)
+                  ? ShotTarget.PassLeftBump
+                  : ShotTarget.PassRightBump;
+            } else {
+              return isOnLeftSideOfField(robotPose)
+                  ? ShotTarget.PassLeftAZ
+                  : ShotTarget.PassRightAZ;
+            }
+          }
+          case NeutralZone -> {
+            return isOnLeftSideOfField(robotPose) ? ShotTarget.PassLeftNZ : ShotTarget.PassRightNZ;
+          }
+        }
+        return isOnLeftSideOfField(robotPose) ? ShotTarget.PassLeftAZ : ShotTarget.PassRightAZ;
+      }
+      default -> {
+        throw new IllegalStateException("Unexpected shot mode: " + shotMode);
+      }
+    }
   }
 
   private final LoggedTunableNumber rpmCompensation =
