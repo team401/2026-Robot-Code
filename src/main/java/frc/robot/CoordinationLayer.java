@@ -992,7 +992,11 @@ public class CoordinationLayer {
 
     // If shooting isn't enabled, stop the shooter flywheels to avoid wasting
     // a ton of energy
-    if (!shootingEnabled) {
+    // Also stop them if we're in defense mode or intake is stowed to save power/prevent tearing the
+    // net
+    if (!shootingEnabled
+        || inDefenseMode
+        || intake.map(IntakeSubsystem::shouldStartStowingHood).orElse(false)) {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
 
