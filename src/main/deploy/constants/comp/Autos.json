@@ -20,15 +20,25 @@
                         "type": "Sequence",
                         "actions": [
                             {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": -90
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
+                            {
                                 "type": "Parallel",
                                 "actions": [
                                     {
                                         "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Starting Position Left Trench To Center Intake In",
-                                        "mirrorPath": null
                                     }
                                 ]
                             },
@@ -328,15 +338,25 @@
                         "type": "Sequence",
                         "actions": [
                             {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": -90
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
+                            {
                                 "type": "Parallel",
                                 "actions": [
                                     {
                                         "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Starting Position Left Trench To Center Intake In",
-                                        "mirrorPath": null
                                     }
                                 ]
                             },
@@ -657,15 +677,25 @@
                                 "type": "StopShooting"
                             },
                             {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": -90
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
+                            {
                                 "type": "Parallel",
                                 "actions": [
                                     {
                                         "type": "StowIntakeAction"
-                                    },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Starting Position Left Trench To Center Intake In",
-                                        "mirrorPath": null
                                     }
                                 ]
                             },
@@ -804,6 +834,21 @@
                     {
                         "type": "Sequence",
                         "actions": [
+                            {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": 0.0
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
                             {
                                 "type": "Parallel",
                                 "actions": [
@@ -1112,6 +1157,21 @@
                     {
                         "type": "Sequence",
                         "actions": [
+                            {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": 0.0
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
                             {
                                 "type": "Parallel",
                                 "actions": [
@@ -1440,6 +1500,21 @@
                             },
                             {
                                 "type": "StopShooting"
+                            },
+                            {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": 0.0
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
                             },
                             {
                                 "type": "Parallel",

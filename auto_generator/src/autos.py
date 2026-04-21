@@ -87,14 +87,15 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
 
     # Cycle 1
 
-    # x_based_autopilot(
-    #     target_pose=constants.left_trench_center_side_pose,
-    #     velocity=constants.default_trench_velocity,
-    #     entry_angle=rotation2d(0)
-    # )
+    x_based_autopilot(
+        target_pose=pose2d(5.2, 7.4, -90),
+        velocity=constants.default_trench_velocity,
+        entry_angle=None
+    )
+
     with parallel():
         stow_intake()
-        followPath(path_name="Starting Position Left Trench To Center Intake In")
+        # followPath(path_name="Starting Position Left Trench To Center Intake In")
 
     with parallel():
         deploy_intake()
@@ -203,11 +204,12 @@ def _conservative(use_depot=False, from_bump=False, shoot_preload=False, do_seco
 
     # Cycle 1
 
-    # x_based_autopilot(
-    #     target_pose=constants.left_trench_center_side_pose,
-    #     velocity=constants.default_trench_velocity,
-    #     entry_angle=rotation2d(0)
-    # )
+    x_based_autopilot(
+        target_pose=pose2d(5.2, 7.4),
+        velocity=constants.default_trench_velocity,
+        entry_angle=None
+    )
+
     with parallel():
         stow_intake()
         followPath(path_name="Starting Position Left Trench To Center")
