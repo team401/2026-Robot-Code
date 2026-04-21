@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.JsonConstants;
+import frc.robot.lib.BLine.FollowPath;
+import frc.robot.lib.BLine.Path;
 import java.security.InvalidParameterException;
 import org.littletonrobotics.junction.Logger;
 
@@ -215,5 +217,31 @@ public class DriveCoordinatorCommands extends Command {
         return command.isFinished();
       }
     };
+  }
+
+  private static FollowPath.Builder blineFollowPathBuilder = null;
+
+  public static Command followBLinePath(DriveCoordinator driveCoordinator, Path path) {
+    if (blineFollowPathBuilder == null) {
+      blineFollowPathBuilder =
+          new FollowPath.Builder(
+                  driveCoordinator.drive,
+                  driveCoordinator.drive::getPose,
+                  driveCoordinator.drive::getChassisSpeeds,
+                  speeds -> {
+                    driveCoordinator.drive.setGoalSpeeds(speeds, false);
+                  },
+                  new PIDController(5.0, 0, 0),
+                  new PIDController(3.0, 0, 0),
+                  new PIDController(2.0, 0, 0))
+              .withShouldFlip(() -> false)
+              .withShouldMirror(() -> false)
+              .withPoseReset(
+                  _unused -> {}); // Don't reset odometry at the start of each path since we trust
+      // our vision pre-match
+    }
+
+    FollowPath followPathCommand = blineFollowPathBuilder.build(path);
+    return wrapCommand(driveCoordinator, followPathCommand);
   }
 }
