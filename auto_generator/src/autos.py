@@ -391,3 +391,7 @@ def _aggressive_bline():
     )
 
     cycle_intake(intake_cycle_time, intake_cycle_count)
+
+@auto("BLine AZ Test Auto")
+def _bline_az_test():
+    followBLinePath("Bline Test")

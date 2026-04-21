@@ -16,19 +16,25 @@
       "type": "translation",
       "x_meters": 5.902848920863311,
       "y_meters": 7.55,
-      "intermediate_handoff_radius_meters": 0.25000000000000006
+      "intermediate_handoff_radius_meters": 0.3
     },
     {
       "type": "translation",
-      "x_meters": 7.747644604316548,
-      "y_meters": 7.045251798561151,
-      "intermediate_handoff_radius_meters": 0.5
+      "x_meters": 6.965284892086333,
+      "y_meters": 7.373338129496403,
+      "intermediate_handoff_radius_meters": 0.35000000000000003
+    },
+    {
+      "type": "translation",
+      "x_meters": 7.724871942446038,
+      "y_meters": 6.893827338129496,
+      "intermediate_handoff_radius_meters": 0.35
     },
     {
       "type": "translation",
       "x_meters": 8.473266187050358,
       "y_meters": 5.653395683453239,
-      "intermediate_handoff_radius_meters": 0.44999999999999996
+      "intermediate_handoff_radius_meters": 0.35000000000000003
     },
     {
       "type": "translation",
@@ -47,8 +53,8 @@
     "max_velocity_meters_per_sec": [
       {
         "value": 1.25,
-        "start_ordinal": 3,
-        "end_ordinal": 3
+        "start_ordinal": 4,
+        "end_ordinal": 4
       }
     ]
   }
