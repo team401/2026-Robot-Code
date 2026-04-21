@@ -231,14 +231,24 @@ public class DriveCoordinatorCommands extends Command {
                   speeds -> {
                     driveCoordinator.drive.setGoalSpeeds(speeds, false);
                   },
-                  new PIDController(5.0, 0, 0),
-                  new PIDController(3.0, 0, 0),
-                  new PIDController(2.0, 0, 0))
+                  new PIDController(
+                      JsonConstants.driveConstants.bLineTranslationKP,
+                      JsonConstants.driveConstants.bLineTranslationKI,
+                      JsonConstants.driveConstants.bLineTranslationKD),
+                  new PIDController(
+                      JsonConstants.driveConstants.bLineRotationKP,
+                      JsonConstants.driveConstants.bLineRotationKI,
+                      JsonConstants.driveConstants.bLineRotationKD),
+                  new PIDController(
+                      JsonConstants.driveConstants.bLineCrossTrackKP,
+                      JsonConstants.driveConstants.bLineCrossTrackKI,
+                      JsonConstants.driveConstants.bLineCrossTrackKD))
+              // Don't flip with the BLine builder: the auto context system handles this in the
+              // FollowBLinePath auto action.
               .withShouldFlip(() -> false)
               .withShouldMirror(() -> false)
-              .withPoseReset(
-                  _unused -> {}); // Don't reset odometry at the start of each path since we trust
-      // our vision pre-match
+              // Don't reset odometry at the start of each path since we trust our vision pre-match
+              .withPoseReset(_unused -> {});
     }
 
     FollowPath followPathCommand = blineFollowPathBuilder.build(path);

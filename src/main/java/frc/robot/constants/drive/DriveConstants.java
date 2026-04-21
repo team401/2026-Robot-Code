@@ -68,12 +68,14 @@ public class DriveConstants {
   public Angle defaultAutoPilotHeadingTolerance = Degrees.of(3.0);
   public Distance defaultAutoPilotXYTolerance = Meters.of(0.1);
 
-  // BLine constraints
-  public Double bLineMaxVelocityMetersPerSec = 5.1;
-  public Double bLineMaxAccelerationMetersPerSec2 = 3.0;
-  public Double bLineMaxAngularVelocityDegPerSec = 360.0;
-  public Double bLineMaxAngularAccelerationDegPerSec2 = 720.0;
-  public Double bLineEndTranslationToleranceMeters = 0.05;
-  public Double bLineEndRotationToleranceDeg = 2.0;
-  public Double bLineIntermediateHandoffRadiusMeters = 0.3;
+  // BLine gains
+  public Double bLineTranslationKP = 5.0;
+  public Double bLineTranslationKI = 0.0;
+  public Double bLineTranslationKD = 0.0;
+  public Double bLineRotationKP = 3.0;
+  public Double bLineRotationKI = 0.0;
+  public Double bLineRotationKD = 0.0;
+  public Double bLineCrossTrackKP = 2.0;
+  public Double bLineCrossTrackKI = 0.0;
+  public Double bLineCrossTrackKD = 0.0;
 }
