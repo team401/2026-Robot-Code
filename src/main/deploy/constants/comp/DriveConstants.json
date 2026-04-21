@@ -1,6 +1,6 @@
 {
   "maxLinearSpeed": {
-    "value": 4.0,
+    "value": 5.1,
     "unit": "Meter per Second"
   },
   "maxAngularSpeed": {
@@ -51,12 +51,12 @@
     "kA": 0.0
   },
   "driveGains": {
-    "kP": 1.0,
+    "kP": 2.0,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.24504,
+    "kS": 0.24446,
     "kG": 0.0,
-    "kV": 0.89937,
+    "kV": 0.78487,
     "kA": 0.0
   },
   "defaultAutoPilotHeadingGains": {
