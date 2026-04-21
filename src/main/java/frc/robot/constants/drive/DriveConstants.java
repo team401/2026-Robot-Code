@@ -26,7 +26,7 @@ import frc.robot.util.PIDGains;
  * PhysicalDriveConstants}.
  */
 public class DriveConstants {
-  public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(4.0);
+  public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(5.0);
   public final AngularVelocity maxAngularSpeed = RadiansPerSecond.of(7.2);
 
   public final Double joystickDeadband =
