@@ -53,6 +53,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
+import frc.robot.util.BatteryVoltageAlert;
+import frc.robot.util.Elastic;
 import frc.robot.util.OptionalUtil;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.geometry.EnhancedLine2d;
@@ -195,6 +197,7 @@ public class CoordinationLayer {
           "Autonomy level forced to manual due to disconnected coprocessor.", AlertType.kWarning);
   private final Alert visionDisconnectedAlert =
       new Alert("Coprocessor disconnected", AlertType.kError);
+  private final Alert lowBatteryAlert = new Alert("Batter voltage low", AlertType.kWarning);
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -829,6 +832,12 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
+    lowBatteryAlert.set(BatteryVoltageAlert.checkBatteryVoltage(RobotController.getBatteryVoltage()));
+    
+    Elastic.Notification noFMS = new Elastic.Notification(Elastic.NotificationLevel.WARNING, "FMS not attached", "FMS is not attached. Please attach it.");
+    if (!(DriverStation.isFMSAttached())) {
+        Elastic.sendNotification(noFMS);
+    }
     // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
     // shot we were looking ahead to last cycle.
     // This should improve the performance of shoot on the move.
