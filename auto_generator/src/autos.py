@@ -361,15 +361,11 @@ def _aggressive_bline():
 
         with parallel():
             deploy_intake()
-            followPath(path_name="Left Side Close 2nd Sweep Intake In")
+            followBLinePath(path_name="Second Sweep")
 
         with parallel():
-            with sequence():
-                wait(0.4)
-                startShooting()
-            followPath(path_name="Left Bump To Alliance")
-
-        wait(0.1)
+            wait(0.1)
+            startShooting()
 
         autopilot(
             target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)

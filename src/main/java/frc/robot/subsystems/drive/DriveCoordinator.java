@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.RobotController;
@@ -9,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.Logger;
 
 // TODO: Add lots of logging to this class and the commands
@@ -20,6 +22,19 @@ public class DriveCoordinator extends SubsystemBase {
 
   LoggedTunablePIDGains steerGains;
   LoggedTunablePIDGains driveGains;
+  Lazy<LoggedTunableNumber> bLineTranslationKP;
+  Lazy<LoggedTunableNumber> bLineTranslationKI;
+  Lazy<LoggedTunableNumber> bLineTranslationKD;
+  Lazy<LoggedTunableNumber> bLineRotationKP;
+  Lazy<LoggedTunableNumber> bLineRotationKI;
+  Lazy<LoggedTunableNumber> bLineRotationKD;
+  Lazy<LoggedTunableNumber> bLineCrossTrackKP;
+  Lazy<LoggedTunableNumber> bLineCrossTrackKI;
+  Lazy<LoggedTunableNumber> bLineCrossTrackKD;
+  Lazy<LoggedTunableNumber> bLineMaxLinearVelocityMps;
+  Lazy<LoggedTunableNumber> bLineMaxLinearAccelerationMps2;
+  Lazy<LoggedTunableNumber> bLineMaxAngularVelocityDegPerSec;
+  Lazy<LoggedTunableNumber> bLineMaxAngularAccelerationDegPerSec2;
 
   public void initializeTestMode() {
     steerGains =
@@ -30,6 +45,61 @@ public class DriveCoordinator extends SubsystemBase {
         new LoggedTunablePIDGains(
             "DriveCoordinatorTunables/DriveGains",
             JsonConstants.driveConstants.driveGains.asArray());
+
+    bLineTranslationKP =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/Translation/KP",
+                    JsonConstants.driveConstants.bLineTranslationKP));
+    bLineTranslationKI =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/Translation/KI",
+                    JsonConstants.driveConstants.bLineTranslationKI));
+    bLineTranslationKD =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/Translation/KD",
+                    JsonConstants.driveConstants.bLineTranslationKD));
+    bLineRotationKP =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/Rotation/KP",
+                    JsonConstants.driveConstants.bLineRotationKP));
+    bLineRotationKI =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/Rotation/KI",
+                    JsonConstants.driveConstants.bLineRotationKI));
+    bLineRotationKD =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/Rotation/KD",
+                    JsonConstants.driveConstants.bLineRotationKD));
+    bLineCrossTrackKP =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/CrossTrack/KP",
+                    JsonConstants.driveConstants.bLineCrossTrackKP));
+    bLineCrossTrackKI =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/CrossTrack/KI",
+                    JsonConstants.driveConstants.bLineCrossTrackKI));
+    bLineCrossTrackKD =
+        new Lazy<>(
+            () ->
+                new LoggedTunableNumber(
+                    "DriveCoordinatorTunables/BLine/CrossTrack/KD",
+                    JsonConstants.driveConstants.bLineCrossTrackKD));
   }
 
   // Fields for normal operation
@@ -207,6 +277,35 @@ public class DriveCoordinator extends SubsystemBase {
       case DriveGainsTuning:
         steerGains.ifChanged(hashCode(), drive::setSteerGains);
         driveGains.ifChanged(hashCode(), drive::setDriveGains);
+        break;
+      case BLineGainsTuning:
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (translationRotationCrossTrackPIDs) -> {
+              JsonConstants.driveConstants.bLineTranslationKP =
+                  translationRotationCrossTrackPIDs[0];
+              JsonConstants.driveConstants.bLineTranslationKI =
+                  translationRotationCrossTrackPIDs[1];
+              JsonConstants.driveConstants.bLineTranslationKD =
+                  translationRotationCrossTrackPIDs[2];
+              JsonConstants.driveConstants.bLineRotationKP = translationRotationCrossTrackPIDs[3];
+              JsonConstants.driveConstants.bLineRotationKI = translationRotationCrossTrackPIDs[4];
+              JsonConstants.driveConstants.bLineRotationKD = translationRotationCrossTrackPIDs[5];
+              JsonConstants.driveConstants.bLineCrossTrackKP = translationRotationCrossTrackPIDs[6];
+              JsonConstants.driveConstants.bLineCrossTrackKI = translationRotationCrossTrackPIDs[7];
+              JsonConstants.driveConstants.bLineCrossTrackKD = translationRotationCrossTrackPIDs[8];
+
+              DriveCoordinatorCommands.forceBLineGainsUpdateNextCommandGeneration();
+            },
+            bLineTranslationKP.get(),
+            bLineTranslationKI.get(),
+            bLineTranslationKD.get(),
+            bLineRotationKP.get(),
+            bLineRotationKI.get(),
+            bLineRotationKD.get(),
+            bLineCrossTrackKP.get(),
+            bLineCrossTrackKI.get(),
+            bLineCrossTrackKD.get());
         break;
       default:
         break;

@@ -1756,9 +1756,9 @@
                                 "type": "DeployIntakeAction"
                             },
                             {
-                                "type": "FollowPathPlannerPath",
-                                "pathName": "Left Side Close 2nd Sweep Intake In",
-                                "mirrorPath": null
+                                "type": "FollowBLinePath",
+                                "pathName": "Second Sweep",
+                                "mirrorPath": false
                             }
                         ]
                     },
@@ -1766,33 +1766,16 @@
                         "type": "Parallel",
                         "actions": [
                             {
-                                "type": "Sequence",
-                                "actions": [
-                                    {
-                                        "type": "Wait",
-                                        "delay": {
-                                            "value": 0.4,
-                                            "unit": "Second"
-                                        }
-                                    },
-                                    {
-                                        "type": "StartShooting"
-                                    }
-                                ]
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.1,
+                                    "unit": "Second"
+                                }
                             },
                             {
-                                "type": "FollowPathPlannerPath",
-                                "pathName": "Left Bump To Alliance",
-                                "mirrorPath": null
+                                "type": "StartShooting"
                             }
                         ]
-                    },
-                    {
-                        "type": "Wait",
-                        "delay": {
-                            "value": 0.1,
-                            "unit": "Second"
-                        }
                     },
                     {
                         "type": "AutoPilotAction",

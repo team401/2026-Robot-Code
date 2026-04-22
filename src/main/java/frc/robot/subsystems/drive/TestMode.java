@@ -5,6 +5,7 @@ import frc.robot.util.TestModeDescription;
 public enum TestMode implements TestModeDescription {
   // Drive-related test modes
   DriveGainsTuning("Drive Steering and Drive Gains Tuning"),
+  BLineGainsTuning("BLine Gains Tuning"),
   // Miscellaneous
   None; // No test mode selected
 

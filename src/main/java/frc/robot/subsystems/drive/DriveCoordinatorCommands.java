@@ -221,6 +221,18 @@ public class DriveCoordinatorCommands extends Command {
 
   private static FollowPath.Builder blineFollowPathBuilder = null;
 
+  /**
+   * Deletes the cached FollowPath.Builder to force the gains to be re-read from the constants file
+   * on the next call to followBLinePath. This is useful for tuning the BLine gains without having
+   * to restart
+   *
+   * <p>Auto commands should be regenerated after calling this method to ensure that the new gains
+   * are used.
+   */
+  public static void forceBLineGainsUpdateNextCommandGeneration() {
+    blineFollowPathBuilder = null;
+  }
+
   public static Command followBLinePath(DriveCoordinator driveCoordinator, Path path) {
     if (blineFollowPathBuilder == null) {
       blineFollowPathBuilder =
