@@ -1,5 +1,5 @@
 {
-  "selectedEnvironmentName": "comp",
+  "selectedEnvironmentName": "test_drivebase",
   "defaultEnvironmentName": "comp",
   "environments": {
     "comp": {
