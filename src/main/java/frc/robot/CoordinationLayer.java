@@ -1340,4 +1340,8 @@ public class CoordinationLayer {
   public Optional<Drive> getDrive() {
     return drive;
   }
+
+  public void resetToHubShootForAuto() {
+    shotMode = ShotMode.Hub;
+  }
 }

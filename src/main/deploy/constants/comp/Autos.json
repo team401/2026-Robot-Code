@@ -31,16 +31,13 @@
                                             "y": 7.4
                                         }
                                     },
-                                    "velocity": 4.2
+                                    "velocity": 5.1
+                                },
+                                "constraints": {
+                                    "velocity": 5.1,
+                                    "acceleration": 15.0,
+                                    "jerk": 0.0
                                 }
-                            },
-                            {
-                                "type": "Parallel",
-                                "actions": [
-                                    {
-                                        "type": "StowIntakeAction"
-                                    }
-                                ]
                             },
                             {
                                 "type": "Parallel",
@@ -349,16 +346,13 @@
                                             "y": 7.4
                                         }
                                     },
-                                    "velocity": 4.2
+                                    "velocity": 5.1
+                                },
+                                "constraints": {
+                                    "velocity": 5.1,
+                                    "acceleration": 15.0,
+                                    "jerk": 0.0
                                 }
-                            },
-                            {
-                                "type": "Parallel",
-                                "actions": [
-                                    {
-                                        "type": "StowIntakeAction"
-                                    }
-                                ]
                             },
                             {
                                 "type": "Parallel",
@@ -688,16 +682,13 @@
                                             "y": 7.4
                                         }
                                     },
-                                    "velocity": 4.2
+                                    "velocity": 5.1
+                                },
+                                "constraints": {
+                                    "velocity": 5.1,
+                                    "acceleration": 15.0,
+                                    "jerk": 0.0
                                 }
-                            },
-                            {
-                                "type": "Parallel",
-                                "actions": [
-                                    {
-                                        "type": "StowIntakeAction"
-                                    }
-                                ]
                             },
                             {
                                 "type": "Parallel",
