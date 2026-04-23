@@ -41,7 +41,6 @@ public class HomingSwitch {
           homingState = HomingState.HOMED;
           io.pulldownOutput();
         }
-        homingState = HomingState.HOMED;
         break;
       case HOMED:
         // Do nothing
