@@ -1,0 +1,286 @@
+{
+  "version": 1.0,
+  "grid_size": 128,
+  "tabs": [
+    {
+      "name": "Teleop",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Auto Choices",
+            "x": 1152.0,
+            "y": 384.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto Choices",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "timeLeftInShift",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/MatchState/timeLeftInShift",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "shotMode",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/CoordinationLayer/shotMode",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "autonomyLevel",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/CoordinationLayer/autonomyLevel",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "effectiveAutonomyLevel",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/CoordinationLayer/effectiveAutonomyLevel",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Alerts",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "PhotonAlerts",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/PhotonAlerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "MatchTime",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/DriverStation/MatchTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "canScore",
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/MatchState/canScore",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "autoWinner",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/MatchState/autoWinner",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Has AW",
+            "x": 512.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/MatchState/hasDeterminedAutoWinner",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "FMS Sent AW",
+            "x": 512.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/MatchState/receivedAutoWinnerFromFMS",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "compensationRPM",
+            "x": 1024.0,
+            "y": 128.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "TunableNumbers/CoordinationLayer/compensationRPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Field2d",
+            "x": 640.0,
+            "y": 256.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/Field2d",
+              "period": 0.06,
+              "field_game": "Rebuilt",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Defense Mode",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/CoordinationLayer/inDefenseMode",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "runningIntakeRollers",
+            "x": 1408.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/CoordinationLayer/runningIntakeRollers",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "shootingEnabled",
+            "x": 1408.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/CoordinationLayer/shootingEnabled",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "ResetToAutoCurrentLimits",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/ResetToAutoCurrentLimits",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

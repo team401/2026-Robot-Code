@@ -35,7 +35,7 @@
                                 },
                                 "constraints": {
                                     "velocity": 5.1,
-                                    "acceleration": 15.0,
+                                    "acceleration": 200.0,
                                     "jerk": 0.0
                                 }
                             },
@@ -350,7 +350,7 @@
                                 },
                                 "constraints": {
                                     "velocity": 5.1,
-                                    "acceleration": 15.0,
+                                    "acceleration": 200.0,
                                     "jerk": 0.0
                                 }
                             },
@@ -686,7 +686,7 @@
                                 },
                                 "constraints": {
                                     "velocity": 5.1,
-                                    "acceleration": 15.0,
+                                    "acceleration": 200.0,
                                     "jerk": 0.0
                                 }
                             },

@@ -11,19 +11,19 @@
   ],
   "defaultViMetersPerSecond": 9.0,
   "shooterSlot0Gains": {
-    "kP": 0.3,
+    "kP": 0.35,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.41847947993885554,
-    "kV": 0.0775192974211628,
+    "kS": 0.4224761737115704,
+    "kV": 0.07765940013761168,
     "kA": 0.0
   },
   "shooterSlot1Gains": {
-    "kP": 0.3,
+    "kP": 0.35,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.41847947993885554,
-    "kV": 0.0775192974211628,
+    "kS": 0.4224761737115704,
+    "kV": 0.07765940013761168,
     "kA": 0.0
   },
   "shooterReduction": 0.625,
@@ -32,7 +32,7 @@
     "unit": "Volt per Second"
   },
   "shooterSupplyCurrentLimit": {
-    "value": 50.0,
+    "value": 40.0,
     "unit": "Amp"
   },
   "shooterSupplyCurrentLowerLimit": {

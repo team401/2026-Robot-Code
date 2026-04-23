@@ -90,7 +90,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
     x_based_autopilot(
         target_pose=pose2d(5.2, 7.4, -90),
         velocity=5.1,
-        constraints=APConstraints(5.1, 15.0),
+        constraints=APConstraints(5.1, 200.0),
         entry_angle=None
     )
 
