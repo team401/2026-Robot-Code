@@ -528,6 +528,8 @@ public class CoordinationLayer {
     } else {
       lowerDriveSupplyCurrentLimit();
     }
+
+    drive.ifPresent(drive -> drive.setInDefenseMode(inDefenseMode));
   }
 
   private void seedHeadingForward() {
