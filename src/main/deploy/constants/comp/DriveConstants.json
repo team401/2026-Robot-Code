@@ -82,5 +82,14 @@
   "defaultAutoPilotXYTolerance": {
     "value": 0.1,
     "unit": "Meter"
-  }
+  },
+  "bLineTranslationKP": 5.0,
+  "bLineTranslationKI": 0.0,
+  "bLineTranslationKD": 0.0,
+  "bLineRotationKP": 3.0,
+  "bLineRotationKI": 0.0,
+  "bLineRotationKD": 0.0,
+  "bLineCrossTrackKP": 2.0,
+  "bLineCrossTrackKI": 0.0,
+  "bLineCrossTrackKD": 0.0
 }

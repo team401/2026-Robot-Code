@@ -201,3 +201,6 @@ def stopShooting() -> None:
 
 def followPath(path_name, mirror_path=None, can_mirror=None):
     AutoAction.FollowPathPlannerPath(path_name=path_name, mirror_path=mirror_path, can_mirror=can_mirror).add()
+
+def followBLinePath(path_name):
+    AutoAction.FollowBLinePath(path_name=path_name).add()

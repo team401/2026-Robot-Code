@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.PIDGains;
 import frc.robot.util.ServiceThread;
@@ -161,6 +162,12 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     AutoLogOutputManager.addObject(this);
 
     SmartDashboard.putData("Field2d", field2d);
+
+    FollowPath.setDoubleLoggingConsumer(p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
+    FollowPath.setBooleanLoggingConsumer(p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
+    FollowPath.setPoseLoggingConsumer(p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
+    FollowPath.setTranslationListLoggingConsumer(
+        p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
   }
 
   @Override

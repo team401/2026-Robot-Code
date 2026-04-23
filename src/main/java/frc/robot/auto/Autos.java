@@ -21,7 +21,7 @@ public class Autos {
   public HashMap<String, Auto> autos = new HashMap<>();
   public HashMap<String, AutoAction> routines = new HashMap<>();
 
-  @JSONExclude public HashMap<String, PathPlannerPath> paths = new HashMap<>();
+  @JSONExclude public HashMap<String, PathPlannerPath> pathPlannerPaths = new HashMap<>();
   @JSONExclude public HashMap<String, Command> autoCommands = new HashMap<>();
   @JSONExclude public HashMap<String, Command> routineCommands = new HashMap<>();
 
@@ -33,7 +33,7 @@ public class Autos {
   public void loadPathPlannerPath(String name) {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(name);
-      paths.put(name, path);
+      pathPlannerPaths.put(name, path);
     } catch (FileVersionException | IOException | ParseException e) {
       e.printStackTrace();
     }
@@ -88,8 +88,8 @@ public class Autos {
     return routineCommands.get(name);
   }
 
-  public PathPlannerPath getPath(String name) {
-    return paths.get(name);
+  public PathPlannerPath getPathPlannerPath(String name) {
+    return pathPlannerPaths.get(name);
   }
 
   public Command getRoutineCommandReference(String name) {

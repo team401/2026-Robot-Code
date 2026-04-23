@@ -12,6 +12,7 @@ from .field_locations import FieldConstants
 from .shorthands import (
     autopilot,
     deploy_intake,
+    followBLinePath,
     pose2d,
     rotation2d,
     transform2d,
@@ -301,3 +302,92 @@ def _conservative_no_depot():
 @auto("Conservative Depot From Bump")
 def _conservative_depot():
     _conservative(True, True, True, False)
+
+@auto("Aggressive BLine")
+def _aggressive_bline():
+    intake_cycle_time = 1 / 3
+    intake_cycle_count = 1
+    # Cycle 1
+
+    # x_based_autopilot(
+    #     target_pose=constants.left_trench_center_side_pose,
+    #     velocity=constants.default_trench_velocity,
+    #     entry_angle=rotation2d(0)
+    # )
+    with parallel():
+        stow_intake()
+        followPath(path_name="Left Trench To Center Intake In")
+
+    with parallel():
+        deploy_intake()
+        with sequence():
+            wait(2.6)
+            startShooting()
+        followBLinePath(path_name="Aggressive Sweep")
+
+    wait(0.1)
+
+    autopilot(
+        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+    )
+
+    wait(2.5)
+
+    if True:
+        cycle_intake(intake_cycle_time, intake_cycle_count)
+
+        # wait(1.0),
+        # Cycle 2
+
+        autopilot(
+            target_pose=pose2d(3.5, 7.55, -90),
+            velocity=constants.default_trench_velocity,
+            entry_angle=rotation2d(0),
+            constraints=auto_action.APConstraints(
+                velocity=2.0,
+                acceleration=2.0,
+                jerk=2.0
+            ),
+            pid_gains=PIDGains(
+                k_p=1.5,
+            )
+        )
+
+        with parallel():
+
+            stopShooting()
+
+            go_to_center_under_left_trench_from_alliance_intake_in()
+
+        with parallel():
+            deploy_intake()
+            followBLinePath(path_name="Second Sweep")
+
+        with parallel():
+            wait(0.1)
+            startShooting()
+
+        autopilot(
+            target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+        )
+
+        wait(1)
+
+    autopilot(
+        target_pose=pose2d(1.5, 5.9, -180),
+        velocity=0.0,
+        constraints=auto_action.APConstraints(
+            velocity=2.0,
+            acceleration=2.0,
+            jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
+        )
+    )
+
+    cycle_intake(intake_cycle_time, intake_cycle_count)
+
+@auto("BLine AZ Test Auto")
+def _bline_az_test():
+    followBLinePath("Bline Test")

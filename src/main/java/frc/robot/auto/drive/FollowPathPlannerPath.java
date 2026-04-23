@@ -33,7 +33,7 @@ public class FollowPathPlannerPath extends DriveAutoAction {
 
   @Override
   public Command toCommand(AutoActionContext context) {
-    var path = context.autos().getPath(pathName);
+    var path = context.autos().getPathPlannerPath(pathName);
     if (path == null) {
       throw new RuntimeException("Path not found: " + pathName);
     }

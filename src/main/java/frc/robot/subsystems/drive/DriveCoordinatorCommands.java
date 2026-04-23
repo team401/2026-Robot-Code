@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.JsonConstants;
+import frc.robot.lib.BLine.FollowPath;
+import frc.robot.lib.BLine.Path;
 import java.security.InvalidParameterException;
 import org.littletonrobotics.junction.Logger;
 
@@ -215,5 +217,53 @@ public class DriveCoordinatorCommands extends Command {
         return command.isFinished();
       }
     };
+  }
+
+  private static FollowPath.Builder blineFollowPathBuilder = null;
+
+  /**
+   * Deletes the cached FollowPath.Builder to force the gains to be re-read from the constants file
+   * on the next call to followBLinePath. This is useful for tuning the BLine gains without having
+   * to restart
+   *
+   * <p>Auto commands should be regenerated after calling this method to ensure that the new gains
+   * are used.
+   */
+  public static void forceBLineGainsUpdateNextCommandGeneration() {
+    blineFollowPathBuilder = null;
+  }
+
+  public static Command followBLinePath(DriveCoordinator driveCoordinator, Path path) {
+    if (blineFollowPathBuilder == null) {
+      blineFollowPathBuilder =
+          new FollowPath.Builder(
+                  driveCoordinator.drive,
+                  driveCoordinator.drive::getPose,
+                  driveCoordinator.drive::getChassisSpeeds,
+                  speeds -> {
+                    driveCoordinator.drive.setGoalSpeeds(speeds, false);
+                  },
+                  new PIDController(
+                      JsonConstants.driveConstants.bLineTranslationKP,
+                      JsonConstants.driveConstants.bLineTranslationKI,
+                      JsonConstants.driveConstants.bLineTranslationKD),
+                  new PIDController(
+                      JsonConstants.driveConstants.bLineRotationKP,
+                      JsonConstants.driveConstants.bLineRotationKI,
+                      JsonConstants.driveConstants.bLineRotationKD),
+                  new PIDController(
+                      JsonConstants.driveConstants.bLineCrossTrackKP,
+                      JsonConstants.driveConstants.bLineCrossTrackKI,
+                      JsonConstants.driveConstants.bLineCrossTrackKD))
+              // Don't flip with the BLine builder: the auto context system handles this in the
+              // FollowBLinePath auto action.
+              .withShouldFlip(() -> false)
+              .withShouldMirror(() -> false)
+              // Don't reset odometry at the start of each path since we trust our vision pre-match
+              .withPoseReset(_unused -> {});
+    }
+
+    FollowPath followPathCommand = blineFollowPathBuilder.build(path);
+    return wrapCommand(driveCoordinator, followPathCommand);
   }
 }

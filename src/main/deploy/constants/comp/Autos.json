@@ -1581,6 +1581,296 @@
             },
             "canBeMirrored": true,
             "shouldBeFlipped": true
+        },
+        "Aggressive BLine": {
+            "rootAction": {
+                "type": "Sequence",
+                "actions": [
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "FollowPathPlannerPath",
+                                "pathName": "Left Trench To Center Intake In",
+                                "mirrorPath": null
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 2.6,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StartShooting"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "FollowBLinePath",
+                                "pathName": "Aggressive Sweep",
+                                "mirrorPath": false
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Wait",
+                        "delay": {
+                            "value": 0.1,
+                            "unit": "Second"
+                        }
+                    },
+                    {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": -90
+                                },
+                                "translation": {
+                                    "x": 2.7,
+                                    "y": 5.75
+                                }
+                            },
+                            "velocity": 0.0
+                        }
+                    },
+                    {
+                        "type": "Wait",
+                        "delay": {
+                            "value": 2.5,
+                            "unit": "Second"
+                        }
+                    },
+                    {
+                        "type": "Sequence",
+                        "actions": [
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.16666666666666666,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.16666666666666666,
+                                    "unit": "Second"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": -90
+                                },
+                                "translation": {
+                                    "x": 3.5,
+                                    "y": 7.55
+                                }
+                            },
+                            "entryAngle": {
+                                "degrees": 0
+                            },
+                            "velocity": 4.2
+                        },
+                        "constraints": {
+                            "velocity": 2.0,
+                            "acceleration": 2.0,
+                            "jerk": 2.0
+                        },
+                        "pidGains": {
+                            "kP": 1.5,
+                            "kI": 0.0,
+                            "kD": 0.0,
+                            "kS": 0.0,
+                            "kG": 0.0,
+                            "kV": 0.0,
+                            "kA": 0.0
+                        }
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "StopShooting"
+                            },
+                            {
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "XBasedAutoPilotAction",
+                                        "target": {
+                                            "reference": {
+                                                "rotation": {
+                                                    "degrees": -90
+                                                },
+                                                "translation": {
+                                                    "x": 4.0,
+                                                    "y": 7.55
+                                                }
+                                            },
+                                            "entryAngle": {
+                                                "degrees": 0
+                                            },
+                                            "velocity": 4.2
+                                        }
+                                    },
+                                    {
+                                        "type": "FollowPathPlannerPath",
+                                        "pathName": "Left Trench To Center Intake In",
+                                        "mirrorPath": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "FollowBLinePath",
+                                "pathName": "Second Sweep",
+                                "mirrorPath": false
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Parallel",
+                        "actions": [
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.1,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "StartShooting"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": -90
+                                },
+                                "translation": {
+                                    "x": 2.7,
+                                    "y": 5.75
+                                }
+                            },
+                            "velocity": 0.0
+                        }
+                    },
+                    {
+                        "type": "Wait",
+                        "delay": {
+                            "value": 1,
+                            "unit": "Second"
+                        }
+                    },
+                    {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": -180
+                                },
+                                "translation": {
+                                    "x": 1.5,
+                                    "y": 5.9
+                                }
+                            },
+                            "velocity": 0.0
+                        },
+                        "constraints": {
+                            "velocity": 2.0,
+                            "acceleration": 2.0,
+                            "jerk": 2.0
+                        },
+                        "pidGains": {
+                            "kP": 1.5,
+                            "kI": 0.0,
+                            "kD": 0.0,
+                            "kS": 0.0,
+                            "kG": 0.0,
+                            "kV": 0.0,
+                            "kA": 0.0
+                        }
+                    },
+                    {
+                        "type": "Sequence",
+                        "actions": [
+                            {
+                                "type": "StowIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.16666666666666666,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "DeployIntakeAction"
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.16666666666666666,
+                                    "unit": "Second"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "canBeMirrored": true,
+            "shouldBeFlipped": true
+        },
+        "BLine AZ Test Auto": {
+            "rootAction": {
+                "type": "Sequence",
+                "actions": [
+                    {
+                        "type": "FollowBLinePath",
+                        "pathName": "Bline Test",
+                        "mirrorPath": false
+                    }
+                ]
+            },
+            "canBeMirrored": true,
+            "shouldBeFlipped": true
         }
     },
     "routines": {

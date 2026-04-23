@@ -23,8 +23,10 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -176,6 +178,9 @@ public class RobotContainer {
     if (Constants.currentMode == Mode.REPLAY) {
       TotalCurrentCalculator.enable();
     }
+
+    InstantCommand regenerateAutos = new InstantCommand(this::loadAutoCommands);
+    SmartDashboard.putData("RegenerateAutos", regenerateAutos);
   }
 
   public void loadAutoCommands() {
