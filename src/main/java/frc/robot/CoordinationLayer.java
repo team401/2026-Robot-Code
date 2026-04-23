@@ -28,7 +28,9 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -197,7 +199,9 @@ public class CoordinationLayer {
           "Autonomy level forced to manual due to disconnected coprocessor.", AlertType.kWarning);
   private final Alert visionDisconnectedAlert =
       new Alert("Coprocessor disconnected", AlertType.kError);
-  private final Alert lowBatteryAlert = new Alert("Batter voltage low", AlertType.kWarning);
+  private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
+  private final BatteryVoltageAlert batteryVoltageAlert =
+      BatteryVoltageAlert.createBatteryVoltageAlert(Constants.lowVoltageThreshold);
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -260,6 +264,7 @@ public class CoordinationLayer {
   // Controller bindings
   /** Initialize all bindings based on the controllers loaded from JSON */
   public void initBindings() {
+    //SmartDashboard.putNumber("CoordinationLayer/testBatteryVoltage", 12.0);
     Controllers controllers = JsonConstants.controllers;
 
     makeTriggerFromButton(controllers.getButton("toggleIntakeDeploy"))
@@ -832,12 +837,22 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
-    lowBatteryAlert.set(BatteryVoltageAlert.checkBatteryVoltage(RobotController.getBatteryVoltage()));
-    
-    Elastic.Notification noFMS = new Elastic.Notification(Elastic.NotificationLevel.WARNING, "FMS not attached", "FMS is not attached. Please attach it.");
-    if (!(DriverStation.isFMSAttached())) {
-        Elastic.sendNotification(noFMS);
+    // double testBatteryVoltage =
+    //     SmartDashboard.getNumber("CoordinationLayer/testBatteryVoltage", 12.0);
+
+    lowBatteryAlert.set(batteryVoltageAlert.checkBatteryVoltage(RobotController.getBatteryVoltage()));
+
+    int notificationDelayTime = (int) (Timer.getTimestamp() * 50);
+    Elastic.Notification noFMS =
+        new Elastic.Notification(
+            Elastic.NotificationLevel.WARNING,
+            "FMS not attached",
+            "FMS is not attached. Please attach it.");
+    if (!(DriverStation.isFMSAttached())
+        && notificationDelayTime % 190 == 0) { // This works out to one push notification at a time
+      Elastic.sendNotification(noFMS);
     }
+
     // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
     // shot we were looking ahead to last cycle.
     // This should improve the performance of shoot on the move.
