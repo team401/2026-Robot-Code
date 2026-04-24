@@ -54,7 +54,6 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
-import frc.robot.util.BatteryVoltageAlert;
 import frc.robot.util.Elastic;
 import frc.robot.util.OptionalUtil;
 import frc.robot.util.TestModeManager;
@@ -199,10 +198,6 @@ public class CoordinationLayer {
   private final Alert visionDisconnectedAlert =
       new Alert("Coprocessor disconnected", AlertType.kError);
   private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
-  private final BatteryVoltageAlert batteryVoltageAlert =
-      BatteryVoltageAlert.createBatteryVoltageAlert(
-          JsonConstants.robotInfo.lowVoltageThreshold,
-          JsonConstants.robotInfo.batteryAlertFilterTime);
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -837,11 +832,9 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
-    // double testBatteryVoltage =
-    //     SmartDashboard.getNumber("CoordinationLayer/testBatteryVoltage", 12.0);
-
     lowBatteryAlert.set(
-        batteryVoltageAlert.checkBatteryVoltage(RobotController.getBatteryVoltage()));
+        JsonConstants.robotInfo.batteryVoltageAlert.checkBatteryVoltage(
+            RobotController.getBatteryVoltage()));
 
     int notificationDelayTime = (int) (Timer.getTimestamp() * 50);
     Elastic.Notification noFMS =
