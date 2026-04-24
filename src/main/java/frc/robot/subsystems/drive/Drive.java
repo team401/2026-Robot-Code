@@ -307,9 +307,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         && Math.sqrt(
                 speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
                     + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond)
-            <= JsonConstants.driveConstants.xLockMaxVelocityMps
+            <= JsonConstants.driveConstants.xLockMaxVelocityMetersPerSecond
         && Math.abs(speeds.omegaRadiansPerSecond)
-            <= JsonConstants.driveConstants.xLockMaxVelocityRadPerSec) {
+            <= JsonConstants.driveConstants.xLockMaxVelocityRadiansPerSecond) {
       stopWithX();
       return;
     }

@@ -83,6 +83,6 @@
     "value": 0.1,
     "unit": "Meter"
   },
-  "xLockMaxVelocityMps": 0.25,
-  "xLockMaxVelocityRadPerSec": 1.0
+  "xLockMaxVelocityMetersPerSecond": 0.25,
+  "xLockMaxVelocityRadiansPerSecond": 1.0
 }
