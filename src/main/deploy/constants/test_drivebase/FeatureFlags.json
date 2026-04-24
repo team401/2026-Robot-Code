@@ -1,9 +1,9 @@
 {
   "runDrive": true,
   "useMAPoseEstimator": true,
-  "runVision": true,
-  "runHopper": true,
-  "runIndexer": true,
+  "runVision": false,
+  "runHopper": false,
+  "runIndexer": false,
   "runShooter": false,
   "runTurret": false,
   "runIntake": false,

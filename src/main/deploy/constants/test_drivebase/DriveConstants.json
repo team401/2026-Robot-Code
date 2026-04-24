@@ -54,9 +54,9 @@
     "kP": 1.0,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.20845,
+    "kS": 0.22768,
     "kG": 0.0,
-    "kV": 0.75722,
+    "kV": 0.84718,
     "kA": 0.0
   },
   "defaultAutoPilotHeadingGains": {

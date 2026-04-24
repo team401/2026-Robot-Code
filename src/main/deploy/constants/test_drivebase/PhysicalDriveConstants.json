@@ -16,7 +16,7 @@
     "unit": "Amp"
   },
   "wheelRadius": {
-    "value": 2.0,
+    "value": 1.966,
     "unit": "Inch"
   },
   "driveMotorConfig": {
