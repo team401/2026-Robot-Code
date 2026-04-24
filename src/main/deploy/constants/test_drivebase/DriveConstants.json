@@ -82,5 +82,7 @@
   "defaultAutoPilotXYTolerance": {
     "value": 0.1,
     "unit": "Meter"
-  }
+  },
+  "xLockMaxVelocityMps": 0.25,
+  "xLockMaxVelocityRadPerSec": 1.0
 }
