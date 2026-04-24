@@ -29,6 +29,9 @@ public class DriveConstants {
   public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(5.0);
   public final AngularVelocity maxAngularSpeed = RadiansPerSecond.of(7.2);
 
+  public final LinearVelocity slowdownMaxLinearSpeed = MetersPerSecond.of(2.0);
+  public final AngularVelocity slowdownMaxAngularSpeed = RadiansPerSecond.of(3.0);
+
   public final Double joystickDeadband =
       0.02; // Very low deadband for hall effect sticks; needs to be tuned
   public final Double joystickMagnitudeExponent = 2.0;
