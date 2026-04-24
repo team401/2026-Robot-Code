@@ -102,6 +102,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   // Log a field2d for Elastic
   private final Field2d field2d = new Field2d();
 
+  // Track if we're in defense mode to know when to lock the wheels
+  private boolean inDefenseMode = false;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -295,6 +298,15 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   @Override
   public void setGoalSpeeds(ChassisSpeeds goalSpeeds, boolean isFieldCentric) {
     Logger.recordOutput("drive/goalSpeeds", goalSpeeds);
+
+    if (inDefenseMode
+        && Math.abs(goalSpeeds.vxMetersPerSecond) <= 1e-3
+        && Math.abs(goalSpeeds.vyMetersPerSecond) <= 1e-3
+        && Math.abs(goalSpeeds.omegaRadiansPerSecond) <= 1e-3) {
+      stopWithX();
+      return;
+    }
+
     if (isFieldCentric) {
       // Adjust for field-centric control
       boolean isFlipped =
@@ -502,5 +514,14 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         };
 
     setPose(new Pose2d(currentPose.getX(), currentPose.getY(), heading));
+  }
+
+  /**
+   * Sets the defense mode flag.
+   *
+   * <p>Should be called from the coordination layer when toggling defense mode
+   */
+  public void setInDefenseMode(boolean inDefenseMode) {
+    this.inDefenseMode = inDefenseMode;
   }
 }
