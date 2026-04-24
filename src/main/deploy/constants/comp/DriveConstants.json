@@ -51,13 +51,13 @@
     "kA": 0.0
   },
   "driveGains": {
-    "kP": 2.0,
+    "kP": 0.6572,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.24446,
+    "kS": 0.21643,
     "kG": 0.0,
-    "kV": 0.78487,
-    "kA": 0.0
+    "kV": 0.36938,
+    "kA": 0.027796
   },
   "defaultAutoPilotHeadingGains": {
     "kP": 3.0,
