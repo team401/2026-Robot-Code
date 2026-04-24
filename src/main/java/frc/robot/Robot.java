@@ -97,9 +97,9 @@ public class Robot extends LoggedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
 
-    // if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
-    //   autoTestingSimulation = new AutoTestingSimulation(this);
-    // }
+    if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
+      autoTestingSimulation = new AutoTestingSimulation(this);
+    }
   }
 
   /** This function is called periodically during all modes. */
@@ -138,9 +138,9 @@ public class Robot extends LoggedRobot {
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
 
-    // if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
-    //   autoTestingSimulation.update();
-    // }
+    if (Constants.currentMode == Constants.Mode.SIM && JsonConstants.robotInfo.runAutoTesting) {
+      autoTestingSimulation.update();
+    }
   }
 
   /** This function is called once when the robot is disabled. */
