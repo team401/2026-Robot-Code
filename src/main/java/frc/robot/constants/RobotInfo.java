@@ -59,8 +59,8 @@ public class RobotInfo {
             new DigitalInputsConfigs()
                 .withS1CloseState(S1CloseStateValue.CloseWhenHigh)
                 .withS1FloatState(S1FloatStateValue.PullHigh)
-                // Pull low by default
-                .withS2FloatState(S2FloatStateValue.PullLow));
+                // Light is off by default to prevent false-positives when an LED fails
+                .withS2FloatState(S2FloatStateValue.PullHigh));
   }
 
   /** The refresh rates that should be used for subsystems that don't effect fire control */

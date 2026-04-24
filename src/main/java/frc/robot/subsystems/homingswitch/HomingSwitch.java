@@ -34,12 +34,12 @@ public class HomingSwitch {
       case WAIT_FOR_STARTUP:
         // If periodic is running, we have started up
         homingState = HomingState.WAIT_FOR_HOME;
-        io.pullupOutput();
+        io.pulldownOutput();
         break;
       case WAIT_FOR_HOME:
         if (isHomingSwitchPressed()) {
           homingState = HomingState.HOMED;
-          io.pulldownOutput();
+          io.pullupOutput();
         }
         break;
       case HOMED:
