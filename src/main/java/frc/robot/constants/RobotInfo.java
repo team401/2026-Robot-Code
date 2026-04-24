@@ -59,7 +59,15 @@ public class RobotInfo {
             new DigitalInputsConfigs()
                 .withS1CloseState(S1CloseStateValue.CloseWhenHigh)
                 .withS1FloatState(S1FloatStateValue.PullHigh)
-                // Light is off by default to prevent false-positives when an LED fails
+                // Light is on by default to prevent false-positives when an LED fails
+                // On power up, the light should turn on.
+                // Then, when code is ready to home, the light should turn off
+                // Finally, it will turn back on once the robot is homed.
+                // This means that, if the light fails, the technician won't falsely believe that
+                // the robot has been homed.
+                // This does run the risk of prematurely homing if the light fails to turn on, but
+                // hopefully the technician/human player/coach will notice that it never turned on
+                // and switch back to the auditory signal/asking driver for dashboard confirmation.
                 .withS2FloatState(S2FloatStateValue.PullHigh));
   }
 
