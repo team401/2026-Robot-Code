@@ -5,17 +5,24 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 public class BatteryVoltageAlert {
   private final double lowVoltageThreshold;
-  private LinearFilter filter = LinearFilter.singlePoleIIR(0.05, 0.02);
+  private LinearFilter filter;
 
-  private BatteryVoltageAlert(double lowVoltageThreshold) {
+  private BatteryVoltageAlert(double lowVoltageThreshold, double filterTime) {
     this.lowVoltageThreshold = lowVoltageThreshold;
-    this.filter = LinearFilter.singlePoleIIR(0.05, 0.02);
+    this.filter = LinearFilter.singlePoleIIR(filterTime, 0.02);
   }
 
-  public static BatteryVoltageAlert createBatteryVoltageAlert(double lowVoltageThreshold) {
-    return new BatteryVoltageAlert(lowVoltageThreshold);
+  public static BatteryVoltageAlert createBatteryVoltageAlert(
+      double lowVoltageThreshold, double filterTime) {
+    return new BatteryVoltageAlert(lowVoltageThreshold, filterTime);
   }
 
+  /**
+   * Uses a linear filter to compute if the battery is below the given voltage threshold.
+   *
+   * @param voltage battery voltage
+   * @return true if the average battery voltage is below the threshold
+   */
   public boolean checkBatteryVoltage(double voltage) {
     return filter.calculate(voltage) < lowVoltageThreshold && DriverStation.isDisabled();
   }

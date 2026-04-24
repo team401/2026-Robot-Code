@@ -39,6 +39,9 @@ public class RobotInfo {
 
   public Boolean runAutoTesting = false;
 
+  public double lowVoltageThreshold = 12.2;
+  public double batteryAlertFilterTime = 0.05;
+
   // Pose taken from KrayonCAD
   public final Transform3d robotToShooter =
       new Transform3d(

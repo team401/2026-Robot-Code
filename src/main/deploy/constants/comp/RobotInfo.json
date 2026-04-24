@@ -41,5 +41,7 @@
       "z": 0.379
     }
   },
-  "homingSwitchSignal": "S1"
+  "homingSwitchSignal": "S1",
+  "lowVoltageThreshold": 12.2,
+  "batteryAlertFilterTime": 0.05
 }

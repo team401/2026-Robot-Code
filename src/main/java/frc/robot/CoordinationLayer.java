@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.event.EventLoop;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -201,7 +200,9 @@ public class CoordinationLayer {
       new Alert("Coprocessor disconnected", AlertType.kError);
   private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
   private final BatteryVoltageAlert batteryVoltageAlert =
-      BatteryVoltageAlert.createBatteryVoltageAlert(Constants.lowVoltageThreshold);
+      BatteryVoltageAlert.createBatteryVoltageAlert(
+          JsonConstants.robotInfo.lowVoltageThreshold,
+          JsonConstants.robotInfo.batteryAlertFilterTime);
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -264,7 +265,6 @@ public class CoordinationLayer {
   // Controller bindings
   /** Initialize all bindings based on the controllers loaded from JSON */
   public void initBindings() {
-    //SmartDashboard.putNumber("CoordinationLayer/testBatteryVoltage", 12.0);
     Controllers controllers = JsonConstants.controllers;
 
     makeTriggerFromButton(controllers.getButton("toggleIntakeDeploy"))
@@ -840,7 +840,8 @@ public class CoordinationLayer {
     // double testBatteryVoltage =
     //     SmartDashboard.getNumber("CoordinationLayer/testBatteryVoltage", 12.0);
 
-    lowBatteryAlert.set(batteryVoltageAlert.checkBatteryVoltage(RobotController.getBatteryVoltage()));
+    lowBatteryAlert.set(
+        batteryVoltageAlert.checkBatteryVoltage(RobotController.getBatteryVoltage()));
 
     int notificationDelayTime = (int) (Timer.getTimestamp() * 50);
     Elastic.Notification noFMS =
