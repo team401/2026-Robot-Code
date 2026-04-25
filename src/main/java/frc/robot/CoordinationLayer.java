@@ -308,6 +308,10 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("seedHeadingForward"))
         .onTrue(new InstantCommand(this::seedHeadingForward));
 
+    makeTriggerFromButton(controllers.getButton("xLock"))
+        .onTrue(new InstantCommand(this::enableXLock))
+        .onFalse(new InstantCommand(this::disableXLock));
+
     // Operator controller:
     makeTriggerFromButton(controllers.getButton("operatorToggleIntakeDeploy"))
         .onTrue(new InstantCommand(this::toggleIntakeDeploy));
@@ -521,6 +525,14 @@ public class CoordinationLayer {
 
   private void seedHeadingForward() {
     drive.ifPresent(Drive::seedHeadingForward);
+  }
+
+  private void enableXLock() {
+    drive.ifPresent(drive -> drive.setXLockPressed(true));
+  }
+
+  private void disableXLock() {
+    drive.ifPresent(drive -> drive.setXLockPressed(false));
   }
 
   private void increaseRPM() {
