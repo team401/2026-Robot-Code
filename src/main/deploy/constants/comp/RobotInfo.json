@@ -5,7 +5,7 @@
     "value": 74.088,
     "unit": "Kilogram"
   },
-  "runAutoTesting": true,
+  "runAutoTesting": false,
   "nonFireControllingRefreshRates": {
     "highPriorityUpdateFrequency": {
       "value": 50.0,
@@ -41,7 +41,8 @@
       "z": 0.379
     }
   },
-  "homingSwitchSignal": "S1",
   "lowVoltageThreshold": 12.2,
-  "batteryAlertFilterTime": 0.05
+  "batteryAlertFilterTime": 0.05,
+  "homingSwitchInputSignal": "S1",
+  "homingSwitchOutputSignal": "S2"
 }

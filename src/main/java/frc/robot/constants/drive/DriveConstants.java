@@ -67,4 +67,6 @@ public class DriveConstants {
   public Distance defaultAutoPilotBeelineRadius = Meters.of(0.1);
   public Angle defaultAutoPilotHeadingTolerance = Degrees.of(3.0);
   public Distance defaultAutoPilotXYTolerance = Meters.of(0.1);
+  public Double xLockMaxVelocityMetersPerSecond = 0.25;
+  public Double xLockMaxVelocityRadiansPerSecond = 1.0;
 }

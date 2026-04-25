@@ -16,7 +16,6 @@ import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.JsonConstants;
-import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -24,6 +23,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.homingswitch.HomingSwitch;
+import frc.robot.subsystems.homingswitch.HomingSwitchIOReal;
+import frc.robot.subsystems.homingswitch.HomingSwitchIOReplay;
+import frc.robot.subsystems.homingswitch.HomingSwitchIOSimNT;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -31,9 +34,6 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
-import frc.robot.util.io.dio_switch.DigitalInputIOCANdiSimNT;
-import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
 import java.util.Optional;
 
 /**
@@ -401,27 +401,29 @@ public class InitSubsystems {
         // Real robot, instantiate hardware IO implementations
         return new HomingSwitch(
             dependencyOrderedExecutor,
-            new DigitalInputIOCANdi(
+            new HomingSwitchIOReal(
                 new CANDeviceID(
                     JsonConstants.robotInfo.CANBus,
                     JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
-                JsonConstants.robotInfo.homingSwitchSignal));
+                JsonConstants.robotInfo.homingSwitchInputSignal,
+                JsonConstants.robotInfo.homingSwitchOutputSignal));
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         return new HomingSwitch(
             dependencyOrderedExecutor,
-            new DigitalInputIOCANdiSimNT(
+            new HomingSwitchIOSimNT(
                 new CANDeviceID(
                     JsonConstants.robotInfo.CANBus,
                     JsonConstants.canBusAssignment.homingSwitchCANdiID),
                 JsonConstants.robotInfo.buildHomingSwitchConfig(),
-                JsonConstants.robotInfo.homingSwitchSignal,
+                JsonConstants.robotInfo.homingSwitchInputSignal,
+                JsonConstants.robotInfo.homingSwitchOutputSignal,
                 "HomingSwitchSim/isOpen",
                 false));
       case REPLAY:
         // Replayed robot, disable IO implementations
-        return new HomingSwitch(dependencyOrderedExecutor, new DigitalInputIOReplay());
+        return new HomingSwitch(dependencyOrderedExecutor, new HomingSwitchIOReplay());
       default:
         throw new UnsupportedOperationException("Unsupported mode " + Constants.currentMode);
     }
