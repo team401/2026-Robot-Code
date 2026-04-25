@@ -300,7 +300,7 @@ def _conservative_no_depot():
     _conservative(False, False, False, True)
 
 @auto("Conservative Depot From Bump")
-def _conservative_depot():
+def _conservative_depot_from_bump():
     _conservative(True, True, True, False)
 
 
@@ -310,3 +310,8 @@ def _follower():
     _aggressive(True, False, False, True)
     networkConfigurableWait("middle", units.Second.of(2.0))
     _aggressive(True, False, False, True)
+
+@auto("Center Depot")
+def _center_depot():
+    startShooting()
+    networkConfigurableWait("start", units.Second.of(4.0))
