@@ -199,6 +199,7 @@ public class CoordinationLayer {
       new Alert("Coprocessor disconnected", AlertType.kError);
   private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
 
+  // These constants will give a burst of two low battery voltage alerts, then one every second.
   private final TokenBucket lowBatteryAlertRateLimiter = new TokenBucket(200, 2);
   private final int TOKENS_PER_ALERT = 100;
 
@@ -840,16 +841,15 @@ public class CoordinationLayer {
     boolean lowVoltage =
         JsonConstants.robotInfo.batteryVoltageAlert.checkBatteryVoltage(
             RobotController.getBatteryVoltage());
-    lowBatteryAlertRateLimiter.increment();
     lowBatteryAlert.set(lowVoltage);
+    lowBatteryAlertRateLimiter.increment();
     if (lowVoltage && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)) {
-      Elastic.Notification noFMS =
-          new Elastic.Notification(
-              Elastic.NotificationLevel.WARNING,
-              "FMS not attached",
-              "FMS is not attached. Please attach it.");
       if (!(DriverStation.isFMSAttached())) {
-        Elastic.sendNotification(noFMS);
+        Elastic.sendNotification(
+            new Elastic.Notification(
+                Elastic.NotificationLevel.WARNING,
+                "FMS not attached",
+                "FMS is not attached. Please attach it."));
       }
     }
 
