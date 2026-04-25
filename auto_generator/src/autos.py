@@ -184,7 +184,7 @@ def _aggressive_no_depot():
     _aggressive(False, False, False, True)
 
 @auto("Aggressive Depot From Bump")
-def _aggressive_depot():
+def _aggressive_depot_from_bump():
     _aggressive(True, True, True, False)
 
 @command
@@ -311,12 +311,8 @@ def _follower():
     networkConfigurableWait("middle", units.Second.of(2.0))
     _aggressive(True, False, False, True)
 
-@auto("Center Depot")
-def _center_depot():
-    deploy_intake()
-    startShooting()
-    networkConfigurableWait("preload", units.Second.of(4.0))
-    stopShooting()
+@command
+def go_to_depot_and_intake():
     autopilot(
         target_pose=pose2d(0.802, 5.254, 135),
         constraints=auto_action.APConstraints(
@@ -328,6 +324,9 @@ def _center_depot():
             k_p=1.5,
         )
     )
+    # TODO: Test whether an autopilot action here works
+    # Autopilot would be more robust and simpler
+    # Also removes a path planner path and enables us to use hot reload to tune it
     followPath("Intake Depot")
     autopilot(
         target_pose=pose2d(1.3, 7.25, 135),
@@ -340,4 +339,12 @@ def _center_depot():
             k_p=1.5,
         )
     )
+
+@auto("Center Depot")
+def _center_depot():
+    deploy_intake()
+    startShooting()
+    networkConfigurableWait("preload", units.Second.of(4.0))
+    stopShooting()
+    go_to_depot_and_intake()
     startShooting()
