@@ -2318,14 +2318,14 @@
                                         },
                                         "translation": {
                                             "x": 0.802,
-                                            "y": 5.254
+                                            "y": 5.1
                                         }
                                     },
                                     "velocity": 0.0
                                 },
                                 "constraints": {
-                                    "velocity": 2.0,
-                                    "acceleration": 2.0,
+                                    "velocity": 5.1,
+                                    "acceleration": 5.0,
                                     "jerk": 2.0
                                 },
                                 "pidGains": {
@@ -2339,9 +2339,47 @@
                                 }
                             },
                             {
-                                "type": "FollowPathPlannerPath",
-                                "pathName": "Intake Depot",
-                                "mirrorPath": null
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.1,
+                                    "unit": "Second"
+                                }
+                            },
+                            {
+                                "type": "AutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": 135
+                                        },
+                                        "translation": {
+                                            "x": 0.802,
+                                            "y": 7.25
+                                        }
+                                    },
+                                    "velocity": 0.0
+                                },
+                                "constraints": {
+                                    "velocity": 1.5,
+                                    "acceleration": 3.0,
+                                    "jerk": 2.0
+                                },
+                                "pidGains": {
+                                    "kP": 1.5,
+                                    "kI": 0.0,
+                                    "kD": 0.0,
+                                    "kS": 0.0,
+                                    "kG": 0.0,
+                                    "kV": 0.0,
+                                    "kA": 0.0
+                                }
+                            },
+                            {
+                                "type": "Wait",
+                                "delay": {
+                                    "value": 0.1,
+                                    "unit": "Second"
+                                }
                             },
                             {
                                 "type": "AutoPilotAction",
@@ -2379,7 +2417,7 @@
                     }
                 ]
             },
-            "canBeMirrored": true,
+            "canBeMirrored": false,
             "shouldBeFlipped": true
         }
     },

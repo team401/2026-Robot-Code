@@ -324,20 +324,33 @@ def _follower():
 @command
 def go_to_depot_and_intake():
     autopilot(
-        target_pose=pose2d(0.802, 5.254, 135),
+        target_pose=pose2d(0.802, 5.1, 135),
         constraints=auto_action.APConstraints(
-            velocity=2.0,
-            acceleration=2.0,
+            velocity=5.1,
+            acceleration=5.0,
             jerk=2.0
         ),
         pid_gains=PIDGains(
             k_p=1.5,
         )
     )
-    # TODO: Test whether an autopilot action here works
-    # Autopilot would be more robust and simpler
+    wait(0.1) # Wait to stop autopilot from seeing initial velocity and panicking
+    # Autopilot is probably more robust and simpler
     # Also removes a path planner path and enables us to use hot reload to tune it
-    followPath("Intake Depot")
+    # followPath("Intake Depot")
+    autopilot(
+        target_pose=pose2d(0.802, 7.25, 135),
+        constraints=auto_action.APConstraints(
+            velocity=1.5,
+            acceleration=3.0,
+            jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
+        )
+    )
+    wait(0.1) # Wait to stop autopilot from seeing initial velocity and panicking
+
     autopilot(
         target_pose=pose2d(1.3, 7.25, 135),
         constraints=auto_action.APConstraints(
@@ -350,7 +363,7 @@ def go_to_depot_and_intake():
         )
     )
 
-@auto("Center Depot")
+@auto("Center Depot", can_be_mirrored=False)
 def _center_depot():
     deploy_intake()
     startShooting()
