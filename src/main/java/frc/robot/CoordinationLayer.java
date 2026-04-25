@@ -839,8 +839,9 @@ public class CoordinationLayer {
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
     boolean lowVoltage =
-        JsonConstants.robotInfo.batteryVoltageAlert.checkBatteryVoltage(
-            RobotController.getBatteryVoltage());
+        JsonConstants.robotInfo.batteryVoltageAlert.isBatteryBelowThreshold(
+                RobotController.getBatteryVoltage())
+            && DriverStation.isDisabled();
     lowBatteryAlert.set(lowVoltage);
     lowBatteryAlertRateLimiter.increment();
     if (lowVoltage && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)) {
