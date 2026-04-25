@@ -105,6 +105,9 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   // Track if we're in defense mode to know when to lock the wheels
   private boolean inDefenseMode = false;
 
+  // Track if the X-lock button is pressed to know when to lock the wheels
+  private boolean xLockPressed = false;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -300,16 +303,17 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     Logger.recordOutput("drive/goalSpeeds", goalSpeeds);
 
     ChassisSpeeds speeds = getChassisSpeeds();
-    if (inDefenseMode
-        && Math.abs(goalSpeeds.vxMetersPerSecond) <= 1e-3
-        && Math.abs(goalSpeeds.vyMetersPerSecond) <= 1e-3
-        && Math.abs(goalSpeeds.omegaRadiansPerSecond) <= 1e-3
-        && Math.sqrt(
-                speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
-                    + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond)
-            <= JsonConstants.driveConstants.xLockMaxVelocityMetersPerSecond
-        && Math.abs(speeds.omegaRadiansPerSecond)
-            <= JsonConstants.driveConstants.xLockMaxVelocityRadiansPerSecond) {
+    if (xLockPressed
+        || (inDefenseMode
+            && Math.abs(goalSpeeds.vxMetersPerSecond) <= 1e-3
+            && Math.abs(goalSpeeds.vyMetersPerSecond) <= 1e-3
+            && Math.abs(goalSpeeds.omegaRadiansPerSecond) <= 1e-3
+            && Math.sqrt(
+                    speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
+                        + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond)
+                <= JsonConstants.driveConstants.xLockMaxVelocityMetersPerSecond
+            && Math.abs(speeds.omegaRadiansPerSecond)
+                <= JsonConstants.driveConstants.xLockMaxVelocityRadiansPerSecond)) {
       stopWithX();
       return;
     }
@@ -530,5 +534,18 @@ public class Drive extends SubsystemBase implements DriveTemplate {
    */
   public void setInDefenseMode(boolean inDefenseMode) {
     this.inDefenseMode = inDefenseMode;
+  }
+
+  /**
+   * Sets the X-lock button pressed flag.
+   *
+   * <p>Should be called by the coordination layer when the X-lock button is pressed or released
+   * with the new state of the button.
+   *
+   * @param xLockPressed {@code true} when the X-lock button is pressed, {@code false} when it is
+   *     not
+   */
+  public void setXLockPressed(boolean xLockPressed) {
+    this.xLockPressed = xLockPressed;
   }
 }
