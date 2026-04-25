@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -31,6 +32,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Frequency;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -121,6 +123,15 @@ public class HoodConstants {
    * tell the hood to stow.
    */
   public final Time timeToStowHood = Seconds.of(0.5); // TODO: Real value
+
+  /**
+   * Speed threshold below which trench protection uses a reduced safety margin around each trench.
+   * When the robot is moving slowly we have time to react to a tighter, more accurate protection
+   * zone; when moving faster we want a larger margin so the hood can finish stowing before reaching
+   * the trench.
+   */
+  public final LinearVelocity lowSpeedTrenchProtectionThreshold =
+      MetersPerSecond.of(0.25);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
