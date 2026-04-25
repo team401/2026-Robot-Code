@@ -844,14 +844,14 @@ public class CoordinationLayer {
             && DriverStation.isDisabled();
     lowBatteryAlert.set(lowVoltage);
     lowBatteryAlertRateLimiter.increment();
-    if (lowVoltage && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)) {
-      if (!(DriverStation.isFMSAttached())) {
-        Elastic.sendNotification(
-            new Elastic.Notification(
-                Elastic.NotificationLevel.WARNING,
-                "FMS not attached",
-                "FMS is not attached. Please attach it."));
-      }
+    if (lowVoltage
+        && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)
+        && !(DriverStation.isFMSAttached())) {
+      Elastic.sendNotification(
+          new Elastic.Notification(
+              Elastic.NotificationLevel.WARNING,
+              "Low Battery Voltage",
+              "Battery Voltage is below threshold."));
     }
 
     // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
