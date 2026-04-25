@@ -2204,6 +2204,98 @@
             },
             "canBeMirrored": true,
             "shouldBeFlipped": true
+        },
+        "Center Depot": {
+            "rootAction": {
+                "type": "Sequence",
+                "actions": [
+                    {
+                        "type": "DeployIntakeAction"
+                    },
+                    {
+                        "type": "StartShooting"
+                    },
+                    {
+                        "type": "NetworkConfigurableWait",
+                        "name": "preload",
+                        "defaultDelay": {
+                            "value": 4.0,
+                            "unit": "Second"
+                        }
+                    },
+                    {
+                        "type": "StopShooting"
+                    },
+                    {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": 135
+                                },
+                                "translation": {
+                                    "x": 0.802,
+                                    "y": 5.254
+                                }
+                            },
+                            "velocity": 0.0
+                        },
+                        "constraints": {
+                            "velocity": 2.0,
+                            "acceleration": 2.0,
+                            "jerk": 2.0
+                        },
+                        "pidGains": {
+                            "kP": 1.5,
+                            "kI": 0.0,
+                            "kD": 0.0,
+                            "kS": 0.0,
+                            "kG": 0.0,
+                            "kV": 0.0,
+                            "kA": 0.0
+                        }
+                    },
+                    {
+                        "type": "FollowPathPlannerPath",
+                        "pathName": "Intake Depot",
+                        "mirrorPath": null
+                    },
+                    {
+                        "type": "AutoPilotAction",
+                        "target": {
+                            "reference": {
+                                "rotation": {
+                                    "degrees": 135
+                                },
+                                "translation": {
+                                    "x": 1.3,
+                                    "y": 7.25
+                                }
+                            },
+                            "velocity": 0.0
+                        },
+                        "constraints": {
+                            "velocity": 2.0,
+                            "acceleration": 2.0,
+                            "jerk": 2.0
+                        },
+                        "pidGains": {
+                            "kP": 1.5,
+                            "kI": 0.0,
+                            "kD": 0.0,
+                            "kS": 0.0,
+                            "kG": 0.0,
+                            "kV": 0.0,
+                            "kA": 0.0
+                        }
+                    },
+                    {
+                        "type": "StartShooting"
+                    }
+                ]
+            },
+            "canBeMirrored": true,
+            "shouldBeFlipped": true
         }
     },
     "routines": {

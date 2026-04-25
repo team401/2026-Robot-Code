@@ -313,5 +313,31 @@ def _follower():
 
 @auto("Center Depot")
 def _center_depot():
+    deploy_intake()
     startShooting()
-    networkConfigurableWait("start", units.Second.of(4.0))
+    networkConfigurableWait("preload", units.Second.of(4.0))
+    stopShooting()
+    autopilot(
+        target_pose=pose2d(0.802, 5.254, 135),
+        constraints=auto_action.APConstraints(
+            velocity=2.0,
+            acceleration=2.0,
+            jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
+        )
+    )
+    followPath("Intake Depot")
+    autopilot(
+        target_pose=pose2d(1.3, 7.25, 135),
+        constraints=auto_action.APConstraints(
+            velocity=2.0,
+            acceleration=2.0,
+            jerk=2.0
+        ),
+        pid_gains=PIDGains(
+            k_p=1.5,
+        )
+    )
+    startShooting()
