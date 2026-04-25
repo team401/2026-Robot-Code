@@ -41,10 +41,10 @@ import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
 import frc.robot.coordination.CoordinationTestMode;
 import frc.robot.coordination.MatchState;
-import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.homingswitch.HomingSwitch;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -528,6 +528,8 @@ public class CoordinationLayer {
     } else {
       lowerDriveSupplyCurrentLimit();
     }
+
+    drive.ifPresent(drive -> drive.setInDefenseMode(inDefenseMode));
   }
 
   private void seedHeadingForward() {
