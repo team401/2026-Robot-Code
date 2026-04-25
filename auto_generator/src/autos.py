@@ -87,14 +87,23 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
 
     # Cycle 1
 
-    # x_based_autopilot(
-    #     target_pose=constants.left_trench_center_side_pose,
-    #     velocity=constants.default_trench_velocity,
-    #     entry_angle=rotation2d(0)
-    # )
-    with parallel():
-        stow_intake()
-        followPath(path_name="Left Trench To Center Intake In")
+    # Autopilot under the trench
+    # Gives us solid acceleration and makes us resilient to unpredictable starting
+    # location
+    x_based_autopilot(
+        target_pose=constants.left_trench_center_side_pose,
+        velocity=constants.aggressive_trench_velocity,
+        # Constraints here are unique to this very high speed, high 
+        # acceleration movement, so almost infinite acceleration limit is
+        # hardcoded in here.
+        constraints=APConstraints(constants.aggressive_trench_velocity, 200.0),
+        # No entry angle, we just want to beeline to trench exit
+        entry_angle=None
+    )
+    
+    #with parallel():
+    #    stow_intake()
+        # followPath(path_name="Starting Position Left Trench To Center Intake In")
 
     with parallel():
         deploy_intake()
@@ -109,7 +118,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
     wait(0.1)
 
     autopilot(
-        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+        target_pose=constants.left_alliance_zone_middle_pose
     )
 
     wait(2.5)
@@ -203,14 +212,15 @@ def _conservative(use_depot=False, from_bump=False, shoot_preload=False, do_seco
 
     # Cycle 1
 
-    # x_based_autopilot(
-    #     target_pose=constants.left_trench_center_side_pose,
-    #     velocity=constants.default_trench_velocity,
-    #     entry_angle=rotation2d(0)
-    # )
+    x_based_autopilot(
+        target_pose=pose2d(5.2, 7.4),
+        velocity=constants.default_trench_velocity,
+        entry_angle=None
+    )
+
     with parallel():
         stow_intake()
-        followPath(path_name="Left Trench To Center")
+        followPath(path_name="Starting Position Left Trench To Center")
 
     with parallel():
         deploy_intake()

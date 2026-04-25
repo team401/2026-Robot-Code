@@ -20,17 +20,24 @@
                         "type": "Sequence",
                         "actions": [
                             {
-                                "type": "Parallel",
-                                "actions": [
-                                    {
-                                        "type": "StowIntakeAction"
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": -90
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
                                     },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center Intake In",
-                                        "mirrorPath": null
-                                    }
-                                ]
+                                    "velocity": 5.1
+                                },
+                                "constraints": {
+                                    "velocity": 5.1,
+                                    "acceleration": 200.0,
+                                    "jerk": 0.0
+                                }
                             },
                             {
                                 "type": "Parallel",
@@ -328,17 +335,24 @@
                         "type": "Sequence",
                         "actions": [
                             {
-                                "type": "Parallel",
-                                "actions": [
-                                    {
-                                        "type": "StowIntakeAction"
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": -90
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
                                     },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center Intake In",
-                                        "mirrorPath": null
-                                    }
-                                ]
+                                    "velocity": 5.1
+                                },
+                                "constraints": {
+                                    "velocity": 5.1,
+                                    "acceleration": 200.0,
+                                    "jerk": 0.0
+                                }
                             },
                             {
                                 "type": "Parallel",
@@ -657,17 +671,24 @@
                                 "type": "StopShooting"
                             },
                             {
-                                "type": "Parallel",
-                                "actions": [
-                                    {
-                                        "type": "StowIntakeAction"
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": -90
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
                                     },
-                                    {
-                                        "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center Intake In",
-                                        "mirrorPath": null
-                                    }
-                                ]
+                                    "velocity": 5.1
+                                },
+                                "constraints": {
+                                    "velocity": 5.1,
+                                    "acceleration": 200.0,
+                                    "jerk": 0.0
+                                }
                             },
                             {
                                 "type": "Parallel",
@@ -805,6 +826,21 @@
                         "type": "Sequence",
                         "actions": [
                             {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": 0.0
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
+                            {
                                 "type": "Parallel",
                                 "actions": [
                                     {
@@ -812,7 +848,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
+                                        "pathName": "Starting Position Left Trench To Center",
                                         "mirrorPath": null
                                     }
                                 ]
@@ -1113,6 +1149,21 @@
                         "type": "Sequence",
                         "actions": [
                             {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": 0.0
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
+                            {
                                 "type": "Parallel",
                                 "actions": [
                                     {
@@ -1120,7 +1171,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
+                                        "pathName": "Starting Position Left Trench To Center",
                                         "mirrorPath": null
                                     }
                                 ]
@@ -1442,6 +1493,21 @@
                                 "type": "StopShooting"
                             },
                             {
+                                "type": "XBasedAutoPilotAction",
+                                "target": {
+                                    "reference": {
+                                        "rotation": {
+                                            "degrees": 0.0
+                                        },
+                                        "translation": {
+                                            "x": 5.2,
+                                            "y": 7.4
+                                        }
+                                    },
+                                    "velocity": 4.2
+                                }
+                            },
+                            {
                                 "type": "Parallel",
                                 "actions": [
                                     {
@@ -1449,7 +1515,7 @@
                                     },
                                     {
                                         "type": "FollowPathPlannerPath",
-                                        "pathName": "Left Trench To Center",
+                                        "pathName": "Starting Position Left Trench To Center",
                                         "mirrorPath": null
                                     }
                                 ]
