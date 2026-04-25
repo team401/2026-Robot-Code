@@ -349,6 +349,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    // Ensure that the robot is in pass mode, prevents accidentally passing in auto during shop
+    // testing
+    // Since teleop automatically puts us in pass mode when leaving the alliance zone, this is
+    // required because lining up for auto leaves the alliance zone
     coordinationLayer.resetToHubShootForAuto();
     return autoChooser.get();
   }
