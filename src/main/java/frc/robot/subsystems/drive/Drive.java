@@ -303,17 +303,16 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     Logger.recordOutput("drive/goalSpeeds", goalSpeeds);
 
     ChassisSpeeds speeds = getChassisSpeeds();
-    if (xLockPressed
-        || (inDefenseMode
-            && Math.abs(goalSpeeds.vxMetersPerSecond) <= 1e-3
-            && Math.abs(goalSpeeds.vyMetersPerSecond) <= 1e-3
-            && Math.abs(goalSpeeds.omegaRadiansPerSecond) <= 1e-3
-            && Math.sqrt(
-                    speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
-                        + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond)
-                <= JsonConstants.driveConstants.xLockMaxVelocityMetersPerSecond
-            && Math.abs(speeds.omegaRadiansPerSecond)
-                <= JsonConstants.driveConstants.xLockMaxVelocityRadiansPerSecond)) {
+    if ((xLockPressed || inDefenseMode)
+        && Math.abs(goalSpeeds.vxMetersPerSecond) <= 1e-3
+        && Math.abs(goalSpeeds.vyMetersPerSecond) <= 1e-3
+        && Math.abs(goalSpeeds.omegaRadiansPerSecond) <= 1e-3
+        && Math.sqrt(
+                speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
+                    + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond)
+            <= JsonConstants.driveConstants.xLockMaxVelocityMetersPerSecond
+        && Math.abs(speeds.omegaRadiansPerSecond)
+            <= JsonConstants.driveConstants.xLockMaxVelocityRadiansPerSecond) {
       stopWithX();
       return;
     }
