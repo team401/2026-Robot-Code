@@ -1,10 +1,18 @@
 {
   "maxLinearSpeed": {
-    "value": 4.0,
+    "value": 5.1,
     "unit": "Meter per Second"
   },
   "maxAngularSpeed": {
     "value": 7.2,
+    "unit": "Radian per Second"
+  },
+  "slowdownMaxLinearSpeed": {
+    "value": 2.0,
+    "unit": "Meter per Second"
+  },
+  "slowdownMaxAngularSpeed": {
+    "value": 3.0,
     "unit": "Radian per Second"
   },
   "joystickDeadband": 0.02,
@@ -51,12 +59,12 @@
     "kA": 0.0
   },
   "driveGains": {
-    "kP": 1.0,
+    "kP": 2.0,
     "kI": 0.0,
     "kD": 0.0,
-    "kS": 0.24504,
+    "kS": 0.24446,
     "kG": 0.0,
-    "kV": 0.89937,
+    "kV": 0.78487,
     "kA": 0.0
   },
   "defaultAutoPilotHeadingGains": {
@@ -82,5 +90,7 @@
   "defaultAutoPilotXYTolerance": {
     "value": 0.1,
     "unit": "Meter"
-  }
+  },
+  "xLockMaxVelocityMetersPerSecond": 0.25,
+  "xLockMaxVelocityRadiansPerSecond": 1.0
 }

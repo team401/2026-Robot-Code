@@ -26,8 +26,11 @@ import frc.robot.util.PIDGains;
  * PhysicalDriveConstants}.
  */
 public class DriveConstants {
-  public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(4.0);
+  public final LinearVelocity maxLinearSpeed = MetersPerSecond.of(5.0);
   public final AngularVelocity maxAngularSpeed = RadiansPerSecond.of(7.2);
+
+  public final LinearVelocity slowdownMaxLinearSpeed = MetersPerSecond.of(2.0);
+  public final AngularVelocity slowdownMaxAngularSpeed = RadiansPerSecond.of(3.0);
 
   public final Double joystickDeadband =
       0.02; // Very low deadband for hall effect sticks; needs to be tuned
@@ -67,4 +70,6 @@ public class DriveConstants {
   public Distance defaultAutoPilotBeelineRadius = Meters.of(0.1);
   public Angle defaultAutoPilotHeadingTolerance = Degrees.of(3.0);
   public Distance defaultAutoPilotXYTolerance = Meters.of(0.1);
+  public Double xLockMaxVelocityMetersPerSecond = 0.25;
+  public Double xLockMaxVelocityRadiansPerSecond = 1.0;
 }

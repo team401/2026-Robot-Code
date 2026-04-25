@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -102,6 +103,12 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   // Log a field2d for Elastic
   private final Field2d field2d = new Field2d();
 
+  // Track if we're in defense mode to know when to lock the wheels
+  private boolean inDefenseMode = false;
+
+  // Track if the X-lock button is pressed to know when to lock the wheels
+  private boolean xLockPressed = false;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -117,6 +124,18 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     // Ensure that ServiceThread class is loaded and defaultServiceThread is running
     ServiceThread.defaultServiceThread.queueCommand(
         () -> System.out.println("Default Service Thread has started"));
+
+    Command resetToAutoLimitsCommand =
+        new InstantCommand(
+                () -> {
+                  ServiceThread.defaultServiceThread.queueCommand(
+                      () ->
+                          setSupplyCurrentLimit(
+                              JsonConstants.physicalDriveConstants.driveSupplyCurrentLimit));
+                })
+            .ignoringDisable(true);
+
+    SmartDashboard.putData("ResetToAutoCurrentLimits", resetToAutoLimitsCommand);
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -295,6 +314,22 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   @Override
   public void setGoalSpeeds(ChassisSpeeds goalSpeeds, boolean isFieldCentric) {
     Logger.recordOutput("drive/goalSpeeds", goalSpeeds);
+
+    ChassisSpeeds speeds = getChassisSpeeds();
+    if ((xLockPressed || inDefenseMode)
+        && Math.abs(goalSpeeds.vxMetersPerSecond) <= 1e-3
+        && Math.abs(goalSpeeds.vyMetersPerSecond) <= 1e-3
+        && Math.abs(goalSpeeds.omegaRadiansPerSecond) <= 1e-3
+        && Math.sqrt(
+                speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
+                    + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond)
+            <= JsonConstants.driveConstants.xLockMaxVelocityMetersPerSecond
+        && Math.abs(speeds.omegaRadiansPerSecond)
+            <= JsonConstants.driveConstants.xLockMaxVelocityRadiansPerSecond) {
+      stopWithX();
+      return;
+    }
+
     if (isFieldCentric) {
       // Adjust for field-centric control
       boolean isFlipped =
@@ -502,5 +537,27 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         };
 
     setPose(new Pose2d(currentPose.getX(), currentPose.getY(), heading));
+  }
+
+  /**
+   * Sets the defense mode flag.
+   *
+   * <p>Should be called from the coordination layer when toggling defense mode
+   */
+  public void setInDefenseMode(boolean inDefenseMode) {
+    this.inDefenseMode = inDefenseMode;
+  }
+
+  /**
+   * Sets the X-lock button pressed flag.
+   *
+   * <p>Should be called by the coordination layer when the X-lock button is pressed or released
+   * with the new state of the button.
+   *
+   * @param xLockPressed {@code true} when the X-lock button is pressed, {@code false} when it is
+   *     not
+   */
+  public void setXLockPressed(boolean xLockPressed) {
+    this.xLockPressed = xLockPressed;
   }
 }
