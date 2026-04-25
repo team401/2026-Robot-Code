@@ -3,6 +3,11 @@ package frc.robot.util;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.DriverStation;
 
+/**
+ * BatteryVoltageAlert is a utility class that checks whether the battery voltage drops below a
+ * given threshold. Internally, it uses a linear filter to see if the battery's voltage is
+ * consistently below the given threshold while the robot is disabled.
+ */
 public class BatteryVoltageAlert {
   private final double lowVoltageThreshold;
   private LinearFilter filter;

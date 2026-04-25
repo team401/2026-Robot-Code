@@ -1,3 +1,6 @@
+// This code is taken from
+// https://github.com/Gold872/elastic_dashboard/blob/3673f6b4135cbc429bb1f43e6ab109378ab2de6d/elasticlib/Elastic.java
+//
 // Copyright (c) 2023-2026 Gold87 and other Elastic contributors
 // This software can be modified and/or shared under the terms
 // defined by the Elastic license:
