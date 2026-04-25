@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.DigitalInputsConfigs;
 import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.signals.S1FloatStateValue;
+import com.ctre.phoenix6.signals.S2FloatStateValue;
 import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
@@ -49,14 +50,25 @@ public class RobotInfo {
 
   @JSONExclude public Transform2d robotToShooter2d;
 
-  public final CANdiSignal homingSwitchSignal = CANdiSignal.S1;
+  public final CANdiSignal homingSwitchInputSignal = CANdiSignal.S1;
+  public final CANdiSignal homingSwitchOutputSignal = CANdiSignal.S2;
 
   public final CANdiConfiguration buildHomingSwitchConfig() {
     return new CANdiConfiguration()
         .withDigitalInputs(
             new DigitalInputsConfigs()
                 .withS1CloseState(S1CloseStateValue.CloseWhenHigh)
-                .withS1FloatState(S1FloatStateValue.PullHigh));
+                .withS1FloatState(S1FloatStateValue.PullHigh)
+                // Light is on by default to prevent false-positives when an LED fails
+                // On power up, the light should turn on.
+                // Then, when code is ready to home, the light should turn off
+                // Finally, it will turn back on once the robot is homed.
+                // This means that, if the light fails, the technician won't falsely believe that
+                // the robot has been homed.
+                // This does run the risk of prematurely homing if the light fails to turn on, but
+                // hopefully the technician/human player/coach will notice that it never turned on
+                // and switch back to the auditory signal/asking driver for dashboard confirmation.
+                .withS2FloatState(S2FloatStateValue.PullHigh));
   }
 
   /** The refresh rates that should be used for subsystems that don't effect fire control */

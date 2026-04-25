@@ -41,5 +41,6 @@
       "z": 0.379
     }
   },
-  "homingSwitchSignal": "S1"
+  "homingSwitchInputSignal": "S1",
+  "homingSwitchOutputSignal": "S2"
 }
