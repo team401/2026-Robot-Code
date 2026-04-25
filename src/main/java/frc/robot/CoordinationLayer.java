@@ -276,31 +276,18 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("stopShooting"))
         .onTrue(new InstantCommand(this::stopShooting));
 
-    Trigger climbLeft = makeTriggerFromButton(controllers.getButton("climbLeft"));
-    Trigger climbRight = makeTriggerFromButton(controllers.getButton("climbRight"));
-
-    climbLeft
-        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
-        .whileTrue(JsonConstants.autos.getRoutineCommandReference("LeftClimb"));
-    climbRight
-        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
-        .whileTrue(JsonConstants.autos.getRoutineCommandReference("RightClimb"));
-
-    Trigger eitherClimbPressed = climbLeft.or(climbRight);
-    eitherClimbPressed
-        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Manual))
+    Trigger eitherSlowdownPressed =
+        makeTriggerFromButton(controllers.getButton("slowdown1"))
+            .or(makeTriggerFromButton(controllers.getButton("slowdown2")));
+    eitherSlowdownPressed
         .onTrue(
             new InstantCommand(
-                () -> {
-                  // Deploy the climber to a searching state when ready
-                  // TODO: Confirm climb bindings once the new climber is built
-                  climber.ifPresent(ClimberSubsystem::search);
-                }))
+                () -> driveCoordinator.ifPresent(DriveCoordinator::slowdownDriveWithJoysticks)))
         .onFalse(
             new InstantCommand(
-                () -> {
-                  climber.ifPresent(ClimberSubsystem::hang);
-                }));
+                () ->
+                    driveCoordinator.ifPresent(
+                        DriveCoordinator::setDriveWithJoysticksToFullSpeed)));
 
     var goUnderTrenchButton = controllers.getButton("goUnderTrench");
     makeTriggerFromButton(goUnderTrenchButton).onTrue(new InstantCommand(this::goUnderTrench));

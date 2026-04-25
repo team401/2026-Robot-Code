@@ -86,7 +86,7 @@
           }
         },
         {
-          "command": "climbLeft",
+          "command": "slowdown1",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "axis",
@@ -94,7 +94,7 @@
           }
         },
         {
-          "command": "climbRight",
+          "command": "slowdown2",
           "commandType": "button",
           "hapticControlElement": {
             "elementType": "axis",
