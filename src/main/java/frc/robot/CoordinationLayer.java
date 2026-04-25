@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -57,6 +56,7 @@ import frc.robot.util.AllianceUtil;
 import frc.robot.util.Elastic;
 import frc.robot.util.OptionalUtil;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TokenBucket;
 import frc.robot.util.geometry.EnhancedLine2d;
 import frc.robot.util.geometry.Rectangle;
 import frc.robot.util.math.Lazy;
@@ -198,6 +198,9 @@ public class CoordinationLayer {
   private final Alert visionDisconnectedAlert =
       new Alert("Coprocessor disconnected", AlertType.kError);
   private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
+
+  private final TokenBucket lowBatteryAlertRateLimiter = new TokenBucket(200, 2);
+  private final int TOKENS_PER_ALERT = 100;
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -832,19 +835,20 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
-    lowBatteryAlert.set(
+    boolean lowVoltage =
         JsonConstants.robotInfo.batteryVoltageAlert.checkBatteryVoltage(
-            RobotController.getBatteryVoltage()));
-
-    int notificationDelayTime = (int) (Timer.getTimestamp() * 50);
-    Elastic.Notification noFMS =
-        new Elastic.Notification(
-            Elastic.NotificationLevel.WARNING,
-            "FMS not attached",
-            "FMS is not attached. Please attach it.");
-    if (!(DriverStation.isFMSAttached())
-        && notificationDelayTime % 190 == 0) { // This works out to one push notification at a time
-      Elastic.sendNotification(noFMS);
+            RobotController.getBatteryVoltage());
+    lowBatteryAlertRateLimiter.increment();
+    lowBatteryAlert.set(lowVoltage);
+    if (lowVoltage && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)) {
+      Elastic.Notification noFMS =
+          new Elastic.Notification(
+              Elastic.NotificationLevel.WARNING,
+              "FMS not attached",
+              "FMS is not attached. Please attach it.");
+      if (!(DriverStation.isFMSAttached())) {
+        Elastic.sendNotification(noFMS);
+      }
     }
 
     // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
