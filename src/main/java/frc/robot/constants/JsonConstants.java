@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.auto.Auto;
-import frc.robot.auto.AutoAction;
 import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
@@ -76,7 +75,7 @@ public class JsonConstants {
 
     jsonSyncSettings.addJsonTypeAdapterFactory(new OptionalTypeAdapterFactory());
 
-    jsonSyncSettings.setUpPolymorphAdapter(AutoAction.class);
+    // jsonSyncSettings.setUpPolymorphAdapter(AutoAction.class);
 
     var pathProvider = environmentHandler.getEnvironmentPathProvider();
 

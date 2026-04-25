@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.auto.AutoAction;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -22,20 +24,19 @@ public class NetworkConfigurableWait extends AutoAction {
   private String name;
   private Time defaultDelay;
   @JSONExclude private LoggedNetworkNumber waitTimeSeconds;
-  @JSONExclude private static final Set<String> usedNames = new java.util.HashSet<>();
+
+  @JSONExclude
+  private static final Map<String, LoggedNetworkNumber> nameToLoggedNetworkNumber = new HashMap<>();
 
   @AfterJsonLoad
   public void initializeNetworkNumber() {
-    if (usedNames.contains(name)) {
-      throw new IllegalArgumentException(
-          "NetworkConfigurableWait name must be unique. Duplicate name: " + name);
-    }
-    usedNames.add(name);
-
     this.waitTimeSeconds =
-        new LoggedNetworkNumber(
-            "NetworkConfigurableWait/" + name,
-            defaultDelay != null ? defaultDelay.in(Seconds) : 0.0);
+        nameToLoggedNetworkNumber.computeIfAbsent(
+            name,
+            name ->
+                new LoggedNetworkNumber(
+                    "NetworkConfigurableWait/" + name,
+                    defaultDelay != null ? defaultDelay.in(Seconds) : 0.0));
   }
 
   @Override

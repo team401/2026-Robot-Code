@@ -313,22 +313,30 @@ def _conservative_no_depot():
 def _conservative_depot_from_bump():
     _conservative(True, True, True, False)
 
-
-@auto("Follower")
-def _follower():
-    networkConfigurableWait("start", units.Second.of(1.0))
-    _aggressive(True, False, False, True)
-    networkConfigurableWait("middle", units.Second.of(2.0))
-    _aggressive(True, False, False, True)
-
 @command
 def go_to_depot_and_intake():
+    # drive near the depot and slow down so that we don't go too fast while intaking
     autopilot(
-        target_pose=pose2d(0.802, 5.1, 135),
+        target_pose=pose2d(1.5, 5.1, 135),
+        profile=auto_action.APProfile(
+            constraints=
+                auto_action.APConstraints(
+                    velocity=5.1,
+                    acceleration=10.0,
+                    jerk=3.0
+                ),
+            error_x_y=units.Meter.of(0.1),
+            error_theta=units.Degree.of(4.0),
+            beeline_radius=units.Meter.of(0.2)
+        ),
+        velocity=1.0,
+    )
+    autopilot(
+        target_pose=pose2d(0.715, 5.1, 135),
         constraints=auto_action.APConstraints(
-            velocity=5.1,
-            acceleration=5.0,
-            jerk=2.0
+            velocity=1.0,
+            acceleration=3.0,
+            jerk=3.0
         ),
         pid_gains=PIDGains(
             k_p=1.5,
@@ -339,9 +347,9 @@ def go_to_depot_and_intake():
     # Also removes a path planner path and enables us to use hot reload to tune it
     # followPath("Intake Depot")
     autopilot(
-        target_pose=pose2d(0.802, 7.25, 135),
+        target_pose=pose2d(0.715, 6.4, 135),
         constraints=auto_action.APConstraints(
-            velocity=1.5,
+            velocity=1.0,
             acceleration=3.0,
             jerk=2.0
         ),
@@ -352,22 +360,63 @@ def go_to_depot_and_intake():
     wait(0.1) # Wait to stop autopilot from seeing initial velocity and panicking
 
     autopilot(
-        target_pose=pose2d(1.3, 7.25, 135),
+        target_pose=pose2d(1.0, 6.8, 135),
         constraints=auto_action.APConstraints(
-            velocity=2.0,
-            acceleration=2.0,
-            jerk=2.0
+            velocity=5.1,
+            acceleration=5.0,
+            jerk=3.0
         ),
         pid_gains=PIDGains(
             k_p=1.5,
         )
     )
 
+@auto("Follower")
+def _follower():
+    deploy_intake()
+    networkConfigurableWait("Follower - Preload", units.Second.of(2.5))
+    x_based_autopilot(
+        target_pose=constants.left_trench_center_side_pose,
+        velocity=2.0,
+        # Constraints here are unique to this very high speed, high
+        # acceleration movement, so almost infinite acceleration limit is
+        # hardcoded in here.
+        constraints=APConstraints(constants.aggressive_trench_velocity, 200.0),
+        # No entry angle, we just want to beeline to trench exit
+        entry_angle=None
+    )
+    followPath("Left Side Follower Sweep Intake In")
+    networkConfigurableWait("Follower - Before Bump Return", units.Second.of(0.0))
+    wait(0.1)
+    autopilot(
+        target_pose=pose2d(x=2.700, y=5.75,angle_degrees=-90)
+    )
+    autopilot(
+        target_pose=pose2d(1.5, 5.1, 135),
+        profile=auto_action.APProfile(
+            constraints=
+                auto_action.APConstraints(
+                    velocity=5.1,
+                    acceleration=10.0,
+                    jerk=3.0
+                ),
+            error_x_y=units.Meter.of(0.1),
+            error_theta=units.Degree.of(4.0),
+            beeline_radius=units.Meter.of(0.2)
+        ),
+    )
+    startShooting()
+    networkConfigurableWait("Follower - Before Depot", units.Second.of(0.0))
+    go_to_depot_and_intake()
+    wait(2.0)
+    cycle_intake(6/3, 6)
+
 @auto("Center Depot", can_be_mirrored=False)
 def _center_depot():
     deploy_intake()
     startShooting()
-    networkConfigurableWait("preload", units.Second.of(4.0))
-    stopShooting()
+    networkConfigurableWait("Center Depot - Shoot Preload", units.Second.of(4.0))
     go_to_depot_and_intake()
-    startShooting()
+    # startShooting()
+    wait(2.0)
+    cycle_intake(6/3, 6)
