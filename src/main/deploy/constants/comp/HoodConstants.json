@@ -47,6 +47,10 @@
     "value": 1.5,
     "unit": "Second"
   },
+  "lowSpeedTrenchProtectionThreshold": {
+    "value": 0.25,
+    "unit": "Meter per Second"
+  },
   "hoodRequestUpdateFrequency": {
     "value": 1000,
     "unit": "Hertz"
