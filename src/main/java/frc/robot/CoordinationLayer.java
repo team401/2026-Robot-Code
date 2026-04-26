@@ -795,23 +795,6 @@ public class CoordinationLayer {
   public void coordinateRobotActions() {
     long startTimeUs = RobotController.getFPGATime();
 
-    if (DriverStation.isTest()) {
-      // Log distance to hub for test modes
-      drive.ifPresent(
-          drive -> {
-            Logger.recordOutput(
-                "CoordinationLayer/distanceToHub",
-                AllianceBasedFieldConstants.hubInnerCenterPoint
-                    .get()
-                    .toTranslation2d()
-                    .getDistance(
-                        new Pose3d(drive.getPose())
-                            .plus(JsonConstants.robotInfo.robotToShooter)
-                            .getTranslation()
-                            .toTranslation2d()));
-          });
-    }
-
     updateMatchState();
 
     // Poll buttons. This will modify state variables depending on the states of the buttons
@@ -1097,6 +1080,14 @@ public class CoordinationLayer {
         };
 
     Rotation2d yaw = targetPose.minus(shooterPosition).getAngle();
+
+    Logger.recordOutput(
+        "CoordinationLayer/distanceToTarget",
+        new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter)
+            .getTranslation()
+            .toTranslation2d()
+            .getDistance(targetPose));
 
     turret.ifPresent(turret -> turret.targetGoalHeading(yaw));
   }
