@@ -1125,8 +1125,10 @@ public class CoordinationLayer {
         fieldCentricSpeeds.getNorm()
             < JsonConstants.hoodConstants.lowSpeedTrenchProtectionThreshold.in(MetersPerSecond);
     Rectangle[] containmentZones = lowSpeed ? lowSpeedTrenchZones : trenchZones;
+    Logger.recordOutput("CoordinationLayer/lowSpeed", lowSpeed);
     for (var protectedZone : containmentZones) {
       if (protectedZone.contains(shooterPose)) {
+        protectedZone.logAsTrajectory("CoordinationLayer/protectionZone");
         return true;
       }
     }
@@ -1139,7 +1141,7 @@ public class CoordinationLayer {
     Translation2d movementStart = shooterPose;
     Translation2d movementEnd = movementStart.plus(predictedMovement);
 
-    for (var protectedZone : trenchZones) {
+    for (var protectedZone : containmentZones) {
       if (protectedZone.contains(movementEnd)) {
         return true;
       }

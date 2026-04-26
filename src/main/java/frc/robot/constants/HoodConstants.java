@@ -130,8 +130,7 @@ public class HoodConstants {
    * zone; when moving faster we want a larger margin so the hood can finish stowing before reaching
    * the trench.
    */
-  public final LinearVelocity lowSpeedTrenchProtectionThreshold =
-      MetersPerSecond.of(0.25);
+  public final LinearVelocity lowSpeedTrenchProtectionThreshold = MetersPerSecond.of(0.25);
 
   public TalonFXConfiguration buildTalonFXConfigs() {
     return new TalonFXConfiguration()
