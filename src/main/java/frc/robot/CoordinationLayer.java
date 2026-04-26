@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -41,10 +42,10 @@ import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
 import frc.robot.coordination.CoordinationTestMode;
 import frc.robot.coordination.MatchState;
-import frc.robot.subsystems.HomingSwitch;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import frc.robot.subsystems.homingswitch.HomingSwitch;
 import frc.robot.subsystems.hood.HoodSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -295,31 +296,18 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("stopShooting"))
         .onTrue(new InstantCommand(this::stopShooting));
 
-    Trigger climbLeft = makeTriggerFromButton(controllers.getButton("climbLeft"));
-    Trigger climbRight = makeTriggerFromButton(controllers.getButton("climbRight"));
-
-    climbLeft
-        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
-        .whileTrue(JsonConstants.autos.getRoutineCommandReference("LeftClimb"));
-    climbRight
-        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Smart))
-        .whileTrue(JsonConstants.autos.getRoutineCommandReference("RightClimb"));
-
-    Trigger eitherClimbPressed = climbLeft.or(climbRight);
-    eitherClimbPressed
-        .and(new Trigger(() -> autonomyLevel == AutonomyLevel.Manual))
+    Trigger eitherSlowdownPressed =
+        makeTriggerFromButton(controllers.getButton("slowdown1"))
+            .or(makeTriggerFromButton(controllers.getButton("slowdown2")));
+    eitherSlowdownPressed
         .onTrue(
             new InstantCommand(
-                () -> {
-                  // Deploy the climber to a searching state when ready
-                  // TODO: Confirm climb bindings once the new climber is built
-                  climber.ifPresent(ClimberSubsystem::search);
-                }))
+                () -> driveCoordinator.ifPresent(DriveCoordinator::slowdownDriveWithJoysticks)))
         .onFalse(
             new InstantCommand(
-                () -> {
-                  climber.ifPresent(ClimberSubsystem::hang);
-                }));
+                () ->
+                    driveCoordinator.ifPresent(
+                        DriveCoordinator::setDriveWithJoysticksToFullSpeed)));
 
     var goUnderTrenchButton = controllers.getButton("goUnderTrench");
     makeTriggerFromButton(goUnderTrenchButton).onTrue(new InstantCommand(this::goUnderTrench));
@@ -339,6 +327,10 @@ public class CoordinationLayer {
 
     makeTriggerFromButton(controllers.getButton("seedHeadingForward"))
         .onTrue(new InstantCommand(this::seedHeadingForward));
+
+    makeTriggerFromButton(controllers.getButton("xLock"))
+        .onTrue(new InstantCommand(this::enableXLock))
+        .onFalse(new InstantCommand(this::disableXLock));
 
     // Operator controller:
     makeTriggerFromButton(controllers.getButton("operatorToggleIntakeDeploy"))
@@ -551,10 +543,20 @@ public class CoordinationLayer {
     } else {
       lowerDriveSupplyCurrentLimit();
     }
+
+    drive.ifPresent(drive -> drive.setInDefenseMode(inDefenseMode));
   }
 
   private void seedHeadingForward() {
     drive.ifPresent(Drive::seedHeadingForward);
+  }
+
+  private void enableXLock() {
+    drive.ifPresent(drive -> drive.setXLockPressed(true));
+  }
+
+  private void disableXLock() {
+    drive.ifPresent(drive -> drive.setXLockPressed(false));
   }
 
   private void increaseRPM() {
@@ -1118,11 +1120,16 @@ public class CoordinationLayer {
     leftBlueTrench, rightRedTrench, rightBlueTrench, leftRedTrench
   };
 
-  // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf pg 5-6
+  // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf pg
+  // 5-6, 8
   private final double SAFETY_WIDTH =
       44.4 * 0.0254 * 2.5; // Andymark bump: length of the side parallel to field's x-axis
+  // Bump width is not specified in Welded drawing, assumed to be identical
+  private final double SAFETY_WIDTH_LOW_SPEED =
+      44.4 * 0.0254 * 0.75; // Reduced safety margin used when the robot is moving slowly
   private final double SAFETY_HEIGHT =
-      49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field
+      // 49.86 * 0.0254; // Andymark width of trench; this is a height on the y-axis of the field
+      50.34 * 0.0254; // Welded width of trench; this is a height on the y-axis of the field
   // coordinate system
   private final Rectangle[] trenchZones =
       new Rectangle[] {
@@ -1131,39 +1138,55 @@ public class CoordinationLayer {
         Rectangle.fromCenter(leftRedTrench.midPoint(), SAFETY_WIDTH, SAFETY_HEIGHT),
         Rectangle.fromCenter(rightRedTrench.midPoint(), SAFETY_WIDTH, SAFETY_HEIGHT)
       };
+  private final Rectangle[] lowSpeedTrenchZones =
+      new Rectangle[] {
+        Rectangle.fromCenter(leftBlueTrench.midPoint(), SAFETY_WIDTH_LOW_SPEED, SAFETY_HEIGHT),
+        Rectangle.fromCenter(rightBlueTrench.midPoint(), SAFETY_WIDTH_LOW_SPEED, SAFETY_HEIGHT),
+        Rectangle.fromCenter(leftRedTrench.midPoint(), SAFETY_WIDTH_LOW_SPEED, SAFETY_HEIGHT),
+        Rectangle.fromCenter(rightRedTrench.midPoint(), SAFETY_WIDTH_LOW_SPEED, SAFETY_HEIGHT)
+      };
 
   private boolean shouldStowHoodBasedOnMovement(Drive drive, HoodSubsystem hood) {
     Pose2d robotPose = drive.getPose();
 
-    // we use two methods to protect the hood.
-    // first, we check if the robot is currently within a protected rectangle
-    // around each trench, regardless of its speed. If so, we stow the hood
-    for (var protectedZone : trenchZones) {
-      if (protectedZone.contains(robotPose.getTranslation())) {
-        return true;
-      }
-    }
-
-    // second, we project the robot's movement out by timeToStowHood seconds
-    // and check if that intersects with one of the trench lines
     ChassisSpeeds robotRelativeSpeeds = drive.getChassisSpeeds();
     Translation2d fieldCentricSpeeds =
         new Translation2d(
                 robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
             .rotateBy(robotPose.getRotation());
 
-    Translation2d predictedMovement =
-        fieldCentricSpeeds.times(JsonConstants.hoodConstants.timeToStowHood.in(Seconds));
     Translation2d shooterPose =
         new Pose3d(robotPose)
             .plus(JsonConstants.robotInfo.robotToShooter)
             .getTranslation()
             .toTranslation2d();
 
+    // we use two methods to protect the hood.
+    // first, we check if the shooter is currently within a protected rectangle
+    // around each trench, regardless of speed direction. If so, we stow the hood.
+    // The width of that rectangle shrinks when the robot is moving slowly, since
+    // a slow robot has time to react to a tighter, more accurate protection zone.
+    boolean lowSpeed =
+        fieldCentricSpeeds.getNorm()
+            < JsonConstants.hoodConstants.lowSpeedTrenchProtectionThreshold.in(MetersPerSecond);
+    Rectangle[] containmentZones = lowSpeed ? lowSpeedTrenchZones : trenchZones;
+    Logger.recordOutput("CoordinationLayer/lowSpeed", lowSpeed);
+    for (var protectedZone : containmentZones) {
+      if (protectedZone.contains(shooterPose)) {
+        protectedZone.logAsTrajectory("CoordinationLayer/protectionZone");
+        return true;
+      }
+    }
+
+    // second, we project the robot's movement out by timeToStowHood seconds
+    // and check if that intersects with one of the trench lines
+    Translation2d predictedMovement =
+        fieldCentricSpeeds.times(JsonConstants.hoodConstants.timeToStowHood.in(Seconds));
+
     Translation2d movementStart = shooterPose;
     Translation2d movementEnd = movementStart.plus(predictedMovement);
 
-    for (var protectedZone : trenchZones) {
+    for (var protectedZone : containmentZones) {
       if (protectedZone.contains(movementEnd)) {
         return true;
       }
@@ -1407,5 +1430,9 @@ public class CoordinationLayer {
 
   public Optional<Drive> getDrive() {
     return drive;
+  }
+
+  public void resetToHubShootForAuto() {
+    shotMode = ShotMode.Hub;
   }
 }

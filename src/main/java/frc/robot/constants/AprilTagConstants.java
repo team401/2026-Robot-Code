@@ -26,7 +26,7 @@ public class AprilTagConstants {
     }
   }
 
-  public final FieldType fieldType = FieldType.ANDYMARK;
+  public final FieldType fieldType = FieldType.WELDED;
 
   @JSONExclude private AprilTagFieldLayout cachedLayout;
 

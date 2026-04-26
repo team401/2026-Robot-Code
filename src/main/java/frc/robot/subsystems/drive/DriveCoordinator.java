@@ -212,4 +212,26 @@ public class DriveCoordinator extends SubsystemBase {
         break;
     }
   }
+
+  /**
+   * Sets the DriveWithJoysticks command's max speeds to be the slowdown speeds from DriveConstants.
+   *
+   * <p>Should only be called by a button binding in the coordination layer
+   */
+  public void slowdownDriveWithJoysticks() {
+    this.joystickCommand.setMaxSpeeds(
+        JsonConstants.driveConstants.slowdownMaxLinearSpeed,
+        JsonConstants.driveConstants.slowdownMaxAngularSpeed);
+  }
+
+  /**
+   * Sets the DriveWithJoysticks command's max speeds to be the default full speeds from
+   * DriveConstants.
+   *
+   * <p>Should only be called by a button binding in the coordination layer
+   */
+  public void setDriveWithJoysticksToFullSpeed() {
+    this.joystickCommand.setMaxSpeeds(
+        JsonConstants.driveConstants.maxLinearSpeed, JsonConstants.driveConstants.maxAngularSpeed);
+  }
 }

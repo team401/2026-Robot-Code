@@ -7,6 +7,14 @@
     "value": 7.2,
     "unit": "Radian per Second"
   },
+  "slowdownMaxLinearSpeed": {
+    "value": 2.0,
+    "unit": "Meter per Second"
+  },
+  "slowdownMaxAngularSpeed": {
+    "value": 3.0,
+    "unit": "Radian per Second"
+  },
   "joystickDeadband": 0.02,
   "joystickMagnitudeExponent": 2.0,
   "linearDriveProfileMaxLinearVelocity": {
@@ -82,5 +90,7 @@
   "defaultAutoPilotXYTolerance": {
     "value": 0.1,
     "unit": "Meter"
-  }
+  },
+  "xLockMaxVelocityMetersPerSecond": 0.25,
+  "xLockMaxVelocityRadiansPerSecond": 1.0
 }

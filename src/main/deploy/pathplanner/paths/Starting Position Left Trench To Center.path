@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.0,
-        "y": 0.6
+        "x": 4.447240461401952,
+        "y": 7.403052351375333
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.0,
-        "y": 0.6
+        "x": 5.44724046140195,
+        "y": 7.403052351375333
       },
       "isLocked": false,
-      "linkedName": "Right Trench Alliance Enter"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.2,
-        "y": 0.6
+        "x": 5.211792369121562,
+        "y": 7.403052351375333
       },
       "prevControl": {
-        "x": 4.2,
-        "y": 0.6000000000000001
+        "x": 4.211792369121562,
+        "y": 7.403052351375333
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Right Trench Center Exit"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
