@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Second;
 
 import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.JSONHandler;
+import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
@@ -28,7 +29,6 @@ import frc.robot.auto.AutoAction;
 import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
-import frc.robot.util.json.FixedJSONSyncConfigBuilder;
 import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONMotionProfileConfig;
 import frc.robot.util.json.JSONRotation2d;
@@ -70,7 +70,7 @@ public class JsonConstants {
         EnvironmentHandler.getEnvironmentHandler(
             Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
-    var jsonSyncSettings = new FixedJSONSyncConfigBuilder();
+    var jsonSyncSettings = new JSONSyncConfigBuilder();
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
@@ -122,12 +122,6 @@ public class JsonConstants {
         jsonHandler.addRoute("/hopper", hopperConstants);
         jsonHandler.addRoute("/indexer", indexerConstants);
         jsonHandler.addRoute("/turret", turretConstants);
-        jsonHandler.registerPostCallback(
-            "/turret",
-            (_unused) -> {
-              turretConstants.initializeDiscontinuityPoint();
-              return true;
-            });
         jsonHandler.addRoute("/shooter", shooterConstants);
         jsonHandler.addRoute("/drive", driveConstants);
         jsonHandler.addRoute("/hood", hoodConstants);
@@ -149,12 +143,6 @@ public class JsonConstants {
               return true;
             });
         jsonHandler.addRoute("/shotmaps", shotMaps);
-        jsonHandler.registerPostCallback(
-            "/shotmaps",
-            (shotMap) -> {
-              shotMaps.afterJsonLoad();
-              return true;
-            });
         jsonHandler.addRoute("/manualMode", manualModeConstants);
       } catch (Exception ex) {
         System.err.println("could not add routes for constant tuning: " + ex);
