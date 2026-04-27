@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.299600570613409,
-        "y": 7.560784593437946
+        "x": 7.7,
+        "y": 7.55
       },
       "isLocked": false,
       "linkedName": "Left Trench Center Exit Intake In"
     },
     {
       "anchor": {
-        "x": 7.002011412268189,
-        "y": 6.253980028530671
+        "x": 7.183531499556344,
+        "y": 6.187817213842059
       },
       "prevControl": {
-        "x": 6.998309919728919,
-        "y": 6.712965103400189
+        "x": 7.183531499556344,
+        "y": 6.646817213842055
       },
       "nextControl": {
-        "x": 7.014950071326677,
-        "y": 4.649586305278174
+        "x": 7.183531499556344,
+        "y": 4.5833713194254715
       },
       "isLocked": false,
       "linkedName": null
@@ -48,16 +48,16 @@
     },
     {
       "anchor": {
-        "x": 5.979857346647646,
-        "y": 4.960114122681883
+        "x": 6.1,
+        "y": 4.86795918367347
       },
       "prevControl": {
-        "x": 5.979857346647646,
-        "y": 4.571954350927247
+        "x": 6.1,
+        "y": 4.479799411918834
       },
       "nextControl": {
-        "x": 5.979857346647646,
-        "y": 5.620112572073329
+        "x": 6.1,
+        "y": 5.527957633064916
       },
       "isLocked": false,
       "linkedName": null
@@ -89,8 +89,8 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.5557056043213993,
-      "maxWaypointRelativePos": 3.1546252532072674,
+      "minWaypointRelativePos": 1.201342281879195,
+      "maxWaypointRelativePos": 3.2818791946308727,
       "constraints": {
         "maxVelocity": 1.0,
         "maxAcceleration": 3.0,
