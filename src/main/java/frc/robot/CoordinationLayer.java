@@ -54,8 +54,10 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
+import frc.robot.util.Elastic;
 import frc.robot.util.OptionalUtil;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TokenBucket;
 import frc.robot.util.geometry.EnhancedLine2d;
 import frc.robot.util.geometry.Rectangle;
 import frc.robot.util.math.Lazy;
@@ -196,6 +198,11 @@ public class CoordinationLayer {
           "Autonomy level forced to manual due to disconnected coprocessor.", AlertType.kWarning);
   private final Alert visionDisconnectedAlert =
       new Alert("Coprocessor disconnected", AlertType.kError);
+  private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
+
+  // These constants will give a burst of two low battery voltage alerts, then one every second.
+  private final TokenBucket lowBatteryAlertRateLimiter = new TokenBucket(200, 2);
+  private final int TOKENS_PER_ALERT = 100;
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -830,6 +837,26 @@ public class CoordinationLayer {
     Logger.recordOutput("CoordinationLayer/effectiveAutonomyLevel", effectiveAutonomyLevel);
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
+
+    if (DriverStation.isDisabled()) {
+      boolean lowVoltage =
+          JsonConstants.robotInfo.batteryVoltageAlert.isBatteryBelowThreshold(
+              RobotController.getBatteryVoltage());
+      lowBatteryAlert.set(lowVoltage);
+      lowBatteryAlertRateLimiter.increment();
+      if (lowVoltage
+          && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)
+          && !(DriverStation.isFMSAttached())) {
+        Elastic.sendNotification(
+            new Elastic.Notification(
+                Elastic.NotificationLevel.WARNING,
+                "Low Battery Voltage",
+                "Battery Voltage is below threshold."));
+      }
+    } else {
+      // This alert is only for disabled mode.
+      lowBatteryAlert.set(false);
+    }
 
     // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
     // shot we were looking ahead to last cycle.

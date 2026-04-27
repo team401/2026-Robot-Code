@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
+import frc.robot.util.BatteryVoltageAlert;
 import frc.robot.util.io.dio_switch.DigitalInputIOCANdi.CANdiSignal;
 
 public class RobotInfo {
@@ -39,6 +40,11 @@ public class RobotInfo {
   public Time robotPeriod = Seconds.of(0.02);
 
   public Boolean runAutoTesting = false;
+
+  public double lowVoltageThreshold = 12.2;
+  public double batteryAlertFilterTime = 0.05;
+
+  @JSONExclude public BatteryVoltageAlert batteryVoltageAlert;
 
   // Pose taken from KrayonCAD
   public final Transform3d robotToShooter =
@@ -87,6 +93,9 @@ public class RobotInfo {
   public void loadFieldsFromJSON() {
     CANBus = new CANBus(canivoreBusName, logFilePath);
     ODOMETRY_FREQUENCY = CANBus.isNetworkFD() ? 250.0 : 100.0;
+
+    batteryVoltageAlert =
+        BatteryVoltageAlert.createBatteryVoltageAlert(lowVoltageThreshold, batteryAlertFilterTime);
 
     robotToShooter2d =
         new Transform2d(
