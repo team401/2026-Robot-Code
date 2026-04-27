@@ -732,9 +732,14 @@ public class CoordinationLayer {
         drive -> {
           turret.setRobotHeading(drive.getRotation());
         });
+
+    boolean shouldStopForShootingDisabled = !shootingEnabled && !DriverStation.isTest();
+
     // Piggyback off of the intake stopping logic to save power during defense
-    turret.shouldStopMoving(
-        inDefenseMode || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
+    turret.setShouldStopMoving(
+        !shouldStopForShootingDisabled
+            || inDefenseMode
+            || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
   }
 
   /** Update the hood subsystem on the state of the homing switch. */
@@ -743,6 +748,8 @@ public class CoordinationLayer {
     // Piggyback off of the intake stowing logic to save power during defense
     hood.setShouldStowForIntakeOrDefense(
         inDefenseMode || intake.map(IntakeSubsystem::shouldStartStowingHood).orElse(false));
+
+    hood.setShootingEnabled(shootingEnabled);
   }
 
   /** Update the intake subsystem on the state of the homing switch. */
