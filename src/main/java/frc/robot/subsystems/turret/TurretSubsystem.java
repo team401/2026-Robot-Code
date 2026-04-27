@@ -266,7 +266,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
                     "TurretTunables/turretExpoKA", JsonConstants.turretConstants.turretExpoKA));
 
     turretGoalAngleOffsetOverrideDegrees =
-        new Lazy<>(() -> new LoggedTunableNumber("TurretTunables/turretGoalAngleOffsetOverride", 0.0));
+        new Lazy<>(
+            () -> new LoggedTunableNumber("TurretTunables/turretGoalAngleOffsetOverride", 0.0));
 
     turretTuningSetpointDegrees =
         new Lazy<>(
@@ -596,5 +597,18 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   public Rotation2d getGoalTurretHeading() {
     return goalTurretHeading;
+  }
+
+  /**
+   * Calculates the current field centric turret heading, by converting turret heading to a
+   * robot-centric heading and then adjusting for robot heading.
+   *
+   * @return A Rotation2d representing the current field-centric heading of the turret.
+   */
+  @AutoLogOutput(key = "Turret/FieldCentricTurretHeading")
+  public Rotation2d getFieldCentricTurretHeading() {
+    return new Rotation2d(
+            getTurretAngleRobotRelative().minus(JsonConstants.turretConstants.headingToTurretAngle))
+        .plus(dependencies.robotHeading);
   }
 }

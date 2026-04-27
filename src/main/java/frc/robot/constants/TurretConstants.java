@@ -118,8 +118,7 @@ public class TurretConstants {
 
   /** Goal turret angle (deg) -> offset (deg) points for interpolation. */
   public GoalAngleOffsetPoint[] turretGoalAngleOffsetPoints = {
-    new GoalAngleOffsetPoint(0.0, 0.0),
-    new GoalAngleOffsetPoint(352.0, 0.0)
+    new GoalAngleOffsetPoint(0.0, 0.0), new GoalAngleOffsetPoint(352.0, 0.0)
   };
 
   /**
