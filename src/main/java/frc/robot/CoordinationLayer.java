@@ -727,7 +727,9 @@ public class CoordinationLayer {
         });
     // Piggyback off of the intake stopping logic to save power during defense
     turret.shouldStopMoving(
-        inDefenseMode || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
+        !shootingEnabled
+            || inDefenseMode
+            || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
   }
 
   /** Update the hood subsystem on the state of the homing switch. */
@@ -785,6 +787,10 @@ public class CoordinationLayer {
 
     // Poll buttons. This will modify state variables depending on the states of the buttons
     buttonLoop.poll();
+
+    // Update shooting enabled here and not in updateHoodDependencies because this value only
+    // changes when button loop is polled
+    hood.ifPresent(hood -> hood.setShootingEnabled(shootingEnabled));
 
     // Allow running rollers when the intake is retracted
     if (runningIntakeRollers) {
