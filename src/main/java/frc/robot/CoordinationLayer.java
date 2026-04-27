@@ -838,20 +838,24 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
-    boolean lowVoltage =
-        JsonConstants.robotInfo.batteryVoltageAlert.isBatteryBelowThreshold(
-                RobotController.getBatteryVoltage())
-            && DriverStation.isDisabled();
-    lowBatteryAlert.set(lowVoltage);
-    lowBatteryAlertRateLimiter.increment();
-    if (lowVoltage
-        && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)
-        && !(DriverStation.isFMSAttached())) {
-      Elastic.sendNotification(
-          new Elastic.Notification(
-              Elastic.NotificationLevel.WARNING,
-              "Low Battery Voltage",
-              "Battery Voltage is below threshold."));
+    if (DriverStation.isDisabled()) {
+      boolean lowVoltage =
+          JsonConstants.robotInfo.batteryVoltageAlert.isBatteryBelowThreshold(
+              RobotController.getBatteryVoltage());
+      lowBatteryAlert.set(lowVoltage);
+      lowBatteryAlertRateLimiter.increment();
+      if (lowVoltage
+          && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)
+          && !(DriverStation.isFMSAttached())) {
+        Elastic.sendNotification(
+            new Elastic.Notification(
+                Elastic.NotificationLevel.WARNING,
+                "Low Battery Voltage",
+                "Battery Voltage is below threshold."));
+      }
+    } else {
+      // This alert is only for disabled mode.
+      lowBatteryAlert.set(false);
     }
 
     // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
