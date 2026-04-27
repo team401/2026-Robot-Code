@@ -737,7 +737,7 @@ public class CoordinationLayer {
 
     // Piggyback off of the intake stopping logic to save power during defense
     turret.setShouldStopMoving(
-        !shouldStopForShootingDisabled
+        shouldStopForShootingDisabled
             || inDefenseMode
             || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
   }
