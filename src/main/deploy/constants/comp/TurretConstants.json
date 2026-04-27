@@ -44,7 +44,7 @@
     "unit": "Degree"
   },
   "maxTurretAngle": {
-    "value": 350.5,
+    "value": 352.0,
     "unit": "Degree"
   },
   "turretSetpointEpsilon": {
