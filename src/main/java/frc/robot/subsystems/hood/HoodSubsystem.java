@@ -119,6 +119,12 @@ public class HoodSubsystem extends MonitoredSubsystem {
   // Dependencies (values from other subsystems/coordination layer passed in by the coordination
   // layer via setters)
   /**
+   * Whether or not shooting is enabled. Set by the CoordinationLayer using setShootingEnabled, and
+   * used to determine whether the hood should stow.
+   */
+  private boolean shootingEnabled = false;
+
+  /**
    * Whether or not the hood should currently stow for the trench. Set by the CoordinationLayer
    * using setShouldStowForTrench
    */
@@ -387,6 +393,18 @@ public class HoodSubsystem extends MonitoredSubsystem {
   }
 
   /**
+   * Updates the hood subsystem on whether shooting is enabled. This should only be called by the
+   * coordination layer, and is used to determine whether the hood should stow or not (if shooting,
+   * the hood will aim, and if not, it will stow).
+   *
+   * @param shootingEnabled {@code true} if shooting is enabled and the hood should aim, {@code
+   *     false} if shooting is disabled
+   */
+  public void setShootingEnabled(boolean shootingEnabled) {
+    this.shootingEnabled = shootingEnabled;
+  }
+
+  /**
    * Updates the hood subsystem on whether it should stow to go under the trench. This should only
    * be called by the coordination layer.
    *
@@ -465,10 +483,14 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * Given a target angle, clamp it to be within the allowed bounds and then control the mechanism
    * toward it
    *
+   * <p>This includes automatically clamping max angle/stowing the hood when necessary.
+   *
    * @param goalAngle The Angle to target
    */
   private void clampAndControlToAngle(Angle goalAngle) {
-    boolean shouldStow = shouldStowForTrench || shouldStowForIntakeOrDefense;
+    boolean shouldStowForShootingDisabled = !shootingEnabled && !DriverStation.isTest();
+    boolean shouldStow =
+        shouldStowForShootingDisabled || shouldStowForTrench || shouldStowForIntakeOrDefense;
 
     // If we need to stow, clamp angle to always be set to minHoodAngle.
     Angle maxAngle =
