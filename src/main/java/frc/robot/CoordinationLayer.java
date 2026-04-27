@@ -725,9 +725,12 @@ public class CoordinationLayer {
         drive -> {
           turret.setRobotHeading(drive.getRotation());
         });
+
+    boolean shouldStopForShootingDisabled = !shootingEnabled && !DriverStation.isTest();
+
     // Piggyback off of the intake stopping logic to save power during defense
-    turret.shouldStopMoving(
-        !shootingEnabled
+    turret.setShouldStopMoving(
+        !shouldStopForShootingDisabled
             || inDefenseMode
             || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
   }

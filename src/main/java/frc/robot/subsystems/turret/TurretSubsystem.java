@@ -537,14 +537,14 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   /**
    * Update the turret subsystem on whether or not it should stop moving to avoid tearing the intake
-   * net, or to save power in defense mode. This should only be called by a
+   * net, or to save power when not shooting. This should only be called by a
    * coordinator/supervisor-layer action scheduled with the DependencyOrderedExecutor to update
    * turret dependencies.
    *
    * @param shouldStopMoving {@code true} if the intake pivot is high enough that moving the turret
    *     would tear the net or if defense mode is enabled, {@code false} otherwise.
    */
-  public void shouldStopMoving(boolean shouldStopMoving) {
+  public void setShouldStopMoving(boolean shouldStopMoving) {
     Logger.recordOutput("Turret/shouldStopMoving", shouldStopMoving);
     dependencies.shouldStopMoving = shouldStopMoving;
   }

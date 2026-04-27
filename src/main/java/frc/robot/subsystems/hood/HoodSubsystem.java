@@ -483,10 +483,14 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * Given a target angle, clamp it to be within the allowed bounds and then control the mechanism
    * toward it
    *
+   * <p>This includes automatically clamping max angle/stowing the hood when necessary.
+   *
    * @param goalAngle The Angle to target
    */
   private void clampAndControlToAngle(Angle goalAngle) {
-    boolean shouldStow = !shootingEnabled || shouldStowForTrench || shouldStowForIntakeOrDefense;
+    boolean shouldStowForShootingDisabled = !shootingEnabled && !DriverStation.isTest();
+    boolean shouldStow =
+        shouldStowForShootingDisabled || shouldStowForTrench || shouldStowForIntakeOrDefense;
 
     // If we need to stow, clamp angle to always be set to minHoodAngle.
     Angle maxAngle =
