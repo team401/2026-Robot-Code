@@ -184,15 +184,36 @@ class ShotCalculations {
   }
 
   public static enum ShotTarget {
+    /** Shoot at the hub */
     Hub,
-    PassLeft,
-    PassRight;
+    /** Pass into the left side of our alliance zone */
+    PassLeftAZ,
+    /** Pass into the right side of our alliance zone */
+    PassRightAZ,
+    /**
+     * Pass into the left side of the neutral zone right in front of the bump ("full field pass"
+     * which will bounce over the bump and into our zone)
+     */
+    PassLeftBump,
+    /**
+     * Pass into the right side of the neutral zone right in front of the bump ("full field pass"
+     * which will bounce over the bump and into our zone)
+     */
+    PassRightBump,
+    /** Pass into the left side of the neutral zone ("half field pass") */
+    PassLeftNZ,
+    /** Pass into the right side of the neutral zone ("half field pass") */
+    PassRightNZ;
 
     public Translation2d getTranslation() {
       return switch (this) {
         case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
-        case PassLeft -> FieldLocations.leftPassingTarget();
-        case PassRight -> FieldLocations.rightPassingTarget();
+        case PassLeftAZ -> FieldLocations.leftAZPassingTarget();
+        case PassRightAZ -> FieldLocations.rightAZPassingTarget();
+        case PassLeftBump -> FieldLocations.leftBumpPassingTarget();
+        case PassRightBump -> FieldLocations.rightBumpPassingTarget();
+        case PassLeftNZ -> FieldLocations.leftNZPassingTarget();
+        case PassRightNZ -> FieldLocations.rightNZPassingTarget();
       };
     }
   }
