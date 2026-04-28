@@ -55,6 +55,24 @@
     "value": 5.0,
     "unit": "Degree"
   },
+  "turretGoalAngleOffsetPoints": [
+    {
+      "angleDegrees": 0.0,
+      "offsetDegrees": 5.0
+    },
+    {
+      "angleDegrees": 143.0,
+      "offsetDegrees": 5.0
+    },
+    {
+      "angleDegrees": 317.0,
+      "offsetDegrees": -2.0
+    },
+    {
+      "angleDegrees": 352.0,
+      "offsetDegrees": -2.0
+    }
+  ],
   "headingToTurretAngle": {
     "value": 41.8,
     "unit": "Degree"

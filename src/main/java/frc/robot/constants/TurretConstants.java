@@ -114,6 +114,13 @@ public class TurretConstants {
 
   public final Angle turretPassingSetpointEpsilon = Degrees.of(5.0);
 
+  public record GoalAngleOffsetPoint(double angleDegrees, double offsetDegrees) {}
+
+  /** Goal turret angle (deg) -> offset (deg) points for interpolation. */
+  public GoalAngleOffsetPoint[] turretGoalAngleOffsetPoints = {
+    new GoalAngleOffsetPoint(0.0, 0.0), new GoalAngleOffsetPoint(352.0, 0.0)
+  };
+
   /**
    * The conversion from a goal heading to a turret angle. goalHeading - driveHeading +
    * headingToTurretAngle = turretRelativeAngle

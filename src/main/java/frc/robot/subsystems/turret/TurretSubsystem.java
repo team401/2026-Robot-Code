@@ -18,6 +18,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -117,6 +118,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
   Lazy<LoggedTunableNumber> turretExpoKV;
   Lazy<LoggedTunableNumber> turretExpoKA;
 
+  Lazy<LoggedTunableNumber> turretGoalAngleOffsetOverrideDegrees;
+
   Lazy<LoggedTunableNumber> turretTuningSetpointDegrees;
   Lazy<LoggedTunableNumber> turretTuningAmps;
   Lazy<LoggedTunableNumber> turretTuningVolts;
@@ -138,6 +141,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
    */
   @AutoLogOutput(key = "Turret/goalHeading")
   private Rotation2d goalTurretHeading = Rotation2d.kZero;
+
+  private final InterpolatingDoubleTreeMap goalAngleOffsetMap = new InterpolatingDoubleTreeMap();
 
   public TurretSubsystem(DependencyOrderedExecutor dependencyOrderedExecutor, MotorIO motor) {
     this.motor = motor;
@@ -260,6 +265,10 @@ public class TurretSubsystem extends MonitoredSubsystem {
                 new LoggedTunableNumber(
                     "TurretTunables/turretExpoKA", JsonConstants.turretConstants.turretExpoKA));
 
+    turretGoalAngleOffsetOverrideDegrees =
+        new Lazy<>(
+            () -> new LoggedTunableNumber("TurretTunables/turretGoalAngleOffsetOverride", 0.0));
+
     turretTuningSetpointDegrees =
         new Lazy<>(
             () -> new LoggedTunableNumber("TurretTunables/turretTuningSetpointDegrees", 0.0));
@@ -273,6 +282,10 @@ public class TurretSubsystem extends MonitoredSubsystem {
     AutoLogOutputManager.addObject(this);
 
     dependencyOrderedExecutor.registerAction(UPDATE_INPUTS, this::updateInputs);
+
+    for (var point : JsonConstants.turretConstants.turretGoalAngleOffsetPoints) {
+      goalAngleOffsetMap.put(point.angleDegrees(), point.offsetDegrees());
+    }
   }
 
   public void updateInputs() {
@@ -397,12 +410,10 @@ public class TurretSubsystem extends MonitoredSubsystem {
           case Pass -> JsonConstants.turretConstants.turretPassingSetpointEpsilon;
         };
 
+    Rotation2d adjustedGoalHeading = getAdjustedGoalTurretHeadingFieldCentric();
     boolean aimedCorrectly =
         requestedAction == TurretAction.TrackHeading
-            // Subtract the rotations to automatically wrap them all to be within one rotation
-            // It looks like minus uses atan2 and so it automatically keeps everything in the right
-            // range.
-            && Math.abs(getFieldCentricTurretHeading().minus(goalTurretHeading).getRadians())
+            && Math.abs(getFieldCentricTurretHeading().minus(adjustedGoalHeading).getRadians())
                 < threshold.in(Radians);
     Logger.recordOutput("Turret/isAimedCorrectly", aimedCorrectly);
 
@@ -456,6 +467,11 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   private void controlToTurretCentricPosition(Angle goalAngleTurretCentric) {
+    Angle adjustedGoalAngle = applyGoalAngleOffset(goalAngleTurretCentric);
+    controlToTurretCentricPositionRaw(adjustedGoalAngle);
+  }
+
+  private void controlToTurretCentricPositionRaw(Angle goalAngleTurretCentric) {
     Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
     Angle clampedGoalAngle;
     /*
@@ -497,19 +513,34 @@ public class TurretSubsystem extends MonitoredSubsystem {
             robotRelativeHeading.plus(
                 new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
 
-    controlToTurretCentricPosition(turretRelativeHeading.getMeasure());
+    Angle adjustedGoalAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
+    controlToTurretCentricPositionRaw(adjustedGoalAngle);
   }
 
-  /**
-   * Calculates the current field centric turret heading, by converting turret heading to a
-   * robot-centric heading and then adjusting for robot heading.
-   *
-   * @return A Rotation2d representing the current field-centric heading of the turret.
-   */
-  @AutoLogOutput(key = "Turret/FieldCentricTurretHeading")
-  public Rotation2d getFieldCentricTurretHeading() {
+  private Angle getGoalAngleOffset(Angle goalAngleTurretCentric) {
+    double override = turretGoalAngleOffsetOverrideDegrees.get().getAsDouble();
+    if (Math.abs(override) > 1e-9) {
+      return Degrees.of(override);
+    }
+
+    Double offsetDeg = goalAngleOffsetMap.get(goalAngleTurretCentric.in(Degrees));
+    return Degrees.of(offsetDeg == null ? 0.0 : offsetDeg);
+  }
+
+  private Angle applyGoalAngleOffset(Angle goalAngleTurretCentric) {
+    return goalAngleTurretCentric.plus(getGoalAngleOffset(goalAngleTurretCentric));
+  }
+
+  private Rotation2d getAdjustedGoalTurretHeadingFieldCentric() {
+    Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
+    Rotation2d turretRelativeHeading =
+        AngleUtil.normalizeHeading(
+            robotRelativeHeading.plus(
+                new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
+
+    Angle adjustedTurretAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
     return new Rotation2d(
-            getTurretAngleRobotRelative().minus(JsonConstants.turretConstants.headingToTurretAngle))
+            adjustedTurretAngle.minus(JsonConstants.turretConstants.headingToTurretAngle))
         .plus(dependencies.robotHeading);
   }
 
@@ -566,5 +597,18 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   public Rotation2d getGoalTurretHeading() {
     return goalTurretHeading;
+  }
+
+  /**
+   * Calculates the current field centric turret heading, by converting turret heading to a
+   * robot-centric heading and then adjusting for robot heading.
+   *
+   * @return A Rotation2d representing the current field-centric heading of the turret.
+   */
+  @AutoLogOutput(key = "Turret/FieldCentricTurretHeading")
+  public Rotation2d getFieldCentricTurretHeading() {
+    return new Rotation2d(
+            getTurretAngleRobotRelative().minus(JsonConstants.turretConstants.headingToTurretAngle))
+        .plus(dependencies.robotHeading);
   }
 }
