@@ -374,7 +374,9 @@ def go_to_depot_and_intake():
 @auto("Follower")
 def _follower():
     deploy_intake()
+    startShooting()
     networkConfigurableWait("Follower - Preload", units.Second.of(2.5))
+    stopShooting()
     x_based_autopilot(
         target_pose=constants.left_trench_center_side_pose,
         velocity=2.0,

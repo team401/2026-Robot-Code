@@ -157,7 +157,7 @@
         "value": 2.0,
         "unit": "Meter"
       },
-      "shooterRPM": 1800,
+      "shooterRPM": 1600,
       "hoodAngle": {
         "value": 65.0,
         "unit": "Degree"
@@ -172,7 +172,7 @@
         "value": 4.920252477291012,
         "unit": "Meter"
       },
-      "shooterRPM": 3000,
+      "shooterRPM": 2700,
       "hoodAngle": {
         "value": 65.0,
         "unit": "Degree"
@@ -187,7 +187,7 @@
         "value": 6.030042487685722,
         "unit": "Meter"
       },
-      "shooterRPM": 3100,
+      "shooterRPM": 2800,
       "hoodAngle": {
         "value": 65.0,
         "unit": "Degree"
@@ -202,7 +202,7 @@
         "value": 9.466147758704,
         "unit": "Meter"
       },
-      "shooterRPM": 4000.0,
+      "shooterRPM": 3700.0,
       "hoodAngle": {
         "value": 65.0,
         "unit": "Degree"
@@ -217,7 +217,7 @@
         "value": 15,
         "unit": "Meter"
       },
-      "shooterRPM": 4900.0,
+      "shooterRPM": 4600.0,
       "hoodAngle": {
         "value": 65.0,
         "unit": "Degree"

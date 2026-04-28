@@ -1656,12 +1656,18 @@
                         "type": "DeployIntakeAction"
                     },
                     {
+                        "type": "StartShooting"
+                    },
+                    {
                         "type": "NetworkConfigurableWait",
                         "name": "Follower - Preload",
                         "defaultDelay": {
                             "value": 2.5,
                             "unit": "Second"
                         }
+                    },
+                    {
+                        "type": "StopShooting"
                     },
                     {
                         "type": "XBasedAutoPilotAction",
