@@ -413,6 +413,14 @@ def _follower():
     wait(2.0)
     cycle_intake(6/3, 6)
 
+@auto("Single Swipe Then Depot", can_be_mirrored=False)
+def _single_swipe():
+    _aggressive(do_second_sweep=False)
+    go_to_depot_and_intake()
+    wait(1.0)
+    cycle_intake(6/3, 6)
+    
+
 @auto("Center Depot", can_be_mirrored=False)
 def _center_depot():
     deploy_intake()
