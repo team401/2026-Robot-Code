@@ -1653,21 +1653,12 @@
                 "type": "Sequence",
                 "actions": [
                     {
-                        "type": "DeployIntakeAction"
-                    },
-                    {
-                        "type": "StartShooting"
-                    },
-                    {
                         "type": "NetworkConfigurableWait",
                         "name": "Follower - Preload",
                         "defaultDelay": {
                             "value": 2.5,
                             "unit": "Second"
                         }
-                    },
-                    {
-                        "type": "StopShooting"
                     },
                     {
                         "type": "XBasedAutoPilotAction",
@@ -1688,6 +1679,9 @@
                             "acceleration": 200.0,
                             "jerk": 0.0
                         }
+                    },
+                    {
+                        "type": "DeployIntakeAction"
                     },
                     {
                         "type": "FollowPathPlannerPath",

@@ -373,10 +373,11 @@ def go_to_depot_and_intake():
 
 @auto("Follower")
 def _follower():
-    deploy_intake()
-    startShooting()
+    # Don't deploy the intake to avoid smashing it into the trench
+    #deploy_intake()
+    #startShooting()
     networkConfigurableWait("Follower - Preload", units.Second.of(2.5))
-    stopShooting()
+    #stopShooting()
     x_based_autopilot(
         target_pose=constants.left_trench_center_side_pose,
         velocity=2.0,
@@ -387,6 +388,7 @@ def _follower():
         # No entry angle, we just want to beeline to trench exit
         entry_angle=None
     )
+    deploy_intake()
     followPath("Left Side Follower Sweep Intake In")
     networkConfigurableWait("Follower - Before Bump Return", units.Second.of(0.0))
     wait(0.1)
