@@ -6,6 +6,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import coppercore.parameter_tools.json.JSONSyncConfig;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
+import coppercore.parameter_tools.json.adapters.PolymorphDeserializer;
 import edu.wpi.first.math.Pair;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,12 @@ import java.util.List;
 // which means I can't just extend it and add a method to add factories.
 
 public class FixedJSONSyncConfigBuilder extends JSONSyncConfigBuilder {
+
+  public FixedJSONSyncConfigBuilder() {
+    super();
+
+    addJsonTypeAdapterFactory(new FixedPolymorphTypeAdapterFactory());
+  }
 
   /**
    * List of custom type adapters (JsonSerializer, JsonDeserializer, TypeAdapter) to be registered.
@@ -87,5 +94,17 @@ public class FixedJSONSyncConfigBuilder extends JSONSyncConfigBuilder {
         primitiveCheckCrash,
         typeAdapters,
         typeAdapterFactories);
+  }
+
+  /**
+   * Use the {@see coppercore.parameter_tools.json.annotations.JsonType} annotation to define a way
+   * to determine which class to deserialize to.
+   *
+   * @param <T> The type of the class.
+   * @param clazz The class to set a {@link PolymorphDeserializer} up for.
+   * @return The builder instance.
+   */
+  public <T> JSONSyncConfigBuilder setUpPolymorphAdapter(Class<T> clazz) {
+    return this;
   }
 }

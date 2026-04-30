@@ -16,6 +16,7 @@ import frc.robot.auto.drive.StopDriveAction;
 import frc.robot.auto.drive.XBasedAutoPilotAction;
 import frc.robot.auto.general.AutoReference;
 import frc.robot.auto.general.Deadline;
+import frc.robot.auto.general.NetworkConfigurableWait;
 import frc.robot.auto.general.Parallel;
 import frc.robot.auto.general.Print;
 import frc.robot.auto.general.Race;
@@ -61,6 +62,7 @@ import frc.robot.util.ts.PythonMethod;
       @JsonSubtype(clazz = Race.class, name = "Race"),
       @JsonSubtype(clazz = Wait.class, name = "Wait"),
       @JsonSubtype(clazz = Print.class, name = "Print"),
+      @JsonSubtype(clazz = NetworkConfigurableWait.class, name = "NetworkConfigurableWait"),
       // Drive actions
       @JsonSubtype(clazz = AutoPilotAction.class, name = "AutoPilotAction"),
       @JsonSubtype(clazz = XBasedAutoPilotAction.class, name = "XBasedAutoPilotAction"),
