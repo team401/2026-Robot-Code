@@ -100,11 +100,109 @@
                                 }
                             },
                             {
-                                "type": "Wait",
-                                "delay": {
-                                    "value": 2.5,
-                                    "unit": "Second"
-                                }
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 "type": "Sequence",
@@ -415,11 +513,109 @@
                                 }
                             },
                             {
-                                "type": "Wait",
-                                "delay": {
-                                    "value": 2.5,
-                                    "unit": "Second"
-                                }
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 "type": "Sequence",
@@ -751,11 +947,109 @@
                                 }
                             },
                             {
-                                "type": "Wait",
-                                "delay": {
-                                    "value": 2.5,
-                                    "unit": "Second"
-                                }
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 "type": "AutoPilotAction",
@@ -2128,11 +2422,109 @@
                                 }
                             },
                             {
-                                "type": "Wait",
-                                "delay": {
-                                    "value": 2.5,
-                                    "unit": "Second"
-                                }
+                                "type": "Sequence",
+                                "actions": [
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "StowIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    },
+                                    {
+                                        "type": "DeployIntakeAction"
+                                    },
+                                    {
+                                        "type": "Wait",
+                                        "delay": {
+                                            "value": 0.25,
+                                            "unit": "Second"
+                                        }
+                                    }
+                                ]
                             },
                             {
                                 "type": "Sequence",

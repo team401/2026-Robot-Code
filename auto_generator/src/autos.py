@@ -122,7 +122,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
         target_pose=constants.left_alliance_zone_middle_pose
     )
 
-    wait(2.5)
+    cycle_intake(2.5, 5)
 
     if do_second_sweep:
         cycle_intake(intake_cycle_time, intake_cycle_count)
