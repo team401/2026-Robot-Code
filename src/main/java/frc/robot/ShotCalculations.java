@@ -317,6 +317,54 @@ class ShotCalculations {
      * that would be taken when stationary is replaced by a very short, low shot. This low shot
      * drastically reduces time of flight and would cause the robot to undershoot the goal if we
      * didn't iterate on that new time of flight.
+     *
+     * <p>Alternative explanation in terms of vectors and velocities:
+     *
+     * Suppose the robot's shooter is at position R and moves with field-relative velocity v
+     * when the fuel leaves the shooter. After time t, the fuel should land at the target T.
+     *
+     * Then it must aim at a virtual target point V such that:
+     *
+     *        RV + VT = RT
+     *
+     * <pre>
+     *       T <------ V
+     *        ^       ^
+     *         \     /
+     *          \   /
+     *           \ /
+     *            R        <----- direction of shooter movement
+     *
+     * </pre>
+     *
+     * Where VT is the vector the fuel moves because of the shooter's velocity v (which is v * t)
+     * RT is the (known) displacement to the target/hub computed from the position of the shooter.
+     *
+     * So:
+     *        RV + VT = RT
+     *        RV = RT - VT
+     *        RV = RT - v * t
+     *        |RV| = |RT - v * t|
+     *
+     * The shot map provides a function M: distance to flight time such that
+     *
+     *        t = M(|RV|) = M(|RT - v * t|)
+     *
+     * if the robot aims at V.
+     * Therefore, the equation
+     *
+     *        t = M(|RT - v * t|)
+     *
+     * holds in which RH and v are known, and t can be solved for mathematically
+     * via fixed-point iteration by applying M() repeatedly from a starting value such as M(|RT|).
+     *
+     * This fixed-point iteration is what the code below does.
+     * v == fieldRelativeShooterVelocity
+     * T == targetPosition
+     * R == shooterPose
+     * V == virtualTarget
+     * |RV| == virtualDistanceXYMeters
+     * t == flightTimeSeconds
      */
     Translation2d virtualTarget = targetPosition;
 
