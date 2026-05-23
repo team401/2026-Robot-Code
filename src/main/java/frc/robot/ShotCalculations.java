@@ -302,6 +302,7 @@ class ShotCalculations {
     double flightTimeSeconds = map.flightTimeSecondsByDistanceMeters().get(distanceXYMeters);
     Logger.recordOutput("ShotCalculations/MapBased/FlightTimeSeconds", flightTimeSeconds);
 
+    // spotless:off
     /**
      * The following code calculates shoot on the move by:
      *
@@ -366,6 +367,7 @@ class ShotCalculations {
      * |RV| == virtualDistanceXYMeters
      * t == flightTimeSeconds
      */
+    // spotless:on
     Translation2d virtualTarget = targetPosition;
 
     double virtualDistanceXYMeters = 0.0;
