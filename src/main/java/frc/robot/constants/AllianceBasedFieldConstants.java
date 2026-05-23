@@ -40,4 +40,20 @@ public class AllianceBasedFieldConstants {
       case Blue -> robotPose.getX() < FieldConstants.LinesVertical.allianceZone();
     };
   }
+
+  /**
+   * Check whether the given pose is within the opponent alliance zone.
+   *
+   * @param robotPose A Pose2d containing the current position of the robot to verify
+   * @return {@code true} if the robot is within the opponent alliance zone, {@code false}
+   *     otherwise.
+   */
+  public static final boolean isInOppAllianceZone(Pose2d robotPose) {
+    Alliance alliance = AllianceUtil.getAlliance();
+
+    return switch (alliance) {
+      case Red -> robotPose.getX() < FieldConstants.LinesVertical.allianceZone();
+      case Blue -> robotPose.getX() > FieldConstants.LinesVertical.oppAllianceZone();
+    };
+  }
 }

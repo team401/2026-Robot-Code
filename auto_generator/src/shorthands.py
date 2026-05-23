@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Optional
 
 from . import auto_action as AutoAction
-from .units import Second
+from .units import Measure, Second
 
 # Re-export context-manager containers so callers can do:
 #   from .shorthands import sequence, parallel, race
@@ -201,3 +201,6 @@ def stopShooting() -> None:
 
 def followPath(path_name, mirror_path=None, can_mirror=None):
     AutoAction.FollowPathPlannerPath(path_name=path_name, mirror_path=mirror_path, can_mirror=can_mirror).add()
+
+def networkConfigurableWait(name: str, default_wait: Optional[Measure]=None):
+    AutoAction.NetworkConfigurableWait(name, default_wait).add()

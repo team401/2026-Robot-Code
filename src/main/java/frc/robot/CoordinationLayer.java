@@ -54,8 +54,10 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.util.AllianceUtil;
+import frc.robot.util.Elastic;
 import frc.robot.util.OptionalUtil;
 import frc.robot.util.TestModeManager;
+import frc.robot.util.TokenBucket;
 import frc.robot.util.geometry.EnhancedLine2d;
 import frc.robot.util.geometry.Rectangle;
 import frc.robot.util.math.Lazy;
@@ -122,6 +124,25 @@ public class CoordinationLayer {
     Pass,
     Hub
   }
+
+  public enum PassGoalZone {
+    AllianceZone,
+    NeutralZone
+  }
+
+  /**
+   * The currently selected pass goal zone. This differs from actualPassGoalZone because when the
+   * robot is in the neutral zone, actualPassGoalZone is set to AllianceZone at all times
+   */
+  @AutoLogOutput(key = "CoordinationLayer/selectedPassGoalZone")
+  private PassGoalZone selectedPassGoalZone = PassGoalZone.AllianceZone;
+
+  /**
+   * The actual pass goal zone. This is updated based on the robot's position and the selected pass
+   * goal zone
+   */
+  @AutoLogOutput(key = "CoordinationLayer/actualPassGoalZone")
+  private PassGoalZone actualPassGoalZone = PassGoalZone.AllianceZone;
 
   /**
    * Tracks our current "autonomy level": either vision is enabled & used (smart), or manual driver
@@ -196,6 +217,11 @@ public class CoordinationLayer {
           "Autonomy level forced to manual due to disconnected coprocessor.", AlertType.kWarning);
   private final Alert visionDisconnectedAlert =
       new Alert("Coprocessor disconnected", AlertType.kError);
+  private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
+
+  // These constants will give a burst of two low battery voltage alerts, then one every second.
+  private final TokenBucket lowBatteryAlertRateLimiter = new TokenBucket(200, 2);
+  private final int TOKENS_PER_ALERT = 100;
 
   // Suppliers from controllers
   private BooleanSupplier isDriverGoUnderTrenchPressed = () -> false;
@@ -320,13 +346,11 @@ public class CoordinationLayer {
     this.isOperatorStowHoodForTrenchPressed =
         controllers.getButton("operatorStowHood").getPrimitiveIsPressedSupplier();
 
-    var won1Supplier = controllers.getButton("operatorWonAuto1").getPrimitiveIsPressedSupplier();
-    var won2Supplier = controllers.getButton("operatorWonAuto2").getPrimitiveIsPressedSupplier();
-    this.isWonAutoPressed = () -> won1Supplier.getAsBoolean() || won2Supplier.getAsBoolean();
+    this.isWonAutoPressed =
+        controllers.getButton("operatorWonAuto").getPrimitiveIsPressedSupplier();
 
-    var lost1Supplier = controllers.getButton("operatorLostAuto1").getPrimitiveIsPressedSupplier();
-    var lost2Supplier = controllers.getButton("operatorLostAuto2").getPrimitiveIsPressedSupplier();
-    this.isLostAutoPressed = () -> lost1Supplier.getAsBoolean() || lost2Supplier.getAsBoolean();
+    this.isLostAutoPressed =
+        controllers.getButton("operatorLostAuto").getPrimitiveIsPressedSupplier();
 
     makeTriggerFromButton(controllers.getButton("operatorStartShooting"))
         .onTrue(new InstantCommand(this::startShooting));
@@ -358,6 +382,12 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("operatorHoldForBoost"))
         .onTrue(new InstantCommand(this::boostIntakeRPM))
         .onFalse(new InstantCommand(this::stopBoostingIntakeRPM));
+
+    makeTriggerFromButton(controllers.getButton("operatorPassToAZ"))
+        .onTrue(new InstantCommand(this::setPassTargetToAZ));
+
+    makeTriggerFromButton(controllers.getButton("operatorPassToNZ"))
+        .onTrue(new InstantCommand(this::setPassTargetToNZ));
   }
 
   /**
@@ -552,6 +582,14 @@ public class CoordinationLayer {
     isIntakeBoosted = false;
   }
 
+  private void setPassTargetToAZ() {
+    selectedPassGoalZone = PassGoalZone.AllianceZone;
+  }
+
+  private void setPassTargetToNZ() {
+    selectedPassGoalZone = PassGoalZone.NeutralZone;
+  }
+
   public void lowerDriveSupplyCurrentLimit() {
     this.drive.ifPresent(
         drive -> {
@@ -725,9 +763,14 @@ public class CoordinationLayer {
         drive -> {
           turret.setRobotHeading(drive.getRotation());
         });
+
+    boolean shouldStopForShootingDisabled = !shootingEnabled && !DriverStation.isTest();
+
     // Piggyback off of the intake stopping logic to save power during defense
-    turret.shouldStopMoving(
-        inDefenseMode || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
+    turret.setShouldStopMoving(
+        shouldStopForShootingDisabled
+            || inDefenseMode
+            || intake.map(IntakeSubsystem::shouldStopTurret).orElse(false));
   }
 
   /** Update the hood subsystem on the state of the homing switch. */
@@ -736,6 +779,8 @@ public class CoordinationLayer {
     // Piggyback off of the intake stowing logic to save power during defense
     hood.setShouldStowForIntakeOrDefense(
         inDefenseMode || intake.map(IntakeSubsystem::shouldStartStowingHood).orElse(false));
+
+    hood.setShootingEnabled(shootingEnabled);
   }
 
   /** Update the intake subsystem on the state of the homing switch. */
@@ -763,23 +808,6 @@ public class CoordinationLayer {
    */
   public void coordinateRobotActions() {
     long startTimeUs = RobotController.getFPGATime();
-
-    if (DriverStation.isTest()) {
-      // Log distance to hub for test modes
-      drive.ifPresent(
-          drive -> {
-            Logger.recordOutput(
-                "CoordinationLayer/distanceToHub",
-                AllianceBasedFieldConstants.hubInnerCenterPoint
-                    .get()
-                    .toTranslation2d()
-                    .getDistance(
-                        new Pose3d(drive.getPose())
-                            .plus(JsonConstants.robotInfo.robotToShooter)
-                            .getTranslation()
-                            .toTranslation2d()));
-          });
-    }
 
     updateMatchState();
 
@@ -830,6 +858,26 @@ public class CoordinationLayer {
     Logger.recordOutput("CoordinationLayer/effectiveAutonomyLevel", effectiveAutonomyLevel);
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
+
+    if (DriverStation.isDisabled()) {
+      boolean lowVoltage =
+          JsonConstants.robotInfo.batteryVoltageAlert.isBatteryBelowThreshold(
+              RobotController.getBatteryVoltage());
+      lowBatteryAlert.set(lowVoltage);
+      lowBatteryAlertRateLimiter.increment();
+      if (lowVoltage
+          && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)
+          && !(DriverStation.isFMSAttached())) {
+        Elastic.sendNotification(
+            new Elastic.Notification(
+                Elastic.NotificationLevel.WARNING,
+                "Low Battery Voltage",
+                "Battery Voltage is below threshold."));
+      }
+    } else {
+      // This alert is only for disabled mode.
+      lowBatteryAlert.set(false);
+    }
 
     // Test whether we can shoot BEFORE running the shot calculator so that we can shoot for the
     // shot we were looking ahead to last cycle.
@@ -915,6 +963,16 @@ public class CoordinationLayer {
     }
 
     long shotCalculationStartTimeUs = RobotController.getFPGATime();
+
+    // Select a passing target based on where we are
+    if (drive
+        .map(drive -> AllianceBasedFieldConstants.isInOppAllianceZone(drive.getPose()))
+        .orElse(false)) {
+      actualPassGoalZone = selectedPassGoalZone;
+    } else {
+      actualPassGoalZone = PassGoalZone.AllianceZone;
+    }
+
     // Aim for a shot based on the current autonomy level
     if (testModeManager.isInTestMode()) {
       drive.ifPresent(this::aimForTestModeShot);
@@ -1047,11 +1105,23 @@ public class CoordinationLayer {
     Translation2d targetPose =
         switch (target) {
           case Hub -> AllianceBasedFieldConstants.hubCenterPoint2d.get();
-          case PassLeft -> FieldLocations.leftPassingTarget();
-          case PassRight -> FieldLocations.rightPassingTarget();
+          case PassLeftAZ -> FieldLocations.leftAZPassingTarget();
+          case PassRightAZ -> FieldLocations.rightAZPassingTarget();
+          case PassLeftBump -> FieldLocations.leftBumpPassingTarget();
+          case PassRightBump -> FieldLocations.rightBumpPassingTarget();
+          case PassLeftNZ -> FieldLocations.leftNZPassingTarget();
+          case PassRightNZ -> FieldLocations.rightNZPassingTarget();
         };
 
     Rotation2d yaw = targetPose.minus(shooterPosition).getAngle();
+
+    Logger.recordOutput(
+        "CoordinationLayer/distanceToTarget",
+        new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter)
+            .getTranslation()
+            .toTranslation2d()
+            .getDistance(targetPose));
 
     turret.ifPresent(turret -> turret.targetGoalHeading(yaw));
   }
@@ -1192,10 +1262,33 @@ public class CoordinationLayer {
    *     position.
    */
   private ShotTarget getShotTargetFromPose(Pose2d robotPose) {
-    return switch (this.shotMode) {
-      case Hub -> ShotTarget.Hub;
-      case Pass -> isOnLeftSideOfField(robotPose) ? ShotTarget.PassLeft : ShotTarget.PassRight;
-    };
+    switch (this.shotMode) {
+      case Hub -> {
+        return ShotTarget.Hub;
+      }
+      case Pass -> {
+        switch (actualPassGoalZone) {
+          case AllianceZone -> {
+            if (AllianceBasedFieldConstants.isInOppAllianceZone(robotPose)) {
+              return isOnLeftSideOfField(robotPose)
+                  ? ShotTarget.PassLeftBump
+                  : ShotTarget.PassRightBump;
+            } else {
+              return isOnLeftSideOfField(robotPose)
+                  ? ShotTarget.PassLeftAZ
+                  : ShotTarget.PassRightAZ;
+            }
+          }
+          case NeutralZone -> {
+            return isOnLeftSideOfField(robotPose) ? ShotTarget.PassLeftNZ : ShotTarget.PassRightNZ;
+          }
+        }
+        return isOnLeftSideOfField(robotPose) ? ShotTarget.PassLeftAZ : ShotTarget.PassRightAZ;
+      }
+      default -> {
+        throw new IllegalStateException("Unexpected shot mode: " + shotMode);
+      }
+    }
   }
 
   private final LoggedTunableNumber rpmCompensation =

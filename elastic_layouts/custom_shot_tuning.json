@@ -99,6 +99,20 @@
               "data_type": "double",
               "show_submit_button": false
             }
+          },
+          {
+            "title": "distanceToTarget",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/CoordinationLayer/distanceToTarget",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
           }
         ]
       }
