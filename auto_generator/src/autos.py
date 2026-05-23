@@ -122,7 +122,7 @@ def _aggressive(use_depot=False, from_bump=False, shoot_preload=False, do_second
         target_pose=constants.left_alliance_zone_middle_pose
     )
 
-    wait(2.5)
+    cycle_intake(2.5, 5)
 
     if do_second_sweep:
         cycle_intake(intake_cycle_time, intake_cycle_count)
@@ -373,10 +373,11 @@ def go_to_depot_and_intake():
 
 @auto("Follower")
 def _follower():
-    deploy_intake()
-    startShooting()
+    # Don't deploy the intake to avoid smashing it into the trench
+    #deploy_intake()
+    #startShooting()
     networkConfigurableWait("Follower - Preload", units.Second.of(2.5))
-    stopShooting()
+    #stopShooting()
     x_based_autopilot(
         target_pose=constants.left_trench_center_side_pose,
         velocity=2.0,
@@ -387,6 +388,7 @@ def _follower():
         # No entry angle, we just want to beeline to trench exit
         entry_angle=None
     )
+    deploy_intake()
     followPath("Left Side Follower Sweep Intake In")
     networkConfigurableWait("Follower - Before Bump Return", units.Second.of(0.0))
     wait(0.1)
@@ -412,6 +414,14 @@ def _follower():
     go_to_depot_and_intake()
     wait(2.0)
     cycle_intake(6/3, 6)
+
+@auto("Single Swipe Then Depot", can_be_mirrored=False)
+def _single_swipe():
+    _aggressive(do_second_sweep=False)
+    go_to_depot_and_intake()
+    wait(1.0)
+    cycle_intake(6/3, 6)
+    
 
 @auto("Center Depot", can_be_mirrored=False)
 def _center_depot():
