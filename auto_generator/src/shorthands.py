@@ -199,7 +199,7 @@ def stopShooting() -> None:
     """Insert a StopShootingAction into the current context."""
     AutoAction.StopShooting().add()
 
-def followPath(path_name, mirror_path=None, can_mirror=None):
+def followPath(path_name, mirror_path=False, can_mirror=None):
     AutoAction.FollowPathPlannerPath(path_name=path_name, mirror_path=mirror_path, can_mirror=can_mirror).add()
 
 def networkConfigurableWait(name: str, default_wait: Optional[Measure]=None):
