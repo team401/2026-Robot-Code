@@ -26,6 +26,7 @@ import sys
 import urllib.request
 import urllib.error
 from pathlib import Path
+from typing import Any
 
 # Ensure the auto_generator directory is on the path so `src` is importable
 _SCRIPT_DIR = Path(__file__).resolve().parent
@@ -53,6 +54,10 @@ ROBOT_URL = "http://10.4.1.2:8088"
 ENDPOINT = "autos"
 
 
+class PublishError(RuntimeError):
+    pass
+
+
 def detect_environment() -> str:
     """Read the selected environment from deploy/constants/config.json."""
     try:
@@ -75,34 +80,96 @@ def discover_auto_modules() -> list[str]:
     return modules
 
 
+def _is_json_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _first_structural_difference(expected: Any, actual: Any, path: str = "$") -> str | None:
+    if isinstance(expected, bool) or isinstance(actual, bool):
+        if expected is actual:
+            return None
+        return f"{path}: expected {expected!r}, got {actual!r}"
+
+    if _is_json_number(expected) and _is_json_number(actual):
+        if expected == actual:
+            return None
+        return f"{path}: expected {expected!r}, got {actual!r}"
+
+    if type(expected) is not type(actual):
+        return f"{path}: expected {type(expected).__name__}, got {type(actual).__name__}"
+
+    if isinstance(expected, dict):
+        expected_keys = set(expected)
+        actual_keys = set(actual)
+        if expected_keys != actual_keys:
+            missing = sorted(expected_keys - actual_keys)
+            extra = sorted(actual_keys - expected_keys)
+            if missing:
+                return f"{path}: missing key {missing[0]!r}"
+            return f"{path}: unexpected key {extra[0]!r}"
+        for key in sorted(expected_keys):
+            child_path = f"{path}.{key}" if key.isidentifier() else f"{path}[{key!r}]"
+            difference = _first_structural_difference(expected[key], actual[key], child_path)
+            if difference:
+                return difference
+        return None
+
+    if isinstance(expected, list):
+        if len(expected) != len(actual):
+            return f"{path}: expected list length {len(expected)}, got {len(actual)}"
+        for index, (expected_item, actual_item) in enumerate(zip(expected, actual)):
+            difference = _first_structural_difference(expected_item, actual_item, f"{path}[{index}]")
+            if difference:
+                return difference
+        return None
+
+    if expected != actual:
+        return f"{path}: expected {expected!r}, got {actual!r}"
+    return None
+
+
+def verify_round_trip(sent_content: str, returned_content: str) -> None:
+    try:
+        sent_json = json.loads(sent_content)
+    except json.JSONDecodeError as e:
+        raise PublishError(f"Generated autos JSON is invalid: {e}") from e
+
+    try:
+        returned_json = json.loads(returned_content)
+    except json.JSONDecodeError as e:
+        raise PublishError(f"Server returned invalid JSON from PUT: {e}") from e
+
+    difference = _first_structural_difference(sent_json, returned_json)
+    if difference:
+        raise PublishError(f"Server round-trip JSON is not structurally equivalent: {difference}")
+
+
 def publish(base_url: str, env: str, content: str) -> None:
-    """PUT the autos JSON to the tuning server, then POST to activate."""
+    """PUT the autos JSON, verify the returned JSON, then POST to activate."""
     url = f"{base_url}/{env}/{ENDPOINT}"
     data = content.encode("utf-8")
 
-    # PUT — upload the new data
+    # PUT - upload the new data and validate the Java-side serialization.
     req = urllib.request.Request(url, data=data, method="PUT")
     req.add_header("Content-Type", "application/json")
     try:
         with urllib.request.urlopen(req, timeout=5) as resp:
             body = resp.read().decode("utf-8", errors="replace")
             print(f"  PUT {url} -> {resp.status}")
-            if body:
-                print(f"    Response: {body}")
+            verify_round_trip(content, body)
+            print("    Round-trip structural check succeeded.")
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace") if e.fp else ""
-        print(f"  PUT {url} failed: HTTP {e.code} {e.reason}")
+        message = f"PUT {url} failed: HTTP {e.code} {e.reason}"
         if body:
-            print(f"    Response: {body}")
-        return
+            message += f"\n    Response: {body}"
+        raise PublishError(message) from e
     except urllib.error.URLError as e:
-        print(f"  PUT {url} failed: {e.reason}")
-        return
+        raise PublishError(f"PUT {url} failed: {e.reason}") from e
     except TimeoutError:
-        print(f"  PUT {url} failed: Connection timed out")
-        return
+        raise PublishError(f"PUT {url} failed: Connection timed out")
 
-    # POST — tell the robot to reload autos
+    # POST - tell the robot to reload autos.
     req = urllib.request.Request(url, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=5) as resp:
@@ -112,13 +179,14 @@ def publish(base_url: str, env: str, content: str) -> None:
                 print(f"    Response: {body}")
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace") if e.fp else ""
-        print(f"  POST {url} failed: HTTP {e.code} {e.reason}")
+        message = f"POST {url} failed: HTTP {e.code} {e.reason}"
         if body:
-            print(f"    Response: {body}")
+            message += f"\n    Response: {body}"
+        raise PublishError(message) from e
     except urllib.error.URLError as e:
-        print(f"  POST {url} failed: {e.reason}")
+        raise PublishError(f"POST {url} failed: {e.reason}") from e
     except TimeoutError:
-        print(f"  POST {url} failed: Connection timed out")
+        raise PublishError(f"POST {url} failed: Connection timed out")
 
 
 def parse_args() -> argparse.Namespace:
@@ -200,7 +268,12 @@ def main() -> None:
 
     for target in targets:
         print(f"Publishing to {target}...")
-        publish(target, env, content)
+        try:
+            publish(target, env, content)
+            print(f"Publish to {target} succeeded.")
+        except PublishError as e:
+            print(f"Publish to {target} failed: {e}", file=sys.stderr)
+            raise SystemExit(1) from e
 
 
 if __name__ == "__main__":
