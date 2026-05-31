@@ -274,7 +274,8 @@ public final class PythonGenerator {
       String type,
       Class<?> originalType,
       boolean isOptional,
-      boolean supportsDefault) {}
+      boolean supportsDefault,
+      String generatedDefault) {}
 
   /** Convert camelCase to snake_case */
   private static String toSnakeCase(String name) {
@@ -326,7 +327,13 @@ public final class PythonGenerator {
 
       fields.add(
           new PythonField(
-              jsonName, pyName, pyType, originalFieldType, isOptional, supportsDefault));
+              jsonName,
+              pyName,
+              pyType,
+              originalFieldType,
+              isOptional,
+              supportsDefault,
+              getGeneratedDefault(jField)));
     }
 
     // Emit fields — fields with defaults must come after fields without
@@ -334,7 +341,7 @@ public final class PythonGenerator {
     List<PythonField> noDefault = new ArrayList<>();
     List<PythonField> withDefault = new ArrayList<>();
     for (PythonField f : fields) {
-      if (f.isOptional || f.supportsDefault) {
+      if (f.isOptional || f.supportsDefault || f.generatedDefault != null) {
         withDefault.add(f);
       } else {
         noDefault.add(f);
@@ -358,7 +365,10 @@ public final class PythonGenerator {
         sb.append(" = None");
       } else {
         sb.append(f.type);
-        String defaultVal = getPythonDefaultValue(f.originalType, f.type);
+        String defaultVal =
+            f.generatedDefault != null
+                ? f.generatedDefault
+                : getPythonDefaultValue(f.originalType, f.type);
         sb.append(" = ").append(defaultVal);
       }
       sb.append("\n");
@@ -482,14 +492,20 @@ public final class PythonGenerator {
 
       fields.add(
           new PythonField(
-              jsonName, pyName, pyType, originalFieldType, isOptional, supportsDefault));
+              jsonName,
+              pyName,
+              pyType,
+              originalFieldType,
+              isOptional,
+              supportsDefault,
+              getGeneratedDefault(jField)));
     }
 
     // Fields without defaults first, then with defaults
     List<PythonField> noDefault = new ArrayList<>();
     List<PythonField> withDefault = new ArrayList<>();
     for (PythonField f : fields) {
-      if (f.isOptional || f.supportsDefault) {
+      if (f.isOptional || f.supportsDefault || f.generatedDefault != null) {
         withDefault.add(f);
       } else {
         noDefault.add(f);
@@ -513,7 +529,10 @@ public final class PythonGenerator {
         sb.append(" = None");
       } else {
         sb.append(f.type);
-        String defaultVal = getPythonDefaultValue(f.originalType, f.type);
+        String defaultVal =
+            f.generatedDefault != null
+                ? f.generatedDefault
+                : getPythonDefaultValue(f.originalType, f.type);
         sb.append(" = ").append(defaultVal);
       }
       sb.append("\n");
@@ -774,6 +793,11 @@ public final class PythonGenerator {
 
   private static boolean isComplexType(Class<?> type) {
     return !isPrimitive(type) && !type.isEnum() && !isUnitType(type);
+  }
+
+  private static String getGeneratedDefault(Field field) {
+    GeneratedDefault generatedDefault = field.getAnnotation(GeneratedDefault.class);
+    return generatedDefault == null ? null : generatedDefault.value();
   }
 
   private static boolean supportsDefaultValue(Type type) {
