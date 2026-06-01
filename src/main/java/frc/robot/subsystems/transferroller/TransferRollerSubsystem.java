@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.math.Lazy;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
@@ -26,7 +27,6 @@ import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
-import frc.robot.util.math.Lazy;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
