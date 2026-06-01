@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.math.Lazy;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
@@ -31,7 +32,6 @@ import frc.robot.util.LoggedTunableMeasure;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.TotalCurrentCalculator;
-import frc.robot.util.math.Lazy;
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;

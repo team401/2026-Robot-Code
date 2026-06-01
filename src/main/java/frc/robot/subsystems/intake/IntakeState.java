@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Radians;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.math.Lazy;
 import edu.wpi.first.units.Units;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.TuningModeHelper;
@@ -13,7 +14,6 @@ import frc.robot.util.TuningModeHelper.ControlMode;
 import frc.robot.util.TuningModeHelper.MotorTuningMode;
 import frc.robot.util.TuningModeHelper.TunableMotor;
 import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
-import frc.robot.util.math.Lazy;
 import java.util.function.Supplier;
 
 public class IntakeState {
