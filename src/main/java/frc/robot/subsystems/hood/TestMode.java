@@ -1,6 +1,6 @@
 package frc.robot.subsystems.hood;
 
-import frc.robot.util.TestModeDescription;
+import coppercore.wpilib_interface.tuning.TestModeDescription;
 
 public enum TestMode implements TestModeDescription {
   HoodVoltageTuning("Hood Voltage Open Loop Tuning"),

@@ -1,6 +1,6 @@
 package frc.robot.subsystems.climber;
 
-import frc.robot.util.TestModeDescription;
+import coppercore.wpilib_interface.tuning.TestModeDescription;
 
 public enum TestMode implements TestModeDescription {
   // Climber-related test modes

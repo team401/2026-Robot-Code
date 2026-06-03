@@ -1,6 +1,6 @@
 package frc.robot.coordination;
 
-import frc.robot.util.TestModeDescription;
+import coppercore.wpilib_interface.tuning.TestModeDescription;
 
 public enum CoordinationTestMode implements TestModeDescription {
   ShotTuning("Shot tuning"),

@@ -7,9 +7,9 @@
 
 package frc.robot.subsystems.drive;
 
+import coppercore.wpilib_interface.tuning.PIDGains;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Current;
-import frc.robot.util.PIDGains;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
