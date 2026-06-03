@@ -12,6 +12,7 @@ import coppercore.parameter_tools.json.adapters.JSONRotation2d;
 import coppercore.parameter_tools.json.adapters.JSONRotation3d;
 import coppercore.parameter_tools.json.adapters.JSONTransform2d;
 import coppercore.parameter_tools.json.adapters.JSONTransform3d;
+import coppercore.parameter_tools.json.adapters.OptionalTypeAdapterFactory;
 import coppercore.parameter_tools.json.adapters.measure.JSONMeasure;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
@@ -34,7 +35,6 @@ import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONMotionProfileConfig;
-import frc.robot.util.json.OptionalTypeAdapterFactory;
 import frc.robot.util.ts.PythonGenerator;
 import frc.robot.util.ts.PythonGeometryMethods;
 
