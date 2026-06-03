@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.util.PathPlannerLogging;
 import coppercore.wpilib_interface.DriveTemplate;
+import coppercore.wpilib_interface.alliance_util.AllianceUtil;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -43,7 +44,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
-import frc.robot.util.AllianceUtil;
 import frc.robot.util.PIDGains;
 import frc.robot.util.ServiceThread;
 import frc.robot.util.TotalCurrentCalculator;

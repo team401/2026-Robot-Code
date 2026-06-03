@@ -2,6 +2,7 @@ package frc.robot.coordination;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import coppercore.wpilib_interface.alliance_util.AllianceUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
@@ -12,7 +13,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
 import frc.robot.constants.StrategyConstants;
-import frc.robot.util.AllianceUtil;
 import java.util.Optional;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
