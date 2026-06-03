@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.math.AngleUtil;
 import coppercore.math.Lazy;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
@@ -37,7 +38,6 @@ import frc.robot.subsystems.turret.TurretState.IdleState;
 import frc.robot.subsystems.turret.TurretState.TestModeState;
 import frc.robot.subsystems.turret.TurretState.TrackHeadingState;
 import frc.robot.subsystems.turret.TurretState.WearInState;
-import frc.robot.util.AngleUtil;
 import frc.robot.util.StateMachineDump;
 import frc.robot.util.TestModeManager;
 import frc.robot.util.TotalCurrentCalculator;
