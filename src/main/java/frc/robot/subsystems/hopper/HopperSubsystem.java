@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
@@ -30,7 +31,6 @@ import frc.robot.subsystems.hopper.HopperState.IdleState;
 import frc.robot.subsystems.hopper.HopperState.SpinningState;
 import frc.robot.subsystems.hopper.HopperState.TestModeState;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -120,7 +120,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
     motor.updateInputs(inputs);
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+    TotalCurrentCalculator.recordCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.processInputs("Hopper/inputs", inputs);
     Logger.recordOutput("Hopper/State", stateMachine.getCurrentState().getName());

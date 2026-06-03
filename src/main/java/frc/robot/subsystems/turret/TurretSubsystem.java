@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.Volts;
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.AngleUtil;
 import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.UnitUtils;
@@ -40,7 +41,6 @@ import frc.robot.subsystems.turret.TurretState.TestModeState;
 import frc.robot.subsystems.turret.TurretState.TrackHeadingState;
 import frc.robot.subsystems.turret.TurretState.WearInState;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -292,7 +292,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     motor.updateInputs(inputs);
     Logger.processInputs("Turret/inputs", inputs);
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+    TotalCurrentCalculator.recordCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.recordOutput("Turret/closedLoopReferenceRadians", inputs.closedLoopReference);
     Logger.recordOutput(

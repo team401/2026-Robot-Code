@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitorWithAlert.MonitorWithAlertBuilder;
 import coppercore.wpilib_interface.MonitoredSubsystem;
@@ -38,7 +39,6 @@ import frc.robot.subsystems.hood.HoodState.TargetAngleState;
 import frc.robot.subsystems.hood.HoodState.TargetExitPitchState;
 import frc.robot.subsystems.hood.HoodState.TestModeState;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TotalCurrentCalculator;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
@@ -265,7 +265,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
     motor.updateInputs(inputs);
     Logger.processInputs("Hood/inputs", inputs);
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+    TotalCurrentCalculator.recordCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     // Log values with units so that AdvantageScope can understand them correctly
     Logger.recordOutput("Hood/closedLoopReferenceRadians", inputs.closedLoopReference);

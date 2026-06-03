@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
@@ -25,7 +26,6 @@ import frc.robot.subsystems.indexer.IndexerState.ShootingState;
 import frc.robot.subsystems.indexer.IndexerState.TestModeState;
 import frc.robot.subsystems.indexer.IndexerState.WarmupState;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TotalCurrentCalculator;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -137,7 +137,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     motor.updateInputs(inputs);
     Logger.processInputs("Indexer/inputs", inputs);
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+    TotalCurrentCalculator.recordCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.recordOutput("Indexer/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();

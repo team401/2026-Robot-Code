@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.LoggedTunableMeasure;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
@@ -31,7 +32,6 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TotalCurrentCalculator;
 import java.io.PrintWriter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -213,7 +213,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     motor.updateInputs(inputs);
     Logger.processInputs("Climber/inputs", inputs);
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+    TotalCurrentCalculator.recordCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();

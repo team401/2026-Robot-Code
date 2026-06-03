@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.util.PathPlannerLogging;
 import coppercore.controls.ServiceThread;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.wpilib_interface.DriveTemplate;
 import coppercore.wpilib_interface.alliance_util.AllianceUtil;
 import coppercore.wpilib_interface.tuning.PIDGains;
@@ -46,7 +47,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
-import frc.robot.util.TotalCurrentCalculator;
 import frc.robot.util.littletonUtil.PoseEstimator;
 import frc.robot.util.littletonUtil.PoseEstimator.TimestampedVisionUpdate;
 import java.util.List;
@@ -195,7 +195,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     }
     odometryLock.unlock();
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), supplyCurrentSum);
+    TotalCurrentCalculator.recordCurrent(hashCode(), supplyCurrentSum);
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {

@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
@@ -19,7 +20,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TotalCurrentCalculator;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -222,7 +222,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
     rollersFollowerMotorIO.updateInputs(rollerFollowerMotorInputs);
 
-    TotalCurrentCalculator.reportCurrent(
+    TotalCurrentCalculator.recordCurrent(
         hashCode(),
         pivotInputs.supplyCurrentAmps
             + rollerLeadMotorInputs.supplyCurrentAmps
