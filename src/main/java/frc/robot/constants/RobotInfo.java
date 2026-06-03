@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.S2FloatStateValue;
 import coppercore.monitors.BatteryVoltageAlert;
 import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
+import coppercore.wpilib_interface.subsystems.dio_switch.DigitalInputIOCANdi.CANdiSignal;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -22,7 +23,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
-import frc.robot.util.io.dio_switch.DigitalInputIOCANdi.CANdiSignal;
 
 public class RobotInfo {
 
