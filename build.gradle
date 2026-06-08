@@ -11,8 +11,8 @@ java {
 }
 
 repositories {
-    // mavenCentral()
-    mavenLocal()
+    mavenCentral()
+    // mavenLocal()
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
