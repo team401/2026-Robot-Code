@@ -18,3 +18,5 @@ jobs:
         run: ./gradlew build
       - name: Check constants for wrong options
         run: python3 ci-scripts/check_constants.py
+      - name: Check auto JSON round trip
+        run: python3 ci-scripts/check_auto_roundtrip.py
