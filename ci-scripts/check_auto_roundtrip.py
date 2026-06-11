@@ -81,7 +81,6 @@ def stop_process(process: subprocess.Popen[str]) -> None:
 
 def wait_for_autos_route(process: subprocess.Popen[str], lines: "queue.Queue[str]") -> None:
     deadline = time.monotonic() + STARTUP_TIMEOUT_SECONDS
-    autos_route_seen = False
 
     while time.monotonic() < deadline:
         while True:
@@ -91,15 +90,13 @@ def wait_for_autos_route(process: subprocess.Popen[str], lines: "queue.Queue[str
                 break
 
             print(line, flush=True)
-            if "added route for comp/autos" in line:
-                autos_route_seen = True
-
-        if autos_route_seen or route_responds():
-            print("Autos tuning route is ready.", flush=True)
-            return
 
         if process.poll() is not None:
             raise RuntimeError(f"simulateJava exited early with status {process.returncode}")
+
+        if route_responds():
+            print("Autos tuning route is ready.", flush=True)
+            return
 
         time.sleep(0.1)
 
