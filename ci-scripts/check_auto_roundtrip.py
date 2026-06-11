@@ -6,6 +6,7 @@ from __future__ import annotations
 import os
 import queue
 import signal
+import http.client
 import subprocess
 import sys
 import threading
@@ -34,7 +35,14 @@ def route_responds() -> bool:
     try:
         with urllib.request.urlopen(AUTOS_URL, timeout=1) as response:
             return response.status == 200
-    except (TimeoutError, urllib.error.URLError, urllib.error.HTTPError):
+    except (
+        TimeoutError,
+        ConnectionError,
+        OSError,
+        http.client.HTTPException,
+        urllib.error.URLError,
+        urllib.error.HTTPError,
+    ):
         return False
 
 
