@@ -1,8 +1,8 @@
 package frc.robot.subsystems.homingswitch;
 
+import coppercore.wpilib_interface.subsystems.dio_switch.DigitalInputInputsAutoLogged;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
-import frc.robot.util.io.dio_switch.DigitalInputInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 public class HomingSwitch {

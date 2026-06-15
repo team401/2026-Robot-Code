@@ -1,11 +1,11 @@
 package frc.robot.constants;
 
+import coppercore.wpilib_interface.alliance_util.AllianceUtil;
+import coppercore.wpilib_interface.alliance_util.AllianceUtil.AllianceBasedValue;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.util.AllianceUtil;
-import frc.robot.util.AllianceUtil.AllianceBasedValue;
 
 /**
  * The AllianceBasedFieldConstants class provides methods for getting relevant field locations from

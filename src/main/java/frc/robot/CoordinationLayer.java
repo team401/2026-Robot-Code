@@ -8,10 +8,17 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import coppercore.geometry.EnhancedLine2d;
+import coppercore.geometry.Rectangle;
+import coppercore.math.Lazy;
+import coppercore.math.OptionalUtil;
+import coppercore.math.TokenBucket;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.vision.VisionLocalizer;
+import coppercore.wpilib_interface.alliance_util.AllianceUtil;
 import coppercore.wpilib_interface.controllers.Controller.Button;
 import coppercore.wpilib_interface.controllers.Controllers;
+import coppercore.wpilib_interface.tuning.TestModeManager;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.filter.Debouncer;
@@ -53,14 +60,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.util.AllianceUtil;
 import frc.robot.util.Elastic;
-import frc.robot.util.OptionalUtil;
-import frc.robot.util.TestModeManager;
-import frc.robot.util.TokenBucket;
-import frc.robot.util.geometry.EnhancedLine2d;
-import frc.robot.util.geometry.Rectangle;
-import frc.robot.util.math.Lazy;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -1198,7 +1198,7 @@ public class CoordinationLayer {
     Logger.recordOutput("CoordinationLayer/lowSpeed", lowSpeed);
     for (var protectedZone : containmentZones) {
       if (protectedZone.contains(shooterPose)) {
-        protectedZone.logAsTrajectory("CoordinationLayer/protectionZone");
+        Logger.recordOutput("CoordinationLayer/protectionZone", protectedZone.getOutline());
         return true;
       }
     }

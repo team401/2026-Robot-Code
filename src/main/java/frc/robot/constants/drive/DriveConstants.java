@@ -7,13 +7,13 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
+import coppercore.wpilib_interface.tuning.PIDGains;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
-import frc.robot.util.PIDGains;
 
 /**
  * Constants for the drivetrain subsystem related to driving performance and control.

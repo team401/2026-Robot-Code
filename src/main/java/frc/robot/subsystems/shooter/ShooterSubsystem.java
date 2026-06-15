@@ -9,12 +9,16 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO.GainSlot;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
+import coppercore.wpilib_interface.tuning.LoggedTunablePIDGains;
+import coppercore.wpilib_interface.tuning.TestModeManager;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
@@ -31,11 +35,7 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.shooter.ShooterState.CoastState;
 import frc.robot.subsystems.shooter.ShooterState.TestModeState;
 import frc.robot.subsystems.shooter.ShooterState.VelocityControlState;
-import frc.robot.util.LoggedTunablePIDGains;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TestModeManager;
-import frc.robot.util.TotalCurrentCalculator;
-import frc.robot.util.math.Lazy;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -191,7 +191,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     leadMotor.updateInputs(leadMotorInputs);
     followerMotor.updateInputs(followerMotorInputs);
 
-    TotalCurrentCalculator.reportCurrent(
+    TotalCurrentCalculator.recordCurrent(
         hashCode(), leadMotorInputs.supplyCurrentAmps + followerMotorInputs.supplyCurrentAmps);
 
     Logger.processInputs("Shooter/LeadMotorInputs", leadMotorInputs);

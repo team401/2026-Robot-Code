@@ -1,6 +1,6 @@
 package frc.robot.subsystems.intake;
 
-import frc.robot.util.TestModeDescription;
+import coppercore.wpilib_interface.tuning.TestModeDescription;
 
 public enum PivotTestMode implements TestModeDescription {
   // Intake Pivot-related test modes
