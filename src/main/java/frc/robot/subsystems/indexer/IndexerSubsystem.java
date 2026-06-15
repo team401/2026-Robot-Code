@@ -5,9 +5,17 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import coppercore.wpilib_interface.tuning.TestModeManager;
+import coppercore.wpilib_interface.tuning.TuningModeHelper;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.ControlMode;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.MotorTuningMode;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotor;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotorConfiguration;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -18,14 +26,6 @@ import frc.robot.subsystems.indexer.IndexerState.ShootingState;
 import frc.robot.subsystems.indexer.IndexerState.TestModeState;
 import frc.robot.subsystems.indexer.IndexerState.WarmupState;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TestModeManager;
-import frc.robot.util.TotalCurrentCalculator;
-import frc.robot.util.TuningModeHelper;
-import frc.robot.util.TuningModeHelper.ControlMode;
-import frc.robot.util.TuningModeHelper.MotorTuningMode;
-import frc.robot.util.TuningModeHelper.TunableMotor;
-import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
-import frc.robot.util.math.Lazy;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -137,7 +137,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     motor.updateInputs(inputs);
     Logger.processInputs("Indexer/inputs", inputs);
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+    TotalCurrentCalculator.recordCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.recordOutput("Indexer/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();

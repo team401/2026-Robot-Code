@@ -1,6 +1,6 @@
 package frc.robot.subsystems.drive;
 
-import frc.robot.util.TestModeDescription;
+import coppercore.wpilib_interface.tuning.TestModeDescription;
 
 public enum TestMode implements TestModeDescription {
   // Drive-related test modes

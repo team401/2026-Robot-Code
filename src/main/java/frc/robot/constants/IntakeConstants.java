@@ -26,6 +26,7 @@ import coppercore.wpilib_interface.subsystems.configs.MechanismConfig.GravityFee
 import coppercore.wpilib_interface.subsystems.sim.ArmSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.DCMotorSimAdapter;
+import coppercore.wpilib_interface.tuning.PIDGains;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
@@ -39,7 +40,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.util.PIDGains;
 
 public class IntakeConstants {
 

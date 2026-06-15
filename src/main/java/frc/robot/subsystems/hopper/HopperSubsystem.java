@@ -7,9 +7,17 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
+import coppercore.math.Lazy;
+import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
+import coppercore.wpilib_interface.tuning.TestModeManager;
+import coppercore.wpilib_interface.tuning.TuningModeHelper;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.ControlMode;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.MotorTuningMode;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotor;
+import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotorConfiguration;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.AngularVelocityUnit;
@@ -23,14 +31,6 @@ import frc.robot.subsystems.hopper.HopperState.IdleState;
 import frc.robot.subsystems.hopper.HopperState.SpinningState;
 import frc.robot.subsystems.hopper.HopperState.TestModeState;
 import frc.robot.util.StateMachineDump;
-import frc.robot.util.TestModeManager;
-import frc.robot.util.TotalCurrentCalculator;
-import frc.robot.util.TuningModeHelper;
-import frc.robot.util.TuningModeHelper.ControlMode;
-import frc.robot.util.TuningModeHelper.MotorTuningMode;
-import frc.robot.util.TuningModeHelper.TunableMotor;
-import frc.robot.util.TuningModeHelper.TunableMotorConfiguration;
-import frc.robot.util.math.Lazy;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
@@ -120,7 +120,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
     motor.updateInputs(inputs);
 
-    TotalCurrentCalculator.reportCurrent(hashCode(), inputs.supplyCurrentAmps);
+    TotalCurrentCalculator.recordCurrent(hashCode(), inputs.supplyCurrentAmps);
 
     Logger.processInputs("Hopper/inputs", inputs);
     Logger.recordOutput("Hopper/State", stateMachine.getCurrentState().getName());

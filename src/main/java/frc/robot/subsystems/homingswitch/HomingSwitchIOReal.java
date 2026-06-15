@@ -3,9 +3,9 @@ package frc.robot.subsystems.homingswitch;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.signals.S1FloatStateValue;
 import com.ctre.phoenix6.signals.S2FloatStateValue;
+import coppercore.controls.ServiceThread;
 import coppercore.wpilib_interface.subsystems.configs.CANDeviceID;
-import frc.robot.util.ServiceThread;
-import frc.robot.util.io.dio_switch.DigitalInputIOCANdi;
+import coppercore.wpilib_interface.subsystems.dio_switch.DigitalInputIOCANdi;
 
 public class HomingSwitchIOReal extends DigitalInputIOCANdi implements HomingSwitchIO {
   protected final CANdiSignal outputSignal;

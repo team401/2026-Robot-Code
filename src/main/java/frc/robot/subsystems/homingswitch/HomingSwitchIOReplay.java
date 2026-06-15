@@ -1,6 +1,6 @@
 package frc.robot.subsystems.homingswitch;
 
-import frc.robot.util.io.dio_switch.DigitalInputIOReplay;
+import coppercore.wpilib_interface.subsystems.dio_switch.DigitalInputIOReplay;
 
 public class HomingSwitchIOReplay extends DigitalInputIOReplay implements HomingSwitchIO {
   @Override
