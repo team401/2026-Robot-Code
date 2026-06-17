@@ -137,7 +137,9 @@ def generate(env: str = "comp", bootstrap: bool = False) -> str:
     else:
         _log("generator sources unchanged; skipping compile")
 
-    _log(f"running generator for environment '{env}'...")
+    # The generator selects the environment from the deploy constants/config.json (the same way
+    # the robot does); `env` here is only what the caller intends to write to, for logging.
+    _log(f"running generator (requested env '{env}'; environment comes from config.json)...")
     # GEN_OUT goes first so the freshly fast-compiled autogen classes take precedence
     # over the (possibly stale) copies the gradle bootstrap compiled into CLASSES.
     run_classpath = str(GEN_OUT) + os.pathsep + classpath
@@ -151,7 +153,6 @@ def generate(env: str = "comp", bootstrap: bool = False) -> str:
             "-cp",
             run_classpath,
             MAIN_CLASS,
-            env,
             str(OUT_JSON),
         ],
         cwd=str(_ROOT),

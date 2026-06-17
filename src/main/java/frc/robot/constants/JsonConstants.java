@@ -55,7 +55,16 @@ public class JsonConstants {
     JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
-  public static JSONHandler loadConstants(RobotContainer robotContainer) {
+  /**
+   * Loads every constant from JSON for the active environment (selected via deploy
+   * constants/config.json) and returns the configured {@link JSONHandler}.
+   *
+   * <p>This is the shared initialization sequence used both by robot startup ({@link
+   * #loadConstants(RobotContainer)}) and by the offline auto generator (see frc.robot.autogen), so
+   * there is a single code path for resolving and deserializing constants. It does not start the
+   * tuning server.
+   */
+  public static JSONHandler loadConstants() {
 
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
@@ -107,6 +116,20 @@ public class JsonConstants {
 
     autos = jsonHandler.getObject(new Autos(), "Autos.json");
 
+    controllers =
+        jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
+
+    return jsonHandler;
+  }
+
+  /**
+   * Robot-startup variant: loads all constants (see {@link #loadConstants()}) and, when the active
+   * environment enables it, starts the constant/autos tuning server. The {@code robotContainer} is
+   * used to reload auto commands when the autos route receives a POST.
+   */
+  public static JSONHandler loadConstants(RobotContainer robotContainer) {
+    loadConstants();
+
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
       try {
@@ -139,9 +162,6 @@ public class JsonConstants {
         System.err.println("could not add routes for constant tuning: " + ex);
       }
     }
-
-    controllers =
-        jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
     return jsonHandler;
   }

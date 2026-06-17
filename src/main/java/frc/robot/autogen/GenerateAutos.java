@@ -44,7 +44,8 @@ import frc.robot.util.json.JSONAPTarget;
  * never ambiguous, e.g. {@code seq.andThen(a, inParallel(b, c))}. Conditional sequences accumulate
  * with {@code result = result.andThen(...)} (andThen flattens, so this just appends).
  *
- * <p>Usage: {@code java frc.robot.autogen.GenerateAutos [environment] [outputFile]}.
+ * <p>Usage: {@code java frc.robot.autogen.GenerateAutos [outputFile]} (environment comes from the
+ * deploy constants/config.json). With no outputFile the JSON is printed to stdout.
  */
 public final class GenerateAutos {
 
@@ -63,12 +64,13 @@ public final class GenerateAutos {
   private static final APConstraints CLIMB_CONSTRAINTS = apConstraints(2.0, 2.0, 0.1);
 
   public static void main(String[] args) throws java.io.IOException {
-    String environment = args.length > 0 ? args[0] : "comp";
     // The JSON is written to this file rather than stdout: initializing HAL prints native
     // diagnostics to stdout, which would otherwise corrupt the serialized output.
-    String outputFile = args.length > 1 ? args[1] : null;
+    String outputFile = args.length > 0 ? args[0] : null;
 
-    Field.initialize(environment);
+    // Initialize HAL and load all robot constants (the environment is selected by the deploy
+    // constants/config.json, exactly as on the robot).
+    Field.initialize();
 
     Autos autos = build();
 
