@@ -23,6 +23,8 @@ import frc.robot.auto.general.Race;
 import frc.robot.auto.general.Sequence;
 import frc.robot.auto.general.Wait;
 import frc.robot.subsystems.drive.DriveCoordinator;
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonType(
     property = "type",
@@ -51,7 +53,25 @@ import frc.robot.subsystems.drive.DriveCoordinator;
     })
 public abstract class AutoAction {
 
-  public String type;
+  /** Maps each concrete AutoAction class to its JSON discriminator, from the @JsonType table. */
+  private static final Map<Class<?>, String> TYPE_NAMES = buildTypeNames();
+
+  private static Map<Class<?>, String> buildTypeNames() {
+    Map<Class<?>, String> names = new HashMap<>();
+    for (JsonSubtype subtype : AutoAction.class.getAnnotation(JsonType.class).subtypes()) {
+      names.put(subtype.clazz(), subtype.name());
+    }
+    return names;
+  }
+
+  /**
+   * The polymorphic discriminator written to JSON. coppercore's adapter uses @JsonType/@JsonSubtype
+   * only to pick the subclass when *deserializing*; on *serialize* it just emits this field. Gson
+   * populates it from the JSON when loading (bypassing this initializer via Unsafe), so this
+   * default only matters when an action is constructed directly in Java (e.g. the auto generator),
+   * where it resolves the discriminator from the runtime class using the @JsonSubtype table above.
+   */
+  public String type = TYPE_NAMES.get(getClass());
 
   public record AutoActionContext(
       DriveCoordinator driveCoordinator,

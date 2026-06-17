@@ -67,7 +67,6 @@ public final class AutosGen {
     Field.initialize(environment);
 
     Autos autos = build();
-    TypeTagger.tag(autos);
 
     JSONConverter.addConversion(APTarget.class, JSONAPTarget.class);
     JSONSyncConfig config = new JSONSyncConfigBuilder().build();
