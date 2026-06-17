@@ -22,15 +22,6 @@ public class Race extends AutoAction {
     return of(actions.toArray(new AutoAction[0]));
   }
 
-  /** Adds {@code others} to race against this, returning a new flattened Race. */
-  @Override
-  public Race racingWith(AutoAction... others) {
-    AutoAction[] all = new AutoAction[actions.length + others.length];
-    System.arraycopy(actions, 0, all, 0, actions.length);
-    System.arraycopy(others, 0, all, actions.length, others.length);
-    return of(all);
-  }
-
   @Override
   public Command toCommand(AutoActionContext data) {
     Objects.requireNonNull(actions, "actions cannot be null");

@@ -8,6 +8,7 @@ import static frc.robot.autogen.Dsl.climbSearch;
 import static frc.robot.autogen.Dsl.degrees;
 import static frc.robot.autogen.Dsl.deployIntake;
 import static frc.robot.autogen.Dsl.followPath;
+import static frc.robot.autogen.Dsl.inParallel;
 import static frc.robot.autogen.Dsl.meters;
 import static frc.robot.autogen.Dsl.networkConfigurableWait;
 import static frc.robot.autogen.Dsl.pidGains;
@@ -38,11 +39,10 @@ import frc.robot.util.json.JSONAPTarget;
  * Builds every auto routine in Java and serializes them to the Autos.json format using the robot's
  * own coppercore Gson configuration. Replaces the former Python auto generator.
  *
- * <p>Actions compose with the fluent combinators on {@link AutoAction}: {@code action.andThen(...)}
- * builds a {@link Sequence} and {@code action.inParallelWith(...)} builds a {@link
- * frc.robot.auto.general.Parallel}, both starting from any action or from the empty {@code
- * Dsl.seq}/{@code Dsl.par} starters. Conditional sequences accumulate with {@code result =
- * result.andThen(...)} (andThen flattens, so this just appends).
+ * <p>Sequencing uses {@code seq.andThen(...)} (or {@code action.andThen(...)}); parallel/race
+ * groups are built explicitly with {@code inParallel(...)} / {@code inRace(...)} so grouping is
+ * never ambiguous, e.g. {@code seq.andThen(a, inParallel(b, c))}. Conditional sequences accumulate
+ * with {@code result = result.andThen(...)} (andThen flattens, so this just appends).
  *
  * <p>Usage: {@code java frc.robot.autogen.AutosGen [environment] [outputFile]}.
  */
@@ -236,12 +236,12 @@ public final class AutosGen {
                 .constraints(apConstraints(AGGRESSIVE_TRENCH_VELOCITY, 200.0))
                 // No entry angle, we just want to beeline to trench exit.
                 .xap(),
-            // stowIntake().inParallelWith(
+            // inParallel(stowIntake(),
             //     followPath("Starting Position Left Trench To Center Intake In"))
-            deployIntake().inParallelWith(followPath("Left Side Aggressive Sweep Intake In")),
-            waitSeconds(0.6)
-                .andThen(startShooting())
-                .inParallelWith(followPath("Left Bump To Alliance")),
+            inParallel(deployIntake(), followPath("Left Side Aggressive Sweep Intake In")),
+            inParallel(
+                seq.andThen(waitSeconds(0.6), startShooting()),
+                followPath("Left Bump To Alliance")),
             waitSeconds(0.1),
             ap().pose(LEFT_ALLIANCE_ZONE_MIDDLE_POSE).ap(),
             cycleIntake(2.5, 5));
@@ -258,11 +258,11 @@ public final class AutosGen {
                   .constraints(apConstraints(2.0, 2.0, 2.0))
                   .pidGains(pidGains(1.5))
                   .ap(),
-              stopShooting().inParallelWith(goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
-              deployIntake().inParallelWith(followPath("Left Side Close 2nd Sweep Intake In")),
-              waitSeconds(0.4)
-                  .andThen(startShooting())
-                  .inParallelWith(followPath("Left Bump To Alliance")),
+              inParallel(stopShooting(), goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
+              inParallel(deployIntake(), followPath("Left Side Close 2nd Sweep Intake In")),
+              inParallel(
+                  seq.andThen(waitSeconds(0.4), startShooting()),
+                  followPath("Left Bump To Alliance")),
               waitSeconds(0.1),
               ap().pose(2.700, 5.75, -90).ap(),
               waitSeconds(1));
@@ -301,11 +301,11 @@ public final class AutosGen {
     result =
         result.andThen(
             ap().pose(5.2, 7.4).velocity(DEFAULT_TRENCH_VELOCITY).xap(),
-            stowIntake().inParallelWith(followPath("Starting Position Left Trench To Center")),
-            deployIntake().inParallelWith(followPath("Left Side Conservative Sweep")),
-            waitSeconds(0.6)
-                .andThen(startShooting())
-                .inParallelWith(followPath("Left Bump To Alliance")),
+            inParallel(stowIntake(), followPath("Starting Position Left Trench To Center")),
+            inParallel(deployIntake(), followPath("Left Side Conservative Sweep")),
+            inParallel(
+                seq.andThen(waitSeconds(0.6), startShooting()),
+                followPath("Left Bump To Alliance")),
             waitSeconds(0.1),
             ap().pose(2.700, 5.75, -90).ap(),
             waitSeconds(2.5));
@@ -322,11 +322,11 @@ public final class AutosGen {
                   .constraints(apConstraints(2.0, 2.0, 2.0))
                   .pidGains(pidGains(1.5))
                   .ap(),
-              stopShooting().inParallelWith(goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
-              deployIntake().inParallelWith(followPath("Left Side Close 2nd Sweep Intake In")),
-              waitSeconds(0.4)
-                  .andThen(startShooting())
-                  .inParallelWith(followPath("Left Bump To Alliance")),
+              inParallel(stopShooting(), goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
+              inParallel(deployIntake(), followPath("Left Side Close 2nd Sweep Intake In")),
+              inParallel(
+                  seq.andThen(waitSeconds(0.4), startShooting()),
+                  followPath("Left Bump To Alliance")),
               waitSeconds(0.1),
               ap().pose(2.700, 5.75, -90).ap(),
               waitSeconds(1));
@@ -381,9 +381,12 @@ public final class AutosGen {
     // xBasedAutopilot(FieldConstants.Alliance.center transformed by
     //   climb_offset, constraints=CLIMB_CONSTRAINTS)
     return seq.andThen(
-            ap().pose(targetPose).entryAngle(entryAngle).constraints(CLIMB_CONSTRAINTS).xap())
-        .inParallelWith(climbSearch())
-        .andThen(waitSeconds(0.5), climbHang());
+        inParallel(
+            seq.andThen(
+                ap().pose(targetPose).entryAngle(entryAngle).constraints(CLIMB_CONSTRAINTS).xap()),
+            climbSearch()),
+        waitSeconds(0.5),
+        climbHang());
   }
 
   private AutosGen() {}

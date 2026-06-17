@@ -108,19 +108,21 @@ public abstract class AutoAction {
     return Sequence.of(all);
   }
 
-  /** Returns a {@link Parallel} that runs this action alongside {@code others}. */
-  public Parallel inParallelWith(AutoAction... others) {
-    AutoAction[] all = new AutoAction[others.length + 1];
-    all[0] = this;
-    System.arraycopy(others, 0, all, 1, others.length);
-    return Parallel.of(all);
+  /**
+   * Returns a {@link Sequence} that runs this action, then runs {@code parallelActions} together in
+   * parallel. Sugar for {@code andThen(Parallel.of(parallelActions))} — the parallel grouping is
+   * explicit, so there is no ambiguity about what runs alongside what.
+   */
+  public Sequence andThenInParallel(AutoAction... parallelActions) {
+    return andThen(Parallel.of(parallelActions));
   }
 
-  /** Returns a {@link Race} of this action against {@code others} (ends when the first does). */
-  public Race racingWith(AutoAction... others) {
-    AutoAction[] all = new AutoAction[others.length + 1];
-    all[0] = this;
-    System.arraycopy(others, 0, all, 1, others.length);
-    return Race.of(all);
+  /**
+   * Returns a {@link Sequence} that runs this action, then races {@code raceActions} against each
+   * other (the group ends when the first finishes). Sugar for {@code
+   * andThen(Race.of(raceActions))}.
+   */
+  public Sequence andThenRacing(AutoAction... raceActions) {
+    return andThen(Race.of(raceActions));
   }
 }

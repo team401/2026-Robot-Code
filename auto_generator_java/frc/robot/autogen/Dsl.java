@@ -37,9 +37,9 @@ import frc.robot.auto.general.Wait;
 /**
  * Small authoring DSL for building auto routines in Java. Mirrors the helpers that used to live in
  * the Python {@code shorthands.py}/{@code auto_lib.py}. Factory methods return plain {@link
- * AutoAction} objects; nesting is expressed with the fluent combinators on {@link AutoAction}
- * starting from the {@link #seq}, {@link #par} and {@link #race} entry points, e.g. {@code
- * seq.andThen(a, b)}, {@code par.inParallelWith(x, y)}, or {@code action.andThen(...)}.
+ * AutoAction} objects; sequencing is expressed with {@code seq.andThen(...)} (or {@code
+ * action.andThen(...)}), and parallel/race groups are built explicitly with the {@link #inParallel}
+ * / {@link #inRace} factories, e.g. {@code seq.andThen(a, inParallel(b, c))}.
  */
 public final class Dsl {
   private Dsl() {}
@@ -270,22 +270,28 @@ public final class Dsl {
   // ---------------------------------------------------------------------------
   // Containers
   //
-  // Compose actions fluently via the combinators on AutoAction:
-  //   seq.andThen(a, b, c)             // Sequence of a, b, c
-  //   a.andThen(b).andThen(c)          // same, chained (flattened)
-  //   par.inParallelWith(x, y)         // Parallel of x, y
-  //   race.racingWith(x, y)            // Race of x, y
-  // `seq`, `par` and `race` are empty starters; andThen/inParallelWith/racingWith
-  // return new (flattened) containers, so the shared starters are never mutated.
-  // For conditional building from a list, use Sequence.of(list) / Parallel.of(list).
+  // Sequencing uses the fluent combinators on AutoAction; parallel/race groups are
+  // built explicitly with the inParallel(...) / inRace(...) factories so grouping is
+  // never ambiguous:
+  //   seq.andThen(a, b, c)                          // Sequence of a, b, c
+  //   seq.andThen(a, inParallel(b, c))              // a, then b and c together
+  //   a.andThenInParallel(b, c)                     // sugar for a.andThen(inParallel(b, c))
+  //   inParallel(seq.andThen(a, b), c)              // [a then b] alongside c
+  // `seq` is an empty starter; andThen returns a new (flattened) Sequence, so the
+  // shared starter is never mutated. For conditional building, accumulate with
+  // `result = result.andThen(...)`.
   // ---------------------------------------------------------------------------
 
   /** Empty Sequence starter: {@code seq.andThen(...)}. */
   public static final Sequence seq = Sequence.of();
 
-  /** Empty Parallel starter: {@code par.inParallelWith(...)}. */
-  public static final Parallel par = Parallel.of();
+  /** Builds a Parallel that runs the given actions together. */
+  public static Parallel inParallel(AutoAction... actions) {
+    return Parallel.of(actions);
+  }
 
-  /** Empty Race starter: {@code race.racingWith(...)}. */
-  public static final Race race = Race.of();
+  /** Builds a Race of the given actions (the group ends when the first finishes). */
+  public static Race inRace(AutoAction... actions) {
+    return Race.of(actions);
+  }
 }
