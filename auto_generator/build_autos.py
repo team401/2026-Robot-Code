@@ -20,6 +20,7 @@ Usage (from the repo root or auto_generator/):
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import subprocess
 import sys
@@ -31,9 +32,13 @@ from typing import Any
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = _SCRIPT_DIR.parent
 
-# The autos are authored in Java and serialized to Autos.json by this generator,
-# which reuses the robot's own coppercore Gson configuration. See auto_generator_java/.
-GENERATOR = _REPO_ROOT / "auto_generator_java" / "generate.sh"
+# The autos are authored in Java and serialized to Autos.json by the cross-platform
+# generator driver, which reuses the robot's own coppercore Gson configuration.
+# Load it as a module (it lives outside this directory). See auto_generator_java/.
+_GENERATOR_PATH = _REPO_ROOT / "auto_generator_java" / "generate.py"
+_spec = importlib.util.spec_from_file_location("autogen_generate", _GENERATOR_PATH)
+_autogen = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_autogen)
 
 OUTPUT_DIR = _REPO_ROOT / "src" / "main" / "deploy" / "constants"
 CONFIG_FILE = OUTPUT_DIR / "config.json"
@@ -60,27 +65,15 @@ def detect_environment() -> str:
 
 
 def generate_autos_json(env: str, bootstrap: bool = False) -> str:
-    """Run the Java auto generator and return the Autos.json content for `env`.
+    """Build the autos via the Java generator and return the Autos.json content for `env`.
 
-    The generator prints clean JSON to stdout and progress/diagnostics to stderr.
+    Generator progress and native (HAL) diagnostics stream to stderr; the JSON is
+    returned in-memory.
     """
-    cmd = [str(GENERATOR)]
-    if bootstrap:
-        cmd.append("--bootstrap")
-    cmd.append(env)
-    result = subprocess.run(
-        cmd,
-        cwd=str(_REPO_ROOT),
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    if result.stderr:
-        print(result.stderr, file=sys.stderr, end="")
-    if result.returncode != 0:
-        raise SystemExit(f"Java auto generator failed with status {result.returncode}")
-    return result.stdout
+    try:
+        return _autogen.generate(env, bootstrap)
+    except subprocess.CalledProcessError as e:
+        raise SystemExit(f"Java auto generator failed with status {e.returncode}")
 
 
 def _is_json_number(value: Any) -> bool:
