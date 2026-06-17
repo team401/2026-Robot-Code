@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Parallel extends AutoAction {
-  public AutoAction[] actions;
+  private AutoAction[] actions;
 
   /** Creates a Parallel of the given actions. */
   public static Parallel of(AutoAction... actions) {

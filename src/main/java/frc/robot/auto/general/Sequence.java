@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public class Sequence extends AutoAction {
 
-  public AutoAction[] actions;
+  private AutoAction[] actions;
 
   /** Creates a Sequence of the given actions. */
   public static Sequence of(AutoAction... actions) {

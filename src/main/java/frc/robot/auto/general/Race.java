@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Race extends AutoAction {
-  public AutoAction[] actions;
+  private AutoAction[] actions;
 
   /** Creates a Race of the given actions (all run until the first finishes). */
   public static Race of(AutoAction... actions) {
