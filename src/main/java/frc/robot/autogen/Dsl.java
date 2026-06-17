@@ -111,9 +111,24 @@ public final class Dsl {
     return PIDGains.kPID(kP, 0.0, 0.0);
   }
 
+  /** Starts building an autopilot action targeting the given pose. */
+  public static Ap autoPilotTo(double x, double y, double angleDegrees) {
+    return new Ap(pose2d(x, y, angleDegrees));
+  }
+
+  /** Starts building an autopilot action targeting (x, y) with zero heading. */
+  public static Ap autoPilotTo(double x, double y) {
+    return autoPilotTo(x, y, 0.0);
+  }
+
+  /** Starts building an autopilot action targeting the given pose. */
+  public static Ap autoPilotTo(Pose2d reference) {
+    return new Ap(reference);
+  }
+
   /** Fluent builder for {@link AutoPilotAction} / {@link XBasedAutoPilotAction}. */
   public static final class Ap {
-    private Pose2d reference;
+    private final Pose2d reference;
     private Rotation2d entryAngle;
     private double velocity = 0.0;
     private Distance rotationRadius;
@@ -122,62 +137,52 @@ public final class Dsl {
     private PIDGains pidGains;
     private boolean canMirror = true;
 
-    public Ap pose(double x, double y, double angleDegrees) {
-      this.reference = pose2d(x, y, angleDegrees);
-      return this;
-    }
-
-    public Ap pose(double x, double y) {
-      return pose(x, y, 0.0);
-    }
-
-    public Ap pose(Pose2d reference) {
+    private Ap(Pose2d reference) {
       this.reference = reference;
-      return this;
     }
 
-    public Ap velocity(double velocity) {
+    public Ap withVelocity(double velocity) {
       this.velocity = velocity;
       return this;
     }
 
-    public Ap entryAngle(double degrees) {
+    public Ap withEntryAngle(double degrees) {
       this.entryAngle = rotation2d(degrees);
       return this;
     }
 
-    public Ap entryAngle(Rotation2d entryAngle) {
+    public Ap withEntryAngle(Rotation2d entryAngle) {
       this.entryAngle = entryAngle;
       return this;
     }
 
-    public Ap rotationRadius(Distance rotationRadius) {
+    public Ap withRotationRadius(Distance rotationRadius) {
       this.rotationRadius = rotationRadius;
       return this;
     }
 
-    public Ap constraints(APConstraints constraints) {
+    public Ap withConstraints(APConstraints constraints) {
       this.constraints = constraints;
       return this;
     }
 
-    public Ap profile(APProfile profile) {
+    public Ap withProfile(APProfile profile) {
       this.profile = profile;
       return this;
     }
 
-    public Ap pidGains(PIDGains pidGains) {
+    public Ap withPidGains(PIDGains pidGains) {
       this.pidGains = pidGains;
       return this;
     }
 
-    public Ap canMirror(boolean canMirror) {
+    public Ap withCanMirror(boolean canMirror) {
       this.canMirror = canMirror;
       return this;
     }
 
     private APTarget target() {
-      APTarget target = new APTarget(reference == null ? new Pose2d() : reference);
+      APTarget target = new APTarget(reference);
       if (entryAngle != null) {
         target = target.withEntryAngle(entryAngle);
       }
@@ -195,10 +200,6 @@ public final class Dsl {
     public XBasedAutoPilotAction toXBasedAutoAction() {
       return new XBasedAutoPilotAction(target(), constraints, profile, pidGains, canMirror);
     }
-  }
-
-  public static Ap ap() {
-    return new Ap();
   }
 
   // ---------------------------------------------------------------------------
