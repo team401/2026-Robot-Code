@@ -62,8 +62,12 @@ public final class AutosGen {
 
   private static final APConstraints CLIMB_CONSTRAINTS = apConstraints(2.0, 2.0, 0.1);
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws java.io.IOException {
     String environment = args.length > 0 ? args[0] : "comp";
+    // The JSON is written to this file rather than stdout: initializing HAL prints native
+    // diagnostics to stdout, which would otherwise corrupt the serialized output.
+    String outputFile = args.length > 1 ? args[1] : null;
+
     Field.initialize(environment);
 
     Autos autos = build();
@@ -71,7 +75,13 @@ public final class AutosGen {
     JSONConverter.addConversion(APTarget.class, JSONAPTarget.class);
     JSONSyncConfig config = new JSONSyncConfigBuilder().build();
     JSONSync<Autos> sync = new JSONSync<>(autos, "", config);
-    System.out.println(sync.serialize());
+    String json = sync.serialize();
+
+    if (outputFile != null) {
+      java.nio.file.Files.writeString(java.nio.file.Path.of(outputFile), json);
+    } else {
+      System.out.println(json);
+    }
   }
 
   private static Autos build() {
