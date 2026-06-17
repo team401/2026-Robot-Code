@@ -16,9 +16,9 @@ import java.nio.file.Path;
 /**
  * Wires the robot's {@link FieldConstants} to work headlessly inside the generator.
  *
- * <p>{@code FieldConstants.Tower.leftUpright()} reads {@code JsonConstants.aprilTagConstants}, whose
- * {@code getTagLayout()} normally calls {@code Filesystem.getDeployDirectory()} (which loads the HAL
- * native library). The generator runs under a bare JVM with no HAL, so instead we load the
+ * <p>{@code FieldConstants.Tower.leftUpright()} reads {@code JsonConstants.aprilTagConstants},
+ * whose {@code getTagLayout()} normally calls {@code Filesystem.getDeployDirectory()} (which loads
+ * the HAL native library). The generator runs under a bare JVM with no HAL, so instead we load the
  * AprilTag layout directly from a repo-relative path — honoring the {@code fieldType} deployment
  * constant — and inject it as the cached layout via reflection. This reuses all robot geometry with
  * no duplication and no HAL.
@@ -49,7 +49,8 @@ public final class Field {
   }
 
   private static String resolveLayoutFileName(String environment) {
-    Path constantsFile = DEPLOY.resolve("constants").resolve(environment).resolve("AprilTagConstants.json");
+    Path constantsFile =
+        DEPLOY.resolve("constants").resolve(environment).resolve("AprilTagConstants.json");
     try {
       if (Files.exists(constantsFile)) {
         JsonObject json = JsonParser.parseString(Files.readString(constantsFile)).getAsJsonObject();
@@ -66,7 +67,8 @@ public final class Field {
   }
 
   public static Pose2d leftClimbLocation() {
-    return new Pose2d(FieldConstants.Tower.leftUpright(), new Rotation2d()).transformBy(CLIMB_OFFSET);
+    return new Pose2d(FieldConstants.Tower.leftUpright(), new Rotation2d())
+        .transformBy(CLIMB_OFFSET);
   }
 
   public static Pose2d rightClimbLocation() {

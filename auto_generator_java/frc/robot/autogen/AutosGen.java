@@ -1,8 +1,8 @@
 package frc.robot.autogen;
 
+import static frc.robot.autogen.Dsl.ap;
 import static frc.robot.autogen.Dsl.apConstraints;
 import static frc.robot.autogen.Dsl.apProfile;
-import static frc.robot.autogen.Dsl.ap;
 import static frc.robot.autogen.Dsl.climbHang;
 import static frc.robot.autogen.Dsl.climbSearch;
 import static frc.robot.autogen.Dsl.degrees;
@@ -66,13 +66,11 @@ public final class AutosGen {
   private static Autos build() {
     Autos autos = new Autos();
 
-    autos.autos.put(
-        "Literally just shoot Auto", new Auto(seq(startShooting()), false, false));
+    autos.autos.put("Literally just shoot Auto", new Auto(seq(startShooting()), false, false));
 
     autos.autos.put("Aggressive Depot", auto(seq(aggressive(true, false, false, true))));
     autos.autos.put("Aggressive No Depot", auto(seq(aggressive(false, false, false, true))));
-    autos.autos.put(
-        "Aggressive Depot From Bump", auto(seq(aggressive(true, true, true, false))));
+    autos.autos.put("Aggressive Depot From Bump", auto(seq(aggressive(true, true, true, false))));
 
     autos.autos.put("Conservative Depot", auto(seq(conservative(true, false, false, true))));
     autos.autos.put("Conservative No Depot", auto(seq(conservative(false, false, false, true))));
@@ -152,13 +150,23 @@ public final class AutosGen {
     return seq(
         ap().pose(1.5, 5.1, 135)
             .velocity(1.0)
-            .profile(apProfile(apConstraints(5.1, 10.0, 3.0), meters(0.1), degrees(4.0), meters(0.2)))
+            .profile(
+                apProfile(apConstraints(5.1, 10.0, 3.0), meters(0.1), degrees(4.0), meters(0.2)))
             .ap(),
-        ap().pose(0.715, 5.1, 135).constraints(apConstraints(1.0, 3.0, 3.0)).pidGains(pidGains(1.5)).ap(),
+        ap().pose(0.715, 5.1, 135)
+            .constraints(apConstraints(1.0, 3.0, 3.0))
+            .pidGains(pidGains(1.5))
+            .ap(),
         waitSeconds(0.1),
-        ap().pose(0.715, 6.4, 135).constraints(apConstraints(1.0, 3.0, 2.0)).pidGains(pidGains(1.5)).ap(),
+        ap().pose(0.715, 6.4, 135)
+            .constraints(apConstraints(1.0, 3.0, 2.0))
+            .pidGains(pidGains(1.5))
+            .ap(),
         waitSeconds(0.1),
-        ap().pose(1.0, 6.8, 135).constraints(apConstraints(5.1, 5.0, 3.0)).pidGains(pidGains(1.5)).ap());
+        ap().pose(1.0, 6.8, 135)
+            .constraints(apConstraints(5.1, 5.0, 3.0))
+            .pidGains(pidGains(1.5))
+            .ap());
   }
 
   private static AutoAction aggressive(
@@ -289,7 +297,8 @@ public final class AutosGen {
     f.add(ap().pose(2.700, 5.75, -90).ap());
     f.add(
         ap().pose(1.5, 5.1, 135)
-            .profile(apProfile(apConstraints(5.1, 10.0, 3.0), meters(0.1), degrees(4.0), meters(0.2)))
+            .profile(
+                apProfile(apConstraints(5.1, 10.0, 3.0), meters(0.1), degrees(4.0), meters(0.2)))
             .ap());
     f.add(startShooting());
     f.add(networkConfigurableWait("Follower - Before Depot", seconds(0.0)));

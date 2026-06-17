@@ -221,13 +221,17 @@ createVersionFile.dependsOn(eventDeploy)
 project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
-        // Restrict formatting to files under the workspace 'src' directory.
-        // Using '.' can sometimes pick up files mounted from other filesystems
-        // (e.g. WSL mounts) which Spotless rejects. Targeting 'src' keeps the
-        // formatter inside the project directory.
+        // Restrict formatting to files under the workspace 'src' and
+        // 'auto_generator_java' directories. Using '.' can sometimes pick up
+        // files mounted from other filesystems (e.g. WSL mounts) which Spotless
+        // rejects. Targeting specific directories keeps the formatter inside the
+        // project directory.
         target fileTree('src') {
             include "**/*.java"
             exclude "**/build/**", "**/build-*/**", "settings_gui/**"
+        }, fileTree('auto_generator_java') {
+            include "**/*.java"
+            exclude "**/build/**"
         }
         toggleOffOn()
         googleJavaFormat()
