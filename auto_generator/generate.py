@@ -2,8 +2,8 @@
 """
 Cross-platform driver for the Java auto generator.
 
-Compiles the auto-definition sources (auto_generator_java/) against the already
-compiled robot classes and runs them as a (headless) robot JVM with the WPILib
+Compiles the auto-definition sources (src/main/java/frc/robot/autogen) against the
+already-compiled robot classes and runs them as a (headless) robot JVM with the WPILib
 native libraries on the path, so the auto code has full, unrestricted access to
 the rest of the robot code (HAL, Filesystem, NetworkTables), exactly as on the
 robot. Emits Autos.json to stdout.
@@ -29,13 +29,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-_THIS_DIR = Path(__file__).resolve().parent  # auto_generator_java/
+_THIS_DIR = Path(__file__).resolve().parent  # auto_generator/
 _ROOT = _THIS_DIR.parent
 
 CP_FILE = _ROOT / "build" / "autogen-classpath.txt"
 CLASSES = _ROOT / "build" / "classes" / "java" / "main"
 NATIVE_DIR = _ROOT / "build" / "jni" / "release"
-GEN_SRC = _THIS_DIR
+# Only the autogen package is fast-compiled on the hot path (the rest of the robot
+# is already compiled into CLASSES by the bootstrap's gradle compileJava).
+GEN_SRC = _ROOT / "src" / "main" / "java" / "frc" / "robot" / "autogen"
 GEN_OUT = _ROOT / "build" / "autogen-out"
 OUT_JSON = GEN_OUT / "Autos.json"
 MARKER = GEN_OUT / ".compiled"
@@ -136,7 +138,9 @@ def generate(env: str = "comp", bootstrap: bool = False) -> str:
         _log("generator sources unchanged; skipping compile")
 
     _log(f"running generator for environment '{env}'...")
-    run_classpath = classpath + os.pathsep + str(GEN_OUT)
+    # GEN_OUT goes first so the freshly fast-compiled autogen classes take precedence
+    # over the (possibly stale) copies the gradle bootstrap compiled into CLASSES.
+    run_classpath = str(GEN_OUT) + os.pathsep + classpath
     # The generator writes JSON to OUT_JSON. Initializing HAL prints native chatter to
     # the JVM's stdout, so we route that to our stderr to keep it out of the JSON.
     subprocess.run(

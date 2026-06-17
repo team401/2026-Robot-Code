@@ -3,7 +3,7 @@
 build_autos.py
 
 Orchestrates auto generation and publishing. The autos themselves are authored
-in Java (see auto_generator_java/) and serialized to Autos.json by a fast Java
+in Java (see src/main/java/frc/robot/autogen) and serialized to Autos.json by a fast Java
 generator that reuses the robot's own coppercore Gson configuration. This script
 invokes that generator, then writes the local Autos.json and/or publishes to the
 robot's tuning server (verifying a structural round-trip on PUT).
@@ -32,10 +32,10 @@ from typing import Any
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = _SCRIPT_DIR.parent
 
-# The autos are authored in Java and serialized to Autos.json by the cross-platform
-# generator driver, which reuses the robot's own coppercore Gson configuration.
-# Load it as a module (it lives outside this directory). See auto_generator_java/.
-_GENERATOR_PATH = _REPO_ROOT / "auto_generator_java" / "generate.py"
+# The autos are authored in Java (src/main/java/frc/robot/autogen) and serialized to
+# Autos.json by the cross-platform generator driver, which reuses the robot's own
+# coppercore Gson configuration. Load it as a module (it sits next to this file).
+_GENERATOR_PATH = _SCRIPT_DIR / "generate.py"
 _spec = importlib.util.spec_from_file_location("autogen_generate", _GENERATOR_PATH)
 _autogen = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_autogen)
