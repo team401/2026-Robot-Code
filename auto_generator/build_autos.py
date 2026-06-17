@@ -176,10 +176,10 @@ def publish(base_url: str, env: str, content: str) -> None:
     req = urllib.request.Request(url, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=5) as resp:
-            body = resp.read().decode("utf-8", errors="replace")
+            # Drain the response but don't echo it; on success the body is just the
+            # full autos JSON, which is only noise. Failures are reported below.
+            resp.read()
             print(f"  POST {url} -> {resp.status}")
-            if body:
-                print(f"    Response: {body}")
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace") if e.fp else ""
         message = f"POST {url} failed: HTTP {e.code} {e.reason}"
