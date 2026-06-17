@@ -52,10 +52,6 @@ public final class GenerateAutos {
   // TODO: Replace placeholder coordinates with real field positions.
   // TODO: Switch to AutoPilotAction with entry angle and exit velocity for trench segments.
 
-  // --- constants ported from the old constants.py ---------------------------
-  // TODO: Maybe make these loaded from the constants files in the main robot code
-  // instead of hardcoded here, to avoid duplication and potential inconsistencies.
-  // (The climb poses below are now derived from the robot's FieldConstants; see Field.)
   private static final double DEFAULT_TRENCH_VELOCITY = 4.2;
   private static final double AGGRESSIVE_TRENCH_VELOCITY = 5.1;
   private static final Pose2d LEFT_TRENCH_CENTER_SIDE_POSE = pose2d(5.2, 7.4, -90);
@@ -172,7 +168,10 @@ public final class GenerateAutos {
 
   private static AutoAction goToCenterUnderLeftTrenchFromAllianceIntakeIn() {
     return seq.andThen(
-        ap().pose(4.0, 7.55, -90).velocity(DEFAULT_TRENCH_VELOCITY).entryAngle(0).xap(),
+        ap().pose(4.0, 7.55, -90)
+            .velocity(DEFAULT_TRENCH_VELOCITY)
+            .entryAngle(0)
+            .toXBasedAutoAction(),
         // xBasedAutopilot(LEFT_TRENCH_CENTER_SIDE_POSE transformed by rotation,
         //   velocity, entryAngle=secondEntryAngle)
         followPath("Left Trench To Center Intake In"));
@@ -235,7 +234,7 @@ public final class GenerateAutos {
                 // hardcoded in here.
                 .constraints(apConstraints(AGGRESSIVE_TRENCH_VELOCITY, 200.0))
                 // No entry angle, we just want to beeline to trench exit.
-                .xap(),
+                .toXBasedAutoAction(),
             // inParallel(stowIntake(),
             //     followPath("Starting Position Left Trench To Center Intake In"))
             inParallel(deployIntake(), followPath("Left Side Aggressive Sweep Intake In")),
@@ -300,7 +299,7 @@ public final class GenerateAutos {
     // Cycle 1
     result =
         result.andThen(
-            ap().pose(5.2, 7.4).velocity(DEFAULT_TRENCH_VELOCITY).xap(),
+            ap().pose(5.2, 7.4).velocity(DEFAULT_TRENCH_VELOCITY).toXBasedAutoAction(),
             inParallel(stowIntake(), followPath("Starting Position Left Trench To Center")),
             inParallel(deployIntake(), followPath("Left Side Conservative Sweep")),
             inParallel(
@@ -359,7 +358,7 @@ public final class GenerateAutos {
             // hardcoded in here.
             .constraints(apConstraints(AGGRESSIVE_TRENCH_VELOCITY, 200.0))
             // No entry angle, we just want to beeline to trench exit.
-            .xap(),
+            .toXBasedAutoAction(),
         deployIntake(),
         followPath("Left Side Follower Sweep Intake In"),
         networkConfigurableWait("Follower - Before Bump Return", seconds(0.0)),
@@ -383,7 +382,10 @@ public final class GenerateAutos {
     return seq.andThen(
         inParallel(
             seq.andThen(
-                ap().pose(targetPose).entryAngle(entryAngle).constraints(CLIMB_CONSTRAINTS).xap()),
+                ap().pose(targetPose)
+                    .entryAngle(entryAngle)
+                    .constraints(CLIMB_CONSTRAINTS)
+                    .toXBasedAutoAction()),
             climbSearch()),
         waitSeconds(0.5),
         climbHang());

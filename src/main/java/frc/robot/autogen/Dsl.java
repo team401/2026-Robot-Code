@@ -192,7 +192,7 @@ public final class Dsl {
       return new AutoPilotAction(target(), constraints, profile, pidGains, canMirror);
     }
 
-    public XBasedAutoPilotAction xap() {
+    public XBasedAutoPilotAction toXBasedAutoAction() {
       return new XBasedAutoPilotAction(target(), constraints, profile, pidGains, canMirror);
     }
   }
