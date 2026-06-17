@@ -44,9 +44,9 @@ import frc.robot.util.json.JSONAPTarget;
  * never ambiguous, e.g. {@code seq.andThen(a, inParallel(b, c))}. Conditional sequences accumulate
  * with {@code result = result.andThen(...)} (andThen flattens, so this just appends).
  *
- * <p>Usage: {@code java frc.robot.autogen.AutosGen [environment] [outputFile]}.
+ * <p>Usage: {@code java frc.robot.autogen.GenerateAutos [environment] [outputFile]}.
  */
-public final class AutosGen {
+public final class GenerateAutos {
 
   // TODO: Add alliance-relative coordinate utilities.
   // TODO: Replace placeholder coordinates with real field positions.
@@ -167,7 +167,7 @@ public final class AutosGen {
             .entryAngle(0)
             .constraints(apConstraints(2.0, 2.0, 2.0))
             .pidGains(pidGains(1.5))
-            .ap());
+            .toAutoAction());
   }
 
   private static AutoAction goToCenterUnderLeftTrenchFromAllianceIntakeIn() {
@@ -185,11 +185,11 @@ public final class AutosGen {
             .velocity(1.0)
             .profile(
                 apProfile(apConstraints(5.1, 10.0, 3.0), meters(0.1), degrees(4.0), meters(0.2)))
-            .ap(),
+            .toAutoAction(),
         ap().pose(0.715, 5.1, 135)
             .constraints(apConstraints(1.0, 3.0, 3.0))
             .pidGains(pidGains(1.5))
-            .ap(),
+            .toAutoAction(),
         // Wait to stop autopilot from seeing initial velocity and panicking.
         // Autopilot is probably more robust and simpler. Also removes a path planner
         // path and enables us to use hot reload to tune it: followPath("Intake Depot").
@@ -197,13 +197,13 @@ public final class AutosGen {
         ap().pose(0.715, 6.4, 135)
             .constraints(apConstraints(1.0, 3.0, 2.0))
             .pidGains(pidGains(1.5))
-            .ap(),
+            .toAutoAction(),
         // Wait to stop autopilot from seeing initial velocity and panicking.
         waitSeconds(0.1),
         ap().pose(1.0, 6.8, 135)
             .constraints(apConstraints(5.1, 5.0, 3.0))
             .pidGains(pidGains(1.5))
-            .ap());
+            .toAutoAction());
   }
 
   private static AutoAction aggressive(
@@ -243,7 +243,7 @@ public final class AutosGen {
                 seq.andThen(waitSeconds(0.6), startShooting()),
                 followPath("Left Bump To Alliance")),
             waitSeconds(0.1),
-            ap().pose(LEFT_ALLIANCE_ZONE_MIDDLE_POSE).ap(),
+            ap().pose(LEFT_ALLIANCE_ZONE_MIDDLE_POSE).toAutoAction(),
             cycleIntake(2.5, 5));
 
     if (doSecondSweep) {
@@ -257,14 +257,14 @@ public final class AutosGen {
                   .entryAngle(0)
                   .constraints(apConstraints(2.0, 2.0, 2.0))
                   .pidGains(pidGains(1.5))
-                  .ap(),
+                  .toAutoAction(),
               inParallel(stopShooting(), goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
               inParallel(deployIntake(), followPath("Left Side Close 2nd Sweep Intake In")),
               inParallel(
                   seq.andThen(waitSeconds(0.4), startShooting()),
                   followPath("Left Bump To Alliance")),
               waitSeconds(0.1),
-              ap().pose(2.700, 5.75, -90).ap(),
+              ap().pose(2.700, 5.75, -90).toAutoAction(),
               waitSeconds(1));
     }
 
@@ -275,7 +275,7 @@ public final class AutosGen {
                   .velocity(0.0)
                   .constraints(apConstraints(2.0, 2.0, 2.0))
                   .pidGains(pidGains(1.5))
-                  .ap());
+                  .toAutoAction());
     }
 
     return result.andThen(cycleIntake(intakeCycleTime, intakeCycleCount));
@@ -307,7 +307,7 @@ public final class AutosGen {
                 seq.andThen(waitSeconds(0.6), startShooting()),
                 followPath("Left Bump To Alliance")),
             waitSeconds(0.1),
-            ap().pose(2.700, 5.75, -90).ap(),
+            ap().pose(2.700, 5.75, -90).toAutoAction(),
             waitSeconds(2.5));
 
     // wait(1.0),
@@ -321,14 +321,14 @@ public final class AutosGen {
                   .entryAngle(0)
                   .constraints(apConstraints(2.0, 2.0, 2.0))
                   .pidGains(pidGains(1.5))
-                  .ap(),
+                  .toAutoAction(),
               inParallel(stopShooting(), goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
               inParallel(deployIntake(), followPath("Left Side Close 2nd Sweep Intake In")),
               inParallel(
                   seq.andThen(waitSeconds(0.4), startShooting()),
                   followPath("Left Bump To Alliance")),
               waitSeconds(0.1),
-              ap().pose(2.700, 5.75, -90).ap(),
+              ap().pose(2.700, 5.75, -90).toAutoAction(),
               waitSeconds(1));
     }
 
@@ -339,7 +339,7 @@ public final class AutosGen {
                   .velocity(0.0)
                   .constraints(apConstraints(2.0, 2.0, 2.0))
                   .pidGains(pidGains(1.5))
-                  .ap());
+                  .toAutoAction());
     }
 
     return result.andThen(cycleIntake(intakeCycleTime, intakeCycleCount));
@@ -364,11 +364,11 @@ public final class AutosGen {
         followPath("Left Side Follower Sweep Intake In"),
         networkConfigurableWait("Follower - Before Bump Return", seconds(0.0)),
         waitSeconds(0.1),
-        ap().pose(2.700, 5.75, -90).ap(),
+        ap().pose(2.700, 5.75, -90).toAutoAction(),
         ap().pose(1.5, 5.1, 135)
             .profile(
                 apProfile(apConstraints(5.1, 10.0, 3.0), meters(0.1), degrees(4.0), meters(0.2)))
-            .ap(),
+            .toAutoAction(),
         startShooting(),
         networkConfigurableWait("Follower - Before Depot", seconds(0.0)),
         goToDepotAndIntake(),
@@ -389,5 +389,5 @@ public final class AutosGen {
         climbHang());
   }
 
-  private AutosGen() {}
+  private GenerateAutos() {}
 }

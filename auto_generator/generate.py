@@ -42,7 +42,7 @@ GEN_OUT = _ROOT / "build" / "autogen-out"
 OUT_JSON = GEN_OUT / "Autos.json"
 MARKER = GEN_OUT / ".compiled"
 INIT_SCRIPT = _THIS_DIR / "dump-classpath.gradle"
-MAIN_CLASS = "frc.robot.autogen.AutosGen"
+MAIN_CLASS = "frc.robot.autogen.GenerateAutos"
 
 _IS_WINDOWS = os.name == "nt"
 JVM_FAST = ["-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1", "-XX:-UsePerfData"]

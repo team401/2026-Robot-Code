@@ -188,7 +188,7 @@ public final class Dsl {
       return target;
     }
 
-    public AutoPilotAction ap() {
+    public AutoPilotAction toAutoAction() {
       return new AutoPilotAction(target(), constraints, profile, pidGains, canMirror);
     }
 
