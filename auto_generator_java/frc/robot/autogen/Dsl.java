@@ -33,13 +33,13 @@ import frc.robot.auto.general.Print;
 import frc.robot.auto.general.Race;
 import frc.robot.auto.general.Sequence;
 import frc.robot.auto.general.Wait;
-import java.util.List;
 
 /**
  * Small authoring DSL for building auto routines in Java. Mirrors the helpers that used to live in
- * the Python {@code shorthands.py}/{@code auto_lib.py}. All factory methods return plain {@link
- * AutoAction} objects; nesting is expressed with {@link #seq}, {@link #parallel}, {@link #race} and
- * {@link #deadline}.
+ * the Python {@code shorthands.py}/{@code auto_lib.py}. Factory methods return plain {@link
+ * AutoAction} objects; nesting is expressed with the fluent combinators on {@link AutoAction}
+ * starting from the {@link #seq}, {@link #par} and {@link #race} entry points, e.g. {@code
+ * seq.andThen(a, b)}, {@code par.inParallelWith(x, y)}, or {@code action.andThen(...)}.
  */
 public final class Dsl {
   private Dsl() {}
@@ -269,31 +269,23 @@ public final class Dsl {
 
   // ---------------------------------------------------------------------------
   // Containers
+  //
+  // Compose actions fluently via the combinators on AutoAction:
+  //   seq.andThen(a, b, c)             // Sequence of a, b, c
+  //   a.andThen(b).andThen(c)          // same, chained (flattened)
+  //   par.inParallelWith(x, y)         // Parallel of x, y
+  //   race.racingWith(x, y)            // Race of x, y
+  // `seq`, `par` and `race` are empty starters; andThen/inParallelWith/racingWith
+  // return new (flattened) containers, so the shared starters are never mutated.
+  // For conditional building from a list, use Sequence.of(list) / Parallel.of(list).
   // ---------------------------------------------------------------------------
 
-  public static Sequence seq(AutoAction... actions) {
-    Sequence sequence = new Sequence();
-    sequence.actions = actions;
-    return sequence;
-  }
+  /** Empty Sequence starter: {@code seq.andThen(...)}. */
+  public static final Sequence seq = Sequence.of();
 
-  public static Sequence seq(List<AutoAction> actions) {
-    return seq(actions.toArray(new AutoAction[0]));
-  }
+  /** Empty Parallel starter: {@code par.inParallelWith(...)}. */
+  public static final Parallel par = Parallel.of();
 
-  public static Parallel parallel(AutoAction... actions) {
-    Parallel parallel = new Parallel();
-    parallel.actions = actions;
-    return parallel;
-  }
-
-  public static Parallel parallel(List<AutoAction> actions) {
-    return parallel(actions.toArray(new AutoAction[0]));
-  }
-
-  public static Race race(AutoAction... actions) {
-    Race race = new Race();
-    race.actions = actions;
-    return race;
-  }
+  /** Empty Race starter: {@code race.racingWith(...)}. */
+  public static final Race race = Race.of();
 }

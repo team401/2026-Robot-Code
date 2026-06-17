@@ -95,4 +95,32 @@ public abstract class AutoAction {
   }
 
   public abstract Command toCommand(AutoActionContext data);
+
+  // ---------------------------------------------------------------------------
+  // Fluent combinators for composing actions when authoring autos.
+  // ---------------------------------------------------------------------------
+
+  /** Returns a {@link Sequence} that runs this action, then {@code next} in order. */
+  public Sequence andThen(AutoAction... next) {
+    AutoAction[] all = new AutoAction[next.length + 1];
+    all[0] = this;
+    System.arraycopy(next, 0, all, 1, next.length);
+    return Sequence.of(all);
+  }
+
+  /** Returns a {@link Parallel} that runs this action alongside {@code others}. */
+  public Parallel inParallelWith(AutoAction... others) {
+    AutoAction[] all = new AutoAction[others.length + 1];
+    all[0] = this;
+    System.arraycopy(others, 0, all, 1, others.length);
+    return Parallel.of(all);
+  }
+
+  /** Returns a {@link Race} of this action against {@code others} (ends when the first does). */
+  public Race racingWith(AutoAction... others) {
+    AutoAction[] all = new AutoAction[others.length + 1];
+    all[0] = this;
+    System.arraycopy(others, 0, all, 1, others.length);
+    return Race.of(all);
+  }
 }
