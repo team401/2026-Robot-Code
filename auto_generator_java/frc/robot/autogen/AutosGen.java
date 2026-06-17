@@ -44,10 +44,22 @@ import java.util.List;
  */
 public final class AutosGen {
 
+  // TODO: Add alliance-relative coordinate utilities.
+  // TODO: Replace placeholder coordinates with real field positions.
+  // TODO: Switch to AutoPilotAction with entry angle and exit velocity for trench segments.
+
   // --- constants ported from the old constants.py ---------------------------
+  // TODO: Maybe make these loaded from the constants files in the main robot code
+  // instead of hardcoded here, to avoid duplication and potential inconsistencies.
+  // (The climb poses below are now derived from the robot's FieldConstants; see Field.)
   private static final double DEFAULT_TRENCH_VELOCITY = 4.2;
   private static final double AGGRESSIVE_TRENCH_VELOCITY = 5.1;
   private static final Pose2d LEFT_TRENCH_CENTER_SIDE_POSE = pose2d(5.2, 7.4, -90);
+
+  // Shooting position in the middle of the left side of the alliance zone.
+  // This is where we end up after coming over the bump.
+  private static final Pose2d LEFT_ALLIANCE_ZONE_MIDDLE_POSE = pose2d(2.700, 5.75, -90);
+
   private static final APConstraints CLIMB_CONSTRAINTS = apConstraints(2.0, 2.0, 0.1);
 
   public static void main(String[] args) {
@@ -98,6 +110,7 @@ public final class AutosGen {
                 startShooting(),
                 networkConfigurableWait("Center Depot - Shoot Preload", seconds(4.0)),
                 goToDepotAndIntake(),
+                // startShooting();
                 waitSeconds(2.0),
                 cycleIntake(6.0 / 3.0, 6)),
             false,
@@ -143,10 +156,13 @@ public final class AutosGen {
   private static AutoAction goToCenterUnderLeftTrenchFromAllianceIntakeIn() {
     return seq(
         ap().pose(4.0, 7.55, -90).velocity(DEFAULT_TRENCH_VELOCITY).entryAngle(0).xap(),
+        // xBasedAutopilot(LEFT_TRENCH_CENTER_SIDE_POSE transformed by rotation,
+        //   velocity, entryAngle=secondEntryAngle)
         followPath("Left Trench To Center Intake In"));
   }
 
   private static AutoAction goToDepotAndIntake() {
+    // drive near the depot and slow down so that we don't go too fast while intaking
     return seq(
         ap().pose(1.5, 5.1, 135)
             .velocity(1.0)
@@ -157,11 +173,15 @@ public final class AutosGen {
             .constraints(apConstraints(1.0, 3.0, 3.0))
             .pidGains(pidGains(1.5))
             .ap(),
+        // Wait to stop autopilot from seeing initial velocity and panicking.
+        // Autopilot is probably more robust and simpler. Also removes a path planner
+        // path and enables us to use hot reload to tune it: followPath("Intake Depot").
         waitSeconds(0.1),
         ap().pose(0.715, 6.4, 135)
             .constraints(apConstraints(1.0, 3.0, 2.0))
             .pidGains(pidGains(1.5))
             .ap(),
+        // Wait to stop autopilot from seeing initial velocity and panicking.
         waitSeconds(0.1),
         ap().pose(1.0, 6.8, 135)
             .constraints(apConstraints(5.1, 5.0, 3.0))
@@ -186,19 +206,36 @@ public final class AutosGen {
       a.add(stopShooting());
     }
 
+    // Cycle 1
+
+    // Autopilot under the trench.
+    // Gives us solid acceleration and makes us resilient to unpredictable starting
+    // location.
     a.add(
         ap().pose(LEFT_TRENCH_CENTER_SIDE_POSE)
             .velocity(AGGRESSIVE_TRENCH_VELOCITY)
+            // Constraints here are unique to this very high speed, high
+            // acceleration movement, so almost infinite acceleration limit is
+            // hardcoded in here.
             .constraints(apConstraints(AGGRESSIVE_TRENCH_VELOCITY, 200.0))
+            // No entry angle, we just want to beeline to trench exit.
             .xap());
+
+    // with parallel():
+    //   stowIntake();
+    //   followPath("Starting Position Left Trench To Center Intake In");
+
     a.add(parallel(deployIntake(), followPath("Left Side Aggressive Sweep Intake In")));
     a.add(parallel(seq(waitSeconds(0.6), startShooting()), followPath("Left Bump To Alliance")));
     a.add(waitSeconds(0.1));
-    a.add(ap().pose(2.700, 5.75, -90).ap());
+    a.add(ap().pose(LEFT_ALLIANCE_ZONE_MIDDLE_POSE).ap());
     a.add(cycleIntake(2.5, 5));
 
     if (doSecondSweep) {
       a.add(cycleIntake(intakeCycleTime, intakeCycleCount));
+
+      // wait(1.0),
+      // Cycle 2
       a.add(
           ap().pose(3.5, 7.55, -90)
               .velocity(DEFAULT_TRENCH_VELOCITY)
@@ -244,14 +281,18 @@ public final class AutosGen {
       a.add(stopShooting());
     }
 
+    // Cycle 1
+
     a.add(ap().pose(5.2, 7.4).velocity(DEFAULT_TRENCH_VELOCITY).xap());
     a.add(parallel(stowIntake(), followPath("Starting Position Left Trench To Center")));
     a.add(parallel(deployIntake(), followPath("Left Side Conservative Sweep")));
     a.add(parallel(seq(waitSeconds(0.6), startShooting()), followPath("Left Bump To Alliance")));
     a.add(waitSeconds(0.1));
-    a.add(ap().pose(2.700, 5.75, -90).ap());
+    a.add(ap().pose(LEFT_ALLIANCE_ZONE_MIDDLE_POSE).ap());
     a.add(waitSeconds(2.5));
 
+    // wait(1.0),
+    // Cycle 2
     if (doSecondSweep) {
       a.add(cycleIntake(intakeCycleTime, intakeCycleCount));
       a.add(
@@ -284,11 +325,19 @@ public final class AutosGen {
 
   private static AutoAction follower() {
     List<AutoAction> f = new ArrayList<>();
+    // Don't deploy the intake to avoid smashing it into the trench.
+    // deployIntake();
+    // startShooting();
     f.add(networkConfigurableWait("Follower - Preload", seconds(2.5)));
+    // stopShooting();
     f.add(
         ap().pose(LEFT_TRENCH_CENTER_SIDE_POSE)
             .velocity(2.0)
+            // Constraints here are unique to this very high speed, high
+            // acceleration movement, so almost infinite acceleration limit is
+            // hardcoded in here.
             .constraints(apConstraints(AGGRESSIVE_TRENCH_VELOCITY, 200.0))
+            // No entry angle, we just want to beeline to trench exit.
             .xap());
     f.add(deployIntake());
     f.add(followPath("Left Side Follower Sweep Intake In"));
@@ -308,10 +357,14 @@ public final class AutosGen {
     return seq(f);
   }
 
+  /** Reusable climb lineup subroutine. */
   private static AutoAction climb(Pose2d targetPose, Rotation2d entryAngle) {
     return seq(
         parallel(
-            seq(ap().pose(targetPose).entryAngle(entryAngle).constraints(CLIMB_CONSTRAINTS).xap()),
+            seq(
+                // xBasedAutopilot(FieldConstants.Alliance.center transformed by
+                //   climb_offset, constraints=CLIMB_CONSTRAINTS)
+                ap().pose(targetPose).entryAngle(entryAngle).constraints(CLIMB_CONSTRAINTS).xap()),
             climbSearch()),
         waitSeconds(0.5),
         climbHang());
