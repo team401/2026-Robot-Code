@@ -25,6 +25,15 @@ public class NetworkConfigurableWait extends AutoAction {
   private Time defaultDelay;
   @JSONExclude private LoggedNetworkNumber waitTimeSeconds;
 
+  /** No-arg constructor retained for JSON deserialization. */
+  public NetworkConfigurableWait() {}
+
+  /** Authoring constructor used by the Java auto generator. */
+  public NetworkConfigurableWait(String name, Time defaultDelay) {
+    this.name = name;
+    this.defaultDelay = defaultDelay;
+  }
+
   @JSONExclude
   private static final Map<String, LoggedNetworkNumber> nameToLoggedNetworkNumber = new HashMap<>();
 

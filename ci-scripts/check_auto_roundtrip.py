@@ -129,7 +129,32 @@ def run_build_autos() -> None:
             print(line, flush=True)
 
 
+def bootstrap_generator() -> None:
+    """Compile robot classes + dump the classpath for the Java auto generator.
+
+    Done before launching simulateJava so the generator never has to invoke gradle
+    concurrently with the running simulation. build_autos.py --no-file --bootstrap
+    runs the full generator pipeline once (gradle compile + classpath dump + javac),
+    discarding the output.
+    """
+    print("Bootstrapping Java auto generator (compile + classpath dump)...", flush=True)
+    result = subprocess.run(
+        [sys.executable, "auto_generator/build_autos.py", "--no-file", "--bootstrap"],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=PUBLISH_TIMEOUT_SECONDS * 4,
+        check=False,
+    )
+    if result.returncode != 0:
+        print(result.stdout, end="")
+        raise RuntimeError(f"generator bootstrap failed with status {result.returncode}")
+
+
 def main() -> int:
+    bootstrap_generator()
+
     lines: "queue.Queue[str]" = queue.Queue()
     process = subprocess.Popen(
         ["./gradlew", "--console=plain", "simulateJava"],

@@ -18,9 +18,20 @@ public class FollowPathPlannerPath extends DriveAutoAction {
 
   public static RobotConfig config;
   public static PathFollowingController controller;
+  private static boolean configInitialized = false;
   private static final BooleanSupplier FALSE = () -> false;
 
-  static {
+  /**
+   * Lazily loads the PathPlanner {@code RobotConfig} and controller on first use. This used to run
+   * in a static initializer, but that pulled in NetworkTables/SmartDashboard at class-load time,
+   * which prevents the class from loading in the headless Java auto generator. It is only needed
+   * when actually building a command, so it is deferred to {@link #toCommand}.
+   */
+  private static void ensureConfigInitialized() {
+    if (configInitialized) {
+      return;
+    }
+    configInitialized = true;
     try {
       config = RobotConfig.fromGUISettings();
       controller =
@@ -33,6 +44,7 @@ public class FollowPathPlannerPath extends DriveAutoAction {
 
   @Override
   public Command toCommand(AutoActionContext context) {
+    ensureConfigInitialized();
     var path = context.autos().getPath(pathName);
     if (path == null) {
       throw new RuntimeException("Path not found: " + pathName);

@@ -2,51 +2,40 @@
 """
 build_autos.py
 
-Discovers and imports all auto-definition modules in src/, runs them to
-register autos with auto_lib, then writes a single Autos.json and/or
-publishes to the robot's tuning server.
+Orchestrates auto generation and publishing. The autos themselves are authored
+in Java (see auto_generator_java/) and serialized to Autos.json by a fast Java
+generator that reuses the robot's own coppercore Gson configuration. This script
+invokes that generator, then writes the local Autos.json and/or publishes to the
+robot's tuning server (verifying a structural round-trip on PUT).
 
-Helper modules (auto_lib, shorthands, constants, field_locations, auto_action, units)
-are excluded from auto-discovery.
-
-Usage (from auto_generator/):
+Usage (from the repo root or auto_generator/):
     python build_autos.py              # write Autos.json to deploy dir
     python build_autos.py --sim        # also publish to sim (localhost:8088)
     python build_autos.py --robot      # also publish to robot (10.4.1.2:8088)
     python build_autos.py --url HOST   # also publish to a custom address
     python build_autos.py --no-file    # skip writing the local file
+    python build_autos.py --bootstrap  # recompile robot classes + classpath first
 """
 
 from __future__ import annotations
 
 import argparse
-import importlib
 import json
+import subprocess
 import sys
 import urllib.request
 import urllib.error
 from pathlib import Path
 from typing import Any
 
-# Ensure the auto_generator directory is on the path so `src` is importable
 _SCRIPT_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(_SCRIPT_DIR))
+_REPO_ROOT = _SCRIPT_DIR.parent
 
-from src import auto_lib
+# The autos are authored in Java and serialized to Autos.json by this generator,
+# which reuses the robot's own coppercore Gson configuration. See auto_generator_java/.
+GENERATOR = _REPO_ROOT / "auto_generator_java" / "generate.sh"
 
-# Helper modules that should not be treated as auto files
-EXCLUDED_MODULES = {
-    "__init__",
-    "auto_lib",
-    "auto_action",
-    "units",
-    "shorthands",
-    "constants",
-    "field_locations",
-    "routines",
-}
-
-OUTPUT_DIR = _SCRIPT_DIR.parent / "src" / "main" / "deploy" / "constants"
+OUTPUT_DIR = _REPO_ROOT / "src" / "main" / "deploy" / "constants"
 CONFIG_FILE = OUTPUT_DIR / "config.json"
 
 SIM_URL = "http://localhost:8088"
@@ -70,14 +59,28 @@ def detect_environment() -> str:
         return "comp"
 
 
-def discover_auto_modules() -> list[str]:
-    """Find all Python modules in src/ that are auto definitions (not helpers)."""
-    src_dir = _SCRIPT_DIR / "src"
-    modules = []
-    for f in sorted(src_dir.iterdir()):
-        if f.suffix == ".py" and f.stem not in EXCLUDED_MODULES:
-            modules.append(f"src.{f.stem}")
-    return modules
+def generate_autos_json(env: str, bootstrap: bool = False) -> str:
+    """Run the Java auto generator and return the Autos.json content for `env`.
+
+    The generator prints clean JSON to stdout and progress/diagnostics to stderr.
+    """
+    cmd = [str(GENERATOR)]
+    if bootstrap:
+        cmd.append("--bootstrap")
+    cmd.append(env)
+    result = subprocess.run(
+        cmd,
+        cwd=str(_REPO_ROOT),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if result.stderr:
+        print(result.stderr, file=sys.stderr, end="")
+    if result.returncode != 0:
+        raise SystemExit(f"Java auto generator failed with status {result.returncode}")
+    return result.stdout
 
 
 def _is_json_number(value: Any) -> bool:
@@ -206,6 +209,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--env", type=str, default=None, help="Override environment (default: auto-detect from config.json)"
     )
+    parser.add_argument(
+        "--bootstrap",
+        action="store_true",
+        help="Force the Java generator to recompile robot classes and re-dump the classpath "
+        "(needed after changing robot/builder code or dependencies)",
+    )
     return parser.parse_args()
 
 
@@ -213,49 +222,16 @@ def main() -> None:
     args = parse_args()
     env = args.env if args.env else detect_environment()
 
-    # Step 1: Import routines first so @routine decorators register before
-    #         any auto modules try to reference them via routines.<name>()
-    print("  Importing src.routines...")
-    importlib.import_module("src.routines")
+    # Generate Autos.json by running the Java auto generator (reuses the robot's
+    # own coppercore Gson config, so the output round-trips by construction).
+    content = generate_autos_json(env, bootstrap=args.bootstrap)
 
-    # Step 2: Discover and import auto modules
-    auto_modules = discover_auto_modules()
-
-    if not auto_modules:
-        print("No auto modules found in src/")
-        return
-
-    print(f"Found {len(auto_modules)} auto module(s): {[m.split('.')[-1] for m in auto_modules]}")
-
-    for module_name in auto_modules:
-        print(f"  Importing {module_name}...")
-        importlib.import_module(module_name)
-
-    # Step 3: Serialize
-    autos = auto_lib.get_autos()
-    routine_map = auto_lib.get_routines()
-
-    if not autos and not routine_map:
-        print("Warning: No autos or routines were registered.")
-        return
-
-    autos_obj = {}
-    for name, action in autos.items():
-        autos_obj[name] = auto_lib._serialize_value(action)
-
-    routines_obj = {}
-    for name, action in routine_map.items():
-        routines_obj[name] = auto_lib._serialize_value(action)
-
-    output = {"autos": autos_obj, "routines": routines_obj}
-    content = json.dumps(output, indent=4)
-
-    # Step 4: Write local file (unless --no-file)
+    # Write local file (unless --no-file)
     if not args.no_file:
         output_file = OUTPUT_DIR / env / "Autos.json"
         output_file.parent.mkdir(parents=True, exist_ok=True)
         output_file.write_text(content, encoding="utf-8")
-        print(f"Written {len(autos)} auto(s) and {len(routine_map)} routine(s) to: {output_file}")
+        print(f"Written autos to: {output_file}")
 
     # Step 5: Publish to tuning server(s)
     targets: list[str] = []

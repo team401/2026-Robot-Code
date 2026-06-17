@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.Autos;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
-import frc.robot.util.ts.GeneratedOptional;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,9 +17,26 @@ public class AutoPilotAction extends DriveAutoAction {
 
   private APTarget target = null; // original target in blue field coordinates
 
-  @GeneratedOptional public APProfile profile = null;
-  @GeneratedOptional public APConstraints constraints = null;
-  @GeneratedOptional public PIDGains pidGains = null;
+  public APProfile profile = null;
+  public APConstraints constraints = null;
+  public PIDGains pidGains = null;
+
+  /** No-arg constructor retained for JSON deserialization. */
+  public AutoPilotAction() {}
+
+  /** Authoring constructor used by the Java auto generator. */
+  public AutoPilotAction(
+      APTarget target,
+      APConstraints constraints,
+      APProfile profile,
+      PIDGains pidGains,
+      boolean canMirror) {
+    this.target = target;
+    this.constraints = constraints;
+    this.profile = profile;
+    this.pidGains = pidGains;
+    this.canMirror = canMirror;
+  }
 
   private void ensureTargetAndPoseAreNotNull() {
     Objects.requireNonNull(target, "Target cannot be null for AutoPilotAction");

@@ -1,0 +1,15 @@
+// Init script: dump the main runtime classpath so the Java auto generator can
+// compile and run without paying gradle's per-invocation configuration cost.
+// Used by generate.sh during the one-time (or after-dependency-change) bootstrap.
+gradle.projectsEvaluated {
+    rootProject.tasks.register("dumpAutoGenClasspath") {
+        doLast {
+            def cp = rootProject.sourceSets.main.runtimeClasspath.files
+                    .collect { it.absolutePath }
+                    .join(File.pathSeparator)
+            def out = new File(rootProject.projectDir, "build/autogen-classpath.txt")
+            out.text = cp
+            println "wrote ${out} (${cp.split(File.pathSeparator).length} entries)"
+        }
+    }
+}

@@ -18,25 +18,17 @@ import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Filesystem;
-import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.auto.Auto;
 import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONMotionProfileConfig;
-import frc.robot.util.ts.PythonGenerator;
-import frc.robot.util.ts.PythonGeometryMethods;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -151,20 +143,6 @@ public class JsonConstants {
     controllers =
         jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
 
-    if (Constants.currentMode == Constants.Mode.SIM) {
-      PythonGeometryMethods.registerAll();
-      PythonGenerator.generateForClasses(
-          "auto_action.py",
-          Auto.class,
-          Transform2d.class,
-          Transform3d.class,
-          Rotation2d.class,
-          Rotation3d.class,
-          Pose2d.class,
-          Pose3d.class,
-          Translation2d.class,
-          Translation3d.class);
-    }
     return jsonHandler;
   }
 
