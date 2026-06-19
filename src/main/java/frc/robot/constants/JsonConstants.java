@@ -18,25 +18,17 @@ import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Filesystem;
-import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.auto.Auto;
 import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
 import frc.robot.constants.drive.PhysicalDriveConstants;
 import frc.robot.util.json.JSONAPTarget;
 import frc.robot.util.json.JSONMotionProfileConfig;
-import frc.robot.util.ts.PythonGenerator;
-import frc.robot.util.ts.PythonGeometryMethods;
 
 /**
  * JsonConstants handles loading and saving of all constants through JSON. Call `loadConstants`
@@ -63,7 +55,16 @@ public class JsonConstants {
     JSONMeasure.registerUnit(RPM.per(Second), "RPM Per Second");
   }
 
-  public static JSONHandler loadConstants(RobotContainer robotContainer) {
+  /**
+   * Loads every constant from JSON for the active environment (selected via deploy
+   * constants/config.json) and returns the configured {@link JSONHandler}.
+   *
+   * <p>This is the shared initialization sequence used both by robot startup ({@link
+   * #loadConstants(RobotContainer)}) and by the offline auto generator (see frc.robot.autogen), so
+   * there is a single code path for resolving and deserializing constants. It does not start the
+   * tuning server.
+   */
+  public static JSONHandler loadConstants() {
 
     environmentHandler =
         EnvironmentHandler.getEnvironmentHandler(
@@ -74,8 +75,6 @@ public class JsonConstants {
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
     jsonSyncSettings.addJsonTypeAdapterFactory(new OptionalTypeAdapterFactory());
-
-    // jsonSyncSettings.setUpPolymorphAdapter(AutoAction.class);
 
     var pathProvider = environmentHandler.getEnvironmentPathProvider();
 
@@ -115,6 +114,20 @@ public class JsonConstants {
 
     autos = jsonHandler.getObject(new Autos(), "Autos.json");
 
+    controllers =
+        jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
+
+    return jsonHandler;
+  }
+
+  /**
+   * Robot-startup variant: loads all constants (see {@link #loadConstants()}) and, when the active
+   * environment enables it, starts the constant/autos tuning server. The {@code robotContainer} is
+   * used to reload auto commands when the autos route receives a POST.
+   */
+  public static JSONHandler loadConstants(RobotContainer robotContainer) {
+    loadConstants();
+
     if (featureFlags.useTuningServer) {
       // do not crash Robot if routes could not be added for any reason
       try {
@@ -148,23 +161,6 @@ public class JsonConstants {
       }
     }
 
-    controllers =
-        jsonHandler.getObject(new Controllers(), operatorConstants.controllerBindingsFile);
-
-    if (Constants.currentMode == Constants.Mode.SIM) {
-      PythonGeometryMethods.registerAll();
-      PythonGenerator.generateForClasses(
-          "auto_action.py",
-          Auto.class,
-          Transform2d.class,
-          Transform3d.class,
-          Rotation2d.class,
-          Rotation3d.class,
-          Pose2d.class,
-          Pose3d.class,
-          Translation2d.class,
-          Translation3d.class);
-    }
     return jsonHandler;
   }
 

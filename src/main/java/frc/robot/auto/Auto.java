@@ -2,14 +2,23 @@ package frc.robot.auto;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAction.AutoActionContext;
-import frc.robot.util.ts.GeneratedOptional;
 
 public class Auto {
 
   private AutoAction rootAction;
 
-  @GeneratedOptional private boolean canBeMirrored = true;
-  @GeneratedOptional private boolean shouldBeFlipped = true;
+  private boolean canBeMirrored = true;
+  private boolean shouldBeFlipped = true;
+
+  /** No-arg constructor retained for JSON deserialization. */
+  public Auto() {}
+
+  /** Authoring constructor used by the Java auto generator. */
+  public Auto(AutoAction rootAction, boolean canBeMirrored, boolean shouldBeFlipped) {
+    this.rootAction = rootAction;
+    this.canBeMirrored = canBeMirrored;
+    this.shouldBeFlipped = shouldBeFlipped;
+  }
 
   public Command toCommand(AutoActionContext data) {
     return rootAction.toCommand(data);

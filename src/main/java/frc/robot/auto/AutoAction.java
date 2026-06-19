@@ -23,34 +23,9 @@ import frc.robot.auto.general.Race;
 import frc.robot.auto.general.Sequence;
 import frc.robot.auto.general.Wait;
 import frc.robot.subsystems.drive.DriveCoordinator;
-import frc.robot.util.ts.PythonAppend;
-import frc.robot.util.ts.PythonMethod;
+import java.util.HashMap;
+import java.util.Map;
 
-@PythonAppend(
-    value =
-        "\n_add_command_hook: Callable[[Any], None] | None = None\n\n\n"
-            + "def set_add_command_hook(hook: Callable[[Any], None]) -> None:\n"
-            + "    global _add_command_hook\n"
-            + "    _add_command_hook = hook\n\n\n"
-            + "def _call_hook(obj: Any) -> None:\n"
-            + "    if _add_command_hook is not None:\n"
-            + "        _add_command_hook(obj)\n\n\n"
-            + "def _to_dict(obj: Any) -> Any:\n"
-            + "    \"\"\"Recursively convert an object to a JSON-serializable dict.\"\"\"\n"
-            + "    if obj is None:\n"
-            + "        return None\n"
-            + "    if hasattr(obj, 'to_dict'):\n"
-            + "        return obj.to_dict()\n"
-            + "    if isinstance(obj, list):\n"
-            + "        return [_to_dict(item) for item in obj]\n"
-            + "    if isinstance(obj, dict):\n"
-            + "        return {k: _to_dict(v) for k, v in obj.items()}\n"
-            + "    return obj\n")
-@PythonMethod(
-    name = "add",
-    returnType = "self",
-    body = {"_call_hook(self)", "return self"},
-    comment = "Adds this command to the current auto and returns itself for chaining.")
 @JsonType(
     property = "type",
     subtypes = {
@@ -78,7 +53,25 @@ import frc.robot.util.ts.PythonMethod;
     })
 public abstract class AutoAction {
 
-  public String type;
+  /** Maps each concrete AutoAction class to its JSON discriminator, from the @JsonType table. */
+  private static final Map<Class<?>, String> TYPE_NAMES = buildTypeNames();
+
+  private static Map<Class<?>, String> buildTypeNames() {
+    Map<Class<?>, String> names = new HashMap<>();
+    for (JsonSubtype subtype : AutoAction.class.getAnnotation(JsonType.class).subtypes()) {
+      names.put(subtype.clazz(), subtype.name());
+    }
+    return names;
+  }
+
+  /**
+   * The polymorphic discriminator written to JSON. coppercore's adapter uses @JsonType/@JsonSubtype
+   * only to pick the subclass when *deserializing*; on *serialize* it just emits this field. Gson
+   * populates it from the JSON when loading (bypassing this initializer via Unsafe), so this
+   * default only matters when an action is constructed directly in Java (e.g. the auto generator),
+   * where it resolves the discriminator from the runtime class using the @JsonSubtype table above.
+   */
+  public String type = TYPE_NAMES.get(getClass());
 
   public record AutoActionContext(
       DriveCoordinator driveCoordinator,
@@ -102,4 +95,34 @@ public abstract class AutoAction {
   }
 
   public abstract Command toCommand(AutoActionContext data);
+
+  // ---------------------------------------------------------------------------
+  // Fluent combinators for composing actions when authoring autos.
+  // ---------------------------------------------------------------------------
+
+  /** Returns a {@link Sequence} that runs this action, then {@code next} in order. */
+  public Sequence andThen(AutoAction... next) {
+    AutoAction[] all = new AutoAction[next.length + 1];
+    all[0] = this;
+    System.arraycopy(next, 0, all, 1, next.length);
+    return Sequence.of(all);
+  }
+
+  /**
+   * Returns a {@link Sequence} that runs this action, then runs {@code parallelActions} together in
+   * parallel. Sugar for {@code andThen(Parallel.of(parallelActions))} — the parallel grouping is
+   * explicit, so there is no ambiguity about what runs alongside what.
+   */
+  public Sequence andThenInParallel(AutoAction... parallelActions) {
+    return andThen(Parallel.of(parallelActions));
+  }
+
+  /**
+   * Returns a {@link Sequence} that runs this action, then races {@code raceActions} against each
+   * other (the group ends when the first finishes). Sugar for {@code
+   * andThen(Race.of(raceActions))}.
+   */
+  public Sequence andThenRacing(AutoAction... raceActions) {
+    return andThen(Race.of(raceActions));
+  }
 }
