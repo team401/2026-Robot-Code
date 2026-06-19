@@ -226,7 +226,7 @@ def main() -> None:
         output_file.write_text(content, encoding="utf-8")
         print(f"Written autos to: {output_file}")
 
-    # Step 5: Publish to tuning server(s)
+    # Publish to tuning server(s)
     targets: list[str] = []
     if args.sim:
         targets.append(SIM_URL)
