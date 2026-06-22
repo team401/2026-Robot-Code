@@ -1,6 +1,6 @@
 {
   "maxLinearSpeed": {
-    "value": 4.0,
+    "value": 2.5,
     "unit": "Meter per Second"
   },
   "maxAngularSpeed": {
@@ -15,10 +15,10 @@
     "value": 3.0,
     "unit": "Radian per Second"
   },
-  "joystickDeadband": 0.02,
+  "joystickDeadband": 0.05,
   "joystickMagnitudeExponent": 2.0,
   "linearDriveProfileMaxLinearVelocity": {
-    "value": 4.0,
+    "value": 2.5,
     "unit": "Meter per Second"
   },
   "linearDriveProfileMaxAngularVelocity": {
@@ -26,7 +26,7 @@
     "unit": "Radian per Second"
   },
   "linearDriveProfileMaxLinearAcceleration": {
-    "value": 3.0,
+    "value": 2.0,
     "unit": "Meter per Second per Second"
   },
   "linearDriveProfileMaxAngularAcceleration": {
