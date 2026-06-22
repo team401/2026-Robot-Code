@@ -32,6 +32,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -119,6 +120,12 @@ public class CoordinationLayer {
       new Debouncer(
           JsonConstants.visionConstants.disconnectedDebounceTime.in(Seconds),
           DebounceType.kFalling);
+
+  /* Update connection debouncer time */
+  void setVisionConnectionDebouncerTime(Time debounceTime) {
+    visionConnectedDebouncer.setDebounceTime(debounceTime.in(Seconds));
+    System.out.println("updated vision " + debounceTime);
+  }
 
   public enum ShotMode {
     Pass,

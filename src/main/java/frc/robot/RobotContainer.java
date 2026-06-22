@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -374,5 +375,9 @@ public class RobotContainer {
 
   public void lowerDriveSupplyCurrentLimit() {
     coordinationLayer.lowerDriveSupplyCurrentLimit();
+  }
+
+  public void updateVisionConnectedDebounceTime(Time time) {
+    coordinationLayer.setVisionConnectionDebouncerTime(time);
   }
 }
