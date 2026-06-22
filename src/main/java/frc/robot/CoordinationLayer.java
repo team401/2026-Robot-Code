@@ -124,7 +124,6 @@ public class CoordinationLayer {
   /* Update connection debouncer time */
   void setVisionConnectionDebouncerTime(Time debounceTime) {
     visionConnectedDebouncer.setDebounceTime(debounceTime.in(Seconds));
-    System.out.println("updated vision " + debounceTime);
   }
 
   public enum ShotMode {
