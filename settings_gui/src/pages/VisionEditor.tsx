@@ -29,6 +29,7 @@ import type {
   CameraConfig,
   CameraTransform,
   GainConstants,
+  UnitValue,
 } from '../types/Vision';
 
 // --- Wire format conversion ---
@@ -61,12 +62,17 @@ function wireToConfig(wire: VisionWireFormat): VisionConfig {
   cameras.sort((a, b) => a.num - b.num);
   return {
     gainConstants: wire.gainConstants,
+    disconnectedDebounceTime:
+      (wire.disconnectedDebounceTime as UnitValue) ?? defaultDebounceTime(),
     cameras: cameras.map((c) => c.cam),
   };
 }
 
 function configToWire(config: VisionConfig): VisionWireFormat {
-  const wire: VisionWireFormat = { gainConstants: config.gainConstants };
+  const wire: VisionWireFormat = {
+    gainConstants: config.gainConstants,
+    disconnectedDebounceTime: config.disconnectedDebounceTime,
+  };
   config.cameras.forEach((cam, i) => {
     const n = i + 1;
     wire[`camera${n}Index`] = cam.index;
@@ -81,6 +87,10 @@ function defaultTransform(): CameraTransform {
     rotation: { roll: 0, pitch: 0, yaw: 0 },
     translation: { x: 0, y: 0, z: 0 },
   };
+}
+
+function defaultDebounceTime(): UnitValue {
+  return { value: 2.0, unit: 'Seconds' };
 }
 
 // --- SliderField ---
@@ -459,6 +469,28 @@ export function VisionEditor() {
         gain={data.gainConstants}
         onChange={(gainConstants) => setData({ ...data, gainConstants })}
       />
+
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Connection
+        </Typography>
+        <TextField
+          type="number"
+          size="small"
+          label={`Disconnected Debounce Time (${data.disconnectedDebounceTime.unit})`}
+          value={data.disconnectedDebounceTime.value}
+          onChange={(e) =>
+            setData({
+              ...data,
+              disconnectedDebounceTime: {
+                ...data.disconnectedDebounceTime,
+                value: parseFloat(e.target.value) || 0,
+              },
+            })
+          }
+          slotProps={{ htmlInput: { step: 0.1, min: 0 } }}
+        />
+      </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
         <Typography variant="h6">Cameras</Typography>
