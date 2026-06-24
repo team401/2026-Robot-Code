@@ -11,14 +11,14 @@ import edu.wpi.first.units.measure.Time;
 public class VisionConstants {
   // Placeholder values for camera configs
   public final VisionGainConstants gainConstants = new VisionGainConstants();
-  //   public final Integer camera0Index = 0;
-  //   public String camera0Name = "FrontRight";
-  //   public final Transform3d camera0Transform =
-  //       new Transform3d(
-  //           Units.inchesToMeters(1.0),
-  //           Units.inchesToMeters(1.0),
-  //           Units.inchesToMeters(1.0),
-  //           new Rotation3d(0, 0, 0));
+  public final Integer camera0Index = 0;
+  public String camera0Name = "FrontRight";
+  public final Transform3d camera0Transform =
+      new Transform3d(
+          Units.inchesToMeters(1.0),
+          Units.inchesToMeters(1.0),
+          Units.inchesToMeters(1.0),
+          new Rotation3d(0, 0, 0));
   public final Integer camera1Index = 1;
   public String camera1Name = "BackRight";
   public final Transform3d camera1Transform =
