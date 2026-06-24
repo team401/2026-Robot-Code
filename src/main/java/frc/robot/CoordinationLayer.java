@@ -43,6 +43,7 @@ import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
 import frc.robot.ShotCalculations.ShotTarget;
+import frc.robot.commands.DriveCommands;
 import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldLocations;
@@ -143,6 +144,9 @@ public class CoordinationLayer {
    */
   @AutoLogOutput(key = "CoordinationLayer/actualPassGoalZone")
   private PassGoalZone actualPassGoalZone = PassGoalZone.AllianceZone;
+
+  @AutoLogOutput(key = "CoordinationLayer/aimingTowardsHub")
+  private boolean aimingTowardsHub = false;
 
   /**
    * Tracks our current "autonomy level": either vision is enabled & used (smart), or manual driver
@@ -338,6 +342,10 @@ public class CoordinationLayer {
     makeTriggerFromButton(controllers.getButton("xLock"))
         .onTrue(new InstantCommand(this::enableXLock))
         .onFalse(new InstantCommand(this::disableXLock));
+
+    makeTriggerFromButton(controllers.getButton("aimTowardsHub"))
+        .onTrue(new InstantCommand(this::enableAimingMode))
+        .onFalse(new InstantCommand(this::disableAimingMode));
 
     // Operator controller:
     makeTriggerFromButton(controllers.getButton("operatorToggleIntakeDeploy"))
@@ -564,6 +572,34 @@ public class CoordinationLayer {
 
   private void disableXLock() {
     drive.ifPresent(drive -> drive.setXLockPressed(false));
+  }
+
+  private void enableAimingMode() {
+    OptionalUtil.ifBothPresent(
+        driveCoordinator,
+        drive,
+        (driveCoordinator, drive) -> {
+          var xSupplier = JsonConstants.controllers.getAxis("driveX").getSupplier();
+          var ySupplier = JsonConstants.controllers.getAxis("driveY").getSupplier();
+          driveCoordinator.setCurrentDriveCommand(
+              DriveCommands.joystickDriveAtAngle(
+                  drive,
+                  () -> -ySupplier.get(),
+                  () -> -xSupplier.get(),
+                  () -> {
+                    return AllianceBasedFieldConstants.hubCenterPoint2d
+                        .get()
+                        .minus(drive.getPose().getTranslation())
+                        .getAngle();
+                  }));
+        });
+    aimingTowardsHub = true;
+  }
+
+  private void disableAimingMode() {
+    driveCoordinator.ifPresent(
+        driveCoordinator -> driveCoordinator.resetToDefaultJoystickCommand());
+    aimingTowardsHub = false;
   }
 
   private void increaseRPM() {

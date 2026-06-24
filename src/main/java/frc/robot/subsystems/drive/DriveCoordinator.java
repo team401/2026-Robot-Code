@@ -125,6 +125,10 @@ public class DriveCoordinator extends SubsystemBase {
     setCurrentDriveCommand(null);
   }
 
+  public void resetToDefaultJoystickCommand() {
+    setCurrentDriveCommand(joystickCommand);
+  }
+
   public InstantCommand createInstantCommandToSetCurrentDriveCommand(Command command) {
     return new InstantCommand(() -> setCurrentDriveCommand(command));
   }

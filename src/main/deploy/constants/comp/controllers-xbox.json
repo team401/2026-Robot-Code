@@ -162,6 +162,16 @@
             "elementType": "pov",
             "id": 0
           }
+        },
+        {
+          "command": "aimTowardsHub",
+          "commandType": "button",
+          "threshold": 0,
+          "thresholdRange": 0,
+          "hapticControlElement": {
+            "elementType": "pov",
+            "id": 0
+          }
         }
       ]
     },
