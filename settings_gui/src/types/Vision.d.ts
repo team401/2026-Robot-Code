@@ -1,3 +1,6 @@
+export type { UnitValue } from './ShotMaps';
+import type { UnitValue } from './ShotMaps';
+
 export interface GainConstants {
   maxAcceptedDistanceMeters: number;
   linearStdDevFactor: number;
@@ -32,6 +35,7 @@ export interface CameraConfig {
 
 export interface VisionConfig {
   gainConstants: GainConstants;
+  disconnectedDebounceTime: UnitValue;
   cameras: CameraConfig[];
 }
 

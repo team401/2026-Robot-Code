@@ -143,8 +143,10 @@ public class JsonConstants {
         jsonHandler.addRoute("/vision", visionConstants);
         jsonHandler.registerPostCallback(
             "/vision",
-            (visionConstants) -> {
+            (VisionConstants visionConstants) -> {
               System.out.println("Vision Constants were updated");
+              robotContainer.updateVisionConnectedDebounceTime(
+                  visionConstants.disconnectedDebounceTime);
               return true;
             });
         jsonHandler.addRoute("/autos", autos);
