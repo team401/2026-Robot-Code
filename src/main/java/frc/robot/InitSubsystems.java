@@ -131,9 +131,9 @@ public class InitSubsystems {
         if (JsonConstants.featureFlags.pretendCamerasAreMobile) {
           cameraConfigs =
               new CameraConfig[] {
-                CameraConfig.mobile(
-                    new VisionIOPhotonReal(visionConstants.camera0Name),
-                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                // CameraConfig.mobile(
+                //     new VisionIOPhotonReal(visionConstants.camera0Name),
+                //     (_ignored) -> Optional.of(visionConstants.camera0Transform)),
                 CameraConfig.mobile(
                     new VisionIOPhotonReal(visionConstants.camera1Name),
                     (_ignored) -> Optional.of(visionConstants.camera1Transform)),
@@ -144,9 +144,9 @@ public class InitSubsystems {
         } else {
           cameraConfigs =
               new CameraConfig[] {
-                CameraConfig.fixed(
-                    new VisionIOPhotonReal(visionConstants.camera0Name),
-                    visionConstants.camera0Transform),
+                // CameraConfig.fixed(
+                //     new VisionIOPhotonReal(visionConstants.camera0Name),
+                //     visionConstants.camera0Transform),
                 CameraConfig.fixed(
                     new VisionIOPhotonReal(visionConstants.camera1Name),
                     visionConstants.camera1Transform),
@@ -162,12 +162,12 @@ public class InitSubsystems {
         if (JsonConstants.featureFlags.pretendCamerasAreMobile) {
           cameraConfigs =
               new CameraConfig[] {
-                CameraConfig.mobile(
-                    new VisionIOPhotonSim(
-                        visionConstants.camera0Name,
-                        drive::getPose,
-                        VisionLocalizer.CameraType.MOBILE),
-                    (_ignored) -> Optional.of(visionConstants.camera0Transform)),
+                // CameraConfig.mobile(
+                // new VisionIOPhotonSim(
+                //     visionConstants.camera0Name,
+                //     drive::getPose,
+                //     VisionLocalizer.CameraType.MOBILE),
+                // (_ignored) -> Optional.of(visionConstants.camera0Transform)),
                 CameraConfig.mobile(
                     new VisionIOPhotonSim(
                         visionConstants.camera1Name,
@@ -184,12 +184,12 @@ public class InitSubsystems {
         } else {
           cameraConfigs =
               new CameraConfig[] {
-                CameraConfig.fixed(
-                    new VisionIOPhotonSim(
-                        visionConstants.camera0Name,
-                        drive::getPose,
-                        VisionLocalizer.CameraType.FIXED),
-                    visionConstants.camera0Transform),
+                // CameraConfig.fixed(
+                //     new VisionIOPhotonSim(
+                //         visionConstants.camera0Name,
+                //         drive::getPose,
+                //         VisionLocalizer.CameraType.FIXED),
+                //     visionConstants.camera0Transform),
                 CameraConfig.fixed(
                     new VisionIOPhotonSim(
                         visionConstants.camera1Name,

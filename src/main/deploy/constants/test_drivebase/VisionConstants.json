@@ -7,7 +7,7 @@
     "maxSingleTagAmbiguity": 0.3,
     "maxAmbiguity": 0.3
   },
-  "camera1Index": 1,
+  "camera1Index": 0,
   "camera1Name": "BackRight",
   "camera1Transform": {
     "translation": {
@@ -21,7 +21,7 @@
       "yaw": 180
     }
   },
-  "camera2Index": 2,
+  "camera2Index": 1,
   "camera2Name": "BackLeft",
   "camera2Transform": {
     "translation": {
