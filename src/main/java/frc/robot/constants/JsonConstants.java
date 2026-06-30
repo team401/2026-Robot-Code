@@ -152,6 +152,7 @@ public class JsonConstants {
             "/autos",
             (autos) -> {
               robotContainer.loadAutoCommands();
+              robotContainer.loadBlineCommands();
               return true;
             });
         jsonHandler.addRoute("/shotmaps", shotMaps);

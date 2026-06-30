@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.Radians;
 import coppercore.metadata.CopperCoreMetadata;
 import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.json.JSONHandler;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,6 +32,8 @@ import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
+import frc.robot.lib.BLine.FollowPath;
+import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveCoordinator;
@@ -74,6 +77,8 @@ public class RobotContainer {
 
   public static final ActionKey RUN_COMMAND_SCHEDULER = new ActionKey("CommandScheduler::run");
 
+  private FollowPath.Builder pathBuilder;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     CopperCoreMetadata.printInfo();
@@ -103,6 +108,24 @@ public class RobotContainer {
       if (JsonConstants.featureFlags.runVision) {
         coordinationLayer.setVisionLocalizer(InitSubsystems.initVisionSubsystem(drive));
       }
+
+      // Set global constraints for Bline
+      Path.setDefaultGlobalConstraints(
+          new Path.DefaultGlobalConstraints(4.0, 3.0, 360.0, 720.0, 0.05, 2.0, 0.3));
+
+      // Create a reusable path builder for Bline
+      pathBuilder =
+          new FollowPath.Builder(
+                  drive,
+                  drive::getPose,
+                  drive::getChassisSpeeds,
+                  (speeds) -> drive.setGoalSpeeds(speeds, false),
+                  new PIDController(5.0, 0.0, 0.0), // translation
+                  new PIDController(3.0, 0.0, 0.0), // rotation
+                  new PIDController(2.0, 0.0, 0.0) // cross-track
+                  )
+              .withDefaultShouldFlip();
+
     } else {
       drive = Optional.empty();
       driveCoordinator = Optional.empty();
@@ -166,6 +189,7 @@ public class RobotContainer {
 
     if (drive.isPresent()) {
       loadAutoCommands();
+      loadBlineCommands();
     }
 
     // Configure the button bindings
@@ -184,6 +208,11 @@ public class RobotContainer {
     JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
 
     createAutoChooser(drive.orElse(null));
+  }
+
+  public void loadBlineCommands() {
+    autoChooser.addOption("Bline Test", pathBuilder.build(new Path("figure-eight")));
+    System.out.println("Bline path loaded");
   }
 
   public void updateRobotModel() {
@@ -322,6 +351,8 @@ public class RobotContainer {
     for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
       autoChooser.addOption(auto.getKey(), auto.getValue());
     }
+
+    autoChooser.addOption("Bline Test", pathBuilder.build(new Path("figure-eight")));
   }
 
   /**
