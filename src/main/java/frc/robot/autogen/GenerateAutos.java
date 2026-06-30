@@ -7,6 +7,7 @@ import static frc.robot.autogen.Dsl.climbHang;
 import static frc.robot.autogen.Dsl.climbSearch;
 import static frc.robot.autogen.Dsl.degrees;
 import static frc.robot.autogen.Dsl.deployIntake;
+import static frc.robot.autogen.Dsl.followBLinePath;
 import static frc.robot.autogen.Dsl.followPathPlannerPath;
 import static frc.robot.autogen.Dsl.inParallel;
 import static frc.robot.autogen.Dsl.meters;
@@ -106,6 +107,8 @@ public final class GenerateAutos {
         "Conservative Depot From Bump", auto(seq.andThen(conservative(true, true, true, false))));
 
     autos.autos.put("Follower", auto(follower()));
+
+    autos.autos.put("BLine Figure Eight", auto(bLinePath("figure-eight", false)));
 
     autos.autos.put(
         "Single Swipe Then Depot",
@@ -395,6 +398,10 @@ public final class GenerateAutos {
             climbSearch()),
         waitSeconds(0.5),
         climbHang());
+  }
+
+  private static AutoAction bLinePath(String name, boolean mirror) {
+    return seq.andThen(followBLinePath(name, mirror));
   }
 
   private GenerateAutos() {}

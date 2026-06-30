@@ -309,6 +309,21 @@
       "canBeMirrored": true,
       "shouldBeFlipped": true
     },
+    "BLine Figure Eight": {
+      "rootAction": {
+        "actions": [
+          {
+            "pathName": "figure-eight",
+            "mirrorPath": false,
+            "canMirror": true,
+            "type": "FollowBLinePath"
+          }
+        ],
+        "type": "Sequence"
+      },
+      "canBeMirrored": true,
+      "shouldBeFlipped": true
+    },
     "Literally just shoot Auto": {
       "rootAction": {
         "actions": [

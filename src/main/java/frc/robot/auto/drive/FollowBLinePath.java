@@ -11,7 +11,7 @@ public class FollowBLinePath extends DriveAutoAction {
 
   @Override
   public Command toCommand(AutoActionContext context) {
-    var path = context.autos().getBlinePath(pathName);
+    var path = context.autos().getBlinePath(pathName).copy();
     if (path == null) {
       throw new RuntimeException("BLine Path not found: " + pathName);
     }
