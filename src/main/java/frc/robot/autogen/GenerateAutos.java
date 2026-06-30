@@ -7,7 +7,7 @@ import static frc.robot.autogen.Dsl.climbHang;
 import static frc.robot.autogen.Dsl.climbSearch;
 import static frc.robot.autogen.Dsl.degrees;
 import static frc.robot.autogen.Dsl.deployIntake;
-import static frc.robot.autogen.Dsl.followPath;
+import static frc.robot.autogen.Dsl.followPathPlannerPath;
 import static frc.robot.autogen.Dsl.inParallel;
 import static frc.robot.autogen.Dsl.meters;
 import static frc.robot.autogen.Dsl.networkConfigurableWait;
@@ -176,7 +176,7 @@ public final class GenerateAutos {
             .toXBasedAutoAction(),
         // xBasedAutopilot(LEFT_TRENCH_CENTER_SIDE_POSE transformed by rotation,
         //   velocity, entryAngle=secondEntryAngle)
-        followPath("Left Trench To Center Intake In"));
+        followPathPlannerPath("Left Trench To Center Intake In"));
   }
 
   private static AutoAction goToDepotAndIntake() {
@@ -239,10 +239,11 @@ public final class GenerateAutos {
                 .toXBasedAutoAction(),
             // inParallel(stowIntake(),
             //     followPath("Starting Position Left Trench To Center Intake In"))
-            inParallel(deployIntake(), followPath("Left Side Aggressive Sweep Intake In")),
+            inParallel(
+                deployIntake(), followPathPlannerPath("Left Side Aggressive Sweep Intake In")),
             inParallel(
                 seq.andThen(waitSeconds(0.6), startShooting()),
-                followPath("Left Bump To Alliance")),
+                followPathPlannerPath("Left Bump To Alliance")),
             waitSeconds(0.1),
             autoPilotTo(LEFT_ALLIANCE_ZONE_MIDDLE_POSE).toAutoAction(),
             cycleIntake(2.5, 5));
@@ -260,10 +261,11 @@ public final class GenerateAutos {
                   .withPidGains(pidGains(1.5))
                   .toAutoAction(),
               inParallel(stopShooting(), goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
-              inParallel(deployIntake(), followPath("Left Side Close 2nd Sweep Intake In")),
+              inParallel(
+                  deployIntake(), followPathPlannerPath("Left Side Close 2nd Sweep Intake In")),
               inParallel(
                   seq.andThen(waitSeconds(0.4), startShooting()),
-                  followPath("Left Bump To Alliance")),
+                  followPathPlannerPath("Left Bump To Alliance")),
               waitSeconds(0.1),
               autoPilotTo(2.700, 5.75, -90).toAutoAction(),
               waitSeconds(1));
@@ -302,11 +304,12 @@ public final class GenerateAutos {
     result =
         result.andThen(
             autoPilotTo(5.2, 7.4).withVelocity(DEFAULT_TRENCH_VELOCITY).toXBasedAutoAction(),
-            inParallel(stowIntake(), followPath("Starting Position Left Trench To Center")),
-            inParallel(deployIntake(), followPath("Left Side Conservative Sweep")),
+            inParallel(
+                stowIntake(), followPathPlannerPath("Starting Position Left Trench To Center")),
+            inParallel(deployIntake(), followPathPlannerPath("Left Side Conservative Sweep")),
             inParallel(
                 seq.andThen(waitSeconds(0.6), startShooting()),
-                followPath("Left Bump To Alliance")),
+                followPathPlannerPath("Left Bump To Alliance")),
             waitSeconds(0.1),
             autoPilotTo(2.700, 5.75, -90).toAutoAction(),
             waitSeconds(2.5));
@@ -324,10 +327,11 @@ public final class GenerateAutos {
                   .withPidGains(pidGains(1.5))
                   .toAutoAction(),
               inParallel(stopShooting(), goToCenterUnderLeftTrenchFromAllianceIntakeIn()),
-              inParallel(deployIntake(), followPath("Left Side Close 2nd Sweep Intake In")),
+              inParallel(
+                  deployIntake(), followPathPlannerPath("Left Side Close 2nd Sweep Intake In")),
               inParallel(
                   seq.andThen(waitSeconds(0.4), startShooting()),
-                  followPath("Left Bump To Alliance")),
+                  followPathPlannerPath("Left Bump To Alliance")),
               waitSeconds(0.1),
               autoPilotTo(2.700, 5.75, -90).toAutoAction(),
               waitSeconds(1));
@@ -362,7 +366,7 @@ public final class GenerateAutos {
             // No entry angle, we just want to beeline to trench exit.
             .toXBasedAutoAction(),
         deployIntake(),
-        followPath("Left Side Follower Sweep Intake In"),
+        followPathPlannerPath("Left Side Follower Sweep Intake In"),
         networkConfigurableWait("Follower - Before Bump Return", seconds(0.0)),
         waitSeconds(0.1),
         autoPilotTo(2.700, 5.75, -90).toAutoAction(),

@@ -77,7 +77,7 @@ public class RobotContainer {
 
   public static final ActionKey RUN_COMMAND_SCHEDULER = new ActionKey("CommandScheduler::run");
 
-  private FollowPath.Builder pathBuilder;
+  private static FollowPath.Builder pathBuilder;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -189,7 +189,6 @@ public class RobotContainer {
 
     if (drive.isPresent()) {
       loadAutoCommands();
-      loadBlineCommands();
     }
 
     // Configure the button bindings
@@ -204,15 +203,11 @@ public class RobotContainer {
 
   public void loadAutoCommands() {
     JsonConstants.autos.loadAllPathPlannerPaths();
+    JsonConstants.autos.loadAllBLinePaths();
 
     JsonConstants.autos.loadAutoCommands(driveCoordinator.orElse(null), coordinationLayer);
 
     createAutoChooser(drive.orElse(null));
-  }
-
-  public void loadBlineCommands() {
-    autoChooser.addOption("Bline Test", pathBuilder.build(new Path("figure-eight")));
-    System.out.println("Bline path loaded");
   }
 
   public void updateRobotModel() {
@@ -351,8 +346,6 @@ public class RobotContainer {
     for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
       autoChooser.addOption(auto.getKey(), auto.getValue());
     }
-
-    autoChooser.addOption("Bline Test", pathBuilder.build(new Path("figure-eight")));
   }
 
   /**
@@ -405,5 +398,9 @@ public class RobotContainer {
 
   public void lowerDriveSupplyCurrentLimit() {
     coordinationLayer.lowerDriveSupplyCurrentLimit();
+  }
+
+  public static FollowPath.Builder getPathBuilder() {
+    return pathBuilder;
   }
 }

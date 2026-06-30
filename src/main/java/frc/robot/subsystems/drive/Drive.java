@@ -47,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.util.littletonUtil.PoseEstimator;
 import frc.robot.util.littletonUtil.PoseEstimator.TimestampedVisionUpdate;
 import java.util.List;
@@ -164,6 +165,13 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         (targetPose) -> {
           Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
         });
+
+    // Initialize logging for FollowPath (BLine)
+    FollowPath.setDoubleLoggingConsumer(p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
+    FollowPath.setBooleanLoggingConsumer(p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
+    FollowPath.setPoseLoggingConsumer(p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
+    FollowPath.setTranslationListLoggingConsumer(
+        p -> Logger.recordOutput(p.getFirst(), p.getSecond()));
 
     // Configure SysId
     sysId =

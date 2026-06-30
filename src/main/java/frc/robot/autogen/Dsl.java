@@ -23,6 +23,7 @@ import frc.robot.auto.coordinationLayer.StartShooting;
 import frc.robot.auto.coordinationLayer.StopShooting;
 import frc.robot.auto.coordinationLayer.StowIntakeAction;
 import frc.robot.auto.drive.AutoPilotAction;
+import frc.robot.auto.drive.FollowBLinePath;
 import frc.robot.auto.drive.FollowPathPlannerPath;
 import frc.robot.auto.drive.StopDriveAction;
 import frc.robot.auto.drive.XBasedAutoPilotAction;
@@ -256,15 +257,23 @@ public final class Dsl {
     return new NetworkConfigurableWait(name, defaultDelay);
   }
 
-  public static AutoAction followPath(String pathName) {
-    return followPath(pathName, false, true);
+  public static AutoAction followPathPlannerPath(String pathName) {
+    return followPathPlannerPath(pathName, false, true);
   }
 
-  public static AutoAction followPath(String pathName, boolean mirrorPath, boolean canMirror) {
+  public static AutoAction followPathPlannerPath(
+      String pathName, boolean mirrorPath, boolean canMirror) {
     FollowPathPlannerPath path = new FollowPathPlannerPath();
     path.pathName = pathName;
     path.mirrorPath = mirrorPath;
     path.canMirror = canMirror;
+    return path;
+  }
+
+  public static AutoAction followBLinePath(String pathName, boolean mirrorPath) {
+    FollowBLinePath path = new FollowBLinePath();
+    path.pathName = pathName;
+    path.mirrorPath = mirrorPath;
     return path;
   }
 

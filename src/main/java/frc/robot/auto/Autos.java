@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.CoordinationLayer;
 import frc.robot.constants.FieldConstants;
+import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import org.json.simple.parser.ParseException;
 
@@ -21,7 +21,8 @@ public class Autos {
   public HashMap<String, Auto> autos = new HashMap<>();
   public HashMap<String, AutoAction> routines = new HashMap<>();
 
-  @JSONExclude public HashMap<String, PathPlannerPath> paths = new HashMap<>();
+  @JSONExclude public HashMap<String, PathPlannerPath> pathPlannerPaths = new HashMap<>();
+  @JSONExclude public HashMap<String, Path> bLinePaths = new HashMap<>();
   @JSONExclude public HashMap<String, Command> autoCommands = new HashMap<>();
   @JSONExclude public HashMap<String, Command> routineCommands = new HashMap<>();
 
@@ -33,18 +34,40 @@ public class Autos {
   public void loadPathPlannerPath(String name) {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(name);
-      paths.put(name, path);
+      pathPlannerPaths.put(name, path);
     } catch (FileVersionException | IOException | ParseException e) {
       e.printStackTrace();
     }
   }
 
   public void loadAllPathPlannerPaths() {
-    Path pathDirectory = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/paths");
+    java.nio.file.Path pathDirectory =
+        Filesystem.getDeployDirectory().toPath().resolve("pathplanner/paths");
     try {
       var pathFiles =
           java.nio.file.Files.list(pathDirectory).filter(p -> p.toString().endsWith(".path"));
       pathFiles.forEach(p -> loadPathPlannerPath(p.getFileName().toString().replace(".path", "")));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void loadBLinePath(String name) {
+    try {
+      Path path = new Path(name);
+      bLinePaths.put(name, path);
+    } catch (FileVersionException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void loadAllBLinePaths() {
+    java.nio.file.Path pathDirectory =
+        Filesystem.getDeployDirectory().toPath().resolve("autos/paths");
+    try {
+      var pathFiles =
+          java.nio.file.Files.list(pathDirectory).filter(p -> p.toString().endsWith(".json"));
+      pathFiles.forEach(p -> loadBLinePath(p.getFileName().toString().replace(".json", "")));
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -88,8 +111,12 @@ public class Autos {
     return routineCommands.get(name);
   }
 
-  public PathPlannerPath getPath(String name) {
-    return paths.get(name);
+  public PathPlannerPath getPathPlannerPath(String name) {
+    return pathPlannerPaths.get(name);
+  }
+
+  public Path getBlinePath(String name) {
+    return bLinePaths.get(name);
   }
 
   public Command getRoutineCommandReference(String name) {
