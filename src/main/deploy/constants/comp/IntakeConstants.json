@@ -18,7 +18,7 @@
     "unit": "Degree"
   },
   "pivotVoltageWhenIntaking": {
-    "value": -1.0,
+    "value": -2.0,
     "unit": "Volt"
   },
   "pivotStartStowingHoodAngle": {
