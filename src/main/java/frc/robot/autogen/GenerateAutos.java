@@ -98,12 +98,14 @@ public final class GenerateAutos {
     autos.autos.put(
         "Aggressive Depot From Bump", auto(seq.andThen(aggressive(true, true, true, false))));
 
-    autos.autos.put(
-        "Conservative Depot", auto(seq.andThen(conservative(true, false, false, true))));
-    autos.autos.put(
-        "Conservative No Depot", auto(seq.andThen(conservative(false, false, false, true))));
-    autos.autos.put(
-        "Conservative Depot From Bump", auto(seq.andThen(conservative(true, true, true, false))));
+    // commented out conservative autos to remove them from options
+    // autos.autos.put(
+    //     "Conservative Depot", auto(seq.andThen(conservative(true, false, false, true))));
+    // autos.autos.put(
+    //     "Conservative No Depot", auto(seq.andThen(conservative(false, false, false, true))));
+    // autos.autos.put(
+    //     "Conservative Depot From Bump", auto(seq.andThen(conservative(true, true, true,
+    // false))));
 
     autos.autos.put("Follower", auto(follower()));
 
