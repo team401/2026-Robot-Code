@@ -56,9 +56,9 @@ public class Autos {
     for (var entry : autos.entrySet()) {
       var baseName = entry.getKey();
       var auto = entry.getValue();
-      var base_suffix =
+      var base_prefix =
           (auto.shouldFlip() ? unFlippedPrefix : "") + (auto.canMirror() ? unMirroredPrefix : "");
-      autoCommands.put(base_suffix + baseName, entry.getValue().toCommand(context));
+      autoCommands.put(base_prefix + baseName, entry.getValue().toCommand(context));
       if (auto.canMirror()) {
         autoCommands.put(
             (auto.shouldFlip() ? unFlippedPrefix : "") + mirroredPrefix + entry.getKey(),
