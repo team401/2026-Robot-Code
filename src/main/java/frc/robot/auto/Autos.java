@@ -25,10 +25,10 @@ public class Autos {
   @JSONExclude public HashMap<String, Command> autoCommands = new HashMap<>();
   @JSONExclude public HashMap<String, Command> routineCommands = new HashMap<>();
 
-  private static final String unFlippedSuffix = " Blue";
-  private static final String flippedSuffix = " Red";
-  private static final String unMirroredSuffix = " Left";
-  private static final String mirroredSuffix = " Right";
+  private static final String unFlippedPrefix = "Blue ";
+  private static final String flippedPrefix = "Red ";
+  private static final String unMirroredPrefix = "Left ";
+  private static final String mirroredPrefix = "Right ";
 
   public void loadPathPlannerPath(String name) {
     try {
@@ -56,22 +56,22 @@ public class Autos {
     for (var entry : autos.entrySet()) {
       var baseName = entry.getKey();
       var auto = entry.getValue();
-      var base_suffix =
-          (auto.shouldFlip() ? unFlippedSuffix : "") + (auto.canMirror() ? unMirroredSuffix : "");
-      autoCommands.put(baseName + base_suffix, entry.getValue().toCommand(context));
+      var base_prefix =
+          (auto.shouldFlip() ? unFlippedPrefix : "") + (auto.canMirror() ? unMirroredPrefix : "");
+      autoCommands.put(base_prefix + baseName, entry.getValue().toCommand(context));
       if (auto.canMirror()) {
         autoCommands.put(
-            entry.getKey() + (auto.shouldFlip() ? unFlippedSuffix : "") + mirroredSuffix,
+            (auto.shouldFlip() ? unFlippedPrefix : "") + mirroredPrefix + entry.getKey(),
             entry.getValue().toCommand(context.mirror()));
         if (auto.shouldFlip()) {
           autoCommands.put(
-              entry.getKey() + flippedSuffix + mirroredSuffix,
+              flippedPrefix + mirroredPrefix + entry.getKey(),
               entry.getValue().toCommand(context.flip().mirror()));
         }
       }
       if (auto.shouldFlip()) {
         autoCommands.put(
-            entry.getKey() + flippedSuffix + (auto.canMirror() ? unMirroredSuffix : ""),
+            flippedPrefix + (auto.canMirror() ? unMirroredPrefix : "") + entry.getKey(),
             entry.getValue().toCommand(context.flip()));
       }
     }
