@@ -171,7 +171,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
   public void setToTargetVelocity() {
     if (targetVelocity.abs(RPM) < 5.0) {
-      motor.controlBrake();
+      motor.controlCoast(); // changed from controlBrake as this seemed to snap the hopper belt
     } else {
       motor.controlToVelocityProfiledVoltage(targetVelocity);
     }
