@@ -1,6 +1,6 @@
 {
   "autos": {
-    "Aggressive Depot From Bump": {
+    "Depot From Bump": {
       "rootAction": {
         "actions": [
           {
@@ -321,400 +321,6 @@
       "canBeMirrored": false,
       "shouldBeFlipped": false
     },
-    "Aggressive No Depot": {
-      "rootAction": {
-        "actions": [
-          {
-            "actions": [
-              {
-                "target": {
-                  "reference": {
-                    "rotation": {
-                      "degrees": -90.0
-                    },
-                    "translation": {
-                      "x": 5.2,
-                      "y": 7.4
-                    }
-                  },
-                  "velocity": 5.1
-                },
-                "constraints": {
-                  "velocity": 5.1,
-                  "acceleration": 200.0,
-                  "jerk": 0.0
-                },
-                "canMirror": true,
-                "type": "XBasedAutoPilotAction"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "pathName": "Left Side Aggressive Sweep Intake In",
-                    "mirrorPath": false,
-                    "canMirror": true,
-                    "type": "FollowPathPlannerPath"
-                  }
-                ],
-                "type": "Parallel"
-              },
-              {
-                "actions": [
-                  {
-                    "actions": [
-                      {
-                        "delay": {
-                          "value": 0.6,
-                          "unit": "Second"
-                        },
-                        "type": "Wait"
-                      },
-                      {
-                        "type": "StartShooting"
-                      }
-                    ],
-                    "type": "Sequence"
-                  },
-                  {
-                    "pathName": "Left Bump To Alliance",
-                    "mirrorPath": false,
-                    "canMirror": true,
-                    "type": "FollowPathPlannerPath"
-                  }
-                ],
-                "type": "Parallel"
-              },
-              {
-                "delay": {
-                  "value": 0.1,
-                  "unit": "Second"
-                },
-                "type": "Wait"
-              },
-              {
-                "target": {
-                  "reference": {
-                    "rotation": {
-                      "degrees": -90.0
-                    },
-                    "translation": {
-                      "x": 2.7,
-                      "y": 5.75
-                    }
-                  },
-                  "velocity": 0.0
-                },
-                "canMirror": true,
-                "type": "AutoPilotAction"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "StowIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "StowIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "StowIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "StowIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "StowIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.25,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  }
-                ],
-                "type": "Sequence"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "StowIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.16666666666666666,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.16666666666666666,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  }
-                ],
-                "type": "Sequence"
-              },
-              {
-                "target": {
-                  "reference": {
-                    "rotation": {
-                      "degrees": -90.0
-                    },
-                    "translation": {
-                      "x": 3.5,
-                      "y": 7.55
-                    }
-                  },
-                  "entryAngle": {
-                    "degrees": 0.0
-                  },
-                  "velocity": 4.2
-                },
-                "constraints": {
-                  "velocity": 2.0,
-                  "acceleration": 2.0,
-                  "jerk": 2.0
-                },
-                "pidGains": {
-                  "kP": 1.5,
-                  "kI": 0.0,
-                  "kD": 0.0,
-                  "kS": 0.0,
-                  "kG": 0.0,
-                  "kV": 0.0,
-                  "kA": 0.0
-                },
-                "canMirror": true,
-                "type": "AutoPilotAction"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "StopShooting"
-                  },
-                  {
-                    "actions": [
-                      {
-                        "target": {
-                          "reference": {
-                            "rotation": {
-                              "degrees": -90.0
-                            },
-                            "translation": {
-                              "x": 4.0,
-                              "y": 7.55
-                            }
-                          },
-                          "entryAngle": {
-                            "degrees": 0.0
-                          },
-                          "velocity": 4.2
-                        },
-                        "canMirror": true,
-                        "type": "XBasedAutoPilotAction"
-                      },
-                      {
-                        "pathName": "Left Trench To Center Intake In",
-                        "mirrorPath": false,
-                        "canMirror": true,
-                        "type": "FollowPathPlannerPath"
-                      }
-                    ],
-                    "type": "Sequence"
-                  }
-                ],
-                "type": "Parallel"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "pathName": "Left Side Close 2nd Sweep Intake In",
-                    "mirrorPath": false,
-                    "canMirror": true,
-                    "type": "FollowPathPlannerPath"
-                  }
-                ],
-                "type": "Parallel"
-              },
-              {
-                "actions": [
-                  {
-                    "actions": [
-                      {
-                        "delay": {
-                          "value": 0.4,
-                          "unit": "Second"
-                        },
-                        "type": "Wait"
-                      },
-                      {
-                        "type": "StartShooting"
-                      }
-                    ],
-                    "type": "Sequence"
-                  },
-                  {
-                    "pathName": "Left Bump To Alliance",
-                    "mirrorPath": false,
-                    "canMirror": true,
-                    "type": "FollowPathPlannerPath"
-                  }
-                ],
-                "type": "Parallel"
-              },
-              {
-                "delay": {
-                  "value": 0.1,
-                  "unit": "Second"
-                },
-                "type": "Wait"
-              },
-              {
-                "target": {
-                  "reference": {
-                    "rotation": {
-                      "degrees": -90.0
-                    },
-                    "translation": {
-                      "x": 2.7,
-                      "y": 5.75
-                    }
-                  },
-                  "velocity": 0.0
-                },
-                "canMirror": true,
-                "type": "AutoPilotAction"
-              },
-              {
-                "delay": {
-                  "value": 1.0,
-                  "unit": "Second"
-                },
-                "type": "Wait"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "StowIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.16666666666666666,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  },
-                  {
-                    "type": "DeployIntakeAction"
-                  },
-                  {
-                    "delay": {
-                      "value": 0.16666666666666666,
-                      "unit": "Second"
-                    },
-                    "type": "Wait"
-                  }
-                ],
-                "type": "Sequence"
-              }
-            ],
-            "type": "Sequence"
-          }
-        ],
-        "type": "Sequence"
-      },
-      "canBeMirrored": true,
-      "shouldBeFlipped": true
-    },
     "Center Depot": {
       "rootAction": {
         "actions": [
@@ -1014,7 +620,7 @@
       "canBeMirrored": false,
       "shouldBeFlipped": true
     },
-    "Aggressive Depot": {
+    "Depot": {
       "rootAction": {
         "actions": [
           {
@@ -2340,6 +1946,400 @@
         "type": "Sequence"
       },
       "canBeMirrored": false,
+      "shouldBeFlipped": true
+    },
+    "No Depot": {
+      "rootAction": {
+        "actions": [
+          {
+            "actions": [
+              {
+                "target": {
+                  "reference": {
+                    "rotation": {
+                      "degrees": -90.0
+                    },
+                    "translation": {
+                      "x": 5.2,
+                      "y": 7.4
+                    }
+                  },
+                  "velocity": 5.1
+                },
+                "constraints": {
+                  "velocity": 5.1,
+                  "acceleration": 200.0,
+                  "jerk": 0.0
+                },
+                "canMirror": true,
+                "type": "XBasedAutoPilotAction"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "pathName": "Left Side Aggressive Sweep Intake In",
+                    "mirrorPath": false,
+                    "canMirror": true,
+                    "type": "FollowPathPlannerPath"
+                  }
+                ],
+                "type": "Parallel"
+              },
+              {
+                "actions": [
+                  {
+                    "actions": [
+                      {
+                        "delay": {
+                          "value": 0.6,
+                          "unit": "Second"
+                        },
+                        "type": "Wait"
+                      },
+                      {
+                        "type": "StartShooting"
+                      }
+                    ],
+                    "type": "Sequence"
+                  },
+                  {
+                    "pathName": "Left Bump To Alliance",
+                    "mirrorPath": false,
+                    "canMirror": true,
+                    "type": "FollowPathPlannerPath"
+                  }
+                ],
+                "type": "Parallel"
+              },
+              {
+                "delay": {
+                  "value": 0.1,
+                  "unit": "Second"
+                },
+                "type": "Wait"
+              },
+              {
+                "target": {
+                  "reference": {
+                    "rotation": {
+                      "degrees": -90.0
+                    },
+                    "translation": {
+                      "x": 2.7,
+                      "y": 5.75
+                    }
+                  },
+                  "velocity": 0.0
+                },
+                "canMirror": true,
+                "type": "AutoPilotAction"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.25,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  }
+                ],
+                "type": "Sequence"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.16666666666666666,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.16666666666666666,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  }
+                ],
+                "type": "Sequence"
+              },
+              {
+                "target": {
+                  "reference": {
+                    "rotation": {
+                      "degrees": -90.0
+                    },
+                    "translation": {
+                      "x": 3.5,
+                      "y": 7.55
+                    }
+                  },
+                  "entryAngle": {
+                    "degrees": 0.0
+                  },
+                  "velocity": 4.2
+                },
+                "constraints": {
+                  "velocity": 2.0,
+                  "acceleration": 2.0,
+                  "jerk": 2.0
+                },
+                "pidGains": {
+                  "kP": 1.5,
+                  "kI": 0.0,
+                  "kD": 0.0,
+                  "kS": 0.0,
+                  "kG": 0.0,
+                  "kV": 0.0,
+                  "kA": 0.0
+                },
+                "canMirror": true,
+                "type": "AutoPilotAction"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "StopShooting"
+                  },
+                  {
+                    "actions": [
+                      {
+                        "target": {
+                          "reference": {
+                            "rotation": {
+                              "degrees": -90.0
+                            },
+                            "translation": {
+                              "x": 4.0,
+                              "y": 7.55
+                            }
+                          },
+                          "entryAngle": {
+                            "degrees": 0.0
+                          },
+                          "velocity": 4.2
+                        },
+                        "canMirror": true,
+                        "type": "XBasedAutoPilotAction"
+                      },
+                      {
+                        "pathName": "Left Trench To Center Intake In",
+                        "mirrorPath": false,
+                        "canMirror": true,
+                        "type": "FollowPathPlannerPath"
+                      }
+                    ],
+                    "type": "Sequence"
+                  }
+                ],
+                "type": "Parallel"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "pathName": "Left Side Close 2nd Sweep Intake In",
+                    "mirrorPath": false,
+                    "canMirror": true,
+                    "type": "FollowPathPlannerPath"
+                  }
+                ],
+                "type": "Parallel"
+              },
+              {
+                "actions": [
+                  {
+                    "actions": [
+                      {
+                        "delay": {
+                          "value": 0.4,
+                          "unit": "Second"
+                        },
+                        "type": "Wait"
+                      },
+                      {
+                        "type": "StartShooting"
+                      }
+                    ],
+                    "type": "Sequence"
+                  },
+                  {
+                    "pathName": "Left Bump To Alliance",
+                    "mirrorPath": false,
+                    "canMirror": true,
+                    "type": "FollowPathPlannerPath"
+                  }
+                ],
+                "type": "Parallel"
+              },
+              {
+                "delay": {
+                  "value": 0.1,
+                  "unit": "Second"
+                },
+                "type": "Wait"
+              },
+              {
+                "target": {
+                  "reference": {
+                    "rotation": {
+                      "degrees": -90.0
+                    },
+                    "translation": {
+                      "x": 2.7,
+                      "y": 5.75
+                    }
+                  },
+                  "velocity": 0.0
+                },
+                "canMirror": true,
+                "type": "AutoPilotAction"
+              },
+              {
+                "delay": {
+                  "value": 1.0,
+                  "unit": "Second"
+                },
+                "type": "Wait"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "StowIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.16666666666666666,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  },
+                  {
+                    "type": "DeployIntakeAction"
+                  },
+                  {
+                    "delay": {
+                      "value": 0.16666666666666666,
+                      "unit": "Second"
+                    },
+                    "type": "Wait"
+                  }
+                ],
+                "type": "Sequence"
+              }
+            ],
+            "type": "Sequence"
+          }
+        ],
+        "type": "Sequence"
+      },
+      "canBeMirrored": true,
       "shouldBeFlipped": true
     }
   },

@@ -92,11 +92,10 @@ public final class GenerateAutos {
     autos.autos.put(
         "Literally just shoot Auto", new Auto(seq.andThen(startShooting()), false, false));
 
-    autos.autos.put("Aggressive Depot", auto(seq.andThen(aggressive(true, false, false, true))));
-    autos.autos.put(
-        "Aggressive No Depot", auto(seq.andThen(aggressive(false, false, false, true))));
-    autos.autos.put(
-        "Aggressive Depot From Bump", auto(seq.andThen(aggressive(true, true, true, false))));
+    // these are aggressive autos but the naming is shortend for convienence
+    autos.autos.put("Depot", auto(seq.andThen(aggressive(true, false, false, true))));
+    autos.autos.put("No Depot", auto(seq.andThen(aggressive(false, false, false, true))));
+    autos.autos.put("Depot From Bump", auto(seq.andThen(aggressive(true, true, true, false))));
 
     // commented out conservative autos to remove them from options
     // autos.autos.put(
