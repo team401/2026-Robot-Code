@@ -24,7 +24,7 @@ public class Autos {
   public HashMap<String, AutoAction> routines = new HashMap<>();
 
   @JSONExclude public HashMap<String, PathPlannerPath> paths = new HashMap<>();
-  @JSONExclude public List<AutoRecord> autoCommands = new ArrayList<>();
+  @JSONExclude public List<AutoRecord> autoRecords = new ArrayList<>();
   @JSONExclude public HashMap<String, Command> routineCommands = new HashMap<>();
 
   private static final String unFlippedPrefix = "Blue ";
@@ -68,21 +68,21 @@ public class Autos {
               : null; // checks for if the auto is left or if it doesnt have a side.
       var base_prefix =
           (auto.shouldFlip() ? unFlippedPrefix : "") + (auto.canMirror() ? unMirroredPrefix : "");
-      autoCommands.add(
+      autoRecords.add(
           new AutoRecord(
               base_prefix + baseName,
               isBlue,
               isLeft,
               auto.toCommand(context))); // blue / unaligned left / center
       if (auto.canMirror()) {
-        autoCommands.add(
+        autoRecords.add(
             new AutoRecord(
                 (auto.shouldFlip() ? unFlippedPrefix : "") + mirroredPrefix + baseName,
                 isBlue,
                 false,
                 auto.toCommand(context.mirror()))); // blue right
         if (auto.shouldFlip()) {
-          autoCommands.add(
+          autoRecords.add(
               new AutoRecord(
                   flippedPrefix + mirroredPrefix + baseName,
                   false,
@@ -91,7 +91,7 @@ public class Autos {
         }
       }
       if (auto.shouldFlip()) {
-        autoCommands.add(
+        autoRecords.add(
             new AutoRecord(
                 flippedPrefix + (auto.canMirror() ? unMirroredPrefix : "") + baseName,
                 false,
@@ -102,11 +102,6 @@ public class Autos {
     for (var entry : routines.entrySet()) {
       routineCommands.put(entry.getKey(), entry.getValue().toCommand(context));
     }
-  }
-
-  // changed this to a int because autocommands is now a list instead of a hashmap.
-  public Command getAutoCommand(int index) {
-    return autoCommands.get(index).command();
   }
 
   public Command getRoutineCommand(String name) {

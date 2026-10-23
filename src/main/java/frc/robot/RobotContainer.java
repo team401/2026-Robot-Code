@@ -326,7 +326,7 @@ public class RobotContainer {
               driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
     }
 
-    for (var auto : JsonConstants.autos.autoCommands) {
+    for (var auto : JsonConstants.autos.autoRecords) {
       autoChooser.addOption(auto.name(), auto);
     }
   }
@@ -373,7 +373,9 @@ public class RobotContainer {
     var auto = autoChooser.get();
     if (auto != null) {
       return auto;
-    } else return null;
+    } else {
+      return null;
+    }
   }
 
   /**
