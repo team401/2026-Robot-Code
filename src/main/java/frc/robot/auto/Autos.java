@@ -13,7 +13,9 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.drive.DriveCoordinator;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.json.simple.parser.ParseException;
 
 public class Autos {
@@ -22,7 +24,7 @@ public class Autos {
   public HashMap<String, AutoAction> routines = new HashMap<>();
 
   @JSONExclude public HashMap<String, PathPlannerPath> paths = new HashMap<>();
-  @JSONExclude public HashMap<String, Command> autoCommands = new HashMap<>();
+  @JSONExclude public List<AutoRecord> autoRecords = new ArrayList<>();
   @JSONExclude public HashMap<String, Command> routineCommands = new HashMap<>();
 
   private static final String unFlippedPrefix = "Blue ";
@@ -56,32 +58,50 @@ public class Autos {
     for (var entry : autos.entrySet()) {
       var baseName = entry.getKey();
       var auto = entry.getValue();
+      var isBlue =
+          auto.shouldFlip()
+              ? true
+              : null; // checks for if the auto is blue or if it doesnt have an alliance.
+      var isLeft =
+          auto.canMirror()
+              ? true
+              : null; // checks for if the auto is left or if it doesnt have a side.
       var base_prefix =
           (auto.shouldFlip() ? unFlippedPrefix : "") + (auto.canMirror() ? unMirroredPrefix : "");
-      autoCommands.put(base_prefix + baseName, entry.getValue().toCommand(context));
+      autoRecords.add(
+          new AutoRecord(
+              base_prefix + baseName,
+              isBlue,
+              isLeft,
+              auto.toCommand(context))); // blue / unaligned left / center
       if (auto.canMirror()) {
-        autoCommands.put(
-            (auto.shouldFlip() ? unFlippedPrefix : "") + mirroredPrefix + entry.getKey(),
-            entry.getValue().toCommand(context.mirror()));
+        autoRecords.add(
+            new AutoRecord(
+                (auto.shouldFlip() ? unFlippedPrefix : "") + mirroredPrefix + baseName,
+                isBlue,
+                false,
+                auto.toCommand(context.mirror()))); // blue right
         if (auto.shouldFlip()) {
-          autoCommands.put(
-              flippedPrefix + mirroredPrefix + entry.getKey(),
-              entry.getValue().toCommand(context.flip().mirror()));
+          autoRecords.add(
+              new AutoRecord(
+                  flippedPrefix + mirroredPrefix + baseName,
+                  false,
+                  false,
+                  auto.toCommand(context.flip().mirror()))); // red right
         }
       }
       if (auto.shouldFlip()) {
-        autoCommands.put(
-            flippedPrefix + (auto.canMirror() ? unMirroredPrefix : "") + entry.getKey(),
-            entry.getValue().toCommand(context.flip()));
+        autoRecords.add(
+            new AutoRecord(
+                flippedPrefix + (auto.canMirror() ? unMirroredPrefix : "") + baseName,
+                false,
+                isLeft,
+                auto.toCommand(context.flip()))); // red left / center
       }
     }
     for (var entry : routines.entrySet()) {
       routineCommands.put(entry.getKey(), entry.getValue().toCommand(context));
     }
-  }
-
-  public Command getAutoCommand(String name) {
-    return autoCommands.get(name);
   }
 
   public Command getRoutineCommand(String name) {

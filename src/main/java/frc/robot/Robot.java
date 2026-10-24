@@ -9,19 +9,25 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
+import coppercore.math.TokenBucket;
 import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.auto.AutoRecord;
 import frc.robot.constants.FeatureFlags;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.JsonConstants;
+import frc.robot.util.Elastic;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -102,6 +108,11 @@ public class Robot extends LoggedRobot {
     }
   }
 
+  // auto alert
+  private final Alert incorrectAutoAlert = new Alert("Incorrect Auto", AlertType.kError);
+  private final TokenBucket incorrectAutoAlertRateLimiter = new TokenBucket(200, 2);
+  private int TOKENS_PER_ALERT = 100;
+
   /** This function is called periodically during all modes. */
   @Override
   public void robotPeriodic() {
@@ -152,7 +163,42 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    AutoRecord auto = robotContainer.getAutoRecord();
+    var drive = robotContainer.getDriveSubsystem();
+
+    if (drive != null && auto != null) {
+      boolean incorrectAuto = false;
+      var pose = drive.getPose();
+      if (!(pose.equals(Pose2d.kZero))) {
+        var robotX = pose.getTranslation().getX();
+        var robotY = pose.getTranslation().getY();
+        boolean isrobotBlue = (robotX < FieldConstants.LinesVertical.center());
+        boolean isrobotLeft =
+            isrobotBlue
+                ? robotY > FieldConstants.LinesHorizontal.center()
+                : robotY
+                    < FieldConstants.LinesHorizontal
+                        .center(); // checks side for left right orientation
+
+        if (auto.isLeft() != null) {
+          incorrectAuto |= (auto.isLeft() != isrobotLeft);
+        }
+        if (auto.isBlue() != null) {
+          incorrectAuto |= (auto.isBlue() != isrobotBlue);
+        }
+      }
+      incorrectAutoAlertRateLimiter.increment();
+      incorrectAutoAlert.set(incorrectAuto);
+      if (incorrectAuto && incorrectAutoAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)) {
+        Elastic.sendNotification(
+            new Elastic.Notification(
+                Elastic.NotificationLevel.ERROR,
+                "Incorrect Auto",
+                "Selected auto is incompatable with position."));
+      }
+    }
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override

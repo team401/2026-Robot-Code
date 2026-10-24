@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
+import frc.robot.auto.AutoRecord;
 import frc.robot.commands.DriveCommands;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -68,7 +69,7 @@ public class RobotContainer {
   private final CoordinationLayer coordinationLayer;
 
   // Dashboard inputs
-  private LoggedDashboardChooser<Command> autoChooser;
+  private LoggedDashboardChooser<AutoRecord> autoChooser;
 
   // JSON jsonHandler
   private JSONHandler jsonHandler;
@@ -284,6 +285,10 @@ public class RobotContainer {
     }
   }
 
+  private void addAutoOption(String name, Command command) {
+    autoChooser.addOption(name, new AutoRecord(name, command));
+  }
+
   /**
    * Create the auto chooser and publish it to network tables
    *
@@ -294,34 +299,35 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
     // Set up SysId routines
+
     if (drive != null) {
-      autoChooser.addOption(
+      addAutoOption(
           "Drive Wheel Radius Characterization",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive)));
-      autoChooser.addOption(
+      addAutoOption(
           "Drive Simple FF Characterization",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
-      autoChooser.addOption(
+      addAutoOption(
           "Drive SysId (Quasistatic Forward)",
           drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
+      addAutoOption(
           "Drive SysId (Quasistatic Reverse)",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
-      autoChooser.addOption(
+      addAutoOption(
           "Drive SysId (Dynamic Forward)",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
-      autoChooser.addOption(
+      addAutoOption(
           "Drive SysId (Dynamic Reverse)",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
     }
 
-    for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
-      autoChooser.addOption(auto.getKey(), auto.getValue());
+    for (var auto : JsonConstants.autos.autoRecords) {
+      autoChooser.addOption(auto.name(), auto);
     }
   }
 
@@ -355,7 +361,21 @@ public class RobotContainer {
     // Since teleop automatically puts us in pass mode when leaving the alliance zone, this is
     // required because lining up for auto leaves the alliance zone
     coordinationLayer.resetToHubShootForAuto();
-    return autoChooser.get();
+    var auto = autoChooser.get();
+    if (auto != null) {
+      return auto.command();
+    } else {
+      return null;
+    }
+  }
+
+  public AutoRecord getAutoRecord() {
+    var auto = autoChooser.get();
+    if (auto != null) {
+      return auto;
+    } else {
+      return null;
+    }
   }
 
   /**
